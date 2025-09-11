@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sklad_2.Models;
 using Sklad_2.Services;
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
@@ -32,7 +34,7 @@ namespace Sklad_2.ViewModels
         {
             _dataService = dataService;
             Receipt = receiptService;
-            Receipt.Items.CollectionChanged += (s, e) =>
+            Receipt.Items.CollectionChanged += (s, e) => 
             {
                 OnPropertyChanged(nameof(GrandTotalFormatted));
                 if (e.NewItems != null)
@@ -42,12 +44,10 @@ namespace Sklad_2.ViewModels
                         item.PropertyChanged += (s, e) =>
                         {
                             OnPropertyChanged(nameof(GrandTotalFormatted));
-                            // Notify CanExecuteChanged for commands that depend on item properties
                             DecrementQuantityCommand.NotifyCanExecuteChanged();
                         };
                     }
                 }
-                // Also notify when items are removed, as it might affect CanExecute
                 DecrementQuantityCommand.NotifyCanExecuteChanged();
             };
         }
@@ -107,9 +107,31 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task CheckoutAsync()
         {
-            ClearReceipt();
-            ScannedProduct = null;
-            await Task.CompletedTask;
+            try
+            {
+                foreach (var item in Receipt.Items)
+                {
+                    var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
+                    if (productInDb != null)
+                    {
+                        if (productInDb.StockQuantity >= item.Quantity)
+                        {
+                            productInDb.StockQuantity -= item.Quantity;
+                            await _dataService.UpdateProductAsync(productInDb);
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}");
+                        }
+                    }
+                }
+                Receipt.Clear();
+                ScannedProduct = null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba během dokončení prodeje: {ex.Message}");
+            }
         }
     }
 }

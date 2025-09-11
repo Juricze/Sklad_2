@@ -86,7 +86,7 @@
 
             <StackPanel Grid.Row="1" Spacing="12" Margin="0,24,0,0">
                 <TextBlock x:ConnectionId='2'                                                            Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
-                <Button x:ConnectionId='3' Content="K pokladně"                                              Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <Button x:ConnectionId='3' Content="K pokladně"                              Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
                 <Button x:ConnectionId='4' Content="Smazat účtenku"                                  HorizontalAlignment="Stretch"/>
             </StackPanel>
         </Grid>
