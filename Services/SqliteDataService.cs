@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sklad_2.Data;
 using Sklad_2.Models;
 using System.Collections.Generic;
+using System.Diagnostics; 
 using System.Threading.Tasks;
 
 namespace Sklad_2.Services
@@ -23,12 +24,14 @@ namespace Sklad_2.Services
 
         public async Task<Product> GetProductAsync(string ean)
         {
-            return await _context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
+            return product;
         }
 
         public async Task<List<Product>> GetProductsAsync()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _context.Products.ToListAsync();
+            return products;
         }
 
         public async Task UpdateProductAsync(Product product)

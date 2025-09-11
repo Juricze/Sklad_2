@@ -6,7 +6,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid>
-        <TextBlock Text="Nastavení" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
+    <Grid Padding="24">
+        <StackPanel Spacing="24">
+            <!-- Nastavení tématu -->
+
+            <!-- Zálohování databáze -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- O aplikaci -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBlock>
+                        <Run Text="Verze:" FontWeight="Bold"/>
+                        <Run Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="GitHub:" FontWeight="Bold"/>
+                        <Run Text="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
     </Grid>
 </Page>

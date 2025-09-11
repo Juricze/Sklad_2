@@ -7,17 +7,21 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Grid Padding="24">
-        <StackPanel Spacing="24">
+        <StackPanel Spacing="24" MaxWidth="500">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Spacing="12">
-                    <TextBox Header="EAN kód" Text="{x:Bind ViewModel.Ean, Mode=TwoWay}"/>
-                    <TextBox Header="Název produktu" Text="{x:Bind ViewModel.Name, Mode=TwoWay}"/>
-                    <TextBox Header="Prodejní cena" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay}"/>
-                    <TextBox Header="Počet kusů skladem" Text="{x:Bind ViewModel.StockQuantity, Mode=TwoWay}"/>
+                    <TextBox Header="EAN kód (načtěte nebo zadejte)" Text="{x:Bind ViewModel.Ean, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Název produktu" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <ComboBox Header="Kategorie" 
+                              ItemsSource="{x:Bind ViewModel.Categories}"
+                              SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
+                    <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Počet kusů k naskladnění" Text="{x:Bind ViewModel.StockQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Border>
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,12,0,0" Foreground="{ThemeResource SystemAccentColor}" TextWrapping="Wrap"/>
-            <Button Content="Přidat do databáze" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddProductCommand}"/>
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
+            <Button Content="Uložit do databáze" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddProductCommand}"/>
         </StackPanel>
     </Grid>
 </Page>

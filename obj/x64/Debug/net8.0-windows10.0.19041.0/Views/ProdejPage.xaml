@@ -5,39 +5,91 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Sklad_2.Models"
+    xmlns:services="using:Sklad_2.Services"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Grid Padding="24">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="360"/>
+            <ColumnDefinition Width="420"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-            <ListView x:ConnectionId='8' Header="Účtenka"                                              >
-                <ListView.ItemTemplate>
-                    <DataTemplate                            >
-                        <StackPanel x:ConnectionId='10' Orientation="Horizontal" Spacing="12">
-                            <TextBlock x:ConnectionId='11'                      FontWeight="Bold"/>
-                            <TextBlock x:ConnectionId='12'                          />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Border>
+
+        <!-- Main content area -->
         <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <TextBox x:ConnectionId='7' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
+                <TextBox x:ConnectionId='19' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
             </Border>
-            <Border x:ConnectionId='2' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Nalezený produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock x:ConnectionId='3'                                                           />
-                    <TextBlock x:ConnectionId='4'                                                                />
-                    <TextBlock x:ConnectionId='5'                                                                    />
-                    <Button x:ConnectionId='6' Content="Přidat na účtenku"                                                  HorizontalAlignment="Stretch"/>
+            <Border x:ConnectionId='15' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
+                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='18'                                                           /></TextBlock>
+                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='17'                                                                    /></TextBlock>
+                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='16'                                                                    /> <Run Text="ks"/></TextBlock>
                 </StackPanel>
             </Border>
         </StackPanel>
+
+        <!-- Receipt area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Účtenka" Style="{ThemeResource TitleTextBlockStyle}"/>
+                    <ListView x:ConnectionId='5' Grid.Row="1"
+                                                                                         
+                                                                                                
+                              SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate                                  >
+                                <Grid x:ConnectionId='10' ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:ConnectionId='12'                              FontWeight="Bold"/>
+                                        <TextBlock>
+                                            <Run x:ConnectionId='13'                                               />
+                                            <Run Text=" x "/>
+                                            <Run x:ConnectionId='14'                                                        />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock x:ConnectionId='11' Grid.Column="1"                                                  FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    
+                    <!-- Buttons for selected item -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button x:ConnectionId='6'                                                       ToolTipService.ToolTip="Zvýšit množství vybrané položky">
+                            <FontIcon Glyph="&#xE710;"/>
+                        </Button>
+                        <Button x:ConnectionId='7'                                                       ToolTipService.ToolTip="Snížit množství vybrané položky">
+                            <FontIcon Glyph="&#xE738;"/>
+                        </Button>
+                        <Button x:ConnectionId='8'                                                ToolTipService.ToolTip="Odebrat vybranou položku">
+                            <FontIcon Glyph="&#xE74D;"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Spacing="12" Margin="0,24,0,0">
+                <TextBlock x:ConnectionId='2'                                                            Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                <Button x:ConnectionId='3' Content="K pokladně"                                              Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <Button x:ConnectionId='4' Content="Smazat účtenku"                                  HorizontalAlignment="Stretch"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>
 

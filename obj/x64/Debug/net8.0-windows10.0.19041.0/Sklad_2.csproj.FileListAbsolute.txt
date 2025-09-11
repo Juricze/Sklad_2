@@ -358,3 +358,4 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\pri.resfile
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\qualifiers.txt
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\qualifiers.txt.intermediate
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\MultipleQualifiersPerDimensionFound.txt
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Sklad_2.sourcelink.json

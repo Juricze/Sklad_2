@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sklad_2.Models;
 using Sklad_2.Services;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
@@ -10,40 +9,107 @@ namespace Sklad_2.ViewModels
     public partial class ProdejViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
-
-        
+        public IReceiptService Receipt { get; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsProductFound))]
+        [NotifyPropertyChangedFor(nameof(ScannedProductPriceFormatted))]
         private Product scannedProduct;
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(IncrementQuantityCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DecrementQuantityCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
+        private ReceiptItem selectedReceiptItem;
+
         public bool IsProductFound => ScannedProduct != null;
+        private bool CanManipulateItem => SelectedReceiptItem != null;
 
-        public ObservableCollection<Product> ReceiptItems { get; } = new ObservableCollection<Product>();
+        public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
+        public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
 
-        public ProdejViewModel(IDataService dataService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService)
         {
             _dataService = dataService;
+            Receipt = receiptService;
+            Receipt.Items.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(GrandTotalFormatted));
+                if (e.NewItems != null)
+                {
+                    foreach (ReceiptItem item in e.NewItems)
+                    {
+                        item.PropertyChanged += (s, e) =>
+                        {
+                            OnPropertyChanged(nameof(GrandTotalFormatted));
+                            // Notify CanExecuteChanged for commands that depend on item properties
+                            DecrementQuantityCommand.NotifyCanExecuteChanged();
+                        };
+                    }
+                }
+                // Also notify when items are removed, as it might affect CanExecute
+                DecrementQuantityCommand.NotifyCanExecuteChanged();
+            };
         }
 
         [RelayCommand]
-        private async Task FindProductAsync(string eanCodeParam)
+        private async Task FindProductAsync(string eanCode)
         {
-            if (string.IsNullOrWhiteSpace(eanCodeParam)) return;
-            ScannedProduct = await _dataService.GetProductAsync(eanCodeParam);
-            if (ScannedProduct != null)
+            if (string.IsNullOrWhiteSpace(eanCode)) return;
+            
+            ScannedProduct = null;
+            var product = await _dataService.GetProductAsync(eanCode);
+            if (product != null)
             {
-                AddToReceipt();
+                Receipt.AddProduct(product);
+                ScannedProduct = product;
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanManipulateItem))]
+        private void RemoveItem()
+        {
+            if (SelectedReceiptItem != null)
+            {
+                Receipt.RemoveItem(SelectedReceiptItem);
             }
         }
 
         [RelayCommand]
-        private void AddToReceipt()
+        private void ClearReceipt()
         {
-            if (ScannedProduct == null) return;
-            ReceiptItems.Add(ScannedProduct);
-            // EanCode = string.Empty;
-            // ScannedProduct = null;
+            Receipt.Clear();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanDecrementQuantity))]
+        private void DecrementQuantity()
+        {
+            if (SelectedReceiptItem != null && SelectedReceiptItem.Quantity > 1)
+            {
+                SelectedReceiptItem.Quantity--;
+            }
+        }
+
+        private bool CanDecrementQuantity()
+        {
+            return SelectedReceiptItem != null && SelectedReceiptItem.Quantity > 1;
+        }
+
+        [RelayCommand(CanExecute = nameof(CanManipulateItem))]
+        private void IncrementQuantity()
+        {
+            if (SelectedReceiptItem != null)
+            {
+                SelectedReceiptItem.Quantity++;
+            }
+        }
+
+        [RelayCommand]
+        private async Task CheckoutAsync()
+        {
+            ClearReceipt();
+            ScannedProduct = null;
+            await Task.CompletedTask;
         }
     }
 }

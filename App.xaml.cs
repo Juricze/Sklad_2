@@ -34,6 +34,8 @@ namespace Sklad_2
 
             // Services
             services.AddSingleton<IDataService, SqliteDataService>();
+            services.AddSingleton<IReceiptService, ReceiptService>();
+            services.AddSingleton<IPrintService, PrintService>();
 
             // ViewModels
             services.AddSingleton<ProdejViewModel>();

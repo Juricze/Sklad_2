@@ -6,9 +6,11 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="/Themes/LuxuryWhite.xaml"/>
                 <ResourceDictionary Source="/Styles/Controls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Override system accent color to keep the Black & White theme -->
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#1A1A1A"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

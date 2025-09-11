@@ -13,6 +13,12 @@ namespace Sklad_2.Models
 
         public decimal SalePrice { get; set; }
 
+        public decimal PurchasePrice { get; set; }
+
+        public decimal VatRate { get; set; }
+
         public int StockQuantity { get; set; }
+
+        public string SalePriceFormatted => $"{SalePrice:C}";
     }
 }
