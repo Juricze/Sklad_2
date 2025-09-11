@@ -86,8 +86,10 @@
 
             <StackPanel Grid.Row="1" Spacing="12" Margin="0,24,0,0">
                 <TextBlock Text="{x:Bind ViewModel.GrandTotalFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Text="{x:Bind ViewModel.CheckoutStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontWeight="Bold" Margin="0,12,0,0"/>
                 <Button Content="K pokladně" Click="CheckoutButton_Click" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
                 <Button Content="Smazat účtenku" Click="ClearReceiptButton_Click" HorizontalAlignment="Stretch"/>
+                <Button Content="Znovu vytisknout poslední účtenku" Command="{x:Bind ViewModel.ReprintLastReceiptCommand}" HorizontalAlignment="Stretch" Margin="0,12,0,0"/>
             </StackPanel>
         </Grid>
     </Grid>

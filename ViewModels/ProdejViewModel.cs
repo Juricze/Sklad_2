@@ -11,6 +11,7 @@ namespace Sklad_2.ViewModels
     public partial class ProdejViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly IPrintService _printService; 
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -24,15 +25,19 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
         private ReceiptItem selectedReceiptItem;
 
+        [ObservableProperty]
+        private string checkoutStatusMessage; 
+
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
 
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
         public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, IPrintService printService) 
         {
             _dataService = dataService;
+            _printService = printService; 
             Receipt = receiptService;
             Receipt.Items.CollectionChanged += (s, e) => 
             {
@@ -107,6 +112,7 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task CheckoutAsync()
         {
+            CheckoutStatusMessage = string.Empty; 
             try
             {
                 foreach (var item in Receipt.Items)
@@ -121,17 +127,67 @@ namespace Sklad_2.ViewModels
                         }
                         else
                         {
-                            Debug.WriteLine($"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}");
+                            CheckoutStatusMessage = $"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}";
+                            Debug.WriteLine(CheckoutStatusMessage);
+                            return; 
                         }
                     }
                 }
+                // Printing
+                bool printSuccess = await _printService.PrintReceiptAsync(Receipt);
+                if (!printSuccess)
+                {
+                    CheckoutStatusMessage = "Tisk účtenky selhal.";
+                    Debug.WriteLine(CheckoutStatusMessage);
+                    return; 
+                }
+
+                // Finalize receipt (copy to LastReceiptItems)
+                Receipt.FinalizeCurrentReceipt(); 
+
+                // Clear receipt only after successful stock deduction AND printing
                 Receipt.Clear();
                 ScannedProduct = null;
+                CheckoutStatusMessage = "Prodej úspěšně dokončen!"; 
+                ReprintLastReceiptCommand.NotifyCanExecuteChanged(); // Notify button state change
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Chyba během dokončení prodeje: {ex.Message}");
+                CheckoutStatusMessage = $"Chyba při dokončení prodeje: {ex.Message}"; 
+                Debug.WriteLine(CheckoutStatusMessage);
             }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanReprintLastReceipt))]
+        private async Task ReprintLastReceiptAsync()
+        {
+            if (Receipt.LastReceiptItems == null || Receipt.LastReceiptItems.Count == 0)
+            {
+                return;
+            }
+
+            CheckoutStatusMessage = string.Empty; 
+            try
+            {
+                bool printSuccess = await _printService.PrintReceiptAsync(Receipt);
+                if (!printSuccess)
+                {
+                    CheckoutStatusMessage = "Opakovaný tisk účtenky selhal.";
+                    Debug.WriteLine(CheckoutStatusMessage);
+                    return;
+                }
+                CheckoutStatusMessage = "Poslední účtenka úspěšně vytištěna znovu!";
+            }
+            catch (Exception ex)
+            {
+                CheckoutStatusMessage = $"Chyba při opakovaném tisku: {ex.Message}"; 
+                Debug.WriteLine(CheckoutStatusMessage);
+            }
+        }
+
+        private bool CanReprintLastReceipt()
+        {
+            return Receipt.LastReceiptItems != null && Receipt.LastReceiptItems.Count > 0;
         }
     }
 }

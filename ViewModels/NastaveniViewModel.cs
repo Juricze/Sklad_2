@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sklad_2.Services; 
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -10,6 +11,8 @@ namespace Sklad_2.ViewModels
 {
     public partial class NastaveniViewModel : ObservableObject
     {
+        private readonly IPrintService _printService; 
+
         [ObservableProperty]
         private string appVersion;
 
@@ -19,9 +22,15 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string backupStatusMessage;
 
-        public NastaveniViewModel()
+        [ObservableProperty]
+        private string printerPath; // Added
+
+        [ObservableProperty]
+        private string testPrintStatusMessage; // Added
+
+        public NastaveniViewModel(IPrintService printService) 
         {
-            // Get app version
+            _printService = printService; 
             AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
@@ -35,8 +44,6 @@ namespace Sklad_2.ViewModels
                 var sourceFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = Path.Combine(sourceFolderPath, "sklad.db");
 
-                // Prompt user for backup location (simplified for now)
-                // For a real app, use FileSavePicker
                 var backupFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
                 Directory.CreateDirectory(backupFolderPath);
                 var backupFilePath = Path.Combine(backupFolderPath, $"sklad_backup_{DateTime.Now:yyyyMMdd_HHmmss}.db");
@@ -56,6 +63,34 @@ namespace Sklad_2.ViewModels
                 BackupStatusMessage = $"Chyba při zálohování databáze: {ex.Message}";
             }
             await Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private async Task TestPrintAsync()
+        {
+            TestPrintStatusMessage = string.Empty;
+            if (string.IsNullOrWhiteSpace(PrinterPath))
+            {
+                TestPrintStatusMessage = "Zadejte prosím cestu k tiskárně.";
+                return;
+            }
+
+            try
+            {
+                bool success = await _printService.TestPrintAsync(PrinterPath);
+                if (success)
+                {
+                    TestPrintStatusMessage = "Testovací tisk úspěšný!";
+                }
+                else
+                {
+                    TestPrintStatusMessage = "Testovací tisk selhal. Zkontrolujte cestu k tiskárně a její stav.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TestPrintStatusMessage = $"Chyba při testovacím tisku: {ex.Message}";
+            }
         }
     }
 }

@@ -17,14 +17,14 @@
         <!-- Main content area -->
         <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <TextBox x:ConnectionId='19' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
+                <TextBox x:ConnectionId='21' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
             </Border>
-            <Border x:ConnectionId='15' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
+            <Border x:ConnectionId='17' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='18'                                                           /></TextBlock>
-                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='17'                                                                    /></TextBlock>
-                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='16'                                                                    /> <Run Text="ks"/></TextBlock>
+                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='20'                                                           /></TextBlock>
+                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='19'                                                                    /></TextBlock>
+                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='18'                                                                    /> <Run Text="ks"/></TextBlock>
                 </StackPanel>
             </Border>
         </StackPanel>
@@ -44,26 +44,26 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Účtenka" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <ListView x:ConnectionId='5' Grid.Row="1"
+                    <ListView x:ConnectionId='7' Grid.Row="1"
                                                                                          
                                                                                                 
                               SelectionMode="Single">
                         <ListView.ItemTemplate>
                             <DataTemplate                                  >
-                                <Grid x:ConnectionId='10' ColumnSpacing="12">
+                                <Grid x:ConnectionId='12' ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock x:ConnectionId='12'                              FontWeight="Bold"/>
+                                        <TextBlock x:ConnectionId='14'                              FontWeight="Bold"/>
                                         <TextBlock>
-                                            <Run x:ConnectionId='13'                                               />
+                                            <Run x:ConnectionId='15'                                               />
                                             <Run Text=" x "/>
-                                            <Run x:ConnectionId='14'                                                        />
+                                            <Run x:ConnectionId='16'                                                        />
                                         </TextBlock>
                                     </StackPanel>
-                                    <TextBlock x:ConnectionId='11' Grid.Column="1"                                                  FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock x:ConnectionId='13' Grid.Column="1"                                                  FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -71,13 +71,13 @@
                     
                     <!-- Buttons for selected item -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button x:ConnectionId='6'                                                       ToolTipService.ToolTip="Zvýšit množství vybrané položky">
+                        <Button x:ConnectionId='8'                                                       ToolTipService.ToolTip="Zvýšit množství vybrané položky">
                             <FontIcon Glyph="&#xE710;"/>
                         </Button>
-                        <Button x:ConnectionId='7'                                                       ToolTipService.ToolTip="Snížit množství vybrané položky">
+                        <Button x:ConnectionId='9'                                                       ToolTipService.ToolTip="Snížit množství vybrané položky">
                             <FontIcon Glyph="&#xE738;"/>
                         </Button>
-                        <Button x:ConnectionId='8'                                                ToolTipService.ToolTip="Odebrat vybranou položku">
+                        <Button x:ConnectionId='10'                                                ToolTipService.ToolTip="Odebrat vybranou položku">
                             <FontIcon Glyph="&#xE74D;"/>
                         </Button>
                     </StackPanel>
@@ -86,8 +86,10 @@
 
             <StackPanel Grid.Row="1" Spacing="12" Margin="0,24,0,0">
                 <TextBlock x:ConnectionId='2'                                                            Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
-                <Button x:ConnectionId='3' Content="K pokladně"                              Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
-                <Button x:ConnectionId='4' Content="Smazat účtenku"                                  HorizontalAlignment="Stretch"/>
+                <TextBlock x:ConnectionId='3'                                                              TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontWeight="Bold" Margin="0,12,0,0"/>
+                <Button x:ConnectionId='4' Content="K pokladně"                              Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <Button x:ConnectionId='5' Content="Smazat účtenku"                                  HorizontalAlignment="Stretch"/>
+                <Button x:ConnectionId='6' Content="Znovu vytisknout poslední účtenku"                                                        HorizontalAlignment="Stretch" Margin="0,12,0,0"/>
             </StackPanel>
         </Grid>
     </Grid>

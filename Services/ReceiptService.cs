@@ -1,7 +1,8 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel; 
 using Sklad_2.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Collections.Generic; 
 
 namespace Sklad_2.Services
 {
@@ -21,11 +22,17 @@ namespace Sklad_2.Services
         public string QuantityFormatted => $"{Quantity} ks";
     }
 
-    public class ReceiptService : IReceiptService
+    public partial class ReceiptService : ObservableObject, IReceiptService 
     {
         public ObservableCollection<ReceiptItem> Items { get; } = new ObservableCollection<ReceiptItem>();
 
         public decimal GrandTotal => Items.Sum(i => i.TotalPrice);
+
+        [ObservableProperty] 
+        private List<ReceiptItem> lastReceiptItems = new List<ReceiptItem>();
+
+        [ObservableProperty] 
+        private decimal lastReceiptGrandTotal;
 
         public void AddProduct(Product product)
         {
@@ -53,6 +60,12 @@ namespace Sklad_2.Services
         public void Clear()
         {
             Items.Clear();
+        }
+
+        public void FinalizeCurrentReceipt()
+        {
+            LastReceiptItems = Items.ToList(); 
+            LastReceiptGrandTotal = GrandTotal;
         }
     }
 }

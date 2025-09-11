@@ -19,6 +19,16 @@
                 </StackPanel>
             </Border>
 
+            <!-- Nastavení tiskárny -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
             <!-- O aplikaci -->
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
                 <StackPanel Spacing="12">
