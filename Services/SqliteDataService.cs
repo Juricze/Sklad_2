@@ -49,5 +49,11 @@ namespace Sklad_2.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task SaveReceiptAsync(Receipt receipt)
+        {
+            await _context.Receipts.AddAsync(receipt);
+            await _context.SaveChangesAsync();
+        }
     }
 }

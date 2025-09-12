@@ -363,7 +363,6 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
         private object Activate_37_DatabazePage() { return new global::Sklad_2.Views.DatabazePage(); }
         private object Activate_39_NaskladneniPage() { return new global::Sklad_2.Views.NaskladneniPage(); }
         private object Activate_41_NastaveniPage() { return new global::Sklad_2.Views.NastaveniPage(); }
-        private object Activate_42_NastaveniViewModel() { return new global::Sklad_2.ViewModels.NastaveniViewModel(); }
         private object Activate_43_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
         private void MapAdd_0_XamlControlsResources(object instance, object key, object item)
         {

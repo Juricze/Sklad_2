@@ -5,13 +5,13 @@ using Sklad_2.Services;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Sklad_2.ViewModels
 {
     public partial class ProdejViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
-        private readonly IPrintService _printService; 
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -23,10 +23,7 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(IncrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(DecrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
-        private ReceiptItem selectedReceiptItem;
-
-        [ObservableProperty]
-        private string checkoutStatusMessage; 
+        private Sklad_2.Services.ReceiptItem selectedReceiptItem;
 
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
@@ -34,17 +31,16 @@ namespace Sklad_2.ViewModels
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
         public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, IPrintService printService) 
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService)
         {
             _dataService = dataService;
-            _printService = printService; 
             Receipt = receiptService;
             Receipt.Items.CollectionChanged += (s, e) => 
             {
                 OnPropertyChanged(nameof(GrandTotalFormatted));
                 if (e.NewItems != null)
                 {
-                    foreach (ReceiptItem item in e.NewItems)
+                    foreach (Sklad_2.Services.ReceiptItem item in e.NewItems) 
                     {
                         item.PropertyChanged += (s, e) =>
                         {
@@ -112,9 +108,18 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task CheckoutAsync()
         {
-            CheckoutStatusMessage = string.Empty; 
             try
             {
+                // 1. Create new Receipt object
+                var newReceipt = new Sklad_2.Models.Receipt 
+                {
+                    SaleDate = DateTime.Now,
+                    TotalAmount = Receipt.GrandTotal,
+                    PaymentMethod = "Hotově", // Placeholder for now
+                    Items = new List<Sklad_2.Models.ReceiptItem>() 
+                };
+
+                // 2. Populate ReceiptItems and deduct stock
                 foreach (var item in Receipt.Items)
                 {
                     var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
@@ -124,70 +129,36 @@ namespace Sklad_2.ViewModels
                         {
                             productInDb.StockQuantity -= item.Quantity;
                             await _dataService.UpdateProductAsync(productInDb);
+
+                            newReceipt.Items.Add(new Sklad_2.Models.ReceiptItem 
+                            {
+                                ProductEan = item.Product.Ean,
+                                ProductName = item.Product.Name,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.Product.SalePrice,
+                                TotalPrice = item.TotalPrice
+                            });
                         }
                         else
                         {
-                            CheckoutStatusMessage = $"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}";
-                            Debug.WriteLine(CheckoutStatusMessage);
-                            return; 
+                            // Logika pro nedostatečné zásoby - prozatím jen Debug.WriteLine
+                            System.Diagnostics.Debug.WriteLine($"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}");
                         }
                     }
                 }
-                // Printing
-                bool printSuccess = await _printService.PrintReceiptAsync(Receipt);
-                if (!printSuccess)
-                {
-                    CheckoutStatusMessage = "Tisk účtenky selhal.";
-                    Debug.WriteLine(CheckoutStatusMessage);
-                    return; 
-                }
 
-                // Finalize receipt (copy to LastReceiptItems)
-                Receipt.FinalizeCurrentReceipt(); 
+                // 3. Save the Receipt and its items
+                await _dataService.SaveReceiptAsync(newReceipt);
 
-                // Clear receipt only after successful stock deduction AND printing
+                // 4. Clear current receipt
                 Receipt.Clear();
                 ScannedProduct = null;
-                CheckoutStatusMessage = "Prodej úspěšně dokončen!"; 
-                ReprintLastReceiptCommand.NotifyCanExecuteChanged(); // Notify button state change
             }
             catch (Exception ex)
             {
-                CheckoutStatusMessage = $"Chyba při dokončení prodeje: {ex.Message}"; 
-                Debug.WriteLine(CheckoutStatusMessage);
+                System.Diagnostics.Debug.WriteLine($"Chyba během dokončení prodeje: {ex.Message}");
+                // Zde by se v reálné aplikaci zobrazil uživateli dialog s chybou
             }
-        }
-
-        [RelayCommand(CanExecute = nameof(CanReprintLastReceipt))]
-        private async Task ReprintLastReceiptAsync()
-        {
-            if (Receipt.LastReceiptItems == null || Receipt.LastReceiptItems.Count == 0)
-            {
-                return;
-            }
-
-            CheckoutStatusMessage = string.Empty; 
-            try
-            {
-                bool printSuccess = await _printService.PrintReceiptAsync(Receipt);
-                if (!printSuccess)
-                {
-                    CheckoutStatusMessage = "Opakovaný tisk účtenky selhal.";
-                    Debug.WriteLine(CheckoutStatusMessage);
-                    return;
-                }
-                CheckoutStatusMessage = "Poslední účtenka úspěšně vytištěna znovu!";
-            }
-            catch (Exception ex)
-            {
-                CheckoutStatusMessage = $"Chyba při opakovaném tisku: {ex.Message}"; 
-                Debug.WriteLine(CheckoutStatusMessage);
-            }
-        }
-
-        private bool CanReprintLastReceipt()
-        {
-            return Receipt.LastReceiptItems != null && Receipt.LastReceiptItems.Count > 0;
         }
     }
 }

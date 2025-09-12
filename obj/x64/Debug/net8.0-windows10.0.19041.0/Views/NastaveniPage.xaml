@@ -14,8 +14,18 @@
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <Button x:ConnectionId='4' Content="Zálohovat databázi"                                                    Style="{StaticResource PrimaryButtonStyle}"/>
-                    <TextBlock x:ConnectionId='5'                                                            TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <Button x:ConnectionId='7' Content="Zálohovat databázi"                                                    Style="{StaticResource PrimaryButtonStyle}"/>
+                    <TextBlock x:ConnectionId='8'                                                            TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Nastavení tiskárny -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBox x:ConnectionId='4' Header="Cesta k tiskárně (např. \\server\tiskarna)"                                                                                        />
+                    <Button x:ConnectionId='5' Content="Test tisku"                                               Style="{StaticResource PrimaryButtonStyle}"/>
+                    <TextBlock x:ConnectionId='6'                                                               TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                 </StackPanel>
             </Border>
 
