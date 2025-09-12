@@ -42,6 +42,7 @@ namespace Sklad_2
             services.AddSingleton<NaskladneniViewModel>();
             services.AddSingleton<DatabazeViewModel>();
             services.AddSingleton<NastaveniViewModel>();
+            services.AddSingleton<UctenkyViewModel>();
 
             return services.BuildServiceProvider();
         }

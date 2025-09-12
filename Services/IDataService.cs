@@ -12,5 +12,6 @@ namespace Sklad_2.Services
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(string ean);
         Task SaveReceiptAsync(Models.Receipt receipt);
+        Task<List<Models.Receipt>> GetReceiptsAsync();
     }
 }

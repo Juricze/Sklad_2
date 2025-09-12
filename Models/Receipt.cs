@@ -12,6 +12,9 @@ namespace Sklad_2.Models
         public decimal TotalAmount { get; set; }
         public string PaymentMethod { get; set; } // e.g., "Hotově", "Karta"
 
+        public string TotalAmountFormatted => $"{TotalAmount:C}";
+        public string SaleDateFormatted => $"{SaleDate.Date:d}";
+
         public ICollection<ReceiptItem> Items { get; set; }
     }
 }

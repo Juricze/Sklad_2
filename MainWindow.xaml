@@ -12,7 +12,12 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Prodej" Tag="Prodej" Icon="Shop"/>
                 <NavigationViewItem Content="Naskladnění" Tag="Naskladneni" Icon="Add"/>
-                <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder"/>
+                <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder">
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Produkty" Tag="Produkty" Icon="Document"/>
+                        <NavigationViewItem Content="Účtenky" Tag="Uctenky" Icon="Calculator"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame">
                 <views:ProdejPage/>

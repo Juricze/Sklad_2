@@ -132,11 +132,16 @@ namespace Sklad_2
                     naskladneniPage.ViewModel = _naskladneniViewModel;
                     page = naskladneniPage;
                     break;
-                case "Databaze":
+                case "Produkty": // Changed from "Databaze"
                     var databazePage = new DatabazePage();
                     databazePage.ViewModel = _databazeViewModel;
                     page = databazePage;
                     _databazeViewModel.LoadProductsCommand.Execute(null); // Explicitně načíst produkty
+                    break;
+                case "Uctenky": // New case
+                    var uctenkyPage = new UctenkyPage();
+                    uctenkyPage.ViewModel = (Application.Current as App).Services.GetService<UctenkyViewModel>(); // Get from DI
+                    page = uctenkyPage;
                     break;
                 case "Nastaveni":
                     var nastaveniPage = new NastaveniPage();

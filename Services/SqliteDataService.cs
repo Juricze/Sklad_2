@@ -55,5 +55,10 @@ namespace Sklad_2.Services
             await _context.Receipts.AddAsync(receipt);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Receipt>> GetReceiptsAsync()
+        {
+            return await _context.Receipts.Include(r => r.Items).ToListAsync();
+        }
     }
 }
