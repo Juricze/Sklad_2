@@ -364,3 +364,8 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Ucten
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.g.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\ReceiptPreviewDialog.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\ReceiptPreviewDialog.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\ReceiptPreviewDialog.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\ReceiptPreviewDialog.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\ReceiptPreviewDialog.xbf

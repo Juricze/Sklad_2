@@ -3,15 +3,16 @@ using CommunityToolkit.Mvvm.Input;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Sklad_2.ViewModels
 {
     public partial class ProdejViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly ISettingsService _settingsService;
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -25,15 +26,19 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
         private Sklad_2.Services.ReceiptItem selectedReceiptItem;
 
+        [ObservableProperty]
+        private Receipt lastCreatedReceipt;
+
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
 
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
         public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService)
         {
             _dataService = dataService;
+            _settingsService = settingsService;
             Receipt = receiptService;
             Receipt.Items.CollectionChanged += (s, e) => 
             {
@@ -108,18 +113,17 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task CheckoutAsync()
         {
+            LastCreatedReceipt = null;
             try
             {
-                // 1. Create new Receipt object
-                var newReceipt = new Sklad_2.Models.Receipt 
-                {
-                    SaleDate = DateTime.Now,
-                    TotalAmount = Receipt.GrandTotal,
-                    PaymentMethod = "Hotově", // Placeholder for now
-                    Items = new List<Sklad_2.Models.ReceiptItem>() 
-                };
+                var settings = _settingsService.CurrentSettings;
 
-                // 2. Populate ReceiptItems and deduct stock
+                decimal totalAmountWithoutVat = 0;
+                decimal totalVatAmount = 0;
+
+                var receiptItems = new List<Sklad_2.Models.ReceiptItem>();
+
+                // 1. Populate ReceiptItems, calculate VAT and deduct stock
                 foreach (var item in Receipt.Items)
                 {
                     var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
@@ -130,22 +134,51 @@ namespace Sklad_2.ViewModels
                             productInDb.StockQuantity -= item.Quantity;
                             await _dataService.UpdateProductAsync(productInDb);
 
-                            newReceipt.Items.Add(new Sklad_2.Models.ReceiptItem 
+                            decimal itemPriceWithoutVat = item.TotalPrice / (1 + productInDb.VatRate);
+                            decimal itemVatAmount = item.TotalPrice - itemPriceWithoutVat;
+
+                            receiptItems.Add(new Sklad_2.Models.ReceiptItem
                             {
                                 ProductEan = item.Product.Ean,
                                 ProductName = item.Product.Name,
                                 Quantity = item.Quantity,
                                 UnitPrice = item.Product.SalePrice,
-                                TotalPrice = item.TotalPrice
+                                TotalPrice = item.TotalPrice,
+                                VatRate = productInDb.VatRate,
+                                PriceWithoutVat = itemPriceWithoutVat,
+                                VatAmount = itemVatAmount
                             });
+
+                            totalAmountWithoutVat += itemPriceWithoutVat;
+                            totalVatAmount += itemVatAmount;
                         }
                         else
                         {
-                            // Logika pro nedostatečné zásoby - prozatím jen Debug.WriteLine
+                            // Logika pro nedostatečné zásoby
                             System.Diagnostics.Debug.WriteLine($"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}");
                         }
                     }
                 }
+
+                // 2. Create new Receipt object
+                var newReceipt = new Sklad_2.Models.Receipt
+                {
+                    SaleDate = DateTime.Now,
+                    TotalAmount = Receipt.GrandTotal,
+                    PaymentMethod = "Hotově", // Placeholder
+                    Items = receiptItems,
+
+                    // Seller info
+                    ShopName = settings.ShopName,
+                    ShopAddress = settings.ShopAddress,
+                    CompanyId = settings.CompanyId,
+                    VatId = settings.VatId,
+                    IsVatPayer = settings.IsVatPayer,
+
+                    // VAT info
+                    TotalAmountWithoutVat = totalAmountWithoutVat,
+                    TotalVatAmount = totalVatAmount
+                };
 
                 // 3. Save the Receipt and its items
                 await _dataService.SaveReceiptAsync(newReceipt);
@@ -153,6 +186,8 @@ namespace Sklad_2.ViewModels
                 // 4. Clear current receipt
                 Receipt.Clear();
                 ScannedProduct = null;
+
+                LastCreatedReceipt = newReceipt;
             }
             catch (Exception ex)
             {

@@ -1,8 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Text; // Added this line
+using Microsoft.UI.Text;
 using Sklad_2.ViewModels;
+using Sklad_2.Views.Dialogs;
 using System;
 
 namespace Sklad_2.Views
@@ -35,7 +36,7 @@ namespace Sklad_2.Views
                 Content = "Opravdu si přejete smazat celou účtenku? Tato akce je nevratná.",
                 CloseButtonText = "Zrušit",
                 PrimaryButtonText = "Smazat",
-                XamlRoot = this.XamlRoot 
+                XamlRoot = this.XamlRoot
             };
 
             ContentDialogResult result = await clearReceiptDialog.ShowAsync();
@@ -92,7 +93,7 @@ namespace Sklad_2.Views
                 Title = "Dokončení prodeje",
                 Content = summaryPanel,
                 CloseButtonText = "Zrušit",
-                PrimaryButtonText = "Potvrdit a dokončit", // Changed text
+                PrimaryButtonText = "Potvrdit a dokončit",
                 XamlRoot = this.XamlRoot
             };
 
@@ -100,7 +101,28 @@ namespace Sklad_2.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                await ViewModel.CheckoutCommand.ExecuteAsync(null); // Pass null parameter
+                await ViewModel.CheckoutCommand.ExecuteAsync(null);
+                var createdReceipt = ViewModel.LastCreatedReceipt;
+
+                if (createdReceipt != null)
+                {
+                    var previewDialog = new ReceiptPreviewDialog(createdReceipt)
+                    {
+                        XamlRoot = this.XamlRoot,
+                    };
+                    await previewDialog.ShowAsync();
+                }
+                else
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Chyba",
+                        Content = "Při ukládání účtenky se vyskytla chyba. Zkontrolujte prosím logy.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
             }
         }
     }

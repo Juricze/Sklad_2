@@ -12,13 +12,22 @@ namespace Sklad_2.Models
         [ForeignKey("ReceiptId")]
         public Receipt Receipt { get; set; }
 
-        public string ProductEan { get; set; } // Store EAN for historical record
-        public string ProductName { get; set; } // Store name for historical record
+        public string ProductEan { get; set; }
+        public string ProductName { get; set; }
         public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal TotalPrice { get; set; }
+        public decimal UnitPrice { get; set; } // Price with VAT
+        public decimal TotalPrice { get; set; } // Price with VAT
 
+        // New properties for VAT
+        public decimal VatRate { get; set; }
+        public decimal PriceWithoutVat { get; set; }
+        public decimal VatAmount { get; set; }
+
+        // Formatted properties
         public string UnitPriceFormatted => $"{UnitPrice:C}";
         public string TotalPriceFormatted => $"{TotalPrice:C}";
+        public string PriceWithoutVatFormatted => $"{PriceWithoutVat:C}";
+        public string VatAmountFormatted => $"{VatAmount:C}";
+        public string VatRateFormatted => $"{VatRate:P0}";
     }
 }
