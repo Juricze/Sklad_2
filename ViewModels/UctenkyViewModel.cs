@@ -15,7 +15,10 @@ namespace Sklad_2.ViewModels
         public ObservableCollection<Receipt> Receipts { get; } = new ObservableCollection<Receipt>();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsReceiptSelected))]
         private Receipt selectedReceipt;
+
+        public bool IsReceiptSelected => SelectedReceipt != null;
 
         public UctenkyViewModel(IDataService dataService)
         {

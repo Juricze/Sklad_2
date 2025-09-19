@@ -7,49 +7,135 @@
     xmlns:models="using:Sklad_2.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid Padding="24" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Padding="24" ColumnSpacing="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBlock Text="Seznam účtenek" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <Button Content="Načíst účtenky" Command="{x:Bind ViewModel.LoadReceiptsCommand}"/>
-        </StackPanel>
+        <!-- Master List of Receipts -->
+        <Grid Grid.Column="0" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <ListView Grid.Row="1"
-                  ItemsSource="{x:Bind ViewModel.Receipts, Mode=OneWay}"
-                  SelectedItem="{x:Bind ViewModel.SelectedReceipt, Mode=TwoWay}"
-                  SelectionMode="Single">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Seznam účtenek" Style="{ThemeResource TitleTextBlockStyle}"/>
+                <Button Command="{x:Bind ViewModel.LoadReceiptsCommand}">
+                    <FontIcon Glyph="&#xE72C;"/>
+                </Button>
+            </StackPanel>
+
+            <ListView Grid.Row="1"
+                      ItemsSource="{x:Bind ViewModel.Receipts, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.SelectedReceipt, Mode=TwoWay}"
+                      SelectionMode="Single">
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Receipt">
+                        <Grid Padding="12" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{x:Bind SaleDateFormatted}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountFormatted}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!-- Detail View for Selected Receipt -->
+        <Border Grid.Column="1"
+                Style="{StaticResource CardBorderStyle}"
+                Shadow="{ThemeResource CardShadow}"
+                Visibility="{x:Bind ViewModel.IsReceiptSelected, Mode=OneWay}">
+            <ScrollViewer>
+                <StackPanel Spacing="12" Padding="12">
+                    <TextBlock Text="Detail účtenky" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="0" Text="Číslo účtenky:" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.ReceiptId, Mode=OneWay}"/>
                     </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:Receipt">
-                    <Grid Padding="12" ColumnSpacing="12">
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{x:Bind SaleDateFormatted}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountFormatted}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Datum:" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.SaleDateFormatted, Mode=OneWay}"/>
                     </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Platba:" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.PaymentMethod, Mode=OneWay}"/>
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.SelectedReceipt.Items, Mode=OneWay}" Margin="0,12,0,0" SelectionMode="None">
+                        <ListView.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid Padding="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Produkt" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="Množství" FontWeight="Bold" Margin="12,0"/>
+                                    <TextBlock Grid.Column="2" Text="Cena/ks" FontWeight="Bold" Margin="12,0"/>
+                                    <TextBlock Grid.Column="3" Text="Celkem" FontWeight="Bold" Margin="12,0"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ReceiptItem">
+                                <Grid Padding="8" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind ProductName}"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Quantity}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind UnitPriceFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.TotalAmountFormatted, Mode=OneWay}"
+                               Style="{ThemeResource TitleTextBlockStyle}"
+                               HorizontalAlignment="Right"
+                               Margin="0,12,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Page>

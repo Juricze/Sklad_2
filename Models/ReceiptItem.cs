@@ -17,5 +17,8 @@ namespace Sklad_2.Models
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+
+        public string UnitPriceFormatted => $"{UnitPrice:C}";
+        public string TotalPriceFormatted => $"{TotalPrice:C}";
     }
 }

@@ -7,50 +7,136 @@
     xmlns:models="using:Sklad_2.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid Padding="24" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Padding="24" ColumnSpacing="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBlock Text="Seznam účtenek" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <Button x:ConnectionId='9' Content="Načíst účtenky"                                                 />
-        </StackPanel>
+        <!-- Master List of Receipts -->
+        <Grid Grid.Column="0" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <ListView x:ConnectionId='2' Grid.Row="1"
-                                                                        
-                                                                                
-                  SelectionMode="Single">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="Seznam účtenek" Style="{ThemeResource TitleTextBlockStyle}"/>
+                <Button x:ConnectionId='22'                                                 >
+                    <FontIcon Glyph="&#xE72C;"/>
+                </Button>
+            </StackPanel>
+
+            <ListView x:ConnectionId='15' Grid.Row="1"
+                                                                            
+                                                                                    
+                      SelectionMode="Single">
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate                            >
+                        <Grid x:ConnectionId='18' Padding="12" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:ConnectionId='19' Grid.Column="0"                                   VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='20' Grid.Column="1"                                      VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='21' Grid.Column="2"                               VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!-- Detail View for Selected Receipt -->
+        <Border x:ConnectionId='2' Grid.Column="1"
+                Style="{StaticResource CardBorderStyle}"
+                Shadow="{ThemeResource CardShadow}"
+                                                                              >
+            <ScrollViewer>
+                <StackPanel Spacing="12" Padding="12">
+                    <TextBlock Text="Detail účtenky" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="0" Text="Číslo účtenky:" FontWeight="Bold"/>
+                        <TextBlock x:ConnectionId='14' Grid.Column="1"                                                                 />
                     </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
-            <ListView.ItemTemplate>
-                <DataTemplate                            >
-                    <Grid x:ConnectionId='5' Padding="12" ColumnSpacing="12">
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:ConnectionId='6' Grid.Column="0"                                   VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='7' Grid.Column="1"                                      VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='8' Grid.Column="2"                               VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Datum:" FontWeight="Bold"/>
+                        <TextBlock x:ConnectionId='13' Grid.Column="1"                                                                         />
                     </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Platba:" FontWeight="Bold"/>
+                        <TextBlock x:ConnectionId='12' Grid.Column="1"                                                                     />
+                    </Grid>
+
+                    <ListView x:ConnectionId='3'                                                                     Margin="0,12,0,0" SelectionMode="None">
+                        <ListView.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid Padding="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Produkt" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="Množství" FontWeight="Bold" Margin="12,0"/>
+                                    <TextBlock Grid.Column="2" Text="Cena/ks" FontWeight="Bold" Margin="12,0"/>
+                                    <TextBlock Grid.Column="3" Text="Celkem" FontWeight="Bold" Margin="12,0"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate                                >
+                                <Grid x:ConnectionId='7' Padding="8" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:ConnectionId='8' Grid.Column="0"                            />
+                                    <TextBlock x:ConnectionId='9' Grid.Column="1"                          HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='10' Grid.Column="2"                                                 HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='11' Grid.Column="3"                                                  FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock x:ConnectionId='4'                                                                            
+                               Style="{ThemeResource TitleTextBlockStyle}"
+                               HorizontalAlignment="Right"
+                               Margin="0,12,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Page>
 
