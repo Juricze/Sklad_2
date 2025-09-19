@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Sklad_2.Services; 
+using Sklad_2.Models.Settings;
+using Sklad_2.Services;
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,7 +11,11 @@ namespace Sklad_2.ViewModels
 {
     public partial class NastaveniViewModel : ObservableObject
     {
-        private readonly IPrintService _printService; 
+        private readonly ISettingsService _settingsService;
+        private readonly IPrintService _printService;
+
+        [ObservableProperty]
+        private AppSettings settings;
 
         [ObservableProperty]
         private string appVersion;
@@ -23,15 +27,32 @@ namespace Sklad_2.ViewModels
         private string backupStatusMessage;
 
         [ObservableProperty]
-        private string printerPath; // Added
-
+        private string testPrintStatusMessage;
+        
         [ObservableProperty]
-        private string testPrintStatusMessage; // Added
+        private string saveStatusMessage;
 
-        public NastaveniViewModel(IPrintService printService) 
+        public NastaveniViewModel(ISettingsService settingsService, IPrintService printService)
         {
-            _printService = printService; 
+            _settingsService = settingsService;
+            _printService = printService;
+            Settings = _settingsService.CurrentSettings;
             AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }
+
+        [RelayCommand]
+        private async Task SaveSettingsAsync()
+        {
+            SaveStatusMessage = string.Empty;
+            try
+            {
+                await _settingsService.SaveSettingsAsync();
+                SaveStatusMessage = "Nastavení bylo úspěšně uloženo.";
+            }
+            catch (Exception ex)
+            {
+                SaveStatusMessage = $"Chyba při ukládání nastavení: {ex.Message}";
+            }
         }
 
         [RelayCommand]
@@ -69,7 +90,7 @@ namespace Sklad_2.ViewModels
         private async Task TestPrintAsync()
         {
             TestPrintStatusMessage = string.Empty;
-            if (string.IsNullOrWhiteSpace(PrinterPath))
+            if (string.IsNullOrWhiteSpace(Settings.PrinterPath))
             {
                 TestPrintStatusMessage = "Zadejte prosím cestu k tiskárně.";
                 return;
@@ -77,7 +98,7 @@ namespace Sklad_2.ViewModels
 
             try
             {
-                bool success = await _printService.TestPrintAsync(PrinterPath);
+                bool success = await _printService.TestPrintAsync(Settings.PrinterPath);
                 if (success)
                 {
                     TestPrintStatusMessage = "Testovací tisk úspěšný!";

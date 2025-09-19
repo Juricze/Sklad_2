@@ -4,6 +4,7 @@ using Sklad_2.Data;
 using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using System;
+using System.Threading.Tasks;
 
 namespace Sklad_2
 {
@@ -19,8 +20,11 @@ namespace Sklad_2
             Services = ConfigureServices();
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
+            var settingsService = Services.GetRequiredService<ISettingsService>();
+            await settingsService.LoadSettingsAsync();
+
             m_window = new MainWindow();
             m_window.Activate();
         }
@@ -33,6 +37,7 @@ namespace Sklad_2
             services.AddSingleton<DatabaseContext>();
 
             // Services
+            services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IDataService, SqliteDataService>();
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();

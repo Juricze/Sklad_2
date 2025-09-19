@@ -269,6 +269,7 @@ namespace Sklad_2.Views
             }
             private void Update_Product(global::Sklad_2.Models.Product obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_Product(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | (1 << 0))) != 0)
@@ -344,6 +345,7 @@ namespace Sklad_2.Views
                 public void ReleaseAllListeners()
                 {
                     UpdateChildListeners_(null);
+                    UpdateChildListeners_Product(null);
                 }
 
                 public void PropertyChanged_(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
@@ -409,6 +411,55 @@ namespace Sklad_2.Views
                         {
                             bindings.dataRoot = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_;
+                        }
+                    }
+                }
+                public void PropertyChanged_Product(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    ProdejPage_obj10_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.Product obj = sender as global::Sklad_2.Models.Product;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_Product_SalePriceFormatted(obj.SalePriceFormatted, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "SalePriceFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_Product_SalePriceFormatted(obj.SalePriceFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                private global::Sklad_2.Models.Product cache_Product = null;
+                public void UpdateChildListeners_Product(global::Sklad_2.Models.Product obj)
+                {
+                    if (obj != cache_Product)
+                    {
+                        if (cache_Product != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_Product).PropertyChanged -= PropertyChanged_Product;
+                            cache_Product = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_Product = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_Product;
                         }
                     }
                 }
@@ -741,6 +792,7 @@ namespace Sklad_2.Views
             }
             private void Update_ViewModel_ScannedProduct(global::Sklad_2.Models.Product obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_ViewModel_ScannedProduct(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | DATA_CHANGED | (1 << 0))) != 0)
@@ -828,6 +880,7 @@ namespace Sklad_2.Views
                     UpdateChildListeners_ViewModel(null);
                     UpdateChildListeners_ViewModel_Receipt_Items(null);
                     UpdateChildListeners_ViewModel_SelectedReceiptItem(null);
+                    UpdateChildListeners_ViewModel_ScannedProduct(null);
                 }
 
                 public void PropertyChanged_ViewModel(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
@@ -1005,6 +1058,64 @@ namespace Sklad_2.Views
                         {
                             cache_ViewModel_SelectedReceiptItem = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReceiptItem;
+                        }
+                    }
+                }
+                public void PropertyChanged_ViewModel_ScannedProduct(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    ProdejPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.Product obj = sender as global::Sklad_2.Models.Product;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_ViewModel_ScannedProduct_StockQuantity(obj.StockQuantity, DATA_CHANGED);
+                                bindings.Update_ViewModel_ScannedProduct_Name(obj.Name, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "StockQuantity":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_ScannedProduct_StockQuantity(obj.StockQuantity, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "Name":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_ScannedProduct_Name(obj.Name, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                private global::Sklad_2.Models.Product cache_ViewModel_ScannedProduct = null;
+                public void UpdateChildListeners_ViewModel_ScannedProduct(global::Sklad_2.Models.Product obj)
+                {
+                    if (obj != cache_ViewModel_ScannedProduct)
+                    {
+                        if (cache_ViewModel_ScannedProduct != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_ScannedProduct).PropertyChanged -= PropertyChanged_ViewModel_ScannedProduct;
+                            cache_ViewModel_ScannedProduct = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_ViewModel_ScannedProduct = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_ScannedProduct;
                         }
                     }
                 }

@@ -6,16 +6,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid Padding="24">
-        <StackPanel Spacing="24">
-            <!-- Nastavení tématu -->
-
-            <!-- Zálohování databáze -->
+    <ScrollViewer>
+        <StackPanel Spacing="24" Padding="24">
+            <!-- Firemní údaje -->
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
-                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock Text="Firemní údaje" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}"/>
+                    <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}"/>
+                    <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}"/>
+                    <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}"/>
+                    <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}"/>
                 </StackPanel>
             </Border>
 
@@ -23,9 +24,24 @@
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
                     <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Uložit nastavení -->
+            <StackPanel Spacing="12">
+                <Button Content="Uložit všechna nastavení" Command="{x:Bind ViewModel.SaveSettingsCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <TextBlock Text="{x:Bind ViewModel.SaveStatusMessage, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+            </StackPanel>
+
+            <!-- Správa databáze -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}"/>
+                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -44,5 +60,5 @@
                 </StackPanel>
             </Border>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

@@ -1,23 +1,32 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sklad_2.Models
 {
-    public class Product
+    public partial class Product : ObservableObject
     {
         [Key]
-        public string Ean { get; set; }
+        [ObservableProperty]
+        private string ean;
 
-        public string Name { get; set; }
+        [ObservableProperty]
+        private string name;
 
-        public string Category { get; set; }
+        [ObservableProperty]
+        private string category;
 
-        public decimal SalePrice { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SalePriceFormatted))]
+        private decimal salePrice;
 
-        public decimal PurchasePrice { get; set; }
+        [ObservableProperty]
+        private decimal purchasePrice;
 
-        public decimal VatRate { get; set; }
+        [ObservableProperty]
+        private decimal vatRate;
 
-        public int StockQuantity { get; set; }
+        [ObservableProperty]
+        private int stockQuantity;
 
         public string SalePriceFormatted => $"{SalePrice:C}";
     }
