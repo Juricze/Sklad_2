@@ -12,11 +12,12 @@ namespace Sklad_2
     public sealed partial class MainWindow : Window
     {
         private readonly ProdejViewModel _prodejViewModel;
-        private readonly NaskladneniViewModel _naskladneniViewModel;
+        private readonly PrijemZboziViewModel _prijemZboziViewModel;
         private readonly DatabazeViewModel _databazeViewModel;
         private readonly NastaveniViewModel _nastaveniViewModel;
         private readonly VratkyViewModel _vratkyViewModel;
         private readonly VratkyPrehledViewModel _vratkyPrehledViewModel;
+        private readonly NovyProduktViewModel _novyProduktViewModel;
 
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
@@ -30,11 +31,12 @@ namespace Sklad_2
 
             var services = (Application.Current as App).Services;
             _prodejViewModel = services.GetService<ProdejViewModel>();
-            _naskladneniViewModel = services.GetService<NaskladneniViewModel>();
+            _prijemZboziViewModel = services.GetService<PrijemZboziViewModel>();
             _databazeViewModel = services.GetService<DatabazeViewModel>();
             _nastaveniViewModel = services.GetService<NastaveniViewModel>();
             _vratkyViewModel = services.GetService<VratkyViewModel>();
             _vratkyPrehledViewModel = services.GetService<VratkyPrehledViewModel>();
+            _novyProduktViewModel = services.GetService<NovyProduktViewModel>();
 
             var initialPage = ContentFrame.Content as ProdejPage;
             initialPage.ViewModel = _prodejViewModel;
@@ -132,9 +134,9 @@ namespace Sklad_2
                     page = prodejPage;
                     break;
                 case "Naskladneni":
-                    var naskladneniPage = new NaskladneniPage();
-                    naskladneniPage.ViewModel = _naskladneniViewModel;
-                    page = naskladneniPage;
+                    var prijemZboziPage = new PrijemZboziPage();
+                    prijemZboziPage.ViewModel = _prijemZboziViewModel;
+                    page = prijemZboziPage;
                     break;
                 case "Vratky":
                     var vratkyPage = new VratkyPage();
@@ -146,6 +148,11 @@ namespace Sklad_2
                     databazePage.ViewModel = _databazeViewModel;
                     page = databazePage;
                     _databazeViewModel.LoadProductsCommand.Execute(null); // Explicitně načíst produkty
+                    break;
+                case "NovyProdukt":
+                    var novyProduktPage = new NovyProduktPage();
+                    novyProduktPage.ViewModel = _novyProduktViewModel;
+                    page = novyProduktPage;
                     break;
                 case "Uctenky": // New case
                     var uctenkyPage = new UctenkyPage();

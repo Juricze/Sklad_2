@@ -1,27 +1,28 @@
 ﻿<Page x:ConnectionId='1'
-    x:Class="Sklad_2.Views.NaskladneniPage"
+    x:Class="Sklad_2.Views.NovyProduktPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
     <Grid Padding="24">
         <StackPanel Spacing="24" MaxWidth="500">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Spacing="12">
-                    <TextBox x:ConnectionId='4' Header="EAN kód (načtěte nebo zadejte)"                                                                                />
+                    <TextBox x:ConnectionId='4' Header="EAN kód"                                                                                />
                     <TextBox x:ConnectionId='5' Header="Název produktu"                                                                                 />
                     <ComboBox x:ConnectionId='6' Header="Kategorie" 
                                                                          
                                                                                              />
                     <TextBox x:ConnectionId='7' Header="Nákupní cena (Kč)"                                                                                          />
                     <TextBox x:ConnectionId='8' Header="Prodejní cena (Kč)"                                                                                      />
-                    <TextBox x:ConnectionId='9' Header="Počet kusů k naskladnění"                                                                                          />
+
                 </StackPanel>
             </Border>
             <TextBlock x:ConnectionId='2'                                                      Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
-            <Button x:ConnectionId='3' Content="Uložit do databáze" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"                                               />
+            <Button x:ConnectionId='3' Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"                                                  />
         </StackPanel>
     </Grid>
 </Page>

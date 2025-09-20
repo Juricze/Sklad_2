@@ -6,7 +6,6 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Styles\Controls.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Themes\LuxuryWhite.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\DatabazePage.xaml
-C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NaskladneniPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NastaveniPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\App.xbf
@@ -14,15 +13,12 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Styles\Controls.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Themes\LuxuryWhite.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\DatabazePage.xbf
-C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NaskladneniPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NastaveniPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.g.i.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.g.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\DatabazePage.g.i.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\DatabazePage.g.cs
-C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NaskladneniPage.g.i.cs
-C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NaskladneniPage.g.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NastaveniPage.g.i.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NastaveniPage.g.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.g.i.cs
@@ -32,7 +28,6 @@ C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Styles\Controls.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Themes\LuxuryWhite.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\DatabazePage.xbf
-C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\NaskladneniPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\NastaveniPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\CoreMessagingXP.dll
@@ -384,3 +379,13 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Vratk
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xbf

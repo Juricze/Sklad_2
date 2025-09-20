@@ -44,11 +44,12 @@ namespace Sklad_2
 
             // ViewModels
             services.AddSingleton<ProdejViewModel>();
-            services.AddSingleton<NaskladneniViewModel>();
+            services.AddSingleton<PrijemZboziViewModel>();
             services.AddSingleton<DatabazeViewModel>();
             services.AddSingleton<NastaveniViewModel>();
             services.AddSingleton<UctenkyViewModel>();
             services.AddSingleton<VratkyPrehledViewModel>();
+            services.AddSingleton<NovyProduktViewModel>();
             services.AddSingleton<VratkyViewModel>();
 
             return services.BuildServiceProvider();
