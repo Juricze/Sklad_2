@@ -1,27 +1,51 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sklad_2.Models
 {
-    public class ReceiptItem
+    public partial class ReceiptItem : ObservableObject
     {
         [Key]
-        public int ReceiptItemId { get; set; }
+        [ObservableProperty]
+        private int receiptItemId;
 
-        public int ReceiptId { get; set; }
+        [ObservableProperty]
+        private int receiptId;
+
+        [ObservableProperty]
         [ForeignKey("ReceiptId")]
-        public Receipt Receipt { get; set; }
+        private Receipt receipt;
 
-        public string ProductEan { get; set; }
-        public string ProductName { get; set; }
-        public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; } // Price with VAT
-        public decimal TotalPrice { get; set; } // Price with VAT
+        [ObservableProperty]
+        private string productEan;
+
+        [ObservableProperty]
+        private string productName;
+
+        [ObservableProperty]
+        private int quantity;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(UnitPriceFormatted))]
+        private decimal unitPrice; // Price with VAT
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalPriceFormatted))]
+        private decimal totalPrice; // Price with VAT
 
         // New properties for VAT
-        public decimal VatRate { get; set; }
-        public decimal PriceWithoutVat { get; set; }
-        public decimal VatAmount { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(VatRateFormatted))]
+        private decimal vatRate;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PriceWithoutVatFormatted))]
+        private decimal priceWithoutVat;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(VatAmountFormatted))]
+        private decimal vatAmount;
 
         // Formatted properties
         public string UnitPriceFormatted => $"{UnitPrice:C}";

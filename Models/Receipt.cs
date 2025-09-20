@@ -1,27 +1,51 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sklad_2.Models
 {
-    public class Receipt
+    public partial class Receipt : ObservableObject
     {
         [Key]
-        public int ReceiptId { get; set; }
-        public DateTime SaleDate { get; set; }
-        public decimal TotalAmount { get; set; } // Total with VAT
-        public string PaymentMethod { get; set; }
+        [ObservableProperty]
+        private int receiptId;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SaleDateFormatted))]
+        private DateTime saleDate;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalAmountFormatted))]
+        private decimal totalAmount; // Total with VAT
+
+        [ObservableProperty]
+        private string paymentMethod;
 
         // Seller info at the time of sale
-        public string ShopName { get; set; }
-        public string ShopAddress { get; set; }
-        public string CompanyId { get; set; }
-        public string VatId { get; set; }
-        public bool IsVatPayer { get; set; }
+        [ObservableProperty]
+        private string shopName;
+
+        [ObservableProperty]
+        private string shopAddress;
+
+        [ObservableProperty]
+        private string companyId;
+
+        [ObservableProperty]
+        private string vatId;
+
+        [ObservableProperty]
+        private bool isVatPayer;
 
         // VAT info
-        public decimal TotalAmountWithoutVat { get; set; }
-        public decimal TotalVatAmount { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalAmountWithoutVatFormatted))]
+        private decimal totalAmountWithoutVat;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalVatAmountFormatted))]
+        private decimal totalVatAmount;
 
         // Formatted properties
         public string TotalAmountFormatted => $"{TotalAmount:C}";
@@ -29,6 +53,7 @@ namespace Sklad_2.Models
         public string TotalAmountWithoutVatFormatted => $"{TotalAmountWithoutVat:C}";
         public string TotalVatAmountFormatted => $"{TotalVatAmount:C}";
 
-        public ICollection<ReceiptItem> Items { get; set; }
+        [ObservableProperty]
+        private ICollection<ReceiptItem> items;
     }
 }

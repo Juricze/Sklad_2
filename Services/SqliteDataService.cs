@@ -3,6 +3,7 @@ using Sklad_2.Data;
 using Sklad_2.Models;
 using System.Collections.Generic;
 using System.Diagnostics; 
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sklad_2.Services
@@ -59,6 +60,31 @@ namespace Sklad_2.Services
         public async Task<List<Receipt>> GetReceiptsAsync()
         {
             return await _context.Receipts.Include(r => r.Items).ToListAsync();
+        }
+
+        public async Task<Receipt> GetReceiptByIdAsync(int receiptId)
+        {
+            return await _context.Receipts
+                                 .Include(r => r.Items)
+                                 .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
+        }
+
+        public async Task SaveReturnAsync(Return returnDocument)
+        {
+            await _context.Returns.AddAsync(returnDocument);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Return>> GetReturnsAsync()
+        {
+            return await _context.Returns.Include(r => r.Items).ToListAsync();
+        }
+
+        public async Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan)
+        {
+            return await _context.ReturnItems
+                                 .Where(ri => ri.Return.OriginalReceiptId == originalReceiptId && ri.ProductEan == productEan)
+                                 .SumAsync(ri => ri.ReturnedQuantity);
         }
     }
 }

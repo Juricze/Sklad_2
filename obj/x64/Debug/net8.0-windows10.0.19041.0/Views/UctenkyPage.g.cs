@@ -237,6 +237,7 @@ namespace Sklad_2.Views
             // Update methods for each path node used in binding steps.
             private void Update_(global::Sklad_2.Models.ReceiptItem obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | (1 << 0))) != 0)
@@ -324,8 +325,66 @@ namespace Sklad_2.Views
 
                 public void ReleaseAllListeners()
                 {
+                    UpdateChildListeners_(null);
                 }
 
+                public void PropertyChanged_(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    UctenkyPage_obj8_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.ReceiptItem obj = sender as global::Sklad_2.Models.ReceiptItem;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_UnitPriceFormatted(obj.UnitPriceFormatted, DATA_CHANGED);
+                                bindings.Update_TotalPriceFormatted(obj.TotalPriceFormatted, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "UnitPriceFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_UnitPriceFormatted(obj.UnitPriceFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "TotalPriceFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_TotalPriceFormatted(obj.TotalPriceFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                public void UpdateChildListeners_(global::Sklad_2.Models.ReceiptItem obj)
+                {
+                    UctenkyPage_obj8_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        if (bindings.dataRoot != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)bindings.dataRoot).PropertyChanged -= PropertyChanged_;
+                        }
+                        if (obj != null)
+                        {
+                            bindings.dataRoot = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_;
+                        }
+                    }
+                }
             }
         }
 
@@ -770,6 +829,7 @@ namespace Sklad_2.Views
             }
             private void Update_ViewModel_SelectedReceipt(global::Sklad_2.Models.Receipt obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_ViewModel_SelectedReceipt(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | DATA_CHANGED | (1 << 0))) != 0)
@@ -911,6 +971,7 @@ namespace Sklad_2.Views
                 public void ReleaseAllListeners()
                 {
                     UpdateChildListeners_ViewModel(null);
+                    UpdateChildListeners_ViewModel_SelectedReceipt(null);
                     UpdateChildListeners_ViewModel_Receipts(null);
                 }
 
@@ -978,6 +1039,91 @@ namespace Sklad_2.Views
                         {
                             cache_ViewModel = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel;
+                        }
+                    }
+                }
+                public void PropertyChanged_ViewModel_SelectedReceipt(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    UctenkyPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.Receipt obj = sender as global::Sklad_2.Models.Receipt;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_ViewModel_SelectedReceipt_Items(obj.Items, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReceipt_TotalAmountFormatted(obj.TotalAmountFormatted, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReceipt_PaymentMethod(obj.PaymentMethod, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReceipt_SaleDateFormatted(obj.SaleDateFormatted, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReceipt_ReceiptId(obj.ReceiptId, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "Items":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReceipt_Items(obj.Items, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "TotalAmountFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReceipt_TotalAmountFormatted(obj.TotalAmountFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "PaymentMethod":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReceipt_PaymentMethod(obj.PaymentMethod, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "SaleDateFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReceipt_SaleDateFormatted(obj.SaleDateFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "ReceiptId":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReceipt_ReceiptId(obj.ReceiptId, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                private global::Sklad_2.Models.Receipt cache_ViewModel_SelectedReceipt = null;
+                public void UpdateChildListeners_ViewModel_SelectedReceipt(global::Sklad_2.Models.Receipt obj)
+                {
+                    if (obj != cache_ViewModel_SelectedReceipt)
+                    {
+                        if (cache_ViewModel_SelectedReceipt != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_SelectedReceipt).PropertyChanged -= PropertyChanged_ViewModel_SelectedReceipt;
+                            cache_ViewModel_SelectedReceipt = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_ViewModel_SelectedReceipt = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReceipt;
                         }
                     }
                 }

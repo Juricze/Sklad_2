@@ -10,6 +10,8 @@ namespace Sklad_2.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Receipt> Receipts { get; set; } // New
         public DbSet<ReceiptItem> ReceiptItems { get; set; } // New
+        public DbSet<Return> Returns { get; set; }
+        public DbSet<ReturnItem> ReturnItems { get; set; }
 
         public DatabaseContext()
         {

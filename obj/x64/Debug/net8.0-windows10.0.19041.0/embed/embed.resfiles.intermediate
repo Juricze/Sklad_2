@@ -4,7 +4,10 @@ Styles\Controls.xbf
 Themes\LuxuryWhite.xbf
 Views\DatabazePage.xbf
 Views\Dialogs\ReceiptPreviewDialog.xbf
+Views\Dialogs\ReturnPreviewDialog.xbf
 Views\NaskladneniPage.xbf
 Views\NastaveniPage.xbf
 Views\ProdejPage.xbf
 Views\UctenkyPage.xbf
+Views\VratkyPage.xbf
+Views\VratkyPrehledPage.xbf

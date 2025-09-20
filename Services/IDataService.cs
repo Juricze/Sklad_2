@@ -13,5 +13,9 @@ namespace Sklad_2.Services
         Task DeleteProductAsync(string ean);
         Task SaveReceiptAsync(Models.Receipt receipt);
         Task<List<Models.Receipt>> GetReceiptsAsync();
+        Task<Receipt> GetReceiptByIdAsync(int receiptId);
+        Task SaveReturnAsync(Return returnDocument);
+        Task<List<Return>> GetReturnsAsync();
+        Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
     }
 }

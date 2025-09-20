@@ -15,6 +15,8 @@ namespace Sklad_2
         private readonly NaskladneniViewModel _naskladneniViewModel;
         private readonly DatabazeViewModel _databazeViewModel;
         private readonly NastaveniViewModel _nastaveniViewModel;
+        private readonly VratkyViewModel _vratkyViewModel;
+        private readonly VratkyPrehledViewModel _vratkyPrehledViewModel;
 
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
@@ -31,6 +33,8 @@ namespace Sklad_2
             _naskladneniViewModel = services.GetService<NaskladneniViewModel>();
             _databazeViewModel = services.GetService<DatabazeViewModel>();
             _nastaveniViewModel = services.GetService<NastaveniViewModel>();
+            _vratkyViewModel = services.GetService<VratkyViewModel>();
+            _vratkyPrehledViewModel = services.GetService<VratkyPrehledViewModel>();
 
             var initialPage = ContentFrame.Content as ProdejPage;
             initialPage.ViewModel = _prodejViewModel;
@@ -132,6 +136,11 @@ namespace Sklad_2
                     naskladneniPage.ViewModel = _naskladneniViewModel;
                     page = naskladneniPage;
                     break;
+                case "Vratky":
+                    var vratkyPage = new VratkyPage();
+                    vratkyPage.ViewModel = _vratkyViewModel;
+                    page = vratkyPage;
+                    break;
                 case "Produkty": // Changed from "Databaze"
                     var databazePage = new DatabazePage();
                     databazePage.ViewModel = _databazeViewModel;
@@ -142,6 +151,11 @@ namespace Sklad_2
                     var uctenkyPage = new UctenkyPage();
                     uctenkyPage.ViewModel = (Application.Current as App).Services.GetService<UctenkyViewModel>(); // Get from DI
                     page = uctenkyPage;
+                    break;
+                case "VratkyPrehled":
+                    var vratkyPrehledPage = new VratkyPrehledPage();
+                    vratkyPrehledPage.ViewModel = _vratkyPrehledViewModel;
+                    page = vratkyPrehledPage;
                     break;
                 case "Nastaveni":
                     var nastaveniPage = new NastaveniPage();

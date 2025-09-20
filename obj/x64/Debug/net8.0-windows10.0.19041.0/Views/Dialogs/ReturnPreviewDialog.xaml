@@ -1,0 +1,126 @@
+﻿<ContentDialog x:ConnectionId='1'
+    x:Class="Sklad_2.Views.Dialogs.ReturnPreviewDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Sklad_2.Models"
+    mc:Ignorable="d"
+    Title="Náhled dobropisu"
+    PrimaryButtonText="Tisk"
+    CloseButtonText="Zavřít"
+    DefaultButton="Primary">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" MinWidth="400">
+            <!-- Hlavička -->
+            <StackPanel HorizontalAlignment="Center" Spacing="4">
+                <TextBlock x:ConnectionId='17'                                                      Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center"/>
+                <TextBlock x:ConnectionId='18'                                                         HorizontalAlignment="Center"/>
+                <TextBlock HorizontalAlignment="Center">
+                    <Run Text="IČ: "/><Run x:ConnectionId='19'                                                      />
+                    <Run Text=" | DIČ: "/><Run x:ConnectionId='20'                                                  />
+                </TextBlock>
+            </StackPanel>
+
+            <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+
+            <!-- Informace o dokladu -->
+            <TextBlock Text="DOBROPIS - OPRAVNÝ DAŇOVÝ DOKLAD" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0">
+                    <Run Text="Číslo dobropisu: "/><Run x:ConnectionId='16'                                                     />
+                </TextBlock>
+                <TextBlock Grid.Column="1" HorizontalAlignment="Right">
+                    <Run Text="Datum: "/><Run x:ConnectionId='15'                                                       />
+                </TextBlock>
+            </Grid>
+            <TextBlock>
+                <Run Text="K původnímu dokladu č.: "/><Run x:ConnectionId='14'                                                              />
+            </TextBlock>
+
+            <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+
+            <!-- Položky -->
+            <ListView x:ConnectionId='2'                                                          SelectionMode="None">
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
+                            <TextBlock Grid.Column="2" Text="Vráceno celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate                               >
+                        <StackPanel x:ConnectionId='8' Padding="8">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:ConnectionId='11' Grid.Column="0"                            />
+                                <TextBlock x:ConnectionId='12' Grid.Column="1"                                              />
+                                <TextBlock x:ConnectionId='13' Grid.Column="2"                                                   FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
+                                <Run x:ConnectionId='9'                                 /><Run Text=" ks x "/><Run x:ConnectionId='10'                          />
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+
+            <!-- Souhrn DPH -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Souhrn DPH" FontWeight="Bold"/>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Sazba"/>
+                        <TextBlock Grid.Column="1" Text="Základ" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="DPH" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="21 %"/>
+                        <TextBlock x:ConnectionId='4' Grid.Column="1"                                                            HorizontalAlignment="Right"/>
+                        <TextBlock x:ConnectionId='5' Grid.Column="2"                                                     HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Celkem -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <TextBlock Text="CELKEM VRÁCENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBlock x:ConnectionId='3'                                                  Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
+
