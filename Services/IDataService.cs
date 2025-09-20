@@ -1,4 +1,5 @@
 using Sklad_2.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace Sklad_2.Services
         Task DeleteProductAsync(string ean);
         Task SaveReceiptAsync(Models.Receipt receipt);
         Task<List<Models.Receipt>> GetReceiptsAsync();
+        Task<List<Models.Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate);
         Task<Receipt> GetReceiptByIdAsync(int receiptId);
         Task SaveReturnAsync(Return returnDocument);
         Task<List<Return>> GetReturnsAsync();

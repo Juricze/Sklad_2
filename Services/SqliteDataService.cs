@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sklad_2.Data;
 using Sklad_2.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics; 
 using System.Linq;
@@ -60,6 +61,11 @@ namespace Sklad_2.Services
         public async Task<List<Receipt>> GetReceiptsAsync()
         {
             return await _context.Receipts.Include(r => r.Items).ToListAsync();
+        }
+
+        public async Task<List<Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.Receipts.Include(r => r.Items).Where(r => r.SaleDate >= startDate && r.SaleDate <= endDate).ToListAsync();
         }
 
         public async Task<Receipt> GetReceiptByIdAsync(int receiptId)

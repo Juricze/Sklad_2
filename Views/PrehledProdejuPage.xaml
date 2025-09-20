@@ -4,10 +4,81 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Sklad_2.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <TextBlock Text="Přehled prodejů Page" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource TitleTextBlockStyle}"/>
+    <Grid Padding="24" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Přehled prodejů" Style="{ThemeResource TitleTextBlockStyle}"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,12,0,12">
+            <DatePicker Header="Od data" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+            <DatePicker Header="Do data" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+            <Button Content="Filtrovat" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.LoadSalesDataCommand}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="2" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ListView Grid.Column="0" ItemsSource="{x:Bind ViewModel.Sales, Mode=OneWay}">
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Receipt">
+                        <Grid Padding="12" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{x:Bind SaleDateFormatted}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountFormatted}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <StackPanel Grid.Column="1" Spacing="12">
+                <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Celkový přehled" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock>
+                            <Run Text="Počet účtenek:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.NumberOfReceipts, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.TotalSalesAmount, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Celkem DPH:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.TotalVatAmount, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

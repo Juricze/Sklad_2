@@ -25,18 +25,27 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private int numberOfReceipts;
 
+        [ObservableProperty]
+        private DateTimeOffset startDate;
+
+        [ObservableProperty]
+        private DateTimeOffset endDate;
+
         public PrehledProdejuViewModel(IDataService dataService)
-        {
+        { 
             _dataService = dataService;
+            var now = DateTime.Now;
+            StartDate = new DateTimeOffset(new DateTime(now.Year, now.Month, 1));
+            EndDate = new DateTimeOffset(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month), 23, 59, 59, TimeSpan.Zero);
+            LoadSalesDataCommand.Execute(null);
         }
 
         [RelayCommand]
         private async Task LoadSalesDataAsync()
         {
             Sales.Clear();
-            var allReceipts = await _dataService.GetReceiptsAsync();
+            var allReceipts = await _dataService.GetReceiptsAsync(StartDate.DateTime, EndDate.DateTime);
 
-            // For now, load all receipts. Filtering by date range will be added later.
             foreach (var receipt in allReceipts.OrderByDescending(r => r.SaleDate))
             {
                 Sales.Add(receipt);
