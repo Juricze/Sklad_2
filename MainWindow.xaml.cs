@@ -18,6 +18,7 @@ namespace Sklad_2
         private readonly VratkyViewModel _vratkyViewModel;
         private readonly VratkyPrehledViewModel _vratkyPrehledViewModel;
         private readonly NovyProduktViewModel _novyProduktViewModel;
+        private readonly PrehledProdejuViewModel _prehledProdejuViewModel;
 
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
@@ -37,6 +38,7 @@ namespace Sklad_2
             _vratkyViewModel = services.GetService<VratkyViewModel>();
             _vratkyPrehledViewModel = services.GetService<VratkyPrehledViewModel>();
             _novyProduktViewModel = services.GetService<NovyProduktViewModel>();
+            _prehledProdejuViewModel = services.GetService<PrehledProdejuViewModel>();
 
             var initialPage = ContentFrame.Content as ProdejPage;
             initialPage.ViewModel = _prodejViewModel;
@@ -163,6 +165,11 @@ namespace Sklad_2
                     var vratkyPrehledPage = new VratkyPrehledPage();
                     vratkyPrehledPage.ViewModel = _vratkyPrehledViewModel;
                     page = vratkyPrehledPage;
+                    break;
+                case "PrehledProdeju":
+                    var prehledProdejuPage = new PrehledProdejuPage();
+                    prehledProdejuPage.ViewModel = _prehledProdejuViewModel;
+                    page = prehledProdejuPage;
                     break;
                 case "Nastaveni":
                     var nastaveniPage = new NastaveniPage();

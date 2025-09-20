@@ -50,6 +50,7 @@ namespace Sklad_2
             services.AddSingleton<UctenkyViewModel>();
             services.AddSingleton<VratkyPrehledViewModel>();
             services.AddSingleton<NovyProduktViewModel>();
+            services.AddSingleton<PrehledProdejuViewModel>();
             services.AddSingleton<VratkyViewModel>();
 
             return services.BuildServiceProvider();

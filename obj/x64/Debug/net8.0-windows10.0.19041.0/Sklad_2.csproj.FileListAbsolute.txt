@@ -389,3 +389,8 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyP
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
