@@ -214,6 +214,7 @@ namespace Sklad_2.ViewModels
             if (success)
             {
                 await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
+                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
                 Receipt.Clear();
                 ScannedProduct = null;
                 LastCreatedReceipt = newReceipt;

@@ -5,10 +5,13 @@ using Sklad_2.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
+using Sklad_2.Extensions;
 
 namespace Sklad_2.ViewModels
 {
-    public partial class CashRegisterViewModel : ObservableObject
+    public partial class CashRegisterViewModel : ObservableObject, IRecipient<CashRegisterUpdatedMessage>
     {
         private readonly ICashRegisterService _cashRegisterService;
 
@@ -29,6 +32,9 @@ namespace Sklad_2.ViewModels
             _cashRegisterService = cashRegisterService;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
             LoadCashRegisterDataAsync();
+
+            // Register for messages
+            WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");
         }
 
         [RelayCommand]
@@ -55,6 +61,13 @@ namespace Sklad_2.ViewModels
         {
             await _cashRegisterService.PerformDailyReconciliationAsync(ActualAmountForReconciliation);
             await LoadCashRegisterDataAsync();
+        }
+
+        // Implement IRecipient interface
+        public void Receive(CashRegisterUpdatedMessage message)
+        {
+            // When a CashRegisterUpdatedMessage is received, reload the data
+            LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
         }
     }
 }
