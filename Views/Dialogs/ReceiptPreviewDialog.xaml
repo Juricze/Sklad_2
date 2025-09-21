@@ -10,7 +10,7 @@
     Title="Náhled účtenky"
     CloseButtonText="Zavřít"
     PrimaryButtonText="Tisk"
-    DefaultButton="Primary"
+    DefaultButton="Close"
     PrimaryButtonClick="PrintButton_Click">
 
     <StackPanel Spacing="16" MinWidth="400">
@@ -46,22 +46,18 @@
                 <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
                 <!-- Položky -->
-                <ListView ItemsSource="{x:Bind Receipt.Items, Mode=OneWay}" SelectionMode="None" IsTabStop="False">
-                    <ListView.HeaderTemplate>
-                        <DataTemplate>
-                            <Grid Padding="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                                <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
-                                <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.HeaderTemplate>
-                    <ListView.ItemTemplate>
+                <Grid Padding="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
+                    <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
+                </Grid>
+                <ItemsRepeater ItemsSource="{x:Bind Receipt.Items, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="models:ReceiptItem">
                             <StackPanel Padding="8">
                                 <Grid ColumnSpacing="12">
@@ -79,8 +75,8 @@
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
 
                 <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
@@ -117,7 +113,7 @@
 
                     <!-- Celkem -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <TextBlock Text="CELKEM K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                         <TextBlock Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
 
                         <TextBlock Text="Obdržená hotovost:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"/>
