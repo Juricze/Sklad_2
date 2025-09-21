@@ -12,6 +12,7 @@ namespace Sklad_2.Data
         public DbSet<ReceiptItem> ReceiptItems { get; set; } // New
         public DbSet<Return> Returns { get; set; }
         public DbSet<ReturnItem> ReturnItems { get; set; }
+        public DbSet<CashRegisterEntry> CashRegisterEntries { get; set; }
 
         public DatabaseContext()
         {

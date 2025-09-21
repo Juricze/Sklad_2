@@ -14,6 +14,7 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
+        private readonly ICashRegisterService _cashRegisterService;
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -38,10 +39,11 @@ namespace Sklad_2.ViewModels
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
         public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
+            _cashRegisterService = cashRegisterService;
             Receipt = receiptService;
             Receipt.Items.CollectionChanged += (s, e) => 
             {
@@ -211,6 +213,7 @@ namespace Sklad_2.ViewModels
 
             if (success)
             {
+                await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
                 Receipt.Clear();
                 ScannedProduct = null;
                 LastCreatedReceipt = newReceipt;

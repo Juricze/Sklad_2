@@ -1,0 +1,24 @@
+<ContentDialog
+    x:Class="Sklad_2.Views.Dialogs.CashConfirmationDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Sklad_2.Converters"
+    mc:Ignorable="d"
+    Title="Potvrzení hotovostní platby"
+    PrimaryButtonText="Potvrdit prodej"
+    CloseButtonText="Zpět"
+    DefaultButton="Primary">
+
+    <StackPanel Spacing="16" MinWidth="300">
+        <TextBlock Text="Celkem k úhradě:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+        <TextBlock Text="{x:Bind GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+
+        <TextBlock Text="Přijatá hotovost:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+        <TextBlock Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+
+        <TextBlock Text="Vráceno:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+        <TextBlock Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+    </StackPanel>
+</ContentDialog>

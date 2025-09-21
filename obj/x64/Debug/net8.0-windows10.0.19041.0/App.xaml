@@ -11,6 +11,10 @@
 
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" 
                                                   xmlns:converters="using:Sklad_2.Converters"/>
+            <converters:CurrencyConverter x:Key="CurrencyConverter" 
+                                          xmlns:converters="using:Sklad_2.Converters"/>
+            <converters:DecimalConverter x:Key="DecimalConverter" 
+                                         xmlns:converters="using:Sklad_2.Converters"/>
 
             <!-- Override system accent color to keep the Black & White theme -->
             <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#1A1A1A"/>

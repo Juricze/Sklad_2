@@ -19,6 +19,7 @@ namespace Sklad_2
         private readonly VratkyPrehledViewModel _vratkyPrehledViewModel;
         private readonly NovyProduktViewModel _novyProduktViewModel;
         private readonly PrehledProdejuViewModel _prehledProdejuViewModel;
+        private readonly CashRegisterViewModel _cashRegisterViewModel;
 
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
@@ -39,6 +40,7 @@ namespace Sklad_2
             _vratkyPrehledViewModel = services.GetService<VratkyPrehledViewModel>();
             _novyProduktViewModel = services.GetService<NovyProduktViewModel>();
             _prehledProdejuViewModel = services.GetService<PrehledProdejuViewModel>();
+            _cashRegisterViewModel = services.GetService<CashRegisterViewModel>();
 
             var initialPage = ContentFrame.Content as ProdejPage;
             initialPage.ViewModel = _prodejViewModel;
@@ -88,6 +90,7 @@ namespace Sklad_2
                 m_micaController = null;
             }
             this.Activated -= Window_Activated;
+            ((FrameworkElement)this.Content).ActualThemeChanged -= Window_ThemeChanged;
             m_configurationSource = null;
         }
 
@@ -144,6 +147,11 @@ namespace Sklad_2
                     var vratkyPage = new VratkyPage();
                     vratkyPage.ViewModel = _vratkyViewModel;
                     page = vratkyPage;
+                    break;
+                case "Pokladna":
+                    var cashRegisterPage = new CashRegisterPage();
+                    cashRegisterPage.ViewModel = _cashRegisterViewModel;
+                    page = cashRegisterPage;
                     break;
                 case "Produkty": // Changed from "Databaze"
                     var databazePage = new DatabazePage();

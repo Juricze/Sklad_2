@@ -2,8 +2,12 @@ App.xbf
 MainWindow.xbf
 Styles\Controls.xbf
 Themes\LuxuryWhite.xbf
+Views\CashRegisterPage.xbf
 Views\DatabazePage.xbf
+Views\Dialogs\CashConfirmationDialog.xbf
+Views\Dialogs\CashPaymentDialog.xbf
 Views\Dialogs\OutOfStockDialog.xbf
+Views\Dialogs\PaymentSelectionDialog.xbf
 Views\Dialogs\ReceiptPreviewDialog.xbf
 Views\Dialogs\ReturnPreviewDialog.xbf
 Views\NastaveniPage.xbf

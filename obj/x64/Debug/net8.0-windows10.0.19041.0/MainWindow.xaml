@@ -13,6 +13,7 @@
                 <NavigationViewItem Content="Prodej" Tag="Prodej" Icon="Shop"/>
                 <NavigationViewItem Content="Naskladnění" Tag="Naskladneni" Icon="Add"/>
                 <NavigationViewItem Content="Vratky" Tag="Vratky" Icon="Undo"/>
+                <NavigationViewItem Content="Pokladna" Tag="Pokladna" Icon="Calculator"/>
                 <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Produkty" Tag="Produkty" Icon="Document"/>

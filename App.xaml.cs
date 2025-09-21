@@ -41,6 +41,7 @@ namespace Sklad_2
             services.AddSingleton<IDataService, SqliteDataService>();
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();
+            services.AddSingleton<ICashRegisterService, CashRegisterService>();
 
             // ViewModels
             services.AddSingleton<ProdejViewModel>();
@@ -52,6 +53,7 @@ namespace Sklad_2
             services.AddSingleton<NovyProduktViewModel>();
             services.AddSingleton<PrehledProdejuViewModel>();
             services.AddSingleton<VratkyViewModel>();
+            services.AddSingleton<CashRegisterViewModel>();
 
             return services.BuildServiceProvider();
         }
