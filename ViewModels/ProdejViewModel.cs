@@ -5,6 +5,7 @@ using Sklad_2.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
@@ -29,6 +30,8 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Receipt lastCreatedReceipt;
 
+        public bool IsCheckoutSuccessful { get; private set; }
+
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
 
@@ -51,6 +54,7 @@ namespace Sklad_2.ViewModels
                         {
                             OnPropertyChanged(nameof(GrandTotalFormatted));
                             DecrementQuantityCommand.NotifyCanExecuteChanged();
+                            IncrementQuantityCommand.NotifyCanExecuteChanged();
                         };
                     }
                 }
@@ -58,17 +62,32 @@ namespace Sklad_2.ViewModels
             };
         }
 
+        public event EventHandler<Product> ProductOutOfStock;
+        public event EventHandler<string> CheckoutFailed;
+
         [RelayCommand]
         private async Task FindProductAsync(string eanCode)
         {
             if (string.IsNullOrWhiteSpace(eanCode)) return;
-            
+
             ScannedProduct = null;
             var product = await _dataService.GetProductAsync(eanCode);
             if (product != null)
             {
-                Receipt.AddProduct(product);
-                ScannedProduct = product;
+                ScannedProduct = product; // Show product details immediately
+
+                var existingItem = Receipt.Items.FirstOrDefault(item => item.Product.Ean == product.Ean);
+                int currentQuantityInCart = existingItem?.Quantity ?? 0;
+
+                if (currentQuantityInCart < product.StockQuantity)
+                {
+                    Receipt.AddProduct(product);
+                }
+                else
+                {
+                    // Product is out of stock or at stock limit, raise an event to notify the view
+                    ProductOutOfStock?.Invoke(this, product);
+                }
             }
         }
 
@@ -101,7 +120,12 @@ namespace Sklad_2.ViewModels
             return SelectedReceiptItem != null && SelectedReceiptItem.Quantity > 1;
         }
 
-        [RelayCommand(CanExecute = nameof(CanManipulateItem))]
+        private bool CanIncrementQuantity()
+        {
+            return SelectedReceiptItem != null && SelectedReceiptItem.Quantity < SelectedReceiptItem.Product.StockQuantity;
+        }
+
+        [RelayCommand(CanExecute = nameof(CanIncrementQuantity))]
         private void IncrementQuantity()
         {
             if (SelectedReceiptItem != null)
@@ -113,86 +137,88 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task CheckoutAsync()
         {
+            IsCheckoutSuccessful = false;
             LastCreatedReceipt = null;
-            try
+
+            // Professional check: Ensure company settings are filled before proceeding
+            var settings = _settingsService.CurrentSettings;
+            if (string.IsNullOrWhiteSpace(settings.ShopName) ||
+                string.IsNullOrWhiteSpace(settings.ShopAddress) ||
+                string.IsNullOrWhiteSpace(settings.CompanyId) ||
+                string.IsNullOrWhiteSpace(settings.VatId))
             {
-                var settings = _settingsService.CurrentSettings;
+                CheckoutFailed?.Invoke(this, "Chybí údaje o firmě. Prosím, doplňte je v sekci Nastavení před dokončením prodeje.");
+                return;
+            }
 
-                decimal totalAmountWithoutVat = 0;
-                decimal totalVatAmount = 0;
+            var productsToUpdate = new List<Product>();
+            var receiptItems = new List<Sklad_2.Models.ReceiptItem>();
+            decimal totalAmountWithoutVat = 0;
+            decimal totalVatAmount = 0;
 
-                var receiptItems = new List<Sklad_2.Models.ReceiptItem>();
-
-                // 1. Populate ReceiptItems, calculate VAT and deduct stock
-                foreach (var item in Receipt.Items)
+            // 1. Preliminary check and data preparation
+            foreach (var item in Receipt.Items)
+            {
+                var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
+                if (productInDb == null || productInDb.StockQuantity < item.Quantity)
                 {
-                    var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
-                    if (productInDb != null)
-                    {
-                        if (productInDb.StockQuantity >= item.Quantity)
-                        {
-                            productInDb.StockQuantity -= item.Quantity;
-                            await _dataService.UpdateProductAsync(productInDb);
-
-                            decimal itemPriceWithoutVat = item.TotalPrice / (1 + productInDb.VatRate);
-                            decimal itemVatAmount = item.TotalPrice - itemPriceWithoutVat;
-
-                            receiptItems.Add(new Sklad_2.Models.ReceiptItem
-                            {
-                                ProductEan = item.Product.Ean,
-                                ProductName = item.Product.Name,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.Product.SalePrice,
-                                TotalPrice = item.TotalPrice,
-                                VatRate = productInDb.VatRate,
-                                PriceWithoutVat = itemPriceWithoutVat,
-                                VatAmount = itemVatAmount
-                            });
-
-                            totalAmountWithoutVat += itemPriceWithoutVat;
-                            totalVatAmount += itemVatAmount;
-                        }
-                        else
-                        {
-                            // Logika pro nedostatečné zásoby
-                            System.Diagnostics.Debug.WriteLine($"Nedostatečné zásoby pro produkt {item.Product.Name} (EAN: {item.Product.Ean}). Požadováno: {item.Quantity}, Skladem: {productInDb.StockQuantity}");
-                        }
-                    }
+                    string errorMessage = $"Produkt '{item.Product.Name}' již není dostupný v požadovaném množství. Požadováno: {item.Quantity}, Skladem: {productInDb?.StockQuantity ?? 0}.";
+                    CheckoutFailed?.Invoke(this, errorMessage);
+                    return; // Abort checkout
                 }
 
-                // 2. Create new Receipt object
-                var newReceipt = new Sklad_2.Models.Receipt
+                // Prepare product for stock update
+                productInDb.StockQuantity -= item.Quantity;
+                productsToUpdate.Add(productInDb);
+
+                // Prepare receipt item
+                decimal itemPriceWithoutVat = item.TotalPrice / (1 + productInDb.VatRate);
+                decimal itemVatAmount = item.TotalPrice - itemPriceWithoutVat;
+                receiptItems.Add(new Sklad_2.Models.ReceiptItem
                 {
-                    SaleDate = DateTime.Now,
-                    TotalAmount = Receipt.GrandTotal,
-                    PaymentMethod = "Hotově", // Placeholder
-                    Items = receiptItems,
+                    ProductEan = item.Product.Ean,
+                    ProductName = item.Product.Name,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.Product.SalePrice,
+                    TotalPrice = item.TotalPrice,
+                    VatRate = productInDb.VatRate,
+                    PriceWithoutVat = itemPriceWithoutVat,
+                    VatAmount = itemVatAmount
+                });
 
-                    // Seller info
-                    ShopName = settings.ShopName,
-                    ShopAddress = settings.ShopAddress,
-                    CompanyId = settings.CompanyId,
-                    VatId = settings.VatId,
-                    IsVatPayer = settings.IsVatPayer,
+                totalAmountWithoutVat += itemPriceWithoutVat;
+                totalVatAmount += itemVatAmount;
+            }
 
-                    // VAT info
-                    TotalAmountWithoutVat = totalAmountWithoutVat,
-                    TotalVatAmount = totalVatAmount
-                };
+            // 2. Create Receipt object
+            var newReceipt = new Sklad_2.Models.Receipt
+            {
+                SaleDate = DateTime.Now,
+                TotalAmount = Receipt.GrandTotal,
+                PaymentMethod = "Hotově",
+                Items = receiptItems,
+                ShopName = settings.ShopName,
+                ShopAddress = settings.ShopAddress,
+                CompanyId = settings.CompanyId,
+                VatId = settings.VatId,
+                IsVatPayer = settings.IsVatPayer,
+                TotalAmountWithoutVat = totalAmountWithoutVat,
+                TotalVatAmount = totalVatAmount
+            };
 
-                // 3. Save the Receipt and its items
-                await _dataService.SaveReceiptAsync(newReceipt);
+            // 3. Call the atomic data service method
+            var (success, serviceErrorMessage) = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate);
 
-                // 4. Clear current receipt
+            if (success)
+            {
                 Receipt.Clear();
                 ScannedProduct = null;
-
                 LastCreatedReceipt = newReceipt;
+                IsCheckoutSuccessful = true;
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine($"Chyba během dokončení prodeje: {ex.Message}");
-                // Zde by se v reálné aplikaci zobrazil uživateli dialog s chybou
+                CheckoutFailed?.Invoke(this, serviceErrorMessage);
             }
         }
     }

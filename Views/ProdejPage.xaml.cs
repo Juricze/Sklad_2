@@ -15,6 +15,43 @@ namespace Sklad_2.Views
         public ProdejPage()
         {
             this.InitializeComponent();
+            this.Loaded += (s, e) =>
+            {
+                if (ViewModel != null)
+                {
+                    ViewModel.ProductOutOfStock += ViewModel_ProductOutOfStock;
+                    ViewModel.CheckoutFailed += ViewModel_CheckoutFailed;
+                }
+            };
+            this.Unloaded += (s, e) =>
+            {
+                if (ViewModel != null)
+                {
+                    ViewModel.ProductOutOfStock -= ViewModel_ProductOutOfStock;
+                    ViewModel.CheckoutFailed -= ViewModel_CheckoutFailed;
+                }
+            };
+        }
+
+        private async void ViewModel_CheckoutFailed(object sender, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Chyba při placení",
+                Content = errorMessage,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
+        }
+
+        private async void ViewModel_ProductOutOfStock(object sender, Models.Product product)
+        {
+            var dialog = new OutOfStockDialog(product)
+            {
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
 
         private void EanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -102,26 +139,15 @@ namespace Sklad_2.Views
             if (result == ContentDialogResult.Primary)
             {
                 await ViewModel.CheckoutCommand.ExecuteAsync(null);
-                var createdReceipt = ViewModel.LastCreatedReceipt;
 
-                if (createdReceipt != null)
+                if (ViewModel.IsCheckoutSuccessful)
                 {
+                    var createdReceipt = ViewModel.LastCreatedReceipt;
                     var previewDialog = new ReceiptPreviewDialog(createdReceipt)
                     {
                         XamlRoot = this.XamlRoot,
                     };
                     await previewDialog.ShowAsync();
-                }
-                else
-                {
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Chyba",
-                        Content = "Při ukládání účtenky se vyskytla chyba. Zkontrolujte prosím logy.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                 }
             }
         }

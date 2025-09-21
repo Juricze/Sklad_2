@@ -116,7 +116,7 @@ namespace Sklad_2.ViewModels
                     if (product != null)
                     {
                         product.StockQuantity += itemVM.ReturnQuantity;
-                        await _dataService.UpdateProductAsync(product);
+                        _dataService.UpdateProductAsync(product);
                     }
 
                     // Create return item

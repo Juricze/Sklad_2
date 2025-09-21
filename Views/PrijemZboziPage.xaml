@@ -30,7 +30,10 @@
 
                     <!-- Stocking Quantity and Button (Visible only if product found) -->
                     <StackPanel Visibility="{x:Bind ViewModel.IsProductFound, Mode=OneWay}" Spacing="12">
-                        <TextBox Header="Počet kusů k naskladnění" Text="{x:Bind ViewModel.StockQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="StockQuantityTextBox" 
+                                 Header="Počet kusů k naskladnění" 
+                                 Text="{x:Bind ViewModel.StockQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 KeyDown="StockQuantityTextBox_KeyDown"/>
                         <Button Content="Přidat na sklad" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddToStockCommand}"/>
                     </StackPanel>
                 </StackPanel>

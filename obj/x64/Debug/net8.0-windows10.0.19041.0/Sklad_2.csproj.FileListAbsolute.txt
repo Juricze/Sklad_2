@@ -394,3 +394,8 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Prehl
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\OutOfStockDialog.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\OutOfStockDialog.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\OutOfStockDialog.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\OutOfStockDialog.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\OutOfStockDialog.xbf

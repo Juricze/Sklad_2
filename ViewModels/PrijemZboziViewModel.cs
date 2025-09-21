@@ -67,7 +67,7 @@ namespace Sklad_2.ViewModels
         private bool CanAddToStock() => FoundProduct != null;
 
         [RelayCommand(CanExecute = nameof(CanAddToStock))]
-        private async Task AddToStockAsync()
+        private void AddToStock()
         {
             StatusMessage = string.Empty;
 
@@ -87,7 +87,7 @@ namespace Sklad_2.ViewModels
             {
                 // Use FoundProduct directly, as it should already be loaded
                 FoundProduct.StockQuantity += stockQuantityValue;
-                await _dataService.UpdateProductAsync(FoundProduct);
+                _dataService.UpdateProductAsync(FoundProduct);
                 StatusMessage = $"Skladové zásoby produktu '{FoundProduct.Name}' (EAN: {FoundProduct.Ean}) byly navýšeny o {stockQuantityValue} ks. Nový stav: {FoundProduct.StockQuantity} ks.";
             }
             catch (Exception ex)

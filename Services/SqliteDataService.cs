@@ -36,11 +36,46 @@ namespace Sklad_2.Services
             return products;
         }
 
-        public async Task UpdateProductAsync(Product product)
+        public void UpdateProductAsync(Product product)
         {
             _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            // await _context.SaveChangesAsync(); // Removed for atomic transactions
         }
+
+        public async Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Add the new receipt and its items
+                await _context.Receipts.AddAsync(receipt);
+
+                // Mark all products to be updated
+                foreach (var product in productsToUpdate)
+                {
+                    _context.Products.Update(product);
+                }
+
+                // Save all changes in a single transaction
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, null);
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                Debug.WriteLine($"Database update error during sale completion: {ex.InnerException?.Message ?? ex.Message}");
+                return (false, "Došlo k chybě při ukládání do databáze. Zkuste to prosím znovu.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Debug.WriteLine($"Generic error during sale completion: {ex.Message}");
+                return (false, "Došlo k neočekávané chybě.");
+            }
+        }
+
 
         public async Task DeleteProductAsync(string ean)
         {

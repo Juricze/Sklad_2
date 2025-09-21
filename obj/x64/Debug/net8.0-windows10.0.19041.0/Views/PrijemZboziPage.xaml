@@ -30,7 +30,10 @@
 
                     <!-- Stocking Quantity and Button (Visible only if product found) -->
                     <StackPanel x:ConnectionId='6'                                                             Spacing="12">
-                        <TextBox x:ConnectionId='7' Header="Počet kusů k naskladnění"                                                                                          />
+                        <TextBox x:ConnectionId='7' x:Name="StockQuantityTextBox" 
+                                 Header="Počet kusů k naskladnění" 
+                                                                                                                          
+                                                                       />
                         <Button x:ConnectionId='8' Content="Přidat na sklad" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"                                               />
                     </StackPanel>
                 </StackPanel>

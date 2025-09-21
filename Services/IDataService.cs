@@ -7,17 +7,18 @@ namespace Sklad_2.Services
 {
     public interface IDataService
     {
+        Task AddProductAsync(Product product);
         Task<Product> GetProductAsync(string ean);
         Task<List<Product>> GetProductsAsync();
-        Task AddProductAsync(Product product);
-        Task UpdateProductAsync(Product product);
+        void UpdateProductAsync(Product product);
         Task DeleteProductAsync(string ean);
-        Task SaveReceiptAsync(Models.Receipt receipt);
-        Task<List<Models.Receipt>> GetReceiptsAsync();
-        Task<List<Models.Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate);
+        Task SaveReceiptAsync(Receipt receipt);
+        Task<List<Receipt>> GetReceiptsAsync();
+        Task<List<Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate);
         Task<Receipt> GetReceiptByIdAsync(int receiptId);
         Task SaveReturnAsync(Return returnDocument);
         Task<List<Return>> GetReturnsAsync();
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
+        Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
     }
 }

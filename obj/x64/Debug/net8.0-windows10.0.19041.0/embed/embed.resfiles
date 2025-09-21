@@ -3,6 +3,7 @@ MainWindow.xbf
 Styles\Controls.xbf
 Themes\LuxuryWhite.xbf
 Views\DatabazePage.xbf
+Views\Dialogs\OutOfStockDialog.xbf
 Views\Dialogs\ReceiptPreviewDialog.xbf
 Views\Dialogs\ReturnPreviewDialog.xbf
 Views\NastaveniPage.xbf
