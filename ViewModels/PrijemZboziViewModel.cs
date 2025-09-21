@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels

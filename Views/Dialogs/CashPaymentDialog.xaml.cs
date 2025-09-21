@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml.Input;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.Threading.Tasks;
 
 namespace Sklad_2.Views.Dialogs
