@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Sklad_2.Data;
@@ -34,7 +35,7 @@ namespace Sklad_2
             var services = new ServiceCollection();
 
             // Core
-            services.AddSingleton<DatabaseContext>();
+            services.AddDbContextFactory<DatabaseContext>();
 
             // Services
             services.AddSingleton<ISettingsService, SettingsService>();

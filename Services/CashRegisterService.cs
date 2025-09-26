@@ -10,16 +10,17 @@ namespace Sklad_2.Services
 {
     public class CashRegisterService : ICashRegisterService
     {
-        private readonly DatabaseContext _context;
+        private readonly IDbContextFactory<DatabaseContext> _contextFactory;
 
-        public CashRegisterService(DatabaseContext context)
+        public CashRegisterService(IDbContextFactory<DatabaseContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task<decimal> GetCurrentCashInTillAsync()
         {
-            return await _context.CashRegisterEntries
+            using var context = _contextFactory.CreateDbContext();
+            return await context.CashRegisterEntries
                                  .OrderByDescending(e => e.Timestamp)
                                  .Select(e => e.CurrentCashInTill)
                                  .FirstOrDefaultAsync();
@@ -27,7 +28,12 @@ namespace Sklad_2.Services
 
         public async Task RecordEntryAsync(EntryType type, decimal amount, string description)
         {
-            var currentCash = await GetCurrentCashInTillAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var currentCash = await context.CashRegisterEntries
+                                           .OrderByDescending(e => e.Timestamp)
+                                           .Select(e => e.CurrentCashInTill)
+                                           .FirstOrDefaultAsync();
+
             decimal newCashInTill = currentCash;
 
             switch (type)
@@ -52,28 +58,37 @@ namespace Sklad_2.Services
                 CurrentCashInTill = newCashInTill
             };
 
-            _context.CashRegisterEntries.Add(entry);
-            await _context.SaveChangesAsync();
+            context.CashRegisterEntries.Add(entry);
+            await context.SaveChangesAsync();
         }
 
         public async Task InitializeTillAsync(decimal initialAmount)
         {
-            var hasEntries = await _context.CashRegisterEntries.AnyAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var hasEntries = await context.CashRegisterEntries.AnyAsync();
             if (!hasEntries)
             {
                 await RecordEntryAsync(EntryType.InitialDeposit, initialAmount, "Počáteční vklad do pokladny");
             }
             else
             {
-                // Můžeme přidat logiku pro resetování pokladny, pokud je to potřeba
-                // Prozatím jen zaznamenáme jako běžný vklad, pokud už existují záznamy
                 await RecordEntryAsync(EntryType.Deposit, initialAmount, "Vklad do pokladny");
             }
         }
 
         public async Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync()
         {
-            return await _context.CashRegisterEntries.OrderByDescending(e => e.Timestamp).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.CashRegisterEntries.OrderByDescending(e => e.Timestamp).ToListAsync();
+        }
+
+        public async Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync(DateTime startDate, DateTime endDate)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.CashRegisterEntries
+                                .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
+                                .OrderByDescending(e => e.Timestamp)
+                                .ToListAsync();
         }
 
         public async Task PerformDailyReconciliationAsync(decimal actualAmount)

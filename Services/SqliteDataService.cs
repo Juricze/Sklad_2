@@ -3,7 +3,7 @@ using Sklad_2.Data;
 using Sklad_2.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics; 
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,53 +11,53 @@ namespace Sklad_2.Services
 {
     public class SqliteDataService : IDataService
     {
-        private readonly DatabaseContext _context;
+        private readonly IDbContextFactory<DatabaseContext> _contextFactory;
 
-        public SqliteDataService(DatabaseContext context)
+        public SqliteDataService(IDbContextFactory<DatabaseContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task AddProductAsync(Product product)
         {
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            using var context = _contextFactory.CreateDbContext();
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
         }
 
         public async Task<Product> GetProductAsync(string ean)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
-            return product;
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
         }
 
         public async Task<List<Product>> GetProductsAsync()
         {
-            var products = await _context.Products.ToListAsync();
-            return products;
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Products.ToListAsync();
         }
 
-        public void UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
-            _context.Products.Update(product);
-            // await _context.SaveChangesAsync(); // Removed for atomic transactions
+            using var context = _contextFactory.CreateDbContext();
+            context.Products.Update(product);
+            await context.SaveChangesAsync();
         }
 
         public async Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var context = _contextFactory.CreateDbContext();
+            using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
-                // Add the new receipt and its items
-                await _context.Receipts.AddAsync(receipt);
+                await context.Receipts.AddAsync(receipt);
 
-                // Mark all products to be updated
                 foreach (var product in productsToUpdate)
                 {
-                    _context.Products.Update(product);
+                    context.Products.Update(product);
                 }
 
-                // Save all changes in a single transaction
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return (true, null);
@@ -76,66 +76,84 @@ namespace Sklad_2.Services
             }
         }
 
-
         public async Task DeleteProductAsync(string ean)
         {
-            var product = await GetProductAsync(ean);
+            using var context = _contextFactory.CreateDbContext();
+            var product = await context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
             if (product != null)
             {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+                context.Products.Remove(product);
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task SaveReceiptAsync(Receipt receipt)
         {
-            await _context.Receipts.AddAsync(receipt);
-            await _context.SaveChangesAsync();
+            using var context = _contextFactory.CreateDbContext();
+            await context.Receipts.AddAsync(receipt);
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Receipt>> GetReceiptsAsync()
         {
-            return await _context.Receipts.Include(r => r.Items).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Receipts.Include(r => r.Items).ToListAsync();
         }
 
         public async Task<List<Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate)
         {
-            return await _context.Receipts.Include(r => r.Items).Where(r => r.SaleDate >= startDate && r.SaleDate <= endDate).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Receipts.Include(r => r.Items).Where(r => r.SaleDate >= startDate && r.SaleDate <= endDate).ToListAsync();
         }
 
         public async Task<Receipt> GetReceiptByIdAsync(int receiptId)
         {
-            return await _context.Receipts
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Receipts
                                  .Include(r => r.Items)
                                  .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
         }
 
         public async Task SaveReturnAsync(Return returnDocument)
         {
-            await _context.Returns.AddAsync(returnDocument);
-            await _context.SaveChangesAsync();
+            using var context = _contextFactory.CreateDbContext();
+            await context.Returns.AddAsync(returnDocument);
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Return>> GetReturnsAsync()
         {
-            return await _context.Returns.Include(r => r.Items).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Returns.Include(r => r.Items).ToListAsync();
         }
 
         public async Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate)
         {
-            return await _context.Returns.Include(r => r.Items).Where(r => r.ReturnDate >= startDate && r.ReturnDate <= endDate).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Returns.Include(r => r.Items).Where(r => r.ReturnDate >= startDate && r.ReturnDate <= endDate).ToListAsync();
         }
 
         public async Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan)
         {
-            return await _context.ReturnItems
+            using var context = _contextFactory.CreateDbContext();
+            return await context.ReturnItems
                                  .Where(ri => ri.Return.OriginalReceiptId == originalReceiptId && ri.ProductEan == productEan)
                                  .SumAsync(ri => ri.ReturnedQuantity);
         }
 
         public async Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync()
         {
-            return await _context.CashRegisterEntries.ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            return await context.CashRegisterEntries.ToListAsync();
+        }
+
+        public async Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.CashRegisterEntries
+                                 .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
+                                 .OrderByDescending(e => e.Timestamp)
+                                 .ToListAsync();
         }
     }
 }

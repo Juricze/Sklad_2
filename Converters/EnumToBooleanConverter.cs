@@ -1,5 +1,6 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using Sklad_2.ViewModels;
+using Sklad_2.Models;
 using System;
 
 namespace Sklad_2.Converters
@@ -13,22 +14,27 @@ namespace Sklad_2.Converters
                 return false;
             }
 
-            if (!Enum.IsDefined(typeof(DateFilterType), value))
+            if (value == null || !Enum.IsDefined(value.GetType(), value))
             {
                 return false;
             }
 
-            var enumValue = Enum.Parse(typeof(DateFilterType), enumString);
+            var enumValue = Enum.Parse(value.GetType(), enumString);
             return value.Equals(enumValue);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (parameter is not string enumString)
+            if (value is not true)
             {
-                return null;
+                return DependencyProperty.UnsetValue;
             }
 
+            if (parameter is not string enumString)
+            {
+                return DependencyProperty.UnsetValue;
+            }
+            
             return Enum.Parse(typeof(DateFilterType), enumString);
         }
     }

@@ -10,7 +10,7 @@ namespace Sklad_2.Services
         Task AddProductAsync(Product product);
         Task<Product> GetProductAsync(string ean);
         Task<List<Product>> GetProductsAsync();
-        void UpdateProductAsync(Product product);
+        Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(string ean);
         Task SaveReceiptAsync(Receipt receipt);
         Task<List<Receipt>> GetReceiptsAsync();
@@ -22,5 +22,6 @@ namespace Sklad_2.Services
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
         Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();
+        Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate);
     }
 }
