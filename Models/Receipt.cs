@@ -49,7 +49,7 @@ namespace Sklad_2.Models
 
         // Formatted properties
         public string TotalAmountFormatted => $"{TotalAmount:C}";
-        public string SaleDateFormatted => $"{SaleDate.Date:d}";
+        public string SaleDateFormatted => $"{SaleDate:g}";
         public string TotalAmountWithoutVatFormatted => $"{TotalAmountWithoutVat:C}";
         public string TotalVatAmountFormatted => $"{TotalVatAmount:C}";
 

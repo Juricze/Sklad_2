@@ -14,6 +14,7 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
+        private readonly ICashRegisterService _cashRegisterService;
 
         [ObservableProperty]
         private string receiptIdToSearch;
@@ -38,10 +39,11 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return lastCreatedReturn;
 
-        public VratkyViewModel(IDataService dataService, ISettingsService settingsService)
+        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
+            _cashRegisterService = cashRegisterService;
         }
 
         [RelayCommand]
@@ -158,6 +160,10 @@ namespace Sklad_2.ViewModels
 
                 // Save return document
                 await _dataService.SaveReturnAsync(returnDocument);
+
+                // Record withdrawal from cash register
+                await _cashRegisterService.RecordEntryAsync(EntryType.Withdrawal, TotalRefundAmount, $"Vratka k účtence č. {FoundReceipt.ReceiptId}");
+                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Messages.CashRegisterUpdatedMessage, string>(new Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
 
                 StatusMessage = $"Vratka pro účtenku č. {FoundReceipt.ReceiptId} byla úspěšně vytvořena.";
                 LastCreatedReturn = returnDocument;

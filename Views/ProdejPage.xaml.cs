@@ -123,7 +123,8 @@ namespace Sklad_2.Views
             };
             await paymentSelectionDialog.ShowAsync();
 
-            // Zpracování zvolené platební metody
+            var parameters = new Dictionary<string, object>();
+
             switch (paymentSelectionDialog.SelectedPaymentMethod)
             {
                 case PaymentMethod.Cash:
@@ -132,84 +133,49 @@ namespace Sklad_2.Views
                     decimal receivedAmount = 0m;
                     decimal changeAmount = 0m;
 
-                    do
-                    {
-                        var cashPaymentDialog = new CashPaymentDialog(grandTotal)
-                        {
-                            XamlRoot = this.XamlRoot
-                        };
-                        cashPaymentResult = await cashPaymentDialog.ShowAsync();
+                    var cashPaymentDialog = new CashPaymentDialog(grandTotal) { XamlRoot = this.XamlRoot };
+                    cashPaymentResult = await cashPaymentDialog.ShowAsync();
 
-                        if (cashPaymentResult == ContentDialogResult.Primary)
-                        {
-                            receivedAmount = cashPaymentDialog.ReceivedAmount;
-                            changeAmount = cashPaymentDialog.ChangeAmount;
+                    if (cashPaymentResult != ContentDialogResult.Primary) break;
 
-                            var cashConfirmationDialog = new CashConfirmationDialog(grandTotal, receivedAmount, changeAmount)
-                            {
-                                XamlRoot = this.XamlRoot
-                            };
-                            ContentDialogResult confirmationResult = await cashConfirmationDialog.ShowAsync();
+                    receivedAmount = cashPaymentDialog.ReceivedAmount;
+                    changeAmount = cashPaymentDialog.ChangeAmount;
 
-                            if (confirmationResult == ContentDialogResult.Primary) // User confirmed sale
-                            {
-var parameters = new Dictionary<string, decimal>
-                                {
-                                    { "receivedAmount", receivedAmount },
-                                    { "changeAmount", changeAmount }
-                                };
-                                await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
+                    var cashConfirmationDialog = new CashConfirmationDialog(grandTotal, receivedAmount, changeAmount) { XamlRoot = this.XamlRoot };
+                    ContentDialogResult confirmationResult = await cashConfirmationDialog.ShowAsync();
 
-                                if (ViewModel.IsCheckoutSuccessful)
-                                {
-                                    var createdReceipt = ViewModel.LastCreatedReceipt;
-                                    var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt)
-                                    {
-                                        XamlRoot = this.XamlRoot,
-                                    };
-                                    await finalReceiptPreviewDialog.ShowAsync();
-                                    ViewModel.ClearReceiptCommand.Execute(null);
-                                }
-                                cashPaymentResult = ContentDialogResult.Primary; // Exit loop
-                            }
-                            else // User clicked "Zpět" (CloseButton) in confirmation dialog
-                            {
-                                cashPaymentResult = ContentDialogResult.None; // Re-show cash payment dialog
-                            }
-                        }
-                        else // User cancelled cash payment dialog
-                        {
-                            // If the cash payment dialog was cancelled, we want to go back to the payment selection dialog.
-                            // We set cashPaymentResult to Primary to exit the do-while loop, but the outer switch will then handle it as a cancellation.
-                            cashPaymentResult = ContentDialogResult.Primary; 
-                        }
-                    } while (cashPaymentResult == ContentDialogResult.None); // Loop if user went "Zpět" from confirmation
+                    if (confirmationResult != ContentDialogResult.Primary) break;
 
-                    // If cashPaymentResult is not Primary (meaning it was cancelled), we break out of the switch to re-show PaymentSelectionDialog.
-                    if (cashPaymentResult != ContentDialogResult.Primary)
-                    {
-                        break; // Exit the switch to re-show PaymentSelectionDialog
-                    }
+                    parameters.Add("paymentMethod", PaymentMethod.Cash);
+                    parameters.Add("receivedAmount", receivedAmount);
+                    parameters.Add("changeAmount", changeAmount);
 
+                    await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
                     break;
+
                 case PaymentMethod.Card:
-                    // Provedení CheckoutCommand pro platbu kartou
-                    await ViewModel.CheckoutCommand.ExecuteAsync(null);
+                    var cardConfirmationDialog = new CardPaymentConfirmationDialog() { XamlRoot = this.XamlRoot };
+                    var cardConfirmationResult = await cardConfirmationDialog.ShowAsync();
 
-                    if (ViewModel.IsCheckoutSuccessful)
-                    {
-                        var createdReceipt = ViewModel.LastCreatedReceipt;
-                        var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt)
-                        {
-                            XamlRoot = this.XamlRoot,
-                        };
-                        await finalReceiptPreviewDialog.ShowAsync();
-                        ViewModel.ClearReceiptCommand.Execute(null);
-                    }
+                    if (cardConfirmationResult != ContentDialogResult.Primary) break;
+
+                    parameters.Add("paymentMethod", PaymentMethod.Card);
+                    await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
                     break;
+
                 case PaymentMethod.None:
-                    // Uživatel zavřel dialog bez výběru platby
-                    break;
+                    return;
+            }
+
+            if (ViewModel.IsCheckoutSuccessful)
+            {
+                var createdReceipt = ViewModel.LastCreatedReceipt;
+                var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt)
+                {
+                    XamlRoot = this.XamlRoot,
+                };
+                await finalReceiptPreviewDialog.ShowAsync();
+                ViewModel.ClearReceiptCommand.Execute(null);
             }
         }
     }

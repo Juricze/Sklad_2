@@ -137,21 +137,20 @@ namespace Sklad_2.ViewModels
         }
 
         [RelayCommand]
-        private async Task CheckoutAsync(Dictionary<string, decimal> parameters)
+        private async Task CheckoutAsync(Dictionary<string, object> parameters)
         {
-            decimal receivedAmount = 0;
-            decimal changeAmount = 0;
-
-            if (parameters != null)
-            {
-                parameters.TryGetValue("receivedAmount", out receivedAmount);
-                parameters.TryGetValue("changeAmount", out changeAmount);
-            }
-
             IsCheckoutSuccessful = false;
             LastCreatedReceipt = null;
 
-            // Professional check: Ensure company settings are filled before proceeding
+            // Extract parameters
+            parameters.TryGetValue("paymentMethod", out var paymentMethodObj);
+            parameters.TryGetValue("receivedAmount", out var receivedAmountObj);
+            parameters.TryGetValue("changeAmount", out var changeAmountObj);
+
+            var paymentMethod = (paymentMethodObj is PaymentMethod) ? (PaymentMethod)paymentMethodObj : PaymentMethod.None;
+            var receivedAmount = (receivedAmountObj is decimal) ? (decimal)receivedAmountObj : 0;
+            var changeAmount = (changeAmountObj is decimal) ? (decimal)changeAmountObj : 0;
+
             var settings = _settingsService.CurrentSettings;
             if (string.IsNullOrWhiteSpace(settings.ShopName) ||
                 string.IsNullOrWhiteSpace(settings.ShopAddress) ||
@@ -167,7 +166,6 @@ namespace Sklad_2.ViewModels
             decimal totalAmountWithoutVat = 0;
             decimal totalVatAmount = 0;
 
-            // 1. Preliminary check and data preparation
             foreach (var item in Receipt.Items)
             {
                 var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
@@ -175,14 +173,12 @@ namespace Sklad_2.ViewModels
                 {
                     string errorMessage = $"Produkt '{item.Product.Name}' již není dostupný v požadovaném množství. Požadováno: {item.Quantity}, Skladem: {productInDb?.StockQuantity ?? 0}.";
                     CheckoutFailed?.Invoke(this, errorMessage);
-                    return; // Abort checkout
+                    return;
                 }
 
-                // Prepare product for stock update
                 productInDb.StockQuantity -= item.Quantity;
                 productsToUpdate.Add(productInDb);
 
-                // Prepare receipt item
                 decimal itemPriceWithoutVat = item.TotalPrice / (1 + productInDb.VatRate);
                 decimal itemVatAmount = item.TotalPrice - itemPriceWithoutVat;
                 receiptItems.Add(new Sklad_2.Models.ReceiptItem
@@ -201,12 +197,11 @@ namespace Sklad_2.ViewModels
                 totalVatAmount += itemVatAmount;
             }
 
-            // 2. Create Receipt object
             var newReceipt = new Sklad_2.Models.Receipt
             {
                 SaleDate = DateTime.Now,
                 TotalAmount = Receipt.GrandTotal,
-                PaymentMethod = "Hotově",
+                PaymentMethod = GetPaymentMethodString(paymentMethod),
                 Items = receiptItems,
                 ShopName = settings.ShopName,
                 ShopAddress = settings.ShopAddress,
@@ -219,13 +214,15 @@ namespace Sklad_2.ViewModels
                 ChangeAmount = changeAmount
             };
 
-            // 3. Call the atomic data service method
             var (success, serviceErrorMessage) = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate);
 
             if (success)
             {
-                await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
-                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
+                if (paymentMethod == PaymentMethod.Cash)
+                {
+                    await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
+                    CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
+                }
                 Receipt.Clear();
                 ScannedProduct = null;
                 LastCreatedReceipt = newReceipt;
@@ -235,6 +232,16 @@ namespace Sklad_2.ViewModels
             {
                 CheckoutFailed?.Invoke(this, serviceErrorMessage);
             }
+        }
+
+        private string GetPaymentMethodString(PaymentMethod paymentMethod)
+        {
+            return paymentMethod switch
+            {
+                PaymentMethod.Cash => "Hotově",
+                PaymentMethod.Card => "Kartou",
+                _ => "Neznámá",
+            };
         }
     }
 }

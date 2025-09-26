@@ -13,6 +13,10 @@
     DefaultButton="Close"
     PrimaryButtonClick="PrintButton_Click">
 
+    <ContentDialog.Resources>
+        <converters:PaymentMethodToVisibilityConverter x:Key="PaymentMethodToVisibilityConverter"/>
+    </ContentDialog.Resources>
+
     <StackPanel Spacing="16" MinWidth="400">
         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
             <StackPanel Spacing="16">
@@ -116,11 +120,16 @@
                         <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                         <TextBlock Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
 
-                        <TextBlock Text="Obdržená hotovost:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"/>
-                        <TextBlock Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="HRAZENO KARTOU" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,12,0,0"
+                                   Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Kartou'}"/>
 
-                        <TextBlock Text="Vráceno:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,4,0,0" HorizontalAlignment="Right"/>
-                        <TextBlock Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                        <StackPanel Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Hotově'}">
+                            <TextBlock Text="Obdržená hotovost:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+
+                            <TextBlock Text="Vráceno:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,4,0,0" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </StackPanel>
