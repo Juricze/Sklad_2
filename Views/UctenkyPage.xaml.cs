@@ -1,6 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using System;
@@ -14,12 +14,12 @@ namespace Sklad_2.Views
         public UctenkyPage()
         {
             this.InitializeComponent();
+            ViewModel = (Application.Current as App).Services.GetRequiredService<UctenkyViewModel>();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            base.OnNavigatedTo(e);
-            ViewModel.LoadReceiptsCommand.Execute(null); // Volání LoadReceiptsCommand zpět
+            ViewModel.LoadReceiptsCommand.Execute(null);
         }
 
         private async void ShowPreviewButton_Click(object sender, RoutedEventArgs e)
