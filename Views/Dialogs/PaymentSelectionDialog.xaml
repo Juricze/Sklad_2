@@ -17,6 +17,5 @@
             <Button Content="Hotově" Click="CashButton_Click" Style="{StaticResource AccentButtonStyle}" Width="120"/>
             <Button Content="Kartou" Click="CardButton_Click" Style="{StaticResource AccentButtonStyle}" Width="120"/>
         </StackPanel>
-        <Button Content="Tisk účtenky (bez prodeje)" Click="PrintButton_Click" HorizontalAlignment="Center"/>
     </StackPanel>
 </ContentDialog>

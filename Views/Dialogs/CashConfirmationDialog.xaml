@@ -11,14 +11,32 @@
     CloseButtonText="Zpět"
     DefaultButton="Primary">
 
-    <StackPanel Spacing="16" MinWidth="300">
-        <TextBlock Text="Celkem k úhradě:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        <TextBlock Text="{x:Bind GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+    <Grid RowSpacing="16" MinWidth="320">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Přijatá hotovost:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        <TextBlock Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Celkem k úhradě:" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" VerticalAlignment="Center"/>
 
-        <TextBlock Text="Vráceno:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        <TextBlock Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
-    </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Přijatá hotovost:" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" VerticalAlignment="Center"/>
+
+        <Border Grid.Row="2" Grid.ColumnSpan="2" Background="{ThemeResource SystemAccentColorLight2}" CornerRadius="8" Padding="16" Margin="0,16,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Vrátit:" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource HeaderTextBlockStyle}" FontWeight="ExtraBold" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
 </ContentDialog>

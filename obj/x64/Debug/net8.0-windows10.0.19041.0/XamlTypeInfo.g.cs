@@ -833,7 +833,6 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 userType.AddEnumValue("None", global::Sklad_2.Models.PaymentMethod.None);
                 userType.AddEnumValue("Cash", global::Sklad_2.Models.PaymentMethod.Cash);
                 userType.AddEnumValue("Card", global::Sklad_2.Models.PaymentMethod.Card);
-                userType.AddEnumValue("Print", global::Sklad_2.Models.PaymentMethod.Print);
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;

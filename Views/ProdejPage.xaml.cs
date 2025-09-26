@@ -202,11 +202,6 @@ namespace Sklad_2.Views
                         ViewModel.ClearReceiptCommand.Execute(null);
                     }
                     break;
-                case PaymentMethod.Print:
-                    // Zde by se v budoucnu mohla přidat logika pro tisk
-                    // Prozatím jen vyčistíme účtenku
-                    ViewModel.ClearReceiptCommand.Execute(null);
-                    break;
                 case PaymentMethod.None:
                     // Uživatel zavřel dialog bez výběru platby
                     break;

@@ -14,10 +14,9 @@
         <TextBlock x:ConnectionId='2'                                                                                       Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
-            <Button x:ConnectionId='4' Content="Hotově"                          Style="{StaticResource AccentButtonStyle}" Width="120"/>
-            <Button x:ConnectionId='5' Content="Kartou"                          Style="{StaticResource AccentButtonStyle}" Width="120"/>
+            <Button x:ConnectionId='3' Content="Hotově"                          Style="{StaticResource AccentButtonStyle}" Width="120"/>
+            <Button x:ConnectionId='4' Content="Kartou"                          Style="{StaticResource AccentButtonStyle}" Width="120"/>
         </StackPanel>
-        <Button x:ConnectionId='3' Content="Tisk účtenky (bez prodeje)"                           HorizontalAlignment="Center"/>
     </StackPanel>
 </ContentDialog>
 

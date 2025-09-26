@@ -31,7 +31,7 @@ namespace Sklad_2.ViewModels
         {
             _cashRegisterService = cashRegisterService;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
-            LoadCashRegisterDataAsync();
+LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
 
             // Register for messages
             WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");
