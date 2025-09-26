@@ -121,6 +121,11 @@ namespace Sklad_2.Services
             return await _context.Returns.Include(r => r.Items).ToListAsync();
         }
 
+        public async Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.Returns.Include(r => r.Items).Where(r => r.ReturnDate >= startDate && r.ReturnDate <= endDate).ToListAsync();
+        }
+
         public async Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan)
         {
             return await _context.ReturnItems

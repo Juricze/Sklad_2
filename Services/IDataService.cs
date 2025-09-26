@@ -18,6 +18,7 @@ namespace Sklad_2.Services
         Task<Receipt> GetReceiptByIdAsync(int receiptId);
         Task SaveReturnAsync(Return returnDocument);
         Task<List<Return>> GetReturnsAsync();
+        Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate);
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
         Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();

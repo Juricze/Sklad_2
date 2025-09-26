@@ -5,8 +5,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Sklad_2.Models"
+    xmlns:converters="using:Sklad_2.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                        >
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        </ResourceDictionary>
+    </Page.Resources>
     <Grid Padding="24" ColumnSpacing="24">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="420"/>
@@ -17,17 +28,26 @@
         <Grid Grid.Column="0" RowSpacing="12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Seznam vratek" Style="{ThemeResource TitleTextBlockStyle}"/>
-                <Button x:ConnectionId='23'                                                >
-                    <FontIcon Glyph="&#xE72C;"/>
-                </Button>
+            <TextBlock Grid.Row="0" Text="Seznam vratek" Style="{ThemeResource TitleTextBlockStyle}"/>
+
+            <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8" Margin="0,12,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <RadioButton x:ConnectionId='26' Content="Denní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                            />
+                    <RadioButton x:ConnectionId='27' Content="Týdenní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                             />
+                    <RadioButton x:ConnectionId='28' Content="Měsíční" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                              />
+                    <RadioButton x:ConnectionId='29' Content="Vlastní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                             />
+                </StackPanel>
+                <StackPanel x:ConnectionId='23' Orientation="Horizontal" Spacing="8"                                                                   >
+                    <CalendarDatePicker x:ConnectionId='24' Header="Od"                                                        HorizontalAlignment="Stretch"/>
+                    <CalendarDatePicker x:ConnectionId='25' Header="Do"                                                      HorizontalAlignment="Stretch"/>
+                </StackPanel>
             </StackPanel>
 
-            <ListView x:ConnectionId='16' Grid.Row="1"
+            <ListView x:ConnectionId='16' Grid.Row="2"
                                                                            
                                                                                    
                       SelectionMode="Single">

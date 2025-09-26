@@ -1,8 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
-using Microsoft.UI.Xaml;
 using System;
 
 namespace Sklad_2.Views
@@ -14,11 +14,11 @@ namespace Sklad_2.Views
         public VratkyPrehledPage()
         {
             this.InitializeComponent();
+            ViewModel = (Application.Current as App).Services.GetRequiredService<VratkyPrehledViewModel>();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            base.OnNavigatedTo(e);
             ViewModel.LoadReturnsCommand.Execute(null);
         }
 
