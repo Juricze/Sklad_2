@@ -2,6 +2,7 @@ App.xbf
 MainWindow.xbf
 Styles\Controls.xbf
 Themes\LuxuryWhite.xbf
+Views\CashRegisterHistoryPage.xbf
 Views\CashRegisterPage.xbf
 Views\DatabazePage.xbf
 Views\Dialogs\CashConfirmationDialog.xbf

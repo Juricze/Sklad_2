@@ -127,5 +127,10 @@ namespace Sklad_2.Services
                                  .Where(ri => ri.Return.OriginalReceiptId == originalReceiptId && ri.ProductEan == productEan)
                                  .SumAsync(ri => ri.ReturnedQuantity);
         }
+
+        public async Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync()
+        {
+            return await _context.CashRegisterEntries.ToListAsync();
+        }
     }
 }

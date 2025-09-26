@@ -179,6 +179,11 @@ namespace Sklad_2
                     prehledProdejuPage.ViewModel = _prehledProdejuViewModel;
                     page = prehledProdejuPage;
                     break;
+                case "HistoriePokladny":
+                    var cashRegisterHistoryPage = new CashRegisterHistoryPage();
+                    cashRegisterHistoryPage.ViewModel = (Application.Current as App).Services.GetService<CashRegisterHistoryViewModel>();
+                    page = cashRegisterHistoryPage;
+                    break;
                 case "Nastaveni":
                     var nastaveniPage = new NastaveniPage();
                     nastaveniPage.ViewModel = _nastaveniViewModel;

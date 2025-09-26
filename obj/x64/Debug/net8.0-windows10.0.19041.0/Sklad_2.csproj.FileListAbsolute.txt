@@ -419,3 +419,8 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialo
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\PaymentSelectionDialog.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\PaymentSelectionDialog.xbf
 C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\PaymentSelectionDialog.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\CashRegisterHistoryPage.xbf
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\CashRegisterHistoryPage.g.i.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\CashRegisterHistoryPage.g.cs
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\CashRegisterHistoryPage.xaml
+C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\CashRegisterHistoryPage.xbf

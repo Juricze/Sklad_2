@@ -54,6 +54,7 @@ namespace Sklad_2
             services.AddSingleton<PrehledProdejuViewModel>();
             services.AddSingleton<VratkyViewModel>();
             services.AddSingleton<CashRegisterViewModel>();
+            services.AddSingleton<CashRegisterHistoryViewModel>();
 
             return services.BuildServiceProvider();
         }

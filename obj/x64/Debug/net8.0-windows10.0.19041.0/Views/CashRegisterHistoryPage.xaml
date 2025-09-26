@@ -1,0 +1,65 @@
+﻿<Page x:ConnectionId='1'
+    x:Class="Sklad_2.Views.CashRegisterHistoryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:Sklad_2.ViewModels"
+    xmlns:converters="using:Sklad_2.Converters"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <converters:DeficitToBrushConverter x:Key="DeficitToBrushConverter"/>
+    </Page.Resources>
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
+            <TextBlock Text="Historie pokladny" Style="{ThemeResource TitleTextBlockStyle}"/>
+            <Button x:ConnectionId='10'                                                >
+                <FontIcon Glyph="&#xE72C;"/>
+            </Button>
+        </StackPanel>
+
+        <ListView x:ConnectionId='2' Grid.Row="1"
+                                                                       
+                  SelectionMode="None">
+            <ListView.HeaderTemplate>
+                <DataTemplate>
+                    <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Datum a čas" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="Typ" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="2" Text="Částka" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="Popis" FontWeight="Bold"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.HeaderTemplate>
+            <ListView.ItemTemplate>
+                <DataTemplate                                                   >
+                    <Grid x:ConnectionId='5' Padding="12" ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:ConnectionId='6' Grid.Column="0"                                 VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='7' Grid.Column="1"                              VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='8' Grid.Column="2"                                 VerticalAlignment="Center" HorizontalAlignment="Right"                                                                                    />
+                        <TextBlock x:ConnectionId='9' Grid.Column="3"                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>
+

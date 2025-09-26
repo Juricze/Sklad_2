@@ -20,5 +20,6 @@ namespace Sklad_2.Services
         Task<List<Return>> GetReturnsAsync();
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
         Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
+        Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();
     }
 }
