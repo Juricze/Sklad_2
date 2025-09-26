@@ -6,6 +6,7 @@ namespace Sklad_2.Models
         Sale,
         Withdrawal,
         Deposit,
-        DailyReconciliation
+        DailyReconciliation,
+        Return
     }
 }

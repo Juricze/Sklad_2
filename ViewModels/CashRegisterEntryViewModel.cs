@@ -22,6 +22,8 @@ namespace Sklad_2.ViewModels
                         return "Vklad";
                     case EntryType.DailyReconciliation:
                         return "Denní uzávěrka";
+                    case EntryType.Return:
+                        return "Výběr";
                     default:
                         return Entry.Type.ToString();
                 }
@@ -32,7 +34,7 @@ namespace Sklad_2.ViewModels
         {
             get
             {
-                if (Entry.Type == EntryType.DailyReconciliation)
+                if (Entry.Type == EntryType.DailyReconciliation || Entry.Type == EntryType.Return)
                 {
                     return -Entry.Amount;
                 }
@@ -44,7 +46,7 @@ namespace Sklad_2.ViewModels
         {
             get
             {
-                return Entry.Type == EntryType.DailyReconciliation && Entry.Amount > 0;
+                return (Entry.Type == EntryType.DailyReconciliation || Entry.Type == EntryType.Return) && Entry.Amount > 0;
             }
         }
 

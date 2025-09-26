@@ -118,7 +118,7 @@ namespace Sklad_2.ViewModels
                     if (product != null)
                     {
                         product.StockQuantity += itemVM.ReturnQuantity;
-                        _dataService.UpdateProductAsync(product);
+                        await _dataService.UpdateProductAsync(product);
                     }
 
                     // Create return item
@@ -162,7 +162,7 @@ namespace Sklad_2.ViewModels
                 await _dataService.SaveReturnAsync(returnDocument);
 
                 // Record withdrawal from cash register
-                await _cashRegisterService.RecordEntryAsync(EntryType.Withdrawal, TotalRefundAmount, $"Vratka k účtence č. {FoundReceipt.ReceiptId}");
+                await _cashRegisterService.RecordEntryAsync(EntryType.Return, TotalRefundAmount, $"Vratka k účtence č. {FoundReceipt.ReceiptId}");
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Messages.CashRegisterUpdatedMessage, string>(new Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
 
                 StatusMessage = $"Vratka pro účtenku č. {FoundReceipt.ReceiptId} byla úspěšně vytvořena.";
