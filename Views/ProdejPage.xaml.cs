@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -152,13 +153,17 @@ namespace Sklad_2.Views
 
                             if (confirmationResult == ContentDialogResult.Primary) // User confirmed sale
                             {
-                                // Proceed with checkout
-                                await ViewModel.CheckoutCommand.ExecuteAsync(null);
+var parameters = new Dictionary<string, decimal>
+                                {
+                                    { "receivedAmount", receivedAmount },
+                                    { "changeAmount", changeAmount }
+                                };
+                                await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
 
                                 if (ViewModel.IsCheckoutSuccessful)
                                 {
                                     var createdReceipt = ViewModel.LastCreatedReceipt;
-                                    var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt, receivedAmount, changeAmount)
+                                    var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt)
                                     {
                                         XamlRoot = this.XamlRoot,
                                     };

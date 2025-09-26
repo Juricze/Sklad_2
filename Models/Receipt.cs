@@ -54,6 +54,15 @@ namespace Sklad_2.Models
         public string TotalVatAmountFormatted => $"{TotalVatAmount:C}";
 
         [ObservableProperty]
+        private decimal receivedAmount;
+
+        [ObservableProperty]
+        private decimal changeAmount;
+
+        public string ReceivedAmountFormatted => $"{ReceivedAmount:C}";
+        public string ChangeAmountFormatted => $"{ChangeAmount:C}";
+
+        [ObservableProperty]
         private ICollection<ReceiptItem> items;
     }
 }

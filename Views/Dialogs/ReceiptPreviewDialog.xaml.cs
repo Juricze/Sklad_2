@@ -9,12 +9,12 @@ namespace Sklad_2.Views.Dialogs
         public decimal ReceivedAmount { get; }
         public decimal ChangeAmount { get; }
 
-        public ReceiptPreviewDialog(Receipt receipt, decimal receivedAmount = 0m, decimal changeAmount = 0m)
+        public ReceiptPreviewDialog(Receipt receipt)
         {
             this.InitializeComponent();
             Receipt = receipt;
-            ReceivedAmount = receivedAmount;
-            ChangeAmount = changeAmount;
+            ReceivedAmount = receipt.ReceivedAmount;
+            ChangeAmount = receipt.ChangeAmount;
             this.DataContext = this;
         }
 

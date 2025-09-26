@@ -137,8 +137,17 @@ namespace Sklad_2.ViewModels
         }
 
         [RelayCommand]
-        private async Task CheckoutAsync()
+        private async Task CheckoutAsync(Dictionary<string, decimal> parameters)
         {
+            decimal receivedAmount = 0;
+            decimal changeAmount = 0;
+
+            if (parameters != null)
+            {
+                parameters.TryGetValue("receivedAmount", out receivedAmount);
+                parameters.TryGetValue("changeAmount", out changeAmount);
+            }
+
             IsCheckoutSuccessful = false;
             LastCreatedReceipt = null;
 
@@ -205,7 +214,9 @@ namespace Sklad_2.ViewModels
                 VatId = settings.VatId,
                 IsVatPayer = settings.IsVatPayer,
                 TotalAmountWithoutVat = totalAmountWithoutVat,
-                TotalVatAmount = totalVatAmount
+                TotalVatAmount = totalVatAmount,
+                ReceivedAmount = receivedAmount,
+                ChangeAmount = changeAmount
             };
 
             // 3. Call the atomic data service method
