@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace Sklad_2.ViewModels
     public partial class NovyProduktViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private List<VatConfig> _vatConfigs;
 
         [ObservableProperty]
         private string ean = string.Empty;
@@ -29,6 +31,9 @@ namespace Sklad_2.ViewModels
         private string selectedCategory;
 
         [ObservableProperty]
+        private double vatRate;
+
+        [ObservableProperty]
         private string statusMessage = string.Empty;
 
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
@@ -37,6 +42,27 @@ namespace Sklad_2.ViewModels
         {
             _dataService = dataService;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
+            LoadVatConfigsAsync();
+        }
+
+        private async void LoadVatConfigsAsync()
+        {
+            _vatConfigs = await _dataService.GetVatConfigsAsync();
+            UpdateVatRateForSelectedCategory();
+        }
+
+        partial void OnSelectedCategoryChanged(string value)
+        {
+            UpdateVatRateForSelectedCategory();
+        }
+
+        private void UpdateVatRateForSelectedCategory()
+        {
+            if (_vatConfigs != null && SelectedCategory != null)
+            {
+                var config = _vatConfigs.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+                VatRate = config?.Rate ?? 21; // Default to 21 if not found for some reason
+            }
         }
 
         [RelayCommand]
@@ -64,7 +90,7 @@ namespace Sklad_2.ViewModels
                 SalePrice = salePriceValue,
                 PurchasePrice = purchasePriceValue,
                 StockQuantity = 0, // New products start with 0 stock
-                VatRate = 0.21m // Default VAT for now
+                VatRate = (decimal)this.VatRate
             };
 
             try
@@ -80,17 +106,23 @@ namespace Sklad_2.ViewModels
                     StatusMessage = "Nový produkt byl úspěšně přidán do databáze!";
 
                     // Clear fields
-                    Ean = string.Empty;
-                    Name = string.Empty;
-                    SalePrice = string.Empty;
-                    PurchasePrice = string.Empty;
-                    SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
+                    ClearFields();
                 }
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Chyba při přidávání produktu: {ex.Message}";
             }
+        }
+
+        private void ClearFields()
+        {
+            Ean = string.Empty;
+            Name = string.Empty;
+            SalePrice = string.Empty;
+            PurchasePrice = string.Empty;
+            SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
+            // VatRate will be updated automatically by OnSelectedCategoryChanged
         }
     }
 }

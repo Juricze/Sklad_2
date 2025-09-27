@@ -40,13 +40,15 @@
                             <ColumnDefinition Width="5*"/>
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold"/>
                         <TextBlock Grid.Column="1" Text="Název" FontWeight="Bold"/>
                         <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold"/>
                         <TextBlock Grid.Column="3" Text="Skladem" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="4" Text="Cena" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="5" Text="Cena" FontWeight="Bold"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
@@ -58,13 +60,15 @@
                             <ColumnDefinition Width="5*"/>
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{x:Bind Ean}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="{x:Bind Category}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="3" Text="{x:Bind StockQuantity}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="{x:Bind VatRateFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

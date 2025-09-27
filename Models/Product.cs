@@ -29,5 +29,7 @@ namespace Sklad_2.Models
         private int stockQuantity;
 
         public string SalePriceFormatted => $"{SalePrice:C}";
+
+        public string VatRateFormatted => $"{vatRate} %";
     }
 }
