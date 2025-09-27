@@ -18,9 +18,9 @@
         <TextBlock Grid.Row="0" Text="Přehled prodejů" Style="{ThemeResource TitleTextBlockStyle}"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,12,0,12">
-            <DatePicker x:ConnectionId='12' Header="Od data"                                                 />
-            <DatePicker x:ConnectionId='13' Header="Do data"                                               />
-            <Button x:ConnectionId='14' Content="Filtrovat" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}"                                                  />
+            <DatePicker x:ConnectionId='13' Header="Od data"                                                 />
+            <DatePicker x:ConnectionId='14' Header="Do data"                                               />
+            <Button x:ConnectionId='15' Content="Filtrovat" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}"                                                  />
         </StackPanel>
 
         <Grid Grid.Row="2" ColumnSpacing="24">
@@ -46,15 +46,15 @@
                 </ListView.HeaderTemplate>
                 <ListView.ItemTemplate>
                     <DataTemplate                            >
-                        <Grid x:ConnectionId='8' Padding="12" ColumnSpacing="12">
+                        <Grid x:ConnectionId='9' Padding="12" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:ConnectionId='9' Grid.Column="0"                                   VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='10' Grid.Column="1"                                      VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='11' Grid.Column="2"                               VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='10' Grid.Column="0"                                   VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='11' Grid.Column="1"                                      VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='12' Grid.Column="2"                               VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -66,15 +66,19 @@
                         <TextBlock Text="Celkový přehled" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                         <TextBlock>
                             <Run Text="Počet účtenek:" FontWeight="Bold"/>
-                            <Run x:ConnectionId='5'                                                        />
+                            <Run x:ConnectionId='6'                                                        />
                         </TextBlock>
                         <TextBlock>
-                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
-                            <Run x:ConnectionId='4'                                                        />
+                            <Run Text="Celkem bez DPH:" FontWeight="Bold"/>
+                            <Run x:ConnectionId='5'                                                                           />
                         </TextBlock>
                         <TextBlock>
                             <Run Text="Celkem DPH:" FontWeight="Bold"/>
-                            <Run x:ConnectionId='3'                                                      />
+                            <Run x:ConnectionId='4'                                                               />
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
+                            <Run x:ConnectionId='3'                                                                 />
                         </TextBlock>
                     </StackPanel>
                 </Border>

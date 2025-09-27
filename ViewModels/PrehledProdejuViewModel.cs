@@ -17,10 +17,20 @@ namespace Sklad_2.ViewModels
         private ObservableCollection<Receipt> sales = new ObservableCollection<Receipt>();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalSalesAmountFormatted))]
         private decimal totalSalesAmount;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalSalesAmountWithoutVatFormatted))]
+        private decimal totalSalesAmountWithoutVat;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalVatAmountFormatted))]
         private decimal totalVatAmount;
+
+        public string TotalSalesAmountFormatted => $"{TotalSalesAmount:C}";
+        public string TotalSalesAmountWithoutVatFormatted => $"{TotalSalesAmountWithoutVat:C}";
+        public string TotalVatAmountFormatted => $"{TotalVatAmount:C}";
 
         [ObservableProperty]
         private int numberOfReceipts;
@@ -57,6 +67,7 @@ namespace Sklad_2.ViewModels
         private void CalculateTotals()
         {
             TotalSalesAmount = Sales.Sum(r => r.TotalAmount);
+            TotalSalesAmountWithoutVat = Sales.Sum(r => r.TotalAmountWithoutVat);
             TotalVatAmount = Sales.Sum(r => r.TotalVatAmount);
             NumberOfReceipts = Sales.Count;
         }

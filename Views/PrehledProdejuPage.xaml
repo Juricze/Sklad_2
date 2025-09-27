@@ -69,12 +69,16 @@
                             <Run Text="{x:Bind ViewModel.NumberOfReceipts, Mode=OneWay}"/>
                         </TextBlock>
                         <TextBlock>
-                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
-                            <Run Text="{x:Bind ViewModel.TotalSalesAmount, Mode=OneWay}"/>
+                            <Run Text="Celkem bez DPH:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.TotalSalesAmountWithoutVatFormatted, Mode=OneWay}"/>
                         </TextBlock>
                         <TextBlock>
                             <Run Text="Celkem DPH:" FontWeight="Bold"/>
-                            <Run Text="{x:Bind ViewModel.TotalVatAmount, Mode=OneWay}"/>
+                            <Run Text="{x:Bind ViewModel.TotalVatAmountFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.TotalSalesAmountFormatted, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
