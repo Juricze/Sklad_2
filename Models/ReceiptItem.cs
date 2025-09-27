@@ -52,6 +52,6 @@ namespace Sklad_2.Models
         public string TotalPriceFormatted => $"{TotalPrice:C}";
         public string PriceWithoutVatFormatted => $"{PriceWithoutVat:C}";
         public string VatAmountFormatted => $"{VatAmount:C}";
-        public string VatRateFormatted => $"{VatRate:P0}";
+        public string VatRateFormatted => $"{VatRate} %";
     }
 }

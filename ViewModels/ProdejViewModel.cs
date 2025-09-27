@@ -4,6 +4,7 @@ using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,8 @@ namespace Sklad_2.ViewModels
 
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
         public string GrandTotalFormatted => $"Celkem: {Receipt.GrandTotal:C}";
+        public string GrandTotalWithoutVatFormatted => $"Základ: {Receipt.GrandTotalWithoutVat:C}";
+        public string GrandTotalVatAmountFormatted => $"DPH: {Receipt.GrandTotalVatAmount:C}";
 
         public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService)
         {
@@ -45,23 +48,17 @@ namespace Sklad_2.ViewModels
             _settingsService = settingsService;
             _cashRegisterService = cashRegisterService;
             Receipt = receiptService;
-            Receipt.Items.CollectionChanged += (s, e) => 
+
+            // Listen for changes in the service to update UI
+            if (Receipt is INotifyPropertyChanged notifiedReceipt)
             {
-                OnPropertyChanged(nameof(GrandTotalFormatted));
-                if (e.NewItems != null)
+                notifiedReceipt.PropertyChanged += (s, e) =>
                 {
-                    foreach (Sklad_2.Services.ReceiptItem item in e.NewItems) 
-                    {
-                        item.PropertyChanged += (s, e) =>
-                        {
-                            OnPropertyChanged(nameof(GrandTotalFormatted));
-                            DecrementQuantityCommand.NotifyCanExecuteChanged();
-                            IncrementQuantityCommand.NotifyCanExecuteChanged();
-                        };
-                    }
-                }
-                DecrementQuantityCommand.NotifyCanExecuteChanged();
-            };
+                    OnPropertyChanged(nameof(GrandTotalFormatted));
+                    OnPropertyChanged(nameof(GrandTotalWithoutVatFormatted));
+                    OnPropertyChanged(nameof(GrandTotalVatAmountFormatted));
+                };
+            }
         }
 
         public event EventHandler<Product> ProductOutOfStock;
@@ -87,7 +84,6 @@ namespace Sklad_2.ViewModels
                 }
                 else
                 {
-                    // Product is out of stock or at stock limit, raise an event to notify the view
                     ProductOutOfStock?.Invoke(this, product);
                 }
             }
@@ -142,7 +138,6 @@ namespace Sklad_2.ViewModels
             IsCheckoutSuccessful = false;
             LastCreatedReceipt = null;
 
-            // Extract parameters
             parameters.TryGetValue("paymentMethod", out var paymentMethodObj);
             parameters.TryGetValue("receivedAmount", out var receivedAmountObj);
             parameters.TryGetValue("changeAmount", out var changeAmountObj);
@@ -162,9 +157,7 @@ namespace Sklad_2.ViewModels
             }
 
             var productsToUpdate = new List<Product>();
-            var receiptItems = new List<Sklad_2.Models.ReceiptItem>();
-            decimal totalAmountWithoutVat = 0;
-            decimal totalVatAmount = 0;
+            var receiptItemsForDb = new List<Sklad_2.Models.ReceiptItem>();
 
             foreach (var item in Receipt.Items)
             {
@@ -179,22 +172,17 @@ namespace Sklad_2.ViewModels
                 productInDb.StockQuantity -= item.Quantity;
                 productsToUpdate.Add(productInDb);
 
-                decimal itemPriceWithoutVat = item.TotalPrice / (1 + productInDb.VatRate);
-                decimal itemVatAmount = item.TotalPrice - itemPriceWithoutVat;
-                receiptItems.Add(new Sklad_2.Models.ReceiptItem
+                receiptItemsForDb.Add(new Sklad_2.Models.ReceiptItem
                 {
                     ProductEan = item.Product.Ean,
                     ProductName = item.Product.Name,
                     Quantity = item.Quantity,
                     UnitPrice = item.Product.SalePrice,
                     TotalPrice = item.TotalPrice,
-                    VatRate = productInDb.VatRate,
-                    PriceWithoutVat = itemPriceWithoutVat,
-                    VatAmount = itemVatAmount
+                    VatRate = item.Product.VatRate,
+                    PriceWithoutVat = item.PriceWithoutVat,
+                    VatAmount = item.VatAmount
                 });
-
-                totalAmountWithoutVat += itemPriceWithoutVat;
-                totalVatAmount += itemVatAmount;
             }
 
             var newReceipt = new Sklad_2.Models.Receipt
@@ -202,14 +190,14 @@ namespace Sklad_2.ViewModels
                 SaleDate = DateTime.Now,
                 TotalAmount = Receipt.GrandTotal,
                 PaymentMethod = GetPaymentMethodString(paymentMethod),
-                Items = receiptItems,
+                Items = receiptItemsForDb,
                 ShopName = settings.ShopName,
                 ShopAddress = settings.ShopAddress,
                 CompanyId = settings.CompanyId,
                 VatId = settings.VatId,
                 IsVatPayer = settings.IsVatPayer,
-                TotalAmountWithoutVat = totalAmountWithoutVat,
-                TotalVatAmount = totalVatAmount,
+                TotalAmountWithoutVat = Receipt.GrandTotalWithoutVat,
+                TotalVatAmount = Receipt.GrandTotalVatAmount,
                 ReceivedAmount = receivedAmount,
                 ChangeAmount = changeAmount
             };

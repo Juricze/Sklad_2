@@ -11,6 +11,8 @@ namespace Sklad_2.Services
         void RemoveItem(ReceiptItem item);
         void Clear();
         decimal GrandTotal { get; }
+        decimal GrandTotalWithoutVat { get; }
+        decimal GrandTotalVatAmount { get; }
 
         // New properties for last receipt
         List<ReceiptItem> LastReceiptItems { get; }
