@@ -1,9 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sklad_2.Models;
 using Sklad_2.Models.Settings;
 using Sklad_2.Services;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -13,6 +16,7 @@ namespace Sklad_2.ViewModels
     {
         private readonly ISettingsService _settingsService;
         private readonly IPrintService _printService;
+        private readonly IDataService _dataService;
 
         [ObservableProperty]
         private AppSettings settings;
@@ -32,13 +36,40 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string saveStatusMessage;
 
-        public NastaveniViewModel(ISettingsService settingsService, IPrintService printService)
+        public ObservableCollection<VatConfig> VatConfigs { get; } = new();
+
+        public NastaveniViewModel(ISettingsService settingsService, IPrintService printService, IDataService dataService)
         {
             _settingsService = settingsService;
             _printService = printService;
+            _dataService = dataService;
             Settings = _settingsService.CurrentSettings;
             AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            LoadVatConfigsCommand.Execute(null);
         }
+
+        [RelayCommand]
+        private async Task LoadVatConfigsAsync()
+        {
+            VatConfigs.Clear();
+            var categories = ProductCategories.All; // Use static list
+            var savedConfigs = await _dataService.GetVatConfigsAsync();
+
+            foreach (var category in categories.OrderBy(c => c))
+            {
+                var savedConfig = savedConfigs.FirstOrDefault(c => c.CategoryName == category);
+                if (savedConfig != null)
+                {
+                    VatConfigs.Add(savedConfig);
+                }
+                else
+                {
+                    VatConfigs.Add(new VatConfig { CategoryName = category, Rate = 0 });
+                }
+            }
+        }
+
 
         [RelayCommand]
         private async Task SaveSettingsAsync()
@@ -47,6 +78,7 @@ namespace Sklad_2.ViewModels
             try
             {
                 await _settingsService.SaveSettingsAsync();
+                await _dataService.SaveVatConfigsAsync(VatConfigs);
                 SaveStatusMessage = "Nastavení bylo úspěšně uloženo.";
             }
             catch (Exception ex)

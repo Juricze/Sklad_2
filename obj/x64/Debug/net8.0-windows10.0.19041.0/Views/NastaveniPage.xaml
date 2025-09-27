@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Sklad_2.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -26,17 +27,36 @@
                 <Grid Padding="0,12,0,0">
                     <!-- Company Settings Panel -->
                     <StackPanel x:ConnectionId='5' x:Name="CompanySettingsPanel" Visibility="Visible" Spacing="12">
-                        <TextBox x:ConnectionId='16' Header="Název obchodu"                                                         />
-                        <TextBox x:ConnectionId='17' Header="Adresa"                                                            />
-                        <TextBox x:ConnectionId='18' Header="IČ"                                                          />
-                        <TextBox x:ConnectionId='19' Header="DIČ"                                                      />
-                        <ToggleSwitch x:ConnectionId='20' Header="Plátce DPH"                                                           />
+                        <TextBox x:ConnectionId='21' Header="Název obchodu"                                                         />
+                        <TextBox x:ConnectionId='22' Header="Adresa"                                                            />
+                        <TextBox x:ConnectionId='23' Header="IČ"                                                          />
+                        <TextBox x:ConnectionId='24' Header="DIČ"                                                      />
+                        <ToggleSwitch x:ConnectionId='25' Header="Plátce DPH"                                                           />
                     </StackPanel>
 
                     <!-- VAT Settings Panel -->
                     <StackPanel x:ConnectionId='6' x:Name="VatSettingsPanel" Visibility="Collapsed" Spacing="12">
-                        <TextBlock Text="Zde bude nastavení sazeb DPH pro jednotlivé kategorie produktů." Style="{ThemeResource BodyTextBlockStyle}"/>
-                        <!-- TODO: Implement VAT settings UI -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="12,0,12,0">
+                            <TextBlock Grid.Column="0" Text="Kategorie" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                            <TextBlock Grid.Column="1" Text="Sazba DPH (%)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                        </Grid>
+                        <ItemsRepeater x:ConnectionId='16'                                            >
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate                              >
+                                    <Grid x:ConnectionId='18' ColumnDefinitions="*,Auto" Padding="12,8,12,8" VerticalAlignment="Center" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                        <TextBlock x:ConnectionId='19' Grid.Column="0"                              VerticalAlignment="Center"/>
+                                        <NumberBox x:ConnectionId='20' Grid.Column="1"
+                                                                                     
+                                                   SpinButtonPlacementMode="Compact"
+                                                   SmallChange="1"
+                                                   LargeChange="5"
+                                                   Minimum="0"
+                                                   Maximum="100"
+                                                   Width="120"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
 
                     <!-- System Settings Panel -->

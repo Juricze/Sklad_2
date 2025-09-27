@@ -4,6 +4,7 @@ using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
@@ -30,18 +31,12 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string statusMessage = string.Empty;
 
-        public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>
-        {
-            "Potraviny",
-            "Drogerie",
-            "Elektronika",
-            "Ostatní"
-        };
+        public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
         public NovyProduktViewModel(IDataService dataService)
         {
             _dataService = dataService;
-            SelectedCategory = Categories[3];
+            SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
         }
 
         [RelayCommand]
@@ -89,7 +84,7 @@ namespace Sklad_2.ViewModels
                     Name = string.Empty;
                     SalePrice = string.Empty;
                     PurchasePrice = string.Empty;
-                    SelectedCategory = Categories[3];
+                    SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
                 }
             }
             catch (Exception ex)

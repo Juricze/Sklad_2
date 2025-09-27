@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Sklad_2.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -35,8 +36,27 @@
 
                     <!-- VAT Settings Panel -->
                     <StackPanel x:Name="VatSettingsPanel" Visibility="Collapsed" Spacing="12">
-                        <TextBlock Text="Zde bude nastavení sazeb DPH pro jednotlivé kategorie produktů." Style="{ThemeResource BodyTextBlockStyle}"/>
-                        <!-- TODO: Implement VAT settings UI -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="12,0,12,0">
+                            <TextBlock Grid.Column="0" Text="Kategorie" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                            <TextBlock Grid.Column="1" Text="Sazba DPH (%)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                        </Grid>
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.VatConfigs}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="models:VatConfig">
+                                    <Grid ColumnDefinitions="*,Auto" Padding="12,8,12,8" VerticalAlignment="Center" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                        <TextBlock Grid.Column="0" Text="{x:Bind CategoryName}" VerticalAlignment="Center"/>
+                                        <NumberBox Grid.Column="1"
+                                                   Value="{x:Bind Rate, Mode=TwoWay}"
+                                                   SpinButtonPlacementMode="Compact"
+                                                   SmallChange="1"
+                                                   LargeChange="5"
+                                                   Minimum="0"
+                                                   Maximum="100"
+                                                   Width="120"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
 
                     <!-- System Settings Panel -->

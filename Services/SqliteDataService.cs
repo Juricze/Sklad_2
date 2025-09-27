@@ -155,5 +155,29 @@ namespace Sklad_2.Services
                                  .OrderByDescending(e => e.Timestamp)
                                  .ToListAsync();
         }
+
+        public async Task<List<VatConfig>> GetVatConfigsAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.VatConfigs.ToListAsync();
+        }
+
+        public async Task SaveVatConfigsAsync(IEnumerable<VatConfig> vatConfigs)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            foreach (var config in vatConfigs)
+            {
+                var existing = await context.VatConfigs.FindAsync(config.CategoryName);
+                if (existing != null)
+                {
+                    existing.Rate = config.Rate;
+                }
+                else
+                {
+                    context.VatConfigs.Add(config);
+                }
+            }
+            await context.SaveChangesAsync();
+        }
     }
 }

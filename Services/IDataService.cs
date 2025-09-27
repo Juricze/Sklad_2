@@ -23,5 +23,9 @@ namespace Sklad_2.Services
         Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate);
+
+        // VAT Configs
+        Task<List<VatConfig>> GetVatConfigsAsync();
+        Task SaveVatConfigsAsync(IEnumerable<VatConfig> vatConfigs);
     }
 }
