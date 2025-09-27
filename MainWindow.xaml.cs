@@ -186,7 +186,6 @@ namespace Sklad_2
                     break;
                 case "Nastaveni":
                     var nastaveniPage = new NastaveniPage();
-                    nastaveniPage.ViewModel = _nastaveniViewModel;
                     page = nastaveniPage;
                     break;
                 default:

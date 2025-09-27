@@ -6,59 +6,77 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <ScrollViewer>
-        <StackPanel Spacing="24" Padding="24">
-            <!-- Firemní údaje -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Firemní údaje" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}"/>
-                    <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}"/>
-                    <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}"/>
-                    <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}"/>
-                    <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}"/>
-                </StackPanel>
-            </Border>
 
-            <!-- Nastavení tiskárny -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
-                    <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                </StackPanel>
-            </Border>
+    <Grid RowDefinitions="*, Auto" Padding="24" RowSpacing="24">
 
+        <Grid Grid.Row="0">
+            <NavigationView
+                PaneDisplayMode="Top"
+                IsSettingsVisible="False"
+                IsBackButtonVisible="Collapsed"
+                ItemInvoked="NavView_ItemInvoked"
+                AlwaysShowHeader="False">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
+                    <NavigationViewItem Content="Sazby DPH" Tag="VAT"/>
+                    <NavigationViewItem Content="Systém" Tag="System"/>
+                    <NavigationViewItem Content="O aplikaci" Tag="About"/>
+                </NavigationView.MenuItems>
+
+                <Grid Padding="0,12,0,0">
+                    <!-- Company Settings Panel -->
+                    <StackPanel x:Name="CompanySettingsPanel" Visibility="Visible" Spacing="12">
+                        <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}"/>
+                        <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}"/>
+                        <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}"/>
+                        <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}"/>
+                        <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <!-- VAT Settings Panel -->
+                    <StackPanel x:Name="VatSettingsPanel" Visibility="Collapsed" Spacing="12">
+                        <TextBlock Text="Zde bude nastavení sazeb DPH pro jednotlivé kategorie produktů." Style="{ThemeResource BodyTextBlockStyle}"/>
+                        <!-- TODO: Implement VAT settings UI -->
+                    </StackPanel>
+
+                    <!-- System Settings Panel -->
+                    <StackPanel x:Name="SystemSettingsPanel" Visibility="Collapsed" Spacing="24">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}"/>
+                            <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- About Panel -->
+                    <StackPanel x:Name="AboutPanel" Visibility="Collapsed" Spacing="12">
+                        <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock>
+                            <Run Text="Verze:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="GitHub:" FontWeight="Bold"/>
+                            <Run Text="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </NavigationView>
+        </Grid>
+
+        <!-- Spodní panel s uložením a informacemi -->
+        <StackPanel Grid.Row="1" Spacing="24" Padding="0,24,0,0">
             <!-- Uložit nastavení -->
             <StackPanel Spacing="12">
                 <Button Content="Uložit všechna nastavení" Command="{x:Bind ViewModel.SaveSettingsCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
                 <TextBlock Text="{x:Bind ViewModel.SaveStatusMessage, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
             </StackPanel>
-
-            <!-- Správa databáze -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}"/>
-                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                </StackPanel>
-            </Border>
-
-            <!-- O aplikaci -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock>
-                        <Run Text="Verze:" FontWeight="Bold"/>
-                        <Run Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}"/>
-                    </TextBlock>
-                    <TextBlock>
-                        <Run Text="GitHub:" FontWeight="Bold"/>
-                        <Run Text="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
         </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </Page>

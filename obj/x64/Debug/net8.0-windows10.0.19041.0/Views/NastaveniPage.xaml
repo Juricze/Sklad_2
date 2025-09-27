@@ -6,60 +6,78 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <ScrollViewer>
-        <StackPanel Spacing="24" Padding="24">
-            <!-- Firemní údaje -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Firemní údaje" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox x:ConnectionId='11' Header="Název obchodu"                                                         />
-                    <TextBox x:ConnectionId='12' Header="Adresa"                                                            />
-                    <TextBox x:ConnectionId='13' Header="IČ"                                                          />
-                    <TextBox x:ConnectionId='14' Header="DIČ"                                                      />
-                    <ToggleSwitch x:ConnectionId='15' Header="Plátce DPH"                                                           />
-                </StackPanel>
-            </Border>
 
-            <!-- Nastavení tiskárny -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox x:ConnectionId='8' Header="Cesta k tiskárně (např. \\server\tiskarna)"                                                                                                 />
-                    <Button x:ConnectionId='9' Content="Test tisku"                                               Style="{StaticResource PrimaryButtonStyle}"/>
-                    <TextBlock x:ConnectionId='10'                                                               TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                </StackPanel>
-            </Border>
+    <Grid RowDefinitions="*, Auto" Padding="24" RowSpacing="24">
 
+        <Grid Grid.Row="0">
+            <NavigationView x:ConnectionId='4'
+                PaneDisplayMode="Top"
+                IsSettingsVisible="False"
+                IsBackButtonVisible="Collapsed"
+                                                 
+                AlwaysShowHeader="False">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
+                    <NavigationViewItem Content="Sazby DPH" Tag="VAT"/>
+                    <NavigationViewItem Content="Systém" Tag="System"/>
+                    <NavigationViewItem Content="O aplikaci" Tag="About"/>
+                </NavigationView.MenuItems>
+
+                <Grid Padding="0,12,0,0">
+                    <!-- Company Settings Panel -->
+                    <StackPanel x:ConnectionId='5' x:Name="CompanySettingsPanel" Visibility="Visible" Spacing="12">
+                        <TextBox x:ConnectionId='16' Header="Název obchodu"                                                         />
+                        <TextBox x:ConnectionId='17' Header="Adresa"                                                            />
+                        <TextBox x:ConnectionId='18' Header="IČ"                                                          />
+                        <TextBox x:ConnectionId='19' Header="DIČ"                                                      />
+                        <ToggleSwitch x:ConnectionId='20' Header="Plátce DPH"                                                           />
+                    </StackPanel>
+
+                    <!-- VAT Settings Panel -->
+                    <StackPanel x:ConnectionId='6' x:Name="VatSettingsPanel" Visibility="Collapsed" Spacing="12">
+                        <TextBlock Text="Zde bude nastavení sazeb DPH pro jednotlivé kategorie produktů." Style="{ThemeResource BodyTextBlockStyle}"/>
+                        <!-- TODO: Implement VAT settings UI -->
+                    </StackPanel>
+
+                    <!-- System Settings Panel -->
+                    <StackPanel x:ConnectionId='7' x:Name="SystemSettingsPanel" Visibility="Collapsed" Spacing="24">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <TextBox x:ConnectionId='13' Header="Cesta k tiskárně (např. \\server\tiskarna)"                                                                                                 />
+                            <Button x:ConnectionId='14' Content="Test tisku"                                               Style="{StaticResource PrimaryButtonStyle}"/>
+                            <TextBlock x:ConnectionId='15'                                                               TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <Button x:ConnectionId='11' Content="Zálohovat databázi"                                                   />
+                            <TextBlock x:ConnectionId='12'                                                            TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- About Panel -->
+                    <StackPanel x:ConnectionId='8' x:Name="AboutPanel" Visibility="Collapsed" Spacing="12">
+                        <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock>
+                            <Run Text="Verze:" FontWeight="Bold"/>
+                            <Run x:ConnectionId='10'                                                  />
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="GitHub:" FontWeight="Bold"/>
+                            <Run x:ConnectionId='9'                                                  />
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </NavigationView>
+        </Grid>
+
+        <!-- Spodní panel s uložením a informacemi -->
+        <StackPanel Grid.Row="1" Spacing="24" Padding="0,24,0,0">
             <!-- Uložit nastavení -->
             <StackPanel Spacing="12">
-                <Button x:ConnectionId='6' Content="Uložit všechna nastavení"                                                  Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
-                <TextBlock x:ConnectionId='7'                                                          TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                <Button x:ConnectionId='2' Content="Uložit všechna nastavení"                                                  Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <TextBlock x:ConnectionId='3'                                                          TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
             </StackPanel>
-
-            <!-- Správa databáze -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <Button x:ConnectionId='4' Content="Zálohovat databázi"                                                   />
-                    <TextBlock x:ConnectionId='5'                                                            TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                </StackPanel>
-            </Border>
-
-            <!-- O aplikaci -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock>
-                        <Run Text="Verze:" FontWeight="Bold"/>
-                        <Run x:ConnectionId='3'                                                  />
-                    </TextBlock>
-                    <TextBlock>
-                        <Run Text="GitHub:" FontWeight="Bold"/>
-                        <Run x:ConnectionId='2'                                                  />
-                    </TextBlock>
-                </StackPanel>
-            </Border>
         </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </Page>
 

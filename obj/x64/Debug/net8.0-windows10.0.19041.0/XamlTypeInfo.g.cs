@@ -1865,11 +1865,6 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             var that = (global::Sklad_2.Views.NastaveniPage)instance;
             return that.ViewModel;
         }
-        private void set_73_NastaveniPage_ViewModel(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Views.NastaveniPage)instance;
-            that.ViewModel = (global::Sklad_2.ViewModels.NastaveniViewModel)Value;
-        }
         private object get_74_NovyProduktPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.NovyProduktPage)instance;
@@ -2675,7 +2670,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NastaveniPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.NastaveniViewModel");
                 xamlMember.Getter = get_73_NastaveniPage_ViewModel;
-                xamlMember.Setter = set_73_NastaveniPage_ViewModel;
+                xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.NovyProduktPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NovyProduktPage");

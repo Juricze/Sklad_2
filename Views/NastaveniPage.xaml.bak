@@ -1,0 +1,66 @@
+```
+<Page
+    x:Class="Sklad_2.Views.NastaveniPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <ScrollViewer>
+        <StackPanel Spacing="24" Padding="24">
+            <!-- Firemní údaje -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Firemní údaje" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}"/>
+                    <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}"/>
+                    <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}"/>
+                    <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}"/>
+                    <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Nastavení tiskárny -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Uložit nastavení -->
+            <StackPanel Spacing="12">
+                <Button Content="Uložit všechna nastavení" Command="{x:Bind ViewModel.SaveSettingsCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <TextBlock Text="{x:Bind ViewModel.SaveStatusMessage, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+            </StackPanel>
+
+            <!-- Správa databáze -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}"/>
+                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- O aplikaci -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <TextBlock>
+                        <Run Text="Verze:" FontWeight="Bold"/>
+                        <Run Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="GitHub:" FontWeight="Bold"/>
+                        <Run Text="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
+```
