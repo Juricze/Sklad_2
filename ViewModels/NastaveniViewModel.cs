@@ -53,6 +53,11 @@ namespace Sklad_2.ViewModels
             {
                 SaveStatusMessage = $"Chyba při ukládání nastavení: {ex.Message}";
             }
+            finally
+            {
+                await Task.Delay(3000);
+                SaveStatusMessage = string.Empty;
+            }
         }
 
         [RelayCommand]
