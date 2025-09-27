@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Sklad_2.Models"
     xmlns:converters="using:Sklad_2.Converters"
+    xmlns:dialogs="using:Sklad_2.Views.Dialogs"
     mc:Ignorable="d"
     Title="Náhled účtenky"
     CloseButtonText="Zavřít"
@@ -102,17 +103,22 @@
                             <TextBlock Grid.Column="1" Text="Základ" HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="2" Text="DPH" HorizontalAlignment="Right"/>
                         </Grid>
-                        <!-- Zde by v budoucnu mohl být ItemsRepeater pro různé sazby DPH -->
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="21 %"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind Receipt.TotalAmountWithoutVatFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="2" Text="{x:Bind Receipt.TotalVatAmountFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
-                        </Grid>
+                        <ItemsRepeater ItemsSource="{x:Bind VatSummaries, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="dialogs:VatSummary">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind VatRateFormatted, Mode=OneWay}"/>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountWithoutVatFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="2" Text="{x:Bind TotalVatAmountFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
 
                     <!-- Celkem -->
