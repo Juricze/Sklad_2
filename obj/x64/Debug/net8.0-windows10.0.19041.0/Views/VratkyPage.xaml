@@ -17,13 +17,13 @@
         <!-- Search Section -->
         <StackPanel Grid.Row="0" Spacing="12" MaxWidth="400">
             <TextBlock Text="Vytvoření vratky" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <TextBox x:ConnectionId='13' Header="Zadejte číslo původní účtenky" 
+            <TextBox x:ConnectionId='15' Header="Zadejte číslo původní účtenky" 
                                                                                                                   
                                                        />
-            <Button x:ConnectionId='14' Content="Najít účtenku" 
+            <Button x:ConnectionId='16' Content="Najít účtenku" 
                                                                     
                     Style="{StaticResource PrimaryButtonStyle}"/>
-            <TextBlock x:ConnectionId='15'                                                      Foreground="Red"/>
+            <TextBlock x:ConnectionId='17'                                                      Foreground="Red"/>
         </StackPanel>
 
         <!-- Return Processing Section (Visible when receipt is found) -->
@@ -38,7 +38,7 @@
 
             <TextBlock Grid.Row="0" Style="{ThemeResource SubtitleTextBlockStyle}">
                 <Run Text="Položky na účtence č."/>
-                <Run x:ConnectionId='12'                                                              />
+                <Run x:ConnectionId='14'                                                              />
             </TextBlock>
 
             <ListView x:ConnectionId='3' Grid.Row="1"                                                             SelectionMode="None">
@@ -58,15 +58,15 @@
                 </ListView.HeaderTemplate>
                 <ListView.ItemTemplate>
                     <DataTemplate                                            >
-                        <Grid x:ConnectionId='8' ColumnSpacing="12" Padding="8">
+                        <Grid x:ConnectionId='10' ColumnSpacing="12" Padding="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:ConnectionId='9' Grid.Column="0"                                          VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='10' Grid.Column="1"                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            <NumberBox x:ConnectionId='11' Grid.Column="2"
+                            <TextBlock x:ConnectionId='11' Grid.Column="0"                                          VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='12' Grid.Column="1"                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <NumberBox x:ConnectionId='13' Grid.Column="2"
                                                                                                                         
                                        Minimum="0"
                                                                            
@@ -77,10 +77,11 @@
             </ListView>
 
             <StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Right" Margin="0,12,0,0">
-                <TextBlock Style="{ThemeResource TitleTextBlockStyle}">
-                    <Run Text="Celkem k vrácení:"/>
-                    <Run x:ConnectionId='5'                                                                  />
-                </TextBlock>
+                <StackPanel Spacing="4" HorizontalAlignment="Right">
+                    <TextBlock x:ConnectionId='5'                                                                             Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:ConnectionId='6'                                                                      Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:ConnectionId='7'                                                                   Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                </StackPanel>
                 <Button x:ConnectionId='4' Content="Dokončit vratku"
                                                          
                         Style="{StaticResource PrimaryButtonStyle}"/>

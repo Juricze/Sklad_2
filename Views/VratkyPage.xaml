@@ -77,10 +77,11 @@
             </ListView>
 
             <StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Right" Margin="0,12,0,0">
-                <TextBlock Style="{ThemeResource TitleTextBlockStyle}">
-                    <Run Text="Celkem k vrácení:"/>
-                    <Run Text="{x:Bind ViewModel.TotalRefundAmountFormatted, Mode=OneWay}"/>
-                </TextBlock>
+                <StackPanel Spacing="4" HorizontalAlignment="Right">
+                    <TextBlock Text="{x:Bind ViewModel.TotalRefundAmountWithoutVatFormatted, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalRefundVatAmountFormatted, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalRefundAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                </StackPanel>
                 <Button Content="Dokončit vratku"
                         Click="ProcessReturnButton_Click"
                         Style="{StaticResource PrimaryButtonStyle}"/>

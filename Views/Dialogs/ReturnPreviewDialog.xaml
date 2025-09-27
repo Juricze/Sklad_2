@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Sklad_2.Models"
+    xmlns:dialogs="using:Sklad_2.Views.Dialogs"
     mc:Ignorable="d"
     Title="Náhled dobropisu"
     PrimaryButtonText="Tisk"
@@ -36,7 +37,7 @@
                     <Run Text="Číslo dobropisu: "/><Run Text="{x:Bind ReturnDocument.ReturnId, Mode=OneWay}"/>
                 </TextBlock>
                 <TextBlock Grid.Column="1" HorizontalAlignment="Right">
-                    <Run Text="Datum: "/><Run Text="{x:Bind ReturnDocument.ReturnDate, Mode=OneWay}"/>
+                    <Run Text="Datum: "/><Run Text="{x:Bind ReturnDocument.ReturnDateFormatted, Mode=OneWay}"/>
                 </TextBlock>
             </Grid>
             <TextBlock>
@@ -75,7 +76,7 @@
                                 <TextBlock Grid.Column="2" Text="{x:Bind TotalRefundFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                             </Grid>
                             <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
-                                <Run Text="{x:Bind ReturnedQuantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPrice}"/>
+                                <Run Text="{x:Bind ReturnedQuantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                     </DataTemplate>
@@ -102,22 +103,28 @@
                         <TextBlock Grid.Column="1" Text="Základ" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="2" Text="DPH" HorizontalAlignment="Right"/>
                     </Grid>
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="21 %"/>
-                        <TextBlock Grid.Column="1" Text="{x:Bind ReturnDocument.TotalRefundAmountWithoutVat}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="{x:Bind ReturnDocument.TotalRefundVatAmount}" HorizontalAlignment="Right"/>
-                    </Grid>
+                    <ItemsRepeater ItemsSource="{x:Bind VatSummaries, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="dialogs:VatSummary">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind VatRateFormatted, Mode=OneWay}"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountWithoutVatFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind TotalVatAmountFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
                 </StackPanel>
 
                 <!-- Celkem -->
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                     <TextBlock Text="CELKEM VRÁCENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="{x:Bind ReturnDocument.TotalRefundAmount}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{x:Bind ReturnDocument.TotalRefundAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
         </StackPanel>

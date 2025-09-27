@@ -27,6 +27,6 @@ namespace Sklad_2.Models
         // Formatted properties
         public string UnitPriceFormatted => $"{UnitPrice:C}";
         public string TotalRefundFormatted => $"{TotalRefund:C}";
-        public string VatRateFormatted => $"{VatRate:P0}";
+        public string VatRateFormatted => $"{VatRate} %";
     }
 }

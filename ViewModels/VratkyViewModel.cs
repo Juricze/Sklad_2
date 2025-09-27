@@ -34,7 +34,17 @@ namespace Sklad_2.ViewModels
         [NotifyPropertyChangedFor(nameof(TotalRefundAmountFormatted))]
         private decimal totalRefundAmount;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundAmountWithoutVatFormatted))]
+        private decimal totalRefundAmountWithoutVat;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundVatAmountFormatted))]
+        private decimal totalRefundVatAmount;
+
         public string TotalRefundAmountFormatted => $"{TotalRefundAmount:C}";
+        public string TotalRefundAmountWithoutVatFormatted => $"Základ: {TotalRefundAmountWithoutVat:C}";
+        public string TotalRefundVatAmountFormatted => $"DPH: {TotalRefundVatAmount:C}";
 
         [ObservableProperty]
         private Return lastCreatedReturn;
@@ -80,7 +90,20 @@ namespace Sklad_2.ViewModels
 
         private void RecalculateTotalRefund()
         {
-            TotalRefundAmount = ItemsToReturn.Sum(i => i.SubTotal);
+            decimal total = 0;
+            decimal totalWithoutVat = 0;
+
+            foreach (var item in ItemsToReturn)
+            {
+                total += item.SubTotal;
+                // Recalculate VAT breakdown for the subtotal of items to be returned
+                var subTotalWithoutVat = item.SubTotal / (1 + (item.OriginalItem.VatRate / 100m));
+                totalWithoutVat += subTotalWithoutVat;
+            }
+
+            TotalRefundAmount = total;
+            TotalRefundAmountWithoutVat = totalWithoutVat;
+            TotalRefundVatAmount = total - totalWithoutVat;
         }
 
         [RelayCommand]
@@ -123,7 +146,7 @@ namespace Sklad_2.ViewModels
 
                     // Create return item
                     var totalRefundForItem = itemVM.ReturnQuantity * itemVM.OriginalItem.UnitPrice;
-                    var priceWithoutVatForItem = totalRefundForItem / (1 + itemVM.OriginalItem.VatRate);
+                    var priceWithoutVatForItem = totalRefundForItem / (1 + (itemVM.OriginalItem.VatRate / 100m));
                     var vatAmountForItem = totalRefundForItem - priceWithoutVatForItem;
 
                     returnItems.Add(new ReturnItem
