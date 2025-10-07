@@ -16,6 +16,11 @@
             <converters:CurrencyConverter x:Key="CurrencyConverter"/>
             <converters:DecimalConverter x:Key="DecimalConverter"/>
             <converters:PaymentMethodToVisibilityConverter x:Key="PaymentMethodToVisibilityConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:DeficitToBrushConverter x:Key="DeficitToBrushConverter"/>
+            <converters:EntryTypeToStringConverter x:Key="EntryTypeToStringConverter"/>
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
