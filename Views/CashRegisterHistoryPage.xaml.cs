@@ -9,7 +9,7 @@ namespace Sklad_2.Views
 {
     public sealed partial class CashRegisterHistoryPage : Page
     {
-        public CashRegisterHistoryViewModel ViewModel { get; set; }
+        public CashRegisterHistoryViewModel ViewModel { get; }
 
         public CashRegisterHistoryPage()
         {

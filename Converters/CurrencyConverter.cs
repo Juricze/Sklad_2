@@ -11,7 +11,13 @@ namespace Sklad_2.Converters
             {
                 return $"{amount:C}";
             }
-            return value;
+            // If the value is not a decimal, and the targetType is string, return an empty string.
+            if (targetType == typeof(string))
+            {
+                return string.Empty;
+            }
+            // If the value is not a decimal and targetType is not string, return DependencyProperty.UnsetValue to indicate that the converter produced no value.
+            return Microsoft.UI.Xaml.DependencyProperty.UnsetValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -25,7 +25,10 @@
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
-            <Frame x:ConnectionId='3' x:Name="ContentFrame">
+            <NavigationView.PaneFooter>
+                <NavigationViewItem x:ConnectionId='3' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
+            </NavigationView.PaneFooter>
+            <Frame x:ConnectionId='4' x:Name="ContentFrame">
                 <views:ProdejPage/>
             </Frame>
         </NavigationView>

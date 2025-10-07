@@ -6,12 +6,13 @@ namespace Sklad_2.Views
 {
     public sealed partial class CashRegisterPage : Page
     {
-        public CashRegisterViewModel ViewModel { get; set; }
+        public CashRegisterViewModel ViewModel { get; }
 
         public CashRegisterPage()
         {
             this.InitializeComponent();
             ViewModel = (App.Current as App).Services.GetService<CashRegisterViewModel>();
+            // this.Loaded += (s, e) => ViewModel.LoadCashRegisterDataCommand.Execute(null);
         }
     }
 }

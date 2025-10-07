@@ -1,74 +1,103 @@
 ﻿<Page x:ConnectionId='1'
-    x:Class="Sklad_2.Views.CashRegisterPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewmodels="using:Sklad_2.ViewModels"
-    xmlns:models="using:Sklad_2.Models"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+      x:Class="Sklad_2.Views.CashRegisterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:viewmodels="using:Sklad_2.ViewModels"
+          xmlns:models="using:Sklad_2.Models"
+          xmlns:converters="using:Sklad_2.Converters"
+          mc:Ignorable="d"
+          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <converters:CurrencyConverter x:Key="InlineCurrencyConverter"/>
+        <converters:DecimalConverter x:Key="InlineDecimalConverter"/>
+    </Page.Resources>
 
-    <Grid Padding="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+  <Grid Padding="24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Pokladna" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24"/>
+    <TextBlock Grid.Row="0" Text="Pokladna" Style="{ThemeResource TitleTextBlockStyle}"
+  Margin="0,0,0,24"/>
 
-        <StackPanel Grid.Row="1" Spacing="24">
-            <!-- Aktuální stav pokladny -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Aktuální hotovost v pokladně" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock x:ConnectionId='13'                                                                                                        Style="{ThemeResource DisplayTextBlockStyle}" FontWeight="Bold"/>
-                </StackPanel>
-            </Border>
+    <StackPanel Grid.Row="1" Spacing="24">
+      <!-- Aktuální stav pokladny -->
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+        <StackPanel Spacing="12">
+                        <TextBlock Text="Aktuální hotovost v pokladně" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock x:ConnectionId='6'                                                                                                              Style="{ThemeResource DisplayTextBlockStyle}" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
 
-            <!-- Nastavení počáteční hotovosti / Vklad -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Nastavit počáteční hotovost / Vklad" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox x:ConnectionId='11' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                   InputScope="Number"/>
-                    <Button x:ConnectionId='12' Content="Nastavit / Vložit"                                                      HorizontalAlignment="Right"/>
-                </StackPanel>
-            </Border>
+      <!-- Nastavení počáteční hotovosti / Vklad -->
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Nastavit počáteční hotovost / Vklad" Style="{ThemeResource
+  SubtitleTextBlockStyle}"/>
+          <!-- <TextBox Header="Částka" PlaceholderText="Zadejte částku..." Text="{x:Bind
+  ViewModel.InitialAmount, Mode=TwoWay, Converter={StaticResource DecimalConverter}}" InputScope="Number"/>
+  -->
+                                  <TextBox x:ConnectionId='4' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                         InputScope="Number"/>          <!-- <Button Content="Nastavit / Vložit" Command="{x:Bind
+  ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right"/> -->
+                                  <Button x:ConnectionId='5' Content="Nastavit / Vložit"                                                      HorizontalAlignment="Right"/>        </StackPanel>
+      </Border>
 
-            <!-- Denní kontrola pokladny -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Denní kontrola pokladny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBox x:ConnectionId='9' Header="Skutečná hotovost" PlaceholderText="Zadejte skutečnou hotovost..."                                                                                                                   InputScope="Number"/>
-                    <Button x:ConnectionId='10' Content="Provést kontrolu"                                                                HorizontalAlignment="Right"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Historie transakcí -->
-            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Historie transakcí" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <ListView x:ConnectionId='2'                                                                  >
-                        <ListView.ItemTemplate>
-                            <DataTemplate                                      >
-                                <Grid x:ConnectionId='4' ColumnSpacing="12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:ConnectionId='5' Grid.Column="0"                           FontWeight="SemiBold"/>
-                                    <TextBlock x:ConnectionId='6' Grid.Column="1"                            />
-                                    <TextBlock x:ConnectionId='7' Grid.Column="2"                                                                      HorizontalAlignment="Right"/>
-                                    <TextBlock x:ConnectionId='8' Grid.Column="3"                                                                                 HorizontalAlignment="Right" FontWeight="Bold"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
-            </Border>
+      <!-- Denní kontrola pokladny -->
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Denní kontrola pokladny" Style="{ThemeResource
+  SubtitleTextBlockStyle}"/>
+          <!-- <TextBox Header="Skutečná hotovost" PlaceholderText="Zadejte skutečnou
+  hotovost..." Text="{x:Bind ViewModel.ActualAmountForReconciliation, Mode=TwoWay, Converter={StaticResource
+   DecimalConverter}}" InputScope="Number"/> -->
+          <TextBox Header="Skutečná hotovost" PlaceholderText="Zadejte skutečnou hotovost..."
+  InputScope="Number"/>
+          <!-- <Button Content="Provést kontrolu" Command="{x:Bind
+  ViewModel.PerformDailyReconciliationCommand}" HorizontalAlignment="Right"/> -->
+          <Button Content="Provést kontrolu" HorizontalAlignment="Right"/>
         </StackPanel>
-    </Grid>
+      </Border>
+
+      <!-- Historie transakcí -->
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Historie transakcí" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+          <!-- <ListView ItemsSource="{x:Bind ViewModel.CashRegisterHistory, Mode=OneWay}"> -->
+          <ListView>
+            <ListView.ItemTemplate>
+              <DataTemplate                                      >
+                <Grid ColumnSpacing="12">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <!-- <TextBlock Grid.Column="0" Text="{x:Bind Timestamp}"
+  FontWeight="SemiBold"/> -->
+                  <TextBlock Grid.Column="0" Text="Timestamp Placeholder"
+  FontWeight="SemiBold"/>
+                  <!-- <TextBlock Grid.Column="1" Text="{x:Bind Description}"/> -->
+                  <TextBlock Grid.Column="1" Text="Description Placeholder"/>
+                  <!-- <TextBlock Grid.Column="2" Text="{x:Bind Amount,
+  Converter={StaticResource CurrencyConverter}}" HorizontalAlignment="Right"/> -->
+                  <TextBlock Grid.Column="2" Text="Amount Placeholder"
+  HorizontalAlignment="Right"/>
+                  <!-- <TextBlock Grid.Column="3" Text="{x:Bind CurrentCashInTill,
+  Mode=OneWay, Converter={StaticResource CurrencyConverter}}" HorizontalAlignment="Right"
+  FontWeight="Bold"/> -->
+                  <TextBlock Grid.Column="3" Text="CurrentCashInTill Placeholder"
+  HorizontalAlignment="Right" FontWeight="Bold"/>
+                </Grid>
+              </DataTemplate>
+            </ListView.ItemTemplate>
+          </ListView>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </Grid>
 </Page>
 

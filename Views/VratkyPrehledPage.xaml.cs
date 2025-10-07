@@ -10,7 +10,7 @@ namespace Sklad_2.Views
 {
     public sealed partial class VratkyPrehledPage : Page
     {
-        public VratkyPrehledViewModel ViewModel { get; set; }
+        public VratkyPrehledViewModel ViewModel { get; }
 
         public VratkyPrehledPage()
         {

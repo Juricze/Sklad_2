@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -9,11 +10,12 @@ namespace Sklad_2.Views
 {
     public sealed partial class VratkyPage : Page
     {
-        public VratkyViewModel ViewModel { get; set; }
+        public VratkyViewModel ViewModel { get; }
 
         public VratkyPage()
         {
             this.InitializeComponent();
+            ViewModel = (Application.Current as App).Services.GetRequiredService<VratkyViewModel>();
         }
 
         private async void ReceiptIdTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)

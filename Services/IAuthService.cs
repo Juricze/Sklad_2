@@ -4,5 +4,6 @@ namespace Sklad_2.Services
     {
         string CurrentRole { get; }
         void SetCurrentRole(string role);
+        void Logout();
     }
 }

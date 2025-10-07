@@ -8,5 +8,10 @@ namespace Sklad_2.Services
         {
             CurrentRole = role;
         }
+
+        public void Logout()
+        {
+            CurrentRole = null;
+        }
     }
 }

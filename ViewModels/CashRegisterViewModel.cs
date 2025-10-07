@@ -11,7 +11,7 @@ using Sklad_2.Extensions;
 
 namespace Sklad_2.ViewModels
 {
-    public partial class CashRegisterViewModel : ObservableObject, IRecipient<CashRegisterUpdatedMessage>
+    public partial class CashRegisterViewModel : ObservableObject
     {
         private readonly ICashRegisterService _cashRegisterService;
 
@@ -31,22 +31,21 @@ namespace Sklad_2.ViewModels
         {
             _cashRegisterService = cashRegisterService;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
-LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
 
             // Register for messages
-            WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");
+            // WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");
         }
 
         [RelayCommand]
         private async Task LoadCashRegisterDataAsync()
         {
             CurrentCashInTill = await _cashRegisterService.GetCurrentCashInTillAsync();
-            var history = await _cashRegisterService.GetCashRegisterHistoryAsync();
-            CashRegisterHistory.Clear();
-            foreach (var entry in history)
-            {
-                CashRegisterHistory.Add(entry);
-            }
+            // var history = await _cashRegisterService.GetCashRegisterHistoryAsync();
+            // CashRegisterHistory.Clear();
+            // foreach (var entry in history)
+            // {
+            //     CashRegisterHistory.Add(entry);
+            // }
         }
 
         [RelayCommand]
@@ -64,10 +63,10 @@ LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
         }
 
         // Implement IRecipient interface
-        public void Receive(CashRegisterUpdatedMessage message)
-        {
-            // When a CashRegisterUpdatedMessage is received, reload the data
-            LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
-        }
+        // public void Receive(CashRegisterUpdatedMessage message)
+        // {
+        //     // When a CashRegisterUpdatedMessage is received, reload the data
+        //     LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
+        // }
     }
 }

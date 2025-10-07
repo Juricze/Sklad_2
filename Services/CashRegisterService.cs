@@ -5,21 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Sklad_2.Services
 {
     public class CashRegisterService : ICashRegisterService
     {
-        private readonly IDbContextFactory<DatabaseContext> _contextFactory;
+        private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
+        private readonly IMessenger _messenger;
 
-        public CashRegisterService(IDbContextFactory<DatabaseContext> contextFactory)
+        public CashRegisterService(IDbContextFactory<DatabaseContext> dbContextFactory, IMessenger messenger)
         {
-            _contextFactory = contextFactory;
+            _dbContextFactory = dbContextFactory;
+            _messenger = messenger;
         }
 
         public async Task<decimal> GetCurrentCashInTillAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = _dbContextFactory.CreateDbContext();
             return await context.CashRegisterEntries
                                  .OrderByDescending(e => e.Timestamp)
                                  .Select(e => e.CurrentCashInTill)
@@ -28,7 +31,7 @@ namespace Sklad_2.Services
 
         public async Task RecordEntryAsync(EntryType type, decimal amount, string description)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = _dbContextFactory.CreateDbContext();
             var currentCash = await context.CashRegisterEntries
                                            .OrderByDescending(e => e.Timestamp)
                                            .Select(e => e.CurrentCashInTill)
@@ -64,7 +67,7 @@ namespace Sklad_2.Services
 
         public async Task InitializeTillAsync(decimal initialAmount)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = _dbContextFactory.CreateDbContext();
             var hasEntries = await context.CashRegisterEntries.AnyAsync();
             if (!hasEntries)
             {
@@ -78,13 +81,13 @@ namespace Sklad_2.Services
 
         public async Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = _dbContextFactory.CreateDbContext();
             return await context.CashRegisterEntries.OrderByDescending(e => e.Timestamp).ToListAsync();
         }
 
         public async Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync(DateTime startDate, DateTime endDate)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = _dbContextFactory.CreateDbContext();
             return await context.CashRegisterEntries
                                 .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
                                 .OrderByDescending(e => e.Timestamp)

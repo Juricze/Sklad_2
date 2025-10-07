@@ -10,7 +10,7 @@ namespace Sklad_2.Views
 {
     public sealed partial class UctenkyPage : Page
     {
-        public UctenkyViewModel ViewModel { get; set; }
+        public UctenkyViewModel ViewModel { get; }
 
         public UctenkyPage()
         {

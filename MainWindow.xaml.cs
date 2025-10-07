@@ -1,26 +1,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using Sklad_2.Views;
 using System;
 using WinRT; // Required for Window.As<ICompositionSupportsSystemBackdrop>()
 using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Xaml.Input;
 
 namespace Sklad_2
 {
     public sealed partial class MainWindow : Window
     {
-        private readonly ProdejViewModel _prodejViewModel;
-        private readonly PrijemZboziViewModel _prijemZboziViewModel;
-        private readonly DatabazeViewModel _databazeViewModel;
-        private readonly NastaveniViewModel _nastaveniViewModel;
-        private readonly VratkyViewModel _vratkyViewModel;
-        private readonly VratkyPrehledViewModel _vratkyPrehledViewModel;
-        private readonly NovyProduktViewModel _novyProduktViewModel;
-        private readonly PrehledProdejuViewModel _prehledProdejuViewModel;
-        private readonly CashRegisterViewModel _cashRegisterViewModel;
-
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
         SystemBackdropConfiguration m_configurationSource;
@@ -31,19 +23,8 @@ namespace Sklad_2
 
             TrySetSystemBackdrop();
 
-            var services = (Application.Current as App).Services;
-            _prodejViewModel = services.GetService<ProdejViewModel>();
-            _prijemZboziViewModel = services.GetService<PrijemZboziViewModel>();
-            _databazeViewModel = services.GetService<DatabazeViewModel>();
-            _nastaveniViewModel = services.GetService<NastaveniViewModel>();
-            _vratkyViewModel = services.GetService<VratkyViewModel>();
-            _vratkyPrehledViewModel = services.GetService<VratkyPrehledViewModel>();
-            _novyProduktViewModel = services.GetService<NovyProduktViewModel>();
-            _prehledProdejuViewModel = services.GetService<PrehledProdejuViewModel>();
-            _cashRegisterViewModel = services.GetService<CashRegisterViewModel>();
-
-            var initialPage = ContentFrame.Content as ProdejPage;
-            initialPage.ViewModel = _prodejViewModel;
+            // The initial page will get its ViewModel in its constructor.
+            ContentFrame.Content = new ProdejPage();
         }
 
         bool TrySetSystemBackdrop()
@@ -134,67 +115,52 @@ namespace Sklad_2
             switch (tag)
             {
                 case "Prodej":
-                    var prodejPage = new ProdejPage();
-                    prodejPage.ViewModel = _prodejViewModel;
-                    page = prodejPage;
+                    page = new ProdejPage();
                     break;
                 case "Naskladneni":
-                    var prijemZboziPage = new PrijemZboziPage();
-                    prijemZboziPage.ViewModel = _prijemZboziViewModel;
-                    page = prijemZboziPage;
+                    page = new PrijemZboziPage();
                     break;
                 case "Vratky":
-                    var vratkyPage = new VratkyPage();
-                    vratkyPage.ViewModel = _vratkyViewModel;
-                    page = vratkyPage;
+                    page = new VratkyPage();
                     break;
                 case "Pokladna":
-                    var cashRegisterPage = new CashRegisterPage();
-                    cashRegisterPage.ViewModel = _cashRegisterViewModel;
-                    page = cashRegisterPage;
+                    page = new CashRegisterPage();
                     break;
-                case "Produkty": // Changed from "Databaze"
-                    var databazePage = new DatabazePage();
-                    databazePage.ViewModel = _databazeViewModel;
-                    page = databazePage;
-                    _databazeViewModel.LoadProductsCommand.Execute(null); // Explicitně načíst produkty
+                case "Produkty":
+                    page = new DatabazePage();
                     break;
                 case "NovyProdukt":
-                    var novyProduktPage = new NovyProduktPage();
-                    novyProduktPage.ViewModel = _novyProduktViewModel;
-                    page = novyProduktPage;
+                    page = new NovyProduktPage();
                     break;
-                case "Uctenky": // New case
-                    var uctenkyPage = new UctenkyPage();
-                    uctenkyPage.ViewModel = (Application.Current as App).Services.GetService<UctenkyViewModel>(); // Get from DI
-                    page = uctenkyPage;
+                case "Uctenky":
+                    page = new UctenkyPage();
                     break;
                 case "VratkyPrehled":
-                    var vratkyPrehledPage = new VratkyPrehledPage();
-                    vratkyPrehledPage.ViewModel = _vratkyPrehledViewModel;
-                    page = vratkyPrehledPage;
+                    page = new VratkyPrehledPage();
                     break;
                 case "PrehledProdeju":
-                    var prehledProdejuPage = new PrehledProdejuPage();
-                    prehledProdejuPage.ViewModel = _prehledProdejuViewModel;
-                    page = prehledProdejuPage;
+                    page = new PrehledProdejuPage();
                     break;
                 case "HistoriePokladny":
-                    var cashRegisterHistoryPage = new CashRegisterHistoryPage();
-                    cashRegisterHistoryPage.ViewModel = (Application.Current as App).Services.GetService<CashRegisterHistoryViewModel>();
-                    page = cashRegisterHistoryPage;
+                    page = new CashRegisterHistoryPage();
                     break;
                 case "Nastaveni":
-                    var nastaveniPage = new NastaveniPage();
-                    page = nastaveniPage;
+                    page = new NastaveniPage();
                     break;
                 default:
-                    var defaultPage = new ProdejPage();
-                    defaultPage.ViewModel = _prodejViewModel;
-                    page = defaultPage;
+                    page = new ProdejPage();
                     break;
             }
             ContentFrame.Content = page;
+        }
+
+        private void Logout_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var authService = (Application.Current as App).Services.GetService<IAuthService>();
+            authService.Logout();
+            var loginWindow = new LoginWindow();
+            loginWindow.Activate();
+            this.Close();
         }
     }
 

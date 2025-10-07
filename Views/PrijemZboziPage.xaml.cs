@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Sklad_2.ViewModels;
 using Microsoft.UI.Xaml.Input;
@@ -8,11 +9,12 @@ namespace Sklad_2.Views
 {
     public sealed partial class PrijemZboziPage : Page
     {
-        public PrijemZboziViewModel ViewModel { get; set; }
+        public PrijemZboziViewModel ViewModel { get; }
 
         public PrijemZboziPage()
         {
             this.InitializeComponent();
+            ViewModel = (Application.Current as App).Services.GetRequiredService<PrijemZboziViewModel>();
         }
 
         private async void EanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)

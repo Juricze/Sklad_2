@@ -25,6 +25,9 @@
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.PaneFooter>
+                <NavigationViewItem Content="Odhlásit" Tag="Logout" Icon="Undo" Tapped="Logout_Tapped"/>
+            </NavigationView.PaneFooter>
             <Frame x:Name="ContentFrame">
                 <views:ProdejPage/>
             </Frame>

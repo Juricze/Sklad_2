@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.UI.Xaml;
@@ -12,11 +13,12 @@ namespace Sklad_2.Views
 {
     public sealed partial class ProdejPage : Page
     {
-        public ProdejViewModel ViewModel { get; set; }
+        public ProdejViewModel ViewModel { get; }
 
         public ProdejPage()
         {
             this.InitializeComponent();
+            ViewModel = (Application.Current as App).Services.GetRequiredService<ProdejViewModel>();
             this.Loaded += (s, e) =>
             {
                 if (ViewModel != null)
