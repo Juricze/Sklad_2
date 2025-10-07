@@ -12,7 +12,7 @@ namespace Sklad_2.Views
         {
             this.InitializeComponent();
             ViewModel = (App.Current as App).Services.GetService<CashRegisterViewModel>();
-            // this.Loaded += (s, e) => ViewModel.LoadCashRegisterDataCommand.Execute(null);
+            this.Loaded += (s, e) => ViewModel.LoadCashRegisterDataCommand.Execute(null);
         }
     }
 }
