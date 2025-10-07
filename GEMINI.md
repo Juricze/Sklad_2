@@ -54,10 +54,11 @@ This is a WinUI 3 application for warehouse management and sales. It is built wi
 ### 2025-10-07
 
 *   **Oprava chyby "K Platbě" a "Produkty (Přehled)"**
-    *   **Problém:** Po nedávných refaktoringových změnách v aplikaci (přechod na `DbContextFactory`, workaround pro `TwoWay` binding, přestavba stránky "Nastavení" s `NavigationView`) se změnilo, jak jsou zdroje (konvertory) načítány a registrovány v XAML stromu. `ContentDialog` (který se chová spíše jako samostatné okno) ztratil přístup ke globálně definovaným konvertorům (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`), pokud nebyly explicitně definovány v `App.xaml`. Aplikace padala s chybou `XamlParseException`, protože nemohla najít požadovaný zdroj.
-    *   **Řešení:** Všechny potřebné konvertory (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`) byly explicitně definovány jako globální zdroje v `App.xaml`. Tím jsme zajistili, že jsou dostupné pro všechny komponenty v aplikaci, včetně dialogů.
-    *   **Problém s "Produkty (Přehled)":** Produkty se nezobrazovaly v `ListView` na stránce "Produkty (Přehled)". Problém byl v pořadí inicializace. `ViewModel.LoadProductsCommand.Execute(null)` se volalo příliš pozdě (v `OnNavigatedTo`), což způsobilo, že `ListView` byl inicializován bez dat.
-    *   **Řešení:** Volání `ViewModel.LoadProductsCommand.Execute(null)` bylo přesunuto do konstruktoru `DatabazePage`, před `this.InitializeComponent()`. Tím se zajistilo, že data jsou načtena před inicializací UI komponent.
+    *   **Problém s konvertory:** Po nedávných refaktoringových změnách v aplikaci (přechod na `DbContextFactory`, workaround pro `TwoWay` binding, přestavba stránky "Nastavení" s `NavigationView`) se změnilo, jak jsou zdroje (konvertory) načítány a registrovány v XAML stromu. `ContentDialog` (který se chová spíše jako samostatné okno) ztratil přístup ke globálně definovaným konvertorům (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`), pokud nebyly explicitně definovány v `App.xaml`. Aplikace padala s chybou `XamlParseException`, protože nemohla najít požadovaný zdroj.
+    *   **Řešení konvertorů:** Všechny potřebné konvertory (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`, `BooleanToVisibilityConverter`, `DeficitToBrushConverter`, `EntryTypeToStringConverter`, `EnumToBooleanConverter`, `NullToVisibilityConverter`) byly explicitně definovány jako globální zdroje v `App.xaml`. Tím jsme zajistili, že jsou dostupné pro všechny komponenty v aplikaci, včetně dialogů.
+    *   **Problém s "Produkty (Přehled)":** Produkty se nezobrazovaly v `ListView` na stránce "Produkty (Přehled)". Problém byl v pořadí inicializace. `ViewModel.LoadProductsCommand.Execute(null)` se volalo příliš pozdě (v `OnNavigatedTo`), což způsobilo, že `ListView` byl inicializován bez dat. Také `ViewModel` nebyl inicializován před `InitializeComponent()`, což způsobovalo problémy s vazbami. 
+    *   **Řešení "Produkty (Přehled)":** Volání `ViewModel.LoadProductsCommand.Execute(null)` bylo přesunuto do konstruktoru `DatabazePage`, před `this.InitializeComponent()`. Inicializace `ViewModel` byla také přesunuta před `this.InitializeComponent()`. Tím se zajistilo, že data jsou načtena a `ViewModel` je dostupný před inicializací UI komponent. Dočasný `TextBlock` pro zobrazení počtu produktů byl odstraněn.
+    *   **Odstranění testovacího tlačítka:** Testovací tlačítko a jeho obsluha byly odstraněny z `ProdejPage.xaml` a `ProdejPage.xaml.cs`.
 
 ### 2025-09-27
 
@@ -105,10 +106,7 @@ This is a WinUI 3 application for warehouse management and sales. It is built wi
 
 1.  **Systém rolí a oprávnění:** Implementovat přihlašování pro různé role (např. 'Prodavač', 'Vlastník') s odlišnými přístupovými právy k funkcím aplikace.
 2.  **Funkce 'Nový den':** Vytvořit proces, který při prvním spuštění daný den vyžádá zadání počátečního stavu pokladny a zablokuje další akce do jeho vyplnění.
-3.  ~~**Správa sazeb DPH:** V nastavení umožnit definování a přiřazování různých sazeb DPH k jednotlivým kategoriím produktů.~~
-4.  ~~**Vytvořit v menu - nastavení - možnost manuálního nastavení výše DPH pro každou kategorii produktů, tak jak jsou v databázi zvlášť.**~~
 5.  **Modul pro inventury:** Vyvinout robustní funkcionalitu pro kompletní proces inventury – od jejího zahájení, přes průběžné ukládání, až po finální vyhodnocení a archivaci.
-6.  ~~**Rozšíření menu Nastavení:** V menu - Nastavení přidat další karty pro jednotlivé funkce, vyřešit to nějakým vodorovným menu nebo něčím profesionálním co se nám bude hodit do layoutu. Budou přibývat další možnosti k nastavení viz bod č.4.~~
 
 ---
 7.  **Alternativní možnost: Dynamická správa kategorií**
