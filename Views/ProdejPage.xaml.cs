@@ -104,6 +104,15 @@ namespace Sklad_2.Views
             }
         }
 
+        private async void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var paymentSelectionDialog = new PaymentSelectionDialog(ViewModel.Receipt.GrandTotal)
+            {
+                XamlRoot = this.XamlRoot,
+            };
+            await paymentSelectionDialog.ShowAsync();
+        }
+
         private async void CheckoutButton_Click(object sender, RoutedEventArgs e)
         {
             if (ViewModel.Receipt.Items.Count == 0)

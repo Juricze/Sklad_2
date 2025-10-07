@@ -51,6 +51,14 @@ This is a WinUI 3 application for warehouse management and sales. It is built wi
 
 ## Work Log
 
+### 2025-10-07
+
+*   **Oprava chyby "K Platbě" a "Produkty (Přehled)"**
+    *   **Problém:** Po nedávných refaktoringových změnách v aplikaci (přechod na `DbContextFactory`, workaround pro `TwoWay` binding, přestavba stránky "Nastavení" s `NavigationView`) se změnilo, jak jsou zdroje (konvertory) načítány a registrovány v XAML stromu. `ContentDialog` (který se chová spíše jako samostatné okno) ztratil přístup ke globálně definovaným konvertorům (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`), pokud nebyly explicitně definovány v `App.xaml`. Aplikace padala s chybou `XamlParseException`, protože nemohla najít požadovaný zdroj.
+    *   **Řešení:** Všechny potřebné konvertory (`CurrencyConverter`, `DecimalConverter`, `PaymentMethodToVisibilityConverter`) byly explicitně definovány jako globální zdroje v `App.xaml`. Tím jsme zajistili, že jsou dostupné pro všechny komponenty v aplikaci, včetně dialogů.
+    *   **Problém s "Produkty (Přehled)":** Produkty se nezobrazovaly v `ListView` na stránce "Produkty (Přehled)". Problém byl v pořadí inicializace. `ViewModel.LoadProductsCommand.Execute(null)` se volalo příliš pozdě (v `OnNavigatedTo`), což způsobilo, že `ListView` byl inicializován bez dat.
+    *   **Řešení:** Volání `ViewModel.LoadProductsCommand.Execute(null)` bylo přesunuto do konstruktoru `DatabazePage`, před `this.InitializeComponent()`. Tím se zajistilo, že data jsou načtena před inicializací UI komponent.
+
 ### 2025-09-27
 
 *   **Kompletní integrace DPH:**

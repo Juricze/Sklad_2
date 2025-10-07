@@ -8,11 +8,14 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="Styles/Controls.xaml"/>
                 <!-- Other merged dictionaries here -->
+                <ResourceDictionary Source="/Styles/Controls.xaml"/>
+                <ResourceDictionary Source="/Themes/LuxuryWhite.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
-            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <!-- Converters -->
+            <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+            <converters:DecimalConverter x:Key="DecimalConverter"/>
+            <converters:PaymentMethodToVisibilityConverter x:Key="PaymentMethodToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

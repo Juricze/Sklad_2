@@ -12,15 +12,17 @@ namespace Sklad_2.Views
 
         public DatabazePage()
         {
-            this.InitializeComponent();
             ViewModel = (Application.Current as App).Services.GetRequiredService<DatabazeViewModel>();
+            ViewModel.LoadProductsCommand.Execute(null);
+            this.InitializeComponent();
+            this.DataContext = ViewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             // Load products when the page is navigated to
-            ViewModel.LoadProductsCommand.Execute(null);
+            // ViewModel.LoadProductsCommand.Execute(null); // Odstraněno
         }
     }
 }
