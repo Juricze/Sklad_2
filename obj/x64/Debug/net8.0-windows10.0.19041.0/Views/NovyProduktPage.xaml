@@ -19,8 +19,8 @@
                     <TextBox x:ConnectionId='7' Header="Nákupní cena (Kč)"                                                                                          />
                     <TextBox x:ConnectionId='8' Header="Prodejní cena (Kč)"                                                                                      />
                                         <StackPanel>
-                        <TextBlock Text="Sazba DPH (%)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock x:ConnectionId='9'                                                Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
+                        <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:ConnectionId='9'                                                       Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
                     </StackPanel>
 
                 </StackPanel>

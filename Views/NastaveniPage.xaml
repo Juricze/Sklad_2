@@ -1,4 +1,5 @@
 <Page
+    x:Name="page"
     x:Class="Sklad_2.Views.NastaveniPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -20,6 +21,7 @@
                 <NavigationView.MenuItems>
                     <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
                     <NavigationViewItem Content="Sazby DPH" Tag="VAT"/>
+                    <NavigationViewItem Content="Hesla" Tag="Passwords" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Systém" Tag="System"/>
                     <NavigationViewItem Content="O aplikaci" Tag="About"/>
                 </NavigationView.MenuItems>
@@ -27,11 +29,11 @@
                 <Grid Padding="0,12,0,0">
                     <!-- Company Settings Panel -->
                     <StackPanel x:Name="CompanySettingsPanel" Visibility="Visible" Spacing="12">
-                        <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}"/>
-                        <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}"/>
-                        <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}"/>
-                        <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}"/>
-                        <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}"/>
+                        <TextBox Header="Název obchodu" Text="{x:Bind ViewModel.Settings.ShopName, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                        <TextBox Header="Adresa" Text="{x:Bind ViewModel.Settings.ShopAddress, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                        <TextBox Header="IČ" Text="{x:Bind ViewModel.Settings.CompanyId, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                        <TextBox Header="DIČ" Text="{x:Bind ViewModel.Settings.VatId, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                        <ToggleSwitch Header="Plátce DPH" IsOn="{x:Bind ViewModel.Settings.IsVatPayer, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                     </StackPanel>
 
                     <!-- VAT Settings Panel -->
@@ -52,24 +54,42 @@
                                                    LargeChange="5"
                                                    Minimum="0"
                                                    Maximum="100"
-                                                   Width="120"/>
+                                                   Width="120"
+                                                   IsEnabled="{Binding DataContext.IsAdmin, ElementName=page, Mode=OneWay}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
                     </StackPanel>
 
+                    <!-- Password Settings Panel -->
+                    <StackPanel x:Name="PasswordSettingsPanel" Visibility="Collapsed" Spacing="24">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Změna hesla pro Admina" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <PasswordBox Header="Nové heslo" Password="{x:Bind ViewModel.NewAdminPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <PasswordBox Header="Potvrzení nového hesla" Password="{x:Bind ViewModel.ConfirmAdminPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="Změnit heslo Admina" Command="{x:Bind ViewModel.ChangeAdminPasswordCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.AdminPasswordStatus, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Nastavení hesla pro roli Prodej" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                            <PasswordBox Header="Heslo pro 'Prodej'" Password="{x:Bind ViewModel.NewSalePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Ponechte prázdné pro uzamčení"/>
+                            <Button Content="Nastavit heslo pro 'Prodej'" Command="{x:Bind ViewModel.ChangeSalePasswordCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.SalePasswordStatus, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+
                     <!-- System Settings Panel -->
                     <StackPanel x:Name="SystemSettingsPanel" Visibility="Collapsed" Spacing="24">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Nastavení tiskárny" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                            <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                            <TextBox Header="Cesta k tiskárně (např. \\server\tiskarna)" Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                            <Button Content="Test tisku" Command="{x:Bind ViewModel.TestPrintCommand}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                             <TextBlock Text="{x:Bind ViewModel.TestPrintStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                         </StackPanel>
                         <StackPanel Spacing="12">
                             <TextBlock Text="Správa databáze" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                            <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}"/>
+                            <Button Content="Zálohovat databázi" Command="{x:Bind ViewModel.BackupDatabaseCommand}" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                             <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                         </StackPanel>
                     </StackPanel>
@@ -94,7 +114,7 @@
         <StackPanel Grid.Row="1" Spacing="24" Padding="0,24,0,0">
             <!-- Uložit nastavení -->
             <StackPanel Spacing="12">
-                <Button Content="Uložit všechna nastavení" Command="{x:Bind ViewModel.SaveSettingsCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <Button Content="Uložit všechna nastavení" Command="{x:Bind ViewModel.SaveSettingsCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                 <TextBlock Text="{x:Bind ViewModel.SaveStatusMessage, Mode=OneWay}" TextWrapping="Wrap" FontWeight="Bold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
             </StackPanel>
         </StackPanel>

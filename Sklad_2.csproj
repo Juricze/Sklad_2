@@ -21,4 +21,10 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Styles\Controls.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
 </Project>

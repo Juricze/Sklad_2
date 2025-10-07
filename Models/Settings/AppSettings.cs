@@ -21,5 +21,12 @@ namespace Sklad_2.Models.Settings
 
         [ObservableProperty]
         private string printerPath;
+
+        // TODO: Passwords should be hashed before storing.
+        [ObservableProperty]
+        private string adminPassword;
+
+        [ObservableProperty]
+        private string salePassword;
     }
 }

@@ -15,10 +15,10 @@ namespace Sklad_2.Services
 
         public SettingsService()
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var appFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
-            Directory.CreateDirectory(appFolderPath);
-            _settingsPath = Path.Combine(appFolderPath, SettingsFileName);
+            var baseDirectory = AppContext.BaseDirectory;
+            var dbFolderPath = Path.Combine(baseDirectory, "db");
+            Directory.CreateDirectory(dbFolderPath);
+            _settingsPath = Path.Combine(dbFolderPath, SettingsFileName);
             CurrentSettings = new AppSettings();
         }
 

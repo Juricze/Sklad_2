@@ -19,8 +19,8 @@
                     <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <StackPanel>
-                        <TextBlock Text="Sazba DPH (%)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock Text="{x:Bind ViewModel.VatRate, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
+                        <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.VatRateDisplay, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
                     </StackPanel>
 
                 </StackPanel>

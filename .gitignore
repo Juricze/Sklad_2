@@ -1,0 +1,23 @@
+# Ignore Visual Studio specific files
+.vs/
+*.suo
+*.user
+*.csproj.user
+
+# Ignore build output folders
+[Bb]in/
+[Oo]bj/
+
+# Ignore runtime generated files
+*.log
+*.db
+*.db-shm
+*.db-wal
+settings.json
+
+# Ignore packaging output
+AppPackages/
+Bundle/
+
+# Ignore Rider files
+.idea/

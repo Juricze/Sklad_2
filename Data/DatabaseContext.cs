@@ -22,10 +22,10 @@ namespace Sklad_2.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var appFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
-            Directory.CreateDirectory(appFolderPath);
-            var dbPath = Path.Combine(appFolderPath, "sklad.db");
+            var baseDirectory = AppContext.BaseDirectory;
+            var dbFolderPath = Path.Combine(baseDirectory, "db");
+            Directory.CreateDirectory(dbFolderPath);
+            var dbPath = Path.Combine(dbFolderPath, "sklad.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
     }

@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Sklad_2.Models;
+using Sklad_2.Messages;
 using Sklad_2.Models.Settings;
 using Sklad_2.Services;
 using System;
@@ -17,6 +19,10 @@ namespace Sklad_2.ViewModels
         private readonly ISettingsService _settingsService;
         private readonly IPrintService _printService;
         private readonly IDataService _dataService;
+        private readonly IMessenger _messenger;
+        private readonly IAuthService _authService;
+
+        public bool IsAdmin => _authService.CurrentRole == "Admin";
 
         [ObservableProperty]
         private AppSettings settings;
@@ -36,15 +42,36 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string saveStatusMessage;
 
+        // Password Management Properties
+        [ObservableProperty]
+        private string newAdminPassword;
+
+        [ObservableProperty]
+        private string confirmAdminPassword;
+
+        [ObservableProperty]
+        private string newSalePassword;
+
+        [ObservableProperty]
+        private string adminPasswordStatus;
+
+        [ObservableProperty]
+        private string salePasswordStatus;
+
         public ObservableCollection<VatConfig> VatConfigs { get; } = new();
 
-        public NastaveniViewModel(ISettingsService settingsService, IPrintService printService, IDataService dataService)
+        public NastaveniViewModel(ISettingsService settingsService, IPrintService printService, IDataService dataService, IMessenger messenger, IAuthService authService)
         {
             _settingsService = settingsService;
             _printService = printService;
             _dataService = dataService;
+            _messenger = messenger;
+            _authService = authService;
             Settings = _settingsService.CurrentSettings;
             AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            // Pre-fill the sale password box with the current password
+            NewSalePassword = Settings.SalePassword;
 
             LoadVatConfigsCommand.Execute(null);
         }
@@ -79,6 +106,7 @@ namespace Sklad_2.ViewModels
             {
                 await _settingsService.SaveSettingsAsync();
                 await _dataService.SaveVatConfigsAsync(VatConfigs);
+                _messenger.Send(new VatConfigsChangedMessage());
                 SaveStatusMessage = "Nastavení bylo úspěšně uloženo.";
             }
             catch (Exception ex)
@@ -121,6 +149,52 @@ namespace Sklad_2.ViewModels
                 BackupStatusMessage = $"Chyba při zálohování databáze: {ex.Message}";
             }
             await Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private async Task ChangeAdminPasswordAsync()
+        {
+            AdminPasswordStatus = string.Empty;
+            if (string.IsNullOrWhiteSpace(NewAdminPassword) || string.IsNullOrWhiteSpace(ConfirmAdminPassword))
+            {
+                AdminPasswordStatus = "Heslo ani jeho potvrzení nesmí být prázdné.";
+                return;
+            }
+
+            if (NewAdminPassword != ConfirmAdminPassword)
+            {
+                AdminPasswordStatus = "Zadaná hesla se neshodují.";
+                return;
+            }
+
+            try
+            {
+                Settings.AdminPassword = NewAdminPassword;
+                await _settingsService.SaveSettingsAsync();
+                AdminPasswordStatus = "Heslo pro Admina bylo úspěšně změněno.";
+                NewAdminPassword = string.Empty;
+                ConfirmAdminPassword = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                AdminPasswordStatus = $"Chyba při ukládání hesla: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private async Task ChangeSalePasswordAsync()
+        {
+            SalePasswordStatus = string.Empty;
+            try
+            {
+                Settings.SalePassword = NewSalePassword;
+                await _settingsService.SaveSettingsAsync();
+                SalePasswordStatus = "Heslo pro roli Prodej bylo úspěšně nastaveno.";
+            }
+            catch (Exception ex)
+            {
+                SalePasswordStatus = $"Chyba při ukládání hesla: {ex.Message}";
+            }
         }
 
         [RelayCommand]

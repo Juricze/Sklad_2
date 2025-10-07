@@ -1,4 +1,5 @@
 App.xbf
+LoginWindow.xbf
 MainWindow.xbf
 Styles\Controls.xbf
 Themes\LuxuryWhite.xbf
@@ -9,6 +10,7 @@ Views\Dialogs\CardPaymentConfirmationDialog.xbf
 Views\Dialogs\CashConfirmationDialog.xbf
 Views\Dialogs\CashPaymentDialog.xbf
 Views\Dialogs\OutOfStockDialog.xbf
+Views\Dialogs\PasswordPromptDialog.xbf
 Views\Dialogs\PaymentSelectionDialog.xbf
 Views\Dialogs\ReceiptPreviewDialog.xbf
 Views\Dialogs\ReturnPreviewDialog.xbf

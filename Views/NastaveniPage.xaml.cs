@@ -22,6 +22,7 @@ namespace Sklad_2.Views
                 var tag = args.InvokedItemContainer.Tag.ToString();
                 CompanySettingsPanel.Visibility = tag == "Company" ? Visibility.Visible : Visibility.Collapsed;
                 VatSettingsPanel.Visibility = tag == "VAT" ? Visibility.Visible : Visibility.Collapsed;
+                PasswordSettingsPanel.Visibility = tag == "Passwords" ? Visibility.Visible : Visibility.Collapsed;
                 SystemSettingsPanel.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
                 AboutPanel.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;
             }

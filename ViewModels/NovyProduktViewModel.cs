@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
@@ -13,6 +15,7 @@ namespace Sklad_2.ViewModels
     public partial class NovyProduktViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly IMessenger _messenger;
         private List<VatConfig> _vatConfigs;
 
         [ObservableProperty]
@@ -34,37 +37,52 @@ namespace Sklad_2.ViewModels
         private double vatRate;
 
         [ObservableProperty]
+        private string vatRateDisplay;
+
+        [ObservableProperty]
         private string statusMessage = string.Empty;
 
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
-        public NovyProduktViewModel(IDataService dataService)
+        public NovyProduktViewModel(IDataService dataService, IMessenger messenger)
         {
             _dataService = dataService;
+            _messenger = messenger;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
-            LoadVatConfigsAsync();
-        }
-
-        private async void LoadVatConfigsAsync()
-        {
-            _vatConfigs = await _dataService.GetVatConfigsAsync();
-            UpdateVatRateForSelectedCategory();
-        }
-
-        partial void OnSelectedCategoryChanged(string value)
-        {
-            UpdateVatRateForSelectedCategory();
-        }
-
-        private void UpdateVatRateForSelectedCategory()
-        {
-            if (_vatConfigs != null && SelectedCategory != null)
+            
+            _messenger.Register<VatConfigsChangedMessage>(this, (r, m) =>
             {
-                var config = _vatConfigs.FirstOrDefault(c => c.CategoryName == SelectedCategory);
-                VatRate = config?.Rate ?? 21; // Default to 21 if not found for some reason
-            }
-        }
+                LoadVatConfigsAsync();
+            });
 
+            LoadVatConfigsAsync();
+        }        
+                private async void LoadVatConfigsAsync()
+                {
+                    _vatConfigs = await _dataService.GetVatConfigsAsync();
+                    UpdateVatRateForSelectedCategory();
+                }
+        
+                partial void OnSelectedCategoryChanged(string value)
+                {
+                    UpdateVatRateForSelectedCategory();
+                }
+        
+                private void UpdateVatRateForSelectedCategory()
+                {
+                    var config = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+        
+                    if (config != null)
+                    { 
+                        VatRate = config.Rate;
+                        VatRateDisplay = $"{VatRate} %";
+                    }
+                    else
+                    {
+                        VatRate = 0;
+                        VatRateDisplay = "Není nastaveno";
+                    }
+                }
         [RelayCommand]
         private async Task AddNewProductAsync()
         {
@@ -79,6 +97,13 @@ namespace Sklad_2.ViewModels
             if (!decimal.TryParse(SalePrice, out decimal salePriceValue) || !decimal.TryParse(PurchasePrice, out decimal purchasePriceValue))
             {
                 StatusMessage = "Cena musí být platné číslo.";
+                return;
+            }
+
+            var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+            if (vatConfig == null || vatConfig.Rate == 0)
+            {
+                StatusMessage = $"Pro kategorii '{SelectedCategory}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
                 return;
             }
 

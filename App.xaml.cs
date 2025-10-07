@@ -6,13 +6,14 @@ using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using System;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Sklad_2
 {
     public partial class App : Application
     {
         public IServiceProvider Services { get; }
-        private MainWindow m_window;
+        private Window m_window;
 
         public App()
         {
@@ -26,8 +27,12 @@ namespace Sklad_2
             var settingsService = Services.GetRequiredService<ISettingsService>();
             await settingsService.LoadSettingsAsync();
 
-            m_window = new MainWindow();
+            // Show the LoginWindow first
+            m_window = new LoginWindow();
             m_window.Activate();
+
+            // m_window = new MainWindow();
+            // m_window.Activate();
         }
 
         private static IServiceProvider ConfigureServices()
@@ -43,6 +48,10 @@ namespace Sklad_2
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();
             services.AddSingleton<ICashRegisterService, CashRegisterService>();
+            services.AddSingleton<IAuthService, AuthService>();
+
+            // Messaging
+            services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
             // ViewModels
             services.AddSingleton<ProdejViewModel>();
@@ -56,6 +65,9 @@ namespace Sklad_2
             services.AddSingleton<VratkyViewModel>();
             services.AddSingleton<CashRegisterViewModel>();
             services.AddSingleton<CashRegisterHistoryViewModel>();
+
+            // Transient ViewModels (for dialogs, login, etc.)
+            services.AddTransient<LoginViewModel>();
 
             return services.BuildServiceProvider();
         }
