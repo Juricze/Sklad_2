@@ -105,11 +105,47 @@ This is a WinUI 3 application for warehouse management and sales. It is built wi
 ## TODO
 
 1.  **Systém rolí a oprávnění:** Implementovat přihlašování pro různé role (např. 'Prodavač', 'Vlastník') s odlišnými přístupovými právy k funkcím aplikace.
-2.  **Funkce 'Nový den':** Vytvořit proces, který při prvním spuštění daný den vyžádá zadání počátečního stavu pokladny a zablokuje další akce do jeho vyplnění.
-5.  **Modul pro inventury:** Vyvinout robustní funkcionalitu pro kompletní proces inventury – od jejího zahájení, přes průběžné ukládání, až po finální vyhodnocení a archivaci.
+    *   **Pokladna:**
+        *   Zamezit "read only" pro Nastavení počáteční hotovosti/vkladu roli PRODEJ.
+    *   **Produkty (Přehled):**
+        *   Zakázat jakékoliv úpravy v této sekci pro Roli - Prodej.
+    *   **Přehled Prodejů:**
+        *   Zamezit roli-Prodej - nevidět obsah této karty, popř. celou položku v menu.
+    *   **Nový den (při přihlášení role Prodej):**
+        *   Při každém přihlášení účtu Prodej proběhne kontrola Nového dne.
+        *   **Dialogové okno:**
+            *   V případě nového dne: Povinné zadání Skutečné hotovosti pokladny.
 
----
-7.  **Alternativní možnost: Dynamická správa kategorií**
+2.  **Pokladna:**
+    *   Zprovoznit historii transakcí (nic nezobrazuje).
+    *   Po zadání částek Nastavení poč. hodnoty/vklad zfunkčnit Enter pro potvrzení.
+    *   Potvrzovací okno po stisku tlačítka Nastavit/Vložit.
+    *   Z menu Pokladna odstranit Denní kontrolu pokladny (přesun do Přihlášení).
+
+3.  **Databáze:**
+    *   **Produkty (Přehled):**
+        *   Možnost filtrování (kategorie).
+        *   Možnost řazení - klik na text (Název (abeceda), Skladem (sestupně, vzestupně), Cena (od nejnižší po nejvyšší)).
+        *   Přidat do výpisu Nákupní cena (zadáváme v "Nový Produkt").
+
+4.  **Nový Produkt:**
+    *   Zakázat jakékoliv úpravy v této sekci pro Roli - Prodej (již zahrnuto v bodě 1).
+
+5.  **Přehled Prodejů:**
+    *   Kompletní přepracování.
+        *   Kompletně graficky znázorněné statistiky:
+            *   Tržba.
+            *   Nejprodávanější produkty, nejméně prodávané produkty.
+            *   Statistika prodejů (jaké dny bylo nejvíce účtenek/obchodů).
+            *   Řazení podle období po vzoru účtenky (Přehled), vratky...
+            *   A další, když tě něco napadne.
+
+6.  **Historie pokladny:**
+    *   V případě denní uzávěrky vyšší než byl poslední stav pokladny, je ve výpisu rozdíl záporný. Což je logicky opak. Zároveň zápornou částku zvýraznit červeně (celý řádek včetně datumu, typu, částky). V případě Typu: Výběr se zvýrazňuje červeně pouze částka - zde upravit taky na celý řádek.
+
+7.  **Modul pro inventury:** Vyvinout robustní funkcionalitu pro kompletní proces inventury – od jejího zahájení, přes průběžné ukládání, až po finální vyhodnocení a archivaci.
+
+8.  **Alternativní možnost: Dynamická správa kategorií**
     *   **Cíl:** Umožnit uživatelům přidávat, přejmenovávat a mazat kategorie produktů přímo v běžící aplikaci, bez nutnosti měnit kód.
     *   **Problematika a implementační kroky:**
         *   **Úložiště:** Seznam názvů kategorií se musí přesunout z pevného seznamu v kódu (`ProductCategories.cs`) do perzistentního úložiště. Nejlepší řešení je nová tabulka v databázi (např. `Categories` s jedním sloupcem `Name`).
@@ -118,5 +154,17 @@ This is a WinUI 3 application for warehouse management and sales. It is built wi
             *   *Při smazání:* Zakázat smazání, pokud v kategorii existují produkty? Nebo tyto produkty automaticky přesunout do kategorie "Ostatní"? Nebo jejich kategorii nastavit na `null`? Je potřeba definovat jasné pravidlo.
             *   *Při přejmenování:* Musí dojít ke kaskádové aktualizaci a změně názvu kategorie u všech dotčených produktů v databázi.
         *   **Napojení zbytku aplikace:** `ComboBox` pro výběr kategorie na stránce "Nový produkt" a další případná místa se musí napojit na tento nový, dynamický seznam z databáze, nikoliv na statický seznam v kódu.
-8.  **Respektovat nastavení Plátce/Neplátce DPH:** Přepínač v nastavení se správně ukládá, ale UI ho nerespektuje. Účtenky a dobropisy se vždy zobrazují jako daňový doklad.
+
+9.  **Respektovat nastavení Plátce/Neplátce DPH:** Přepínač v nastavení se správně ukládá, ale UI ho nerespektuje. Účtenky a dobropisy se vždy zobrazují jako daňový doklad.
     *   **Úkol:** Vytvořit `BooleanToVisibilityConverter`. V souborech `ReceiptPreviewDialog.xaml` a `ReturnPreviewDialog.xaml` napojit viditelnost všech sekcí souvisejících s DPH (DIČ, nadpis "Daňový doklad", sloupec "Sazba DPH", celý "Souhrn DPH") na vlastnost `IsVatPayer` a použít k tomu vytvořený converter.
+
+10. **Infotainment o stavu aplikace (nad odhlásit/nastavení):**
+    *   Zobrazit jednoduchý infotainment o stavu:
+        *   Databáze: Ok / Chyba (obarvit zeleně/červeně).
+        *   Stav cloud databáze (poslední backup): Ok / Chyba (obarvit zeleně/červeně).
+        *   Vyplněné potřebné údaje (OK / false) (obarvit zeleně/červeně).
+        *   Stav tiskárny: připojeno / odpojeno.
+        *   A další podle uvážení.
+    *   Zauvažovat nad stavovým řádkem (možnost, vzhled, ano/ne).
+
+11. **Možnost přidání banneru na vršek celé šíře aplikace pro Logo Firmy.** (Dočasně stačí nápis).
