@@ -14,6 +14,10 @@ namespace Sklad_2.ViewModels
     public partial class CashRegisterViewModel : ObservableObject
     {
         private readonly ICashRegisterService _cashRegisterService;
+        private readonly IAuthService _authService;
+
+        [ObservableProperty]
+        private bool isSalesRole;
 
         [ObservableProperty]
         private decimal currentCashInTill;
@@ -27,10 +31,12 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private ObservableCollection<CashRegisterEntry> cashRegisterHistory;
 
-        public CashRegisterViewModel(ICashRegisterService cashRegisterService)
+        public CashRegisterViewModel(ICashRegisterService cashRegisterService, IAuthService authService)
         {
             _cashRegisterService = cashRegisterService;
+            _authService = authService;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
+            IsSalesRole = _authService.CurrentRole == "Prodej";
 
             // Register for messages
             // WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");

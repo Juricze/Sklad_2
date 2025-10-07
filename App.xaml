@@ -21,6 +21,7 @@
             <converters:EntryTypeToStringConverter x:Key="EntryTypeToStringConverter"/>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:BooleanToEnabledConverter x:Key="BooleanToEnabledConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

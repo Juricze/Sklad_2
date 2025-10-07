@@ -40,9 +40,8 @@
           <!-- <TextBox Header="Částka" PlaceholderText="Zadejte částku..." Text="{x:Bind
   ViewModel.InitialAmount, Mode=TwoWay, Converter={StaticResource DecimalConverter}}" InputScope="Number"/>
   -->
-                                  <TextBox Header="Částka" PlaceholderText="Zadejte částku..." Text="{x:Bind ViewModel.InitialAmount, Mode=TwoWay, Converter={StaticResource InlineDecimalConverter}}" InputScope="Number"/>          <!-- <Button Content="Nastavit / Vložit" Command="{x:Bind
-  ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right"/> -->
-                                  <Button Content="Nastavit / Vložit" Command="{x:Bind ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right"/>        </StackPanel>
+                                  <TextBox Header="Částka" PlaceholderText="Zadejte částku..." Text="{x:Bind ViewModel.InitialAmount, Mode=TwoWay, Converter={StaticResource InlineDecimalConverter}}" InputScope="Number" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>          <!-- <Button Content="Nastavit / Vložit" Command="{x:Bind ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right"/> -->
+                                  <Button Content="Nastavit / Vložit" Command="{x:Bind ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>        </StackPanel>
       </Border>
 
       <!-- Denní kontrola pokladny -->

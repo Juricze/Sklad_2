@@ -19,7 +19,7 @@
                 PlaceholderText="Hledat podle názvu nebo EAN..."
                                                                                                       
                 MinWidth="300"/>
-            <Button x:ConnectionId='13'                                                  >
+            <Button x:ConnectionId='13'                                                                                                                                                                                            >
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE74D;"/>
                     <TextBlock Text="Smazat vybrané"/>

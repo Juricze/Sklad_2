@@ -19,7 +19,7 @@
                 PlaceholderText="Hledat podle názvu nebo EAN..."
                 Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 MinWidth="300"/>
-            <Button Command="{x:Bind ViewModel.DeleteProductCommand}">
+            <Button Command="{x:Bind ViewModel.DeleteProductCommand}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE74D;"/>
                     <TextBlock Text="Smazat vybrané"/>

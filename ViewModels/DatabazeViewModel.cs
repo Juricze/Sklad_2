@@ -12,7 +12,11 @@ namespace Sklad_2.ViewModels
     public partial class DatabazeViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly IAuthService _authService;
         private List<Product> _allProducts = new List<Product>();
+
+        [ObservableProperty]
+        private bool isSalesRole;
 
         public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
 
@@ -23,9 +27,11 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string searchText;
 
-        public DatabazeViewModel(IDataService dataService)
+        public DatabazeViewModel(IDataService dataService, IAuthService authService)
         {
             _dataService = dataService;
+            _authService = authService;
+            IsSalesRole = _authService.CurrentRole == "Prodej";
         }
 
         [RelayCommand]

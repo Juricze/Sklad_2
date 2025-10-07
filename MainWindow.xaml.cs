@@ -16,15 +16,41 @@ namespace Sklad_2
         WindowsSystemDispatcherQueueHelper m_wsdqHelper; // See below for implementation.
         MicaController m_micaController;
         SystemBackdropConfiguration m_configurationSource;
+        private readonly IAuthService _authService;
+        private bool IsSalesRole;
 
         public MainWindow()
         {
             this.InitializeComponent();
 
+            var serviceProvider = (Application.Current as App).Services;
+            _authService = serviceProvider.GetRequiredService<IAuthService>();
+            IsSalesRole = _authService.CurrentRole == "Prodej";
+
             TrySetSystemBackdrop();
 
             // The initial page will get its ViewModel in its constructor.
             ContentFrame.Content = new ProdejPage();
+
+            // Hide "Přehled prodejů" for Sales role
+            if (IsSalesRole)
+            {
+                foreach (var item in NavView.MenuItems)
+                {
+                    if (item is NavigationViewItem mainItem && mainItem.Tag as string == "Databaze")
+                    {
+                        foreach (var subItem in mainItem.MenuItems)
+                        {
+                            if (subItem is NavigationViewItem navItem && navItem.Tag as string == "PrehledProdeju")
+                            {
+                                navItem.Visibility = Visibility.Collapsed;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         bool TrySetSystemBackdrop()
