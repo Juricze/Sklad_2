@@ -60,10 +60,16 @@ namespace Sklad_2
             services.AddSingleton<NastaveniViewModel>();
             services.AddSingleton<UctenkyViewModel>();
             services.AddSingleton<VratkyPrehledViewModel>();
-            services.AddSingleton<NovyProduktViewModel>();
+            services.AddSingleton<NovyProduktViewModel>(sp => new NovyProduktViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<PrehledProdejuViewModel>();
             services.AddSingleton<VratkyViewModel>();
-            services.AddSingleton<CashRegisterViewModel>();
+            services.AddSingleton<CashRegisterViewModel>(sp => new CashRegisterViewModel(
+                sp.GetRequiredService<ICashRegisterService>(),
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<CashRegisterHistoryViewModel>();
 
             // Transient ViewModels (for dialogs, login, etc.)

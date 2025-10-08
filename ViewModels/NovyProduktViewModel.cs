@@ -12,11 +12,15 @@ using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
 {
-    public partial class NovyProduktViewModel : ObservableObject
+    public partial class NovyProduktViewModel : ObservableObject, IRecipient<RoleChangedMessage>
     {
         private readonly IDataService _dataService;
+        private readonly IAuthService _authService;
         private readonly IMessenger _messenger;
         private List<VatConfig> _vatConfigs;
+
+        [ObservableProperty]
+        private bool isSalesRole;
 
         [ObservableProperty]
         private string ean = string.Empty;
@@ -44,45 +48,58 @@ namespace Sklad_2.ViewModels
 
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
-        public NovyProduktViewModel(IDataService dataService, IMessenger messenger)
+        public NovyProduktViewModel(IDataService dataService, IAuthService authService, IMessenger messenger)
         {
             _dataService = dataService;
+            _authService = authService;
             _messenger = messenger;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
-            
+
+            // Initial check
+            IsSalesRole = _authService.CurrentRole == "Prodej";
+
+            // Register for messages
+            _messenger.Register<RoleChangedMessage>(this);
             _messenger.Register<VatConfigsChangedMessage>(this, (r, m) =>
             {
                 LoadVatConfigsAsync();
             });
 
             LoadVatConfigsAsync();
-        }        
-                private async void LoadVatConfigsAsync()
-                {
-                    _vatConfigs = await _dataService.GetVatConfigsAsync();
-                    UpdateVatRateForSelectedCategory();
-                }
-        
-                partial void OnSelectedCategoryChanged(string value)
-                {
-                    UpdateVatRateForSelectedCategory();
-                }
-        
-                private void UpdateVatRateForSelectedCategory()
-                {
-                    var config = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
-        
-                    if (config != null)
-                    { 
-                        VatRate = config.Rate;
-                        VatRateDisplay = $"{VatRate} %";
-                    }
-                    else
-                    {
-                        VatRate = 0;
-                        VatRateDisplay = "Není nastaveno";
-                    }
-                }
+        }
+
+        public void Receive(RoleChangedMessage message)
+        {
+            IsSalesRole = message.Value == "Prodej";
+        }
+
+        private async void LoadVatConfigsAsync()
+        {
+            _vatConfigs = await _dataService.GetVatConfigsAsync();
+            UpdateVatRateForSelectedCategory();
+        }
+
+        partial void OnSelectedCategoryChanged(string value)
+        {
+            UpdateVatRateForSelectedCategory();
+        }
+
+        private void UpdateVatRateForSelectedCategory()
+        {
+            var config = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+
+            if (config != null)
+            {
+                VatRate = config.Rate;
+                VatRateDisplay = $"{VatRate} %";
+            }
+            else
+            {
+                VatRate = 0;
+                VatRateDisplay = "Není nastaveno";
+            }
+        }
+
         [RelayCommand]
         private async Task AddNewProductAsync()
         {

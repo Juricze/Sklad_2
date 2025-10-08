@@ -8,13 +8,15 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Sklad_2.Messages;
 using Sklad_2.Extensions;
+using System.Diagnostics;
 
 namespace Sklad_2.ViewModels
 {
-    public partial class CashRegisterViewModel : ObservableObject
+    public partial class CashRegisterViewModel : ObservableObject, IRecipient<RoleChangedMessage>
     {
         private readonly ICashRegisterService _cashRegisterService;
         private readonly IAuthService _authService;
+        private readonly IMessenger _messenger;
 
         [ObservableProperty]
         private bool isSalesRole;
@@ -31,15 +33,25 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private ObservableCollection<CashRegisterEntry> cashRegisterHistory;
 
-        public CashRegisterViewModel(ICashRegisterService cashRegisterService, IAuthService authService)
+        public CashRegisterViewModel(ICashRegisterService cashRegisterService, IAuthService authService, IMessenger messenger)
         {
             _cashRegisterService = cashRegisterService;
             _authService = authService;
+            _messenger = messenger;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
+            
+            // Initial check
             IsSalesRole = _authService.CurrentRole == "Prodej";
+            Debug.WriteLine($"CashRegisterViewModel: Initial IsSalesRole = {IsSalesRole} (CurrentRole: {_authService.CurrentRole})");
 
             // Register for messages
-            // WeakReferenceMessenger.Default.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken");
+            _messenger.Register<RoleChangedMessage>(this);
+        }
+
+        public void Receive(RoleChangedMessage message)
+        {
+            IsSalesRole = message.Value == "Prodej";
+            Debug.WriteLine($"CashRegisterViewModel: Received RoleChangedMessage. New IsSalesRole = {IsSalesRole} (Role: {message.Value})");
         }
 
         [RelayCommand]

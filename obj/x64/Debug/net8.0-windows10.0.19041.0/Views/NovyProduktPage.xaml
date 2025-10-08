@@ -11,13 +11,13 @@
         <StackPanel Spacing="24" MaxWidth="500">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Spacing="12">
-                    <TextBox x:ConnectionId='4' Header="EAN kód"                                                                                />
-                    <TextBox x:ConnectionId='5' Header="Název produktu"                                                                                 />
+                    <TextBox x:ConnectionId='4' Header="EAN kód"                                                                                                                                                                                                                          />
+                    <TextBox x:ConnectionId='5' Header="Název produktu"                                                                                                                                                                                                                           />
                     <ComboBox x:ConnectionId='6' Header="Kategorie" 
                                                                          
-                                                                                             />
-                    <TextBox x:ConnectionId='7' Header="Nákupní cena (Kč)"                                                                                          />
-                    <TextBox x:ConnectionId='8' Header="Prodejní cena (Kč)"                                                                                      />
+                                                                                                                                                                                                                                       />
+                    <TextBox x:ConnectionId='7' Header="Nákupní cena (Kč)"                                                                                                                                                                                                                                    />
+                    <TextBox x:ConnectionId='8' Header="Prodejní cena (Kč)"                                                                                                                                                                                                                                />
                                         <StackPanel>
                         <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock x:ConnectionId='9'                                                       Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
@@ -26,7 +26,7 @@
                 </StackPanel>
             </Border>
             <TextBlock x:ConnectionId='2'                                                      Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
-            <Button x:ConnectionId='3' Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"                                                  />
+            <Button x:ConnectionId='3' Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"                                                                                                                                                                                            />
         </StackPanel>
     </Grid>
 </Page>

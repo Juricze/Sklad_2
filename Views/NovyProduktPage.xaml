@@ -11,13 +11,13 @@
         <StackPanel Spacing="24" MaxWidth="500">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Spacing="12">
-                    <TextBox Header="EAN kód" Text="{x:Bind ViewModel.Ean, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBox Header="Název produktu" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="EAN kód" Text="{x:Bind ViewModel.Ean, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Header="Název produktu" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                     <ComboBox Header="Kategorie" 
                               ItemsSource="{x:Bind ViewModel.Categories}"
-                              SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
-                    <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                              SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                                         <StackPanel>
                         <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Text="{x:Bind ViewModel.VatRateDisplay, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
@@ -26,7 +26,7 @@
                 </StackPanel>
             </Border>
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
-            <Button Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddNewProductCommand}"/>
+            <Button Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddNewProductCommand}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
         </StackPanel>
     </Grid>
 </Page>
