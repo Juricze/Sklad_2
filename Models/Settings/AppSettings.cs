@@ -1,32 +1,18 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+using System.Text.Json.Serialization;
 
 namespace Sklad_2.Models.Settings
 {
-    public partial class AppSettings : ObservableObject
+    public class AppSettings
     {
-        [ObservableProperty]
-        private string shopName;
-
-        [ObservableProperty]
-        private string shopAddress;
-
-        [ObservableProperty]
-        private string companyId;
-
-        [ObservableProperty]
-        private string vatId;
-
-        [ObservableProperty]
-        private bool isVatPayer;
-
-        [ObservableProperty]
-        private string printerPath;
-
-        // TODO: Passwords should be hashed before storing.
-        [ObservableProperty]
-        private string adminPassword;
-
-        [ObservableProperty]
-        private string salePassword;
+        public string ShopName { get; set; }
+        public string ShopAddress { get; set; }
+        public string CompanyId { get; set; }
+        public string VatId { get; set; }
+        public bool IsVatPayer { get; set; }
+        public string PrinterPath { get; set; }
+        public string AdminPassword { get; set; }
+        public string SalePassword { get; set; }
+        public DateTime? LastSaleLoginDate { get; set; }
     }
 }

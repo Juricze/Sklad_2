@@ -25,7 +25,7 @@ namespace Sklad_2
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
             var settingsService = Services.GetRequiredService<ISettingsService>();
-            await settingsService.LoadSettingsAsync();
+
 
             // Show the LoginWindow first
             m_window = new LoginWindow();

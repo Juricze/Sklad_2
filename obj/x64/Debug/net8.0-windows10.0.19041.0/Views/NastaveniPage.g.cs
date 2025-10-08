@@ -914,7 +914,6 @@ namespace Sklad_2.Views
             }
             private void Update_ViewModel_Settings(global::Sklad_2.Models.Settings.AppSettings obj, int phase)
             {
-                this.bindingsTracking.UpdateChildListeners_ViewModel_Settings(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | DATA_CHANGED | (1 << 0))) != 0)
@@ -1269,7 +1268,6 @@ namespace Sklad_2.Views
                 public void ReleaseAllListeners()
                 {
                     UpdateChildListeners_ViewModel(null);
-                    UpdateChildListeners_ViewModel_Settings(null);
                 }
 
                 public void PropertyChanged_ViewModel(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
@@ -1417,100 +1415,6 @@ namespace Sklad_2.Views
                         {
                             cache_ViewModel = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel;
-                        }
-                    }
-                }
-                public void PropertyChanged_ViewModel_Settings(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
-                {
-                    NastaveniPage_obj1_Bindings bindings = TryGetBindingObject();
-                    if (bindings != null)
-                    {
-                        string propName = e.PropertyName;
-                        global::Sklad_2.Models.Settings.AppSettings obj = sender as global::Sklad_2.Models.Settings.AppSettings;
-                        if (global::System.String.IsNullOrEmpty(propName))
-                        {
-                            if (obj != null)
-                            {
-                                bindings.Update_ViewModel_Settings_PrinterPath(obj.PrinterPath, DATA_CHANGED);
-                                bindings.Update_ViewModel_Settings_ShopName(obj.ShopName, DATA_CHANGED);
-                                bindings.Update_ViewModel_Settings_ShopAddress(obj.ShopAddress, DATA_CHANGED);
-                                bindings.Update_ViewModel_Settings_CompanyId(obj.CompanyId, DATA_CHANGED);
-                                bindings.Update_ViewModel_Settings_VatId(obj.VatId, DATA_CHANGED);
-                                bindings.Update_ViewModel_Settings_IsVatPayer(obj.IsVatPayer, DATA_CHANGED);
-                            }
-                        }
-                        else
-                        {
-                            switch (propName)
-                            {
-                                case "PrinterPath":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_PrinterPath(obj.PrinterPath, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                case "ShopName":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_ShopName(obj.ShopName, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                case "ShopAddress":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_ShopAddress(obj.ShopAddress, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                case "CompanyId":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_CompanyId(obj.CompanyId, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                case "VatId":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_VatId(obj.VatId, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                case "IsVatPayer":
-                                {
-                                    if (obj != null)
-                                    {
-                                        bindings.Update_ViewModel_Settings_IsVatPayer(obj.IsVatPayer, DATA_CHANGED);
-                                    }
-                                    break;
-                                }
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                }
-                private global::Sklad_2.Models.Settings.AppSettings cache_ViewModel_Settings = null;
-                public void UpdateChildListeners_ViewModel_Settings(global::Sklad_2.Models.Settings.AppSettings obj)
-                {
-                    if (obj != cache_ViewModel_Settings)
-                    {
-                        if (cache_ViewModel_Settings != null)
-                        {
-                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_Settings).PropertyChanged -= PropertyChanged_ViewModel_Settings;
-                            cache_ViewModel_Settings = null;
-                        }
-                        if (obj != null)
-                        {
-                            cache_ViewModel_Settings = obj;
-                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_Settings;
                         }
                     }
                 }

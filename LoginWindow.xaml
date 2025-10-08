@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Title="Přihlášení">
 
-    <Grid Padding="24">
+    <Grid Padding="24" Loaded="LoginWindow_Loaded">
         <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="300">
             <TextBlock Text="Vyberte profil" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
             

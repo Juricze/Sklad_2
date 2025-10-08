@@ -1,11 +1,13 @@
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
-using System;
-using System.Threading.Tasks;
+using Microsoft.UI.Dispatching;
 
 namespace Sklad_2
 {
@@ -13,6 +15,7 @@ namespace Sklad_2
     {
         public LoginViewModel ViewModel { get; }
         private readonly IAuthService _authService;
+        private readonly ISettingsService _settingsService;
 
         public LoginWindow()
         {
@@ -20,6 +23,7 @@ namespace Sklad_2
             var serviceProvider = (Application.Current as App).Services;
             ViewModel = serviceProvider.GetRequiredService<LoginViewModel>();
             _authService = serviceProvider.GetRequiredService<IAuthService>();
+            _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             ExtendsContentIntoTitleBar = true;
 
             // Subscribe to ViewModel events
@@ -27,6 +31,14 @@ namespace Sklad_2
             ViewModel.CreatePasswordAsync += HandleCreatePasswordAsync;
             ViewModel.LoginSucceeded += HandleLoginSucceeded;
             ViewModel.LoginFailed += HandleLoginFailed;
+        }
+
+        private async void LoginWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.DispatcherQueue.TryEnqueue(async () =>
+            {
+                await _settingsService.LoadSettingsAsync();
+            });
         }
 
         private async Task<string> HandleRequestPasswordAsync(string prompt)
@@ -68,9 +80,72 @@ namespace Sklad_2
             }
         }
 
-        private void HandleLoginSucceeded(string role)
+        private async void HandleLoginSucceeded(string role)
         {
             _authService.SetCurrentRole(role);
+
+            Debug.WriteLine($"LoginSucceeded: Role = {role}");
+
+            if (role == "Prodej")
+            {
+                var currentDate = DateTime.Today;
+                var lastLoginDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date;
+
+                Debug.WriteLine($"Current Date: {currentDate}");
+                Debug.WriteLine($"Last Sale Login Date: {lastLoginDate}");
+
+                bool isNewDay = false;
+                string promptMessage = "";
+
+                if (lastLoginDate == null)
+                {
+                    isNewDay = true;
+                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
+                    Debug.WriteLine("Condition: lastLoginDate is null. isNewDay = true.");
+                }
+                else if (currentDate > lastLoginDate)
+                {
+                    isNewDay = true;
+                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
+                    Debug.WriteLine("Condition: currentDate > lastLoginDate. isNewDay = true.");
+                }
+                else if (currentDate < lastLoginDate)
+                {
+                    isNewDay = true;
+                    promptMessage = "Upozornění: Systémový čas byl posunut zpět. Pro zajištění integrity dat je nutné zahájit nový obchodní den. Prosím, zadejte počáteční stav pokladny.";
+                    Debug.WriteLine("Condition: currentDate < lastLoginDate. isNewDay = true.");
+                }
+
+                Debug.WriteLine($"isNewDay after conditions: {isNewDay}");
+
+                if (isNewDay)
+                {
+                    Debug.WriteLine("Attempting to show NewDayConfirmationDialog.");
+                    var newDayDialog = new NewDayConfirmationDialog();
+                    newDayDialog.SetPromptText(promptMessage);
+                    newDayDialog.XamlRoot = this.Content.XamlRoot;
+
+                    var result = await newDayDialog.ShowAsync();
+                    Debug.WriteLine($"NewDayConfirmationDialog result: {result}");
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // Initialize till with the entered amount
+                        var cashRegisterService = (Application.Current as App).Services.GetRequiredService<ICashRegisterService>();
+                        await cashRegisterService.PerformDailyReconciliationAsync(newDayDialog.InitialAmount);
+
+                        // Update last login date
+                        _settingsService.CurrentSettings.LastSaleLoginDate = currentDate;
+                        await _settingsService.SaveSettingsAsync();
+                    }
+                    else
+                    {
+                        // User cancelled, close the app as initial amount is mandatory
+                        Application.Current.Exit();
+                        return;
+                    }
+                }
+            }
 
             var mainWindow = new MainWindow();
             mainWindow.Activate();

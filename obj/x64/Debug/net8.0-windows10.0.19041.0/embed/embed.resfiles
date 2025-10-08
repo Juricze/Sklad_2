@@ -9,6 +9,7 @@ Views\DatabazePage.xbf
 Views\Dialogs\CardPaymentConfirmationDialog.xbf
 Views\Dialogs\CashConfirmationDialog.xbf
 Views\Dialogs\CashPaymentDialog.xbf
+Views\Dialogs\NewDayConfirmationDialog.xbf
 Views\Dialogs\OutOfStockDialog.xbf
 Views\Dialogs\PasswordPromptDialog.xbf
 Views\Dialogs\PaymentSelectionDialog.xbf
