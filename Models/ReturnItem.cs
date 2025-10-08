@@ -1,28 +1,43 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sklad_2.Models
 {
-    public class ReturnItem
+    public partial class ReturnItem : ObservableObject
     {
         [Key]
-        public int ReturnItemId { get; set; }
+        [ObservableProperty]
+        private int returnItemId;
 
-        public int ReturnId { get; set; }
+        [ObservableProperty]
+        private int returnId;
         [ForeignKey("ReturnId")]
-        public Return Return { get; set; }
+        [ObservableProperty]
+        private Return @return;
 
         // Info about the returned product
-        public string ProductEan { get; set; }
-        public string ProductName { get; set; }
-        public int ReturnedQuantity { get; set; }
+        [ObservableProperty]
+        private string productEan;
+        [ObservableProperty]
+        private string productName;
+        [ObservableProperty]
+        private int returnedQuantity;
 
         // Financial info for this item
-        public decimal UnitPrice { get; set; } // Price with VAT
-        public decimal TotalRefund { get; set; } // Total refund for this line
-        public decimal VatRate { get; set; }
-        public decimal PriceWithoutVat { get; set; }
-        public decimal VatAmount { get; set; } // The VAT amount being refunded for this line
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(UnitPriceFormatted))]
+        private decimal unitPrice; // Price with VAT
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundFormatted))]
+        private decimal totalRefund; // Total refund for this line
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(VatRateFormatted))]
+        private decimal vatRate;
+        [ObservableProperty]
+        private decimal priceWithoutVat;
+        [ObservableProperty]
+        private decimal vatAmount; // The VAT amount being refunded for this line
 
         // Formatted properties
         public string UnitPriceFormatted => $"{UnitPrice:C}";

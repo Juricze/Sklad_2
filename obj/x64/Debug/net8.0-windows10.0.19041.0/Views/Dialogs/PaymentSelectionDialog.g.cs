@@ -163,6 +163,7 @@ namespace Sklad_2.Views.Dialogs
             // Update methods for each path node used in binding steps.
             private void Update_(global::Sklad_2.Views.Dialogs.PaymentSelectionDialog obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | DATA_CHANGED | (1 << 0))) != 0)
@@ -211,8 +212,57 @@ namespace Sklad_2.Views.Dialogs
 
                 public void ReleaseAllListeners()
                 {
+                    UpdateChildListeners_(null);
                 }
 
+                public void PropertyChanged_(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    PaymentSelectionDialog_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Views.Dialogs.PaymentSelectionDialog obj = sender as global::Sklad_2.Views.Dialogs.PaymentSelectionDialog;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_GrandTotal(obj.GrandTotal, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "GrandTotal":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_GrandTotal(obj.GrandTotal, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                public void UpdateChildListeners_(global::Sklad_2.Views.Dialogs.PaymentSelectionDialog obj)
+                {
+                    PaymentSelectionDialog_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        if (bindings.dataRoot != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)bindings.dataRoot).PropertyChanged -= PropertyChanged_;
+                        }
+                        if (obj != null)
+                        {
+                            bindings.dataRoot = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_;
+                        }
+                    }
+                }
             }
         }
 

@@ -178,7 +178,7 @@ namespace Sklad_2.ViewModels
                     TotalRefundAmount = TotalRefundAmount,
                     TotalRefundAmountWithoutVat = totalRefundWithoutVat,
                     TotalRefundVatAmount = totalRefundVatAmount,
-                    Items = returnItems
+                    Items = new ObservableCollection<ReturnItem>(returnItems)
                 };
 
                 // Save return document

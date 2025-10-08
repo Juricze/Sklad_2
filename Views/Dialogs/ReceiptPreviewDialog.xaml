@@ -105,7 +105,7 @@
                         </Grid>
                         <ItemsRepeater ItemsSource="{x:Bind VatSummaries, Mode=OneWay}">
                             <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="dialogs:VatSummary">
+                                <DataTemplate x:DataType="models:VatSummary">
                                     <Grid ColumnSpacing="12">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

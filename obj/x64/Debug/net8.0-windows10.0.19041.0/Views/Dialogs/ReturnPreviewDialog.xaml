@@ -105,7 +105,7 @@
                     </Grid>
                     <ItemsRepeater x:ConnectionId='4'                                                 >
                         <ItemsRepeater.ItemTemplate>
-                            <DataTemplate                                >
+                            <DataTemplate                               >
                                 <Grid x:ConnectionId='6' ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>

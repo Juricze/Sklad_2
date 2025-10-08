@@ -13,9 +13,11 @@ namespace Sklad_2.Services
     {
         private const string SettingsFileName = "settings.json";
         private string _settingsFilePath;
-        public AppSettings CurrentSettings { get; private set; }
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
 
-        private async Task<string> GetSettingsFilePath()
+        public AppSettings CurrentSettings { get; set; }
+
+        private string GetSettingsFilePath()
         {
             if (string.IsNullOrEmpty(_settingsFilePath))
             {
@@ -34,7 +36,7 @@ namespace Sklad_2.Services
 
         public async Task LoadSettingsAsync()
         {
-            var settingsFilePath = await GetSettingsFilePath();
+            var settingsFilePath = GetSettingsFilePath();
 
             if (File.Exists(settingsFilePath))
             {
@@ -59,9 +61,8 @@ namespace Sklad_2.Services
 
         public async Task SaveSettingsAsync()
         {
-            var settingsFilePath = await GetSettingsFilePath();
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            var json = JsonSerializer.Serialize(CurrentSettings, options);
+            var settingsFilePath = GetSettingsFilePath();
+            var json = JsonSerializer.Serialize(CurrentSettings, _jsonSerializerOptions);
             await File.WriteAllTextAsync(settingsFilePath, json);
             Debug.WriteLine($"Settings saved. LastSaleLoginDate: {CurrentSettings.LastSaleLoginDate}");
         }

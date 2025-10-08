@@ -932,8 +932,9 @@ namespace Sklad_2.Views
                     }
                 }
             }
-            private void Update_ViewModel_SelectedReceipt_Items(global::System.Collections.Generic.ICollection<global::Sklad_2.Models.ReceiptItem> obj, int phase)
+            private void Update_ViewModel_SelectedReceipt_Items(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem> obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_ViewModel_SelectedReceipt_Items(obj);
                 if ((phase & ((1 << 0) | NOT_PHASED | DATA_CHANGED)) != 0)
                 {
                     // Views\UctenkyPage.xaml line 118
@@ -1135,6 +1136,7 @@ namespace Sklad_2.Views
                 {
                     UpdateChildListeners_ViewModel(null);
                     UpdateChildListeners_ViewModel_SelectedReceipt(null);
+                    UpdateChildListeners_ViewModel_SelectedReceipt_Items(null);
                     UpdateChildListeners_ViewModel_Receipts(null);
                 }
 
@@ -1323,6 +1325,53 @@ namespace Sklad_2.Views
                         {
                             cache_ViewModel_SelectedReceipt = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReceipt;
+                        }
+                    }
+                }
+                public void PropertyChanged_ViewModel_SelectedReceipt_Items(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    UctenkyPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem> obj = sender as global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem>;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                public void CollectionChanged_ViewModel_SelectedReceipt_Items(object sender, global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+                {
+                    UctenkyPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem> obj = sender as global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem>;
+                    }
+                }
+                private global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem> cache_ViewModel_SelectedReceipt_Items = null;
+                public void UpdateChildListeners_ViewModel_SelectedReceipt_Items(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReceiptItem> obj)
+                {
+                    if (obj != cache_ViewModel_SelectedReceipt_Items)
+                    {
+                        if (cache_ViewModel_SelectedReceipt_Items != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_SelectedReceipt_Items).PropertyChanged -= PropertyChanged_ViewModel_SelectedReceipt_Items;
+                            ((global::System.Collections.Specialized.INotifyCollectionChanged)cache_ViewModel_SelectedReceipt_Items).CollectionChanged -= CollectionChanged_ViewModel_SelectedReceipt_Items;
+                            cache_ViewModel_SelectedReceipt_Items = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_ViewModel_SelectedReceipt_Items = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReceipt_Items;
+                            ((global::System.Collections.Specialized.INotifyCollectionChanged)obj).CollectionChanged += CollectionChanged_ViewModel_SelectedReceipt_Items;
                         }
                     }
                 }

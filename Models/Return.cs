@@ -1,29 +1,53 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sklad_2.Models
 {
-    public class Return
+    public partial class Return : ObservableObject
     {
         [Key]
-        public int ReturnId { get; set; }
-        public DateTime ReturnDate { get; set; }
+        [ObservableProperty]
+        private int returnId;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ReturnDateFormatted))]
+        private DateTime returnDate;
 
         // Reference to the original receipt
-        public int OriginalReceiptId { get; set; }
+        [ObservableProperty]
+        private int originalReceiptId;
 
         // Seller info at the time of return
-        public string ShopName { get; set; }
-        public string ShopAddress { get; set; }
-        public string CompanyId { get; set; }
-        public string VatId { get; set; }
-        public bool IsVatPayer { get; set; }
+        [ObservableProperty]
+        private string shopName;
+
+        [ObservableProperty]
+        private string shopAddress;
+
+        [ObservableProperty]
+        private string companyId;
+
+        [ObservableProperty]
+        private string vatId;
+
+        [ObservableProperty]
+        private bool isVatPayer;
 
         // Refund totals
-        public decimal TotalRefundAmount { get; set; }
-        public decimal TotalRefundAmountWithoutVat { get; set; }
-        public decimal TotalRefundVatAmount { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundAmountFormatted))]
+        private decimal totalRefundAmount;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundAmountWithoutVatFormatted))]
+        private decimal totalRefundAmountWithoutVat;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalRefundVatAmountFormatted))]
+        private decimal totalRefundVatAmount;
 
         // Formatted properties
         public string TotalRefundAmountFormatted => $"{TotalRefundAmount:C}";
@@ -31,6 +55,7 @@ namespace Sklad_2.Models
         public string TotalRefundVatAmountFormatted => $"{TotalRefundVatAmount:C}";
         public string ReturnDateFormatted => $"{ReturnDate:g}";
 
-        public ICollection<ReturnItem> Items { get; set; }
+        [ObservableProperty]
+        private ObservableCollection<ReturnItem> items;
     }
 }

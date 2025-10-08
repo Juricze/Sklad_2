@@ -299,9 +299,9 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             _typeNameTable[71] = "Microsoft.UI.Xaml.Controls.Layout";
             _typeNameTable[72] = "Sklad_2.Views.Dialogs.ReceiptPreviewDialog";
             _typeNameTable[73] = "Sklad_2.Models.Receipt";
-            _typeNameTable[74] = "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Views.Dialogs.VatSummary>";
-            _typeNameTable[75] = "System.Collections.ObjectModel.Collection`1<Sklad_2.Views.Dialogs.VatSummary>";
-            _typeNameTable[76] = "Sklad_2.Views.Dialogs.VatSummary";
+            _typeNameTable[74] = "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>";
+            _typeNameTable[75] = "System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>";
+            _typeNameTable[76] = "Sklad_2.Models.VatSummary";
             _typeNameTable[77] = "Sklad_2.Views.Dialogs.ReturnPreviewDialog";
             _typeNameTable[78] = "Sklad_2.Models.Return";
             _typeNameTable[79] = "Microsoft.UI.Xaml.Controls.NumberBox";
@@ -404,9 +404,9 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             _typeTable[71] = typeof(global::Microsoft.UI.Xaml.Controls.Layout);
             _typeTable[72] = typeof(global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog);
             _typeTable[73] = typeof(global::Sklad_2.Models.Receipt);
-            _typeTable[74] = typeof(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Views.Dialogs.VatSummary>);
-            _typeTable[75] = typeof(global::System.Collections.ObjectModel.Collection<global::Sklad_2.Views.Dialogs.VatSummary>);
-            _typeTable[76] = typeof(global::Sklad_2.Views.Dialogs.VatSummary);
+            _typeTable[74] = typeof(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>);
+            _typeTable[75] = typeof(global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>);
+            _typeTable[76] = typeof(global::Sklad_2.Models.VatSummary);
             _typeTable[77] = typeof(global::Sklad_2.Views.Dialogs.ReturnPreviewDialog);
             _typeTable[78] = typeof(global::Sklad_2.Models.Return);
             _typeTable[79] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBox);
@@ -494,9 +494,9 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
         private object Activate_66_ItemsRepeater() { return new global::Microsoft.UI.Xaml.Controls.ItemsRepeater(); }
         private object Activate_69_ItemCollectionTransitionProvider() { return new global::Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider(); }
         private object Activate_73_Receipt() { return new global::Sklad_2.Models.Receipt(); }
-        private object Activate_74_ObservableCollection() { return new global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Views.Dialogs.VatSummary>(); }
-        private object Activate_75_Collection() { return new global::System.Collections.ObjectModel.Collection<global::Sklad_2.Views.Dialogs.VatSummary>(); }
-        private object Activate_76_VatSummary() { return new global::Sklad_2.Views.Dialogs.VatSummary(); }
+        private object Activate_74_ObservableCollection() { return new global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>(); }
+        private object Activate_75_Collection() { return new global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>(); }
+        private object Activate_76_VatSummary() { return new global::Sklad_2.Models.VatSummary(); }
         private object Activate_78_Return() { return new global::Sklad_2.Models.Return(); }
         private object Activate_79_NumberBox() { return new global::Microsoft.UI.Xaml.Controls.NumberBox(); }
         private object Activate_86_NastaveniPage() { return new global::Sklad_2.Views.NastaveniPage(); }
@@ -522,14 +522,14 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
         }
         private void VectorAdd_74_ObservableCollection(object instance, object item)
         {
-            var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Views.Dialogs.VatSummary>)instance;
-            var newItem = (global::Sklad_2.Views.Dialogs.VatSummary)item;
+            var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Models.VatSummary>)instance;
+            var newItem = (global::Sklad_2.Models.VatSummary)item;
             collection.Add(newItem);
         }
         private void VectorAdd_75_Collection(object instance, object item)
         {
-            var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Views.Dialogs.VatSummary>)instance;
-            var newItem = (global::Sklad_2.Views.Dialogs.VatSummary)item;
+            var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Models.VatSummary>)instance;
+            var newItem = (global::Sklad_2.Models.VatSummary)item;
             collection.Add(newItem);
         }
         private void VectorAdd_101_IList(object instance, object item)
@@ -1064,21 +1064,21 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 74:   //  System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Views.Dialogs.VatSummary>
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Collections.ObjectModel.Collection`1<Sklad_2.Views.Dialogs.VatSummary>"));
+            case 74:   //  System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>"));
                 userType.CollectionAdd = VectorAdd_74_ObservableCollection;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 75:   //  System.Collections.ObjectModel.Collection`1<Sklad_2.Views.Dialogs.VatSummary>
+            case 75:   //  System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 userType.Activator = Activate_75_Collection;
                 userType.CollectionAdd = VectorAdd_75_Collection;
                 xamlType = userType;
                 break;
 
-            case 76:   //  Sklad_2.Views.Dialogs.VatSummary
+            case 76:   //  Sklad_2.Models.VatSummary
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 userType.Activator = Activate_76_VatSummary;
                 userType.AddMemberName("VatRate");
@@ -1100,7 +1100,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 break;
 
             case 78:   //  Sklad_2.Models.Return
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
@@ -1887,6 +1887,11 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
             return that.GrandTotal;
         }
+        private void set_62_PaymentSelectionDialog_GrandTotal(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            that.GrandTotal = (global::System.Decimal)Value;
+        }
         private object get_63_PaymentSelectionDialog_SelectedPaymentMethod(object instance)
         {
             var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
@@ -1977,10 +1982,20 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
             return that.ReceivedAmount;
         }
+        private void set_73_ReceiptPreviewDialog_ReceivedAmount(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            that.ReceivedAmount = (global::System.Decimal)Value;
+        }
         private object get_74_ReceiptPreviewDialog_ChangeAmount(object instance)
         {
             var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
             return that.ChangeAmount;
+        }
+        private void set_74_ReceiptPreviewDialog_ChangeAmount(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            that.ChangeAmount = (global::System.Decimal)Value;
         }
         private object get_75_ReceiptPreviewDialog_VatSummaries(object instance)
         {
@@ -1989,47 +2004,47 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
         }
         private object get_76_VatSummary_VatRate(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.VatRate;
         }
         private void set_76_VatSummary_VatRate(object instance, object Value)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             that.VatRate = (global::System.Decimal)Value;
         }
         private object get_77_VatSummary_TotalAmountWithoutVat(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.TotalAmountWithoutVat;
         }
         private void set_77_VatSummary_TotalAmountWithoutVat(object instance, object Value)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             that.TotalAmountWithoutVat = (global::System.Decimal)Value;
         }
         private object get_78_VatSummary_TotalVatAmount(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.TotalVatAmount;
         }
         private void set_78_VatSummary_TotalVatAmount(object instance, object Value)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             that.TotalVatAmount = (global::System.Decimal)Value;
         }
         private object get_79_VatSummary_VatRateFormatted(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.VatRateFormatted;
         }
         private object get_80_VatSummary_TotalAmountWithoutVatFormatted(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.TotalAmountWithoutVatFormatted;
         }
         private object get_81_VatSummary_TotalVatAmountFormatted(object instance)
         {
-            var that = (global::Sklad_2.Views.Dialogs.VatSummary)instance;
+            var that = (global::Sklad_2.Models.VatSummary)instance;
             return that.TotalVatAmountFormatted;
         }
         private object get_82_ReturnPreviewDialog_ReturnDocument(object instance)
@@ -2749,7 +2764,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "GrandTotal", "System.Decimal");
                 xamlMember.Getter = get_62_PaymentSelectionDialog_GrandTotal;
-                xamlMember.SetIsReadOnly();
+                xamlMember.Setter = set_62_PaymentSelectionDialog_GrandTotal;
                 break;
             case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.SelectedPaymentMethod":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
@@ -2822,52 +2837,52 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ReceivedAmount", "System.Decimal");
                 xamlMember.Getter = get_73_ReceiptPreviewDialog_ReceivedAmount;
-                xamlMember.SetIsReadOnly();
+                xamlMember.Setter = set_73_ReceiptPreviewDialog_ReceivedAmount;
                 break;
             case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.ChangeAmount":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ChangeAmount", "System.Decimal");
                 xamlMember.Getter = get_74_ReceiptPreviewDialog_ChangeAmount;
-                xamlMember.SetIsReadOnly();
+                xamlMember.Setter = set_74_ReceiptPreviewDialog_ChangeAmount;
                 break;
             case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.VatSummaries":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Views.Dialogs.VatSummary>");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
                 xamlMember.Getter = get_75_ReceiptPreviewDialog_VatSummaries;
                 xamlMember.SetIsReadOnly();
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.VatRate":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.VatRate":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRate", "System.Decimal");
                 xamlMember.Getter = get_76_VatSummary_VatRate;
                 xamlMember.Setter = set_76_VatSummary_VatRate;
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.TotalAmountWithoutVat":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVat":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVat", "System.Decimal");
                 xamlMember.Getter = get_77_VatSummary_TotalAmountWithoutVat;
                 xamlMember.Setter = set_77_VatSummary_TotalAmountWithoutVat;
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.TotalVatAmount":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.TotalVatAmount":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmount", "System.Decimal");
                 xamlMember.Getter = get_78_VatSummary_TotalVatAmount;
                 xamlMember.Setter = set_78_VatSummary_TotalVatAmount;
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.VatRateFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.VatRateFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRateFormatted", "String");
                 xamlMember.Getter = get_79_VatSummary_VatRateFormatted;
                 xamlMember.SetIsReadOnly();
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.TotalAmountWithoutVatFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVatFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVatFormatted", "String");
                 xamlMember.Getter = get_80_VatSummary_TotalAmountWithoutVatFormatted;
                 xamlMember.SetIsReadOnly();
                 break;
-            case "Sklad_2.Views.Dialogs.VatSummary.TotalVatAmountFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.VatSummary");
+            case "Sklad_2.Models.VatSummary.TotalVatAmountFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmountFormatted", "String");
                 xamlMember.Getter = get_81_VatSummary_TotalVatAmountFormatted;
                 xamlMember.SetIsReadOnly();
@@ -2880,7 +2895,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 break;
             case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.VatSummaries":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Views.Dialogs.VatSummary>");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
                 xamlMember.Getter = get_83_ReturnPreviewDialog_VatSummaries;
                 xamlMember.SetIsReadOnly();
                 break;

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sklad_2.Models
@@ -63,6 +64,6 @@ namespace Sklad_2.Models
         public string ChangeAmountFormatted => $"{ChangeAmount:C}";
 
         [ObservableProperty]
-        private ICollection<ReceiptItem> items;
+        private ObservableCollection<ReceiptItem> items;
     }
 }

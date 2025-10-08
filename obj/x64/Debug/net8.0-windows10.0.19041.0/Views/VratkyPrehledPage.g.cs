@@ -245,6 +245,7 @@ namespace Sklad_2.Views
             // Update methods for each path node used in binding steps.
             private void Update_(global::Sklad_2.Models.ReturnItem obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | (1 << 0))) != 0)
@@ -332,8 +333,66 @@ namespace Sklad_2.Views
 
                 public void ReleaseAllListeners()
                 {
+                    UpdateChildListeners_(null);
                 }
 
+                public void PropertyChanged_(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    VratkyPrehledPage_obj8_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.ReturnItem obj = sender as global::Sklad_2.Models.ReturnItem;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_UnitPriceFormatted(obj.UnitPriceFormatted, DATA_CHANGED);
+                                bindings.Update_TotalRefundFormatted(obj.TotalRefundFormatted, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "UnitPriceFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_UnitPriceFormatted(obj.UnitPriceFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "TotalRefundFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_TotalRefundFormatted(obj.TotalRefundFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                public void UpdateChildListeners_(global::Sklad_2.Models.ReturnItem obj)
+                {
+                    VratkyPrehledPage_obj8_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        if (bindings.dataRoot != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)bindings.dataRoot).PropertyChanged -= PropertyChanged_;
+                        }
+                        if (obj != null)
+                        {
+                            bindings.dataRoot = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_;
+                        }
+                    }
+                }
             }
         }
 
@@ -833,6 +892,7 @@ namespace Sklad_2.Views
             }
             private void Update_ViewModel_SelectedReturn(global::Sklad_2.Models.Return obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_ViewModel_SelectedReturn(obj);
                 if (obj != null)
                 {
                     if ((phase & (NOT_PHASED | DATA_CHANGED | (1 << 0))) != 0)
@@ -858,8 +918,9 @@ namespace Sklad_2.Views
                     }
                 }
             }
-            private void Update_ViewModel_SelectedReturn_Items(global::System.Collections.Generic.ICollection<global::Sklad_2.Models.ReturnItem> obj, int phase)
+            private void Update_ViewModel_SelectedReturn_Items(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem> obj, int phase)
             {
+                this.bindingsTracking.UpdateChildListeners_ViewModel_SelectedReturn_Items(obj);
                 if ((phase & ((1 << 0) | NOT_PHASED | DATA_CHANGED)) != 0)
                 {
                     // Views\VratkyPrehledPage.xaml line 118
@@ -1060,6 +1121,8 @@ namespace Sklad_2.Views
                 public void ReleaseAllListeners()
                 {
                     UpdateChildListeners_ViewModel(null);
+                    UpdateChildListeners_ViewModel_SelectedReturn(null);
+                    UpdateChildListeners_ViewModel_SelectedReturn_Items(null);
                     UpdateChildListeners_ViewModel_Returns(null);
                 }
 
@@ -1154,6 +1217,138 @@ namespace Sklad_2.Views
                         {
                             cache_ViewModel = obj;
                             ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel;
+                        }
+                    }
+                }
+                public void PropertyChanged_ViewModel_SelectedReturn(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    VratkyPrehledPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::Sklad_2.Models.Return obj = sender as global::Sklad_2.Models.Return;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                            if (obj != null)
+                            {
+                                bindings.Update_ViewModel_SelectedReturn_Items(obj.Items, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReturn_TotalRefundAmountFormatted(obj.TotalRefundAmountFormatted, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReturn_OriginalReceiptId(obj.OriginalReceiptId, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReturn_ReturnDateFormatted(obj.ReturnDateFormatted, DATA_CHANGED);
+                                bindings.Update_ViewModel_SelectedReturn_ReturnId(obj.ReturnId, DATA_CHANGED);
+                            }
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                case "Items":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReturn_Items(obj.Items, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "TotalRefundAmountFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReturn_TotalRefundAmountFormatted(obj.TotalRefundAmountFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "OriginalReceiptId":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReturn_OriginalReceiptId(obj.OriginalReceiptId, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "ReturnDateFormatted":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReturn_ReturnDateFormatted(obj.ReturnDateFormatted, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                case "ReturnId":
+                                {
+                                    if (obj != null)
+                                    {
+                                        bindings.Update_ViewModel_SelectedReturn_ReturnId(obj.ReturnId, DATA_CHANGED);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                private global::Sklad_2.Models.Return cache_ViewModel_SelectedReturn = null;
+                public void UpdateChildListeners_ViewModel_SelectedReturn(global::Sklad_2.Models.Return obj)
+                {
+                    if (obj != cache_ViewModel_SelectedReturn)
+                    {
+                        if (cache_ViewModel_SelectedReturn != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_SelectedReturn).PropertyChanged -= PropertyChanged_ViewModel_SelectedReturn;
+                            cache_ViewModel_SelectedReturn = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_ViewModel_SelectedReturn = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReturn;
+                        }
+                    }
+                }
+                public void PropertyChanged_ViewModel_SelectedReturn_Items(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    VratkyPrehledPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        string propName = e.PropertyName;
+                        global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem> obj = sender as global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem>;
+                        if (global::System.String.IsNullOrEmpty(propName))
+                        {
+                        }
+                        else
+                        {
+                            switch (propName)
+                            {
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                public void CollectionChanged_ViewModel_SelectedReturn_Items(object sender, global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+                {
+                    VratkyPrehledPage_obj1_Bindings bindings = TryGetBindingObject();
+                    if (bindings != null)
+                    {
+                        global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem> obj = sender as global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem>;
+                    }
+                }
+                private global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem> cache_ViewModel_SelectedReturn_Items = null;
+                public void UpdateChildListeners_ViewModel_SelectedReturn_Items(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.ReturnItem> obj)
+                {
+                    if (obj != cache_ViewModel_SelectedReturn_Items)
+                    {
+                        if (cache_ViewModel_SelectedReturn_Items != null)
+                        {
+                            ((global::System.ComponentModel.INotifyPropertyChanged)cache_ViewModel_SelectedReturn_Items).PropertyChanged -= PropertyChanged_ViewModel_SelectedReturn_Items;
+                            ((global::System.Collections.Specialized.INotifyCollectionChanged)cache_ViewModel_SelectedReturn_Items).CollectionChanged -= CollectionChanged_ViewModel_SelectedReturn_Items;
+                            cache_ViewModel_SelectedReturn_Items = null;
+                        }
+                        if (obj != null)
+                        {
+                            cache_ViewModel_SelectedReturn_Items = obj;
+                            ((global::System.ComponentModel.INotifyPropertyChanged)obj).PropertyChanged += PropertyChanged_ViewModel_SelectedReturn_Items;
+                            ((global::System.Collections.Specialized.INotifyCollectionChanged)obj).CollectionChanged += CollectionChanged_ViewModel_SelectedReturn_Items;
                         }
                     }
                 }

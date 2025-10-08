@@ -2,15 +2,32 @@ using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Sklad_2.Views.Dialogs
 {
-    public sealed partial class ReceiptPreviewDialog : ContentDialog
+    public sealed partial class ReceiptPreviewDialog : ContentDialog, INotifyPropertyChanged
     {
         public Receipt Receipt { get; }
-        public decimal ReceivedAmount { get; }
-        public decimal ChangeAmount { get; }
+
+        private decimal _receivedAmount;
+        public decimal ReceivedAmount
+        {
+            get => _receivedAmount;
+            set => SetProperty(ref _receivedAmount, value);
+        }
+
+        private decimal _changeAmount;
+        public decimal ChangeAmount
+        {
+            get => _changeAmount;
+            set => SetProperty(ref _changeAmount, value);
+        }
+
         public ObservableCollection<VatSummary> VatSummaries { get; } = new();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ReceiptPreviewDialog(Receipt receipt)
         {
@@ -46,16 +63,22 @@ namespace Sklad_2.Views.Dialogs
             // TODO: Implementovat tisk účtenky
             args.Cancel = true; // Dialog se nezavře po kliknutí na Tisk
         }
-    }
 
-    public class VatSummary
-    {
-        public decimal VatRate { get; set; }
-        public decimal TotalAmountWithoutVat { get; set; }
-        public decimal TotalVatAmount { get; set; }
+        private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(storage, value))
+            {
+                return false;
+            }
 
-        public string VatRateFormatted => $"{VatRate} %";
-        public string TotalAmountWithoutVatFormatted => TotalAmountWithoutVat.ToString("C");
-        public string TotalVatAmountFormatted => TotalVatAmount.ToString("C");
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

@@ -24,6 +24,16 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return selectedReturn;
 
+        partial void OnSelectedReturnChanged(Return value)
+        {
+            // Notify UI about changes in nested properties when SelectedReturn changes
+            OnPropertyChanged(nameof(SelectedReturn.ReturnId));
+            OnPropertyChanged(nameof(SelectedReturn.ReturnDateFormatted));
+            OnPropertyChanged(nameof(SelectedReturn.OriginalReceiptId));
+            OnPropertyChanged(nameof(SelectedReturn.TotalRefundAmountFormatted));
+            // Add more if needed for other nested properties
+        }
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsCustomFilterVisible))]
         private DateFilterType selectedFilterType = DateFilterType.Daily;

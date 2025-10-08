@@ -42,7 +42,7 @@ namespace Sklad_2
             this.Closed += LoginWindow_Closed;
         }
 
-        private async void LoginWindow_Loaded(object sender, RoutedEventArgs e)
+        private void LoginWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.DispatcherQueue.TryEnqueue(async () =>
             {

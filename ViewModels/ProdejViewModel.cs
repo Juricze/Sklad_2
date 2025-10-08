@@ -4,6 +4,7 @@ using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -190,7 +191,7 @@ namespace Sklad_2.ViewModels
                 SaleDate = DateTime.Now,
                 TotalAmount = Receipt.GrandTotal,
                 PaymentMethod = GetPaymentMethodString(paymentMethod),
-                Items = receiptItemsForDb,
+                Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
                 ShopName = settings.ShopName,
                 ShopAddress = settings.ShopAddress,
                 CompanyId = settings.CompanyId,

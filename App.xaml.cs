@@ -22,7 +22,7 @@ namespace Sklad_2
             Services = ConfigureServices();
         }
 
-        protected override async void OnLaunched(LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
             var settingsService = Services.GetRequiredService<ISettingsService>();
 

@@ -6,7 +6,7 @@ namespace Sklad_2.Services
 {
     public interface ISettingsService
     {
-        AppSettings CurrentSettings { get; }
+        AppSettings CurrentSettings { get; set; }
         Task LoadSettingsAsync();
         Task SaveSettingsAsync();
     }
