@@ -16,6 +16,7 @@ namespace Sklad_2
         public LoginViewModel ViewModel { get; }
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
+        private DispatcherTimer _timer;
 
         public LoginWindow()
         {
@@ -26,11 +27,19 @@ namespace Sklad_2
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             ExtendsContentIntoTitleBar = true;
 
+            // Initialize timer
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Tick += Timer_Tick;
+
             // Subscribe to ViewModel events
             ViewModel.RequestPasswordAsync += HandleRequestPasswordAsync;
             ViewModel.CreatePasswordAsync += HandleCreatePasswordAsync;
             ViewModel.LoginSucceeded += HandleLoginSucceeded;
             ViewModel.LoginFailed += HandleLoginFailed;
+
+            // Subscribe to Unloaded event to stop timer
+            this.Closed += LoginWindow_Closed;
         }
 
         private async void LoginWindow_Loaded(object sender, RoutedEventArgs e)
@@ -38,7 +47,26 @@ namespace Sklad_2
             this.DispatcherQueue.TryEnqueue(async () =>
             {
                 await _settingsService.LoadSettingsAsync();
+                _timer.Start();
+                UpdateDateTime(); // Initial update
             });
+        }
+
+        private void LoginWindow_Closed(object sender, WindowEventArgs args)
+        {
+            _timer.Stop();
+        }
+
+        private void Timer_Tick(object sender, object e)
+        {
+            UpdateDateTime();
+        }
+
+        private void UpdateDateTime()
+        {
+            DateTextBlock.Text = DateTime.Now.ToString("dd.MM.yyyy");
+            TimeTextBlock.Text = DateTime.Now.ToString("HH:mm:ss");
+            DayOfWeekTextBlock.Text = DateTime.Now.ToString("dddd");
         }
 
         private async Task<string> HandleRequestPasswordAsync(string prompt)

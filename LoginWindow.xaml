@@ -9,6 +9,10 @@
 
     <Grid Padding="24" Loaded="LoginWindow_Loaded">
         <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="300">
+            <TextBlock x:Name="DateTextBlock" FontSize="18" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="TimeTextBlock" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="DayOfWeekTextBlock" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+
             <TextBlock Text="Vyberte profil" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
             
             <Button Content="Admin" HorizontalAlignment="Stretch" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.SelectAdminCommand}"/>
