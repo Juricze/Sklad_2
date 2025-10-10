@@ -40,10 +40,11 @@ Vše je registrováno v `App.xaml.cs` metodě `ConfigureServices()`:
 - **DbContext**: Registrován jako `DbContextFactory<DatabaseContext>` kvůli workaround pro WinUI binding issues
 
 ### Databáze
-- **Umístění**: `{BaseDirectory}/db/sklad.db` (lokální SQLite)
+- **Umístění**: `C:\Users\{Username}\AppData\Local\Sklad_2_Data\sklad.db` (LocalApplicationData)
 - **Schema**: Definován v `Data/DatabaseContext.cs`
 - **Přístup**: Výhradně přes `SqliteDataService` (implementuje `IDataService`)
 - **Migrační strategie**: **ŽÁDNÉ MIGRACE** - při změně schématu se databáze maže a vytváří znovu (`Database.EnsureCreated()`)
+- **Nastavení**: `AppSettings.json` uložen také v LocalApplicationData
 
 ### Messaging System
 Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pro komunikaci mezi ViewModels:
@@ -65,7 +66,12 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 - **Login flow**: `LoginWindow` → `MainWindow` (po úspěšném přihlášení)
 - **Role**: "Prodej" (omezená práva) a "Vlastník" (plná práva)
 - **Service**: `AuthService` implementuje `IAuthService`, poskytuje `CurrentRole`
-- **UI omezení**: Pro roli "Prodej" je skrytá položka "Přehled prodejů" v menu (MainWindow.xaml.cs:36-53)
+- **UI omezení**: Pro roli "Prodej" je skrytá položka "Přehled prodejů" v menu
+- **Denní workflow (role "Prodej")**:
+  - První přihlášení nebo nový den → Dialog "Nový den" s počátečním stavem pokladny
+  - Během dne → Prodeje, vklady, kontroly
+  - Konec dne → Uzavírka dne (lze pouze 1× denně)
+  - Ochrana: Detekce změny systémového času (varování při posunu zpět)
 
 ### Key Pages
 - **ProdejPage**: Prodej produktů, správa košíku, platby (hotovost/karta)
@@ -74,7 +80,7 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 - **UctenkyPage**: Historie účtenek s filtry (denní/týdenní/měsíční/vlastní)
 - **VratkyPage**: Zpracování vratek a dobropisů
 - **VratkyPrehledPage**: Přehled vratek
-- **CashRegisterPage**: Správa pokladny (počáteční stav, vklady, výběry)
+- **CashRegisterPage**: Správa pokladny (vklady, denní kontrola, uzavírka dne)
 - **CashRegisterHistoryPage**: Historie transakcí pokladny
 - **NastaveniPage**: Nastavení aplikace s NavigationView menu (DPH, kategorie, firma)
 
@@ -88,10 +94,42 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 ### Kategorie produktů
 Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kategorií je hard-coded (zatím není dynamická správa přes UI).
 
+### Pokladna (Cash Register) - Kompletní workflow
+
+#### Entry Types
+- **DayStart**: Zahájení dne - nastaví počáteční stav (nepřičítá!)
+- **Sale**: Prodej - přičte částku
+- **Deposit**: Vklad - přičte částku
+- **Withdrawal**: Výběr - odečte částku
+- **Return**: Vratka - odečte částku
+- **DailyReconciliation**: Denní kontrola - odečte rozdíl
+- **DayClose**: Uzavírka dne - nastaví konečný stav
+
+#### Denní workflow (role "Prodej")
+1. **Přihlášení**: LoginWindow → MainWindow.OnFirstActivated
+2. **Kontrola nového dne**:
+   - Pokud `LastSaleLoginDate` je null nebo < Today → Dialog "Nový den"
+   - Pokud `LastSaleLoginDate` > Today → Varování o změně času
+   - Dialog validuje částku (0-10M Kč, ne záporná)
+3. **Zahájení**: `SetDayStartCashAsync()` vytvoří `DayStart` záznam
+4. **Během dne**: Prodeje automaticky aktualizují pokladnu
+5. **Uzavírka**:
+   - Tlačítko "Uzavřít den" v CashRegisterPage
+   - Validace: pouze 1× denně (kontrola `LastDayCloseDate`)
+   - Vytvoří `DayClose` záznam s napočítanou částkou
+   - Vypočítá rozdíl (přebytek/manko)
+
+#### Timing a robustnost
+- **MainWindow dialog**: Čeká na `XamlRoot` (max 20×50ms)
+- **CashRegisterPage success dialog**: 800ms delay + retry s 300ms (WinUI dialog bug)
+- **Page.Loaded event**: CashRegisterPage načítá data při každém zobrazení
+
 ### Známé problémy a workarounds
 1. **TwoWay binding issue**: WinUI má problém s TwoWay bindingem na DbContext entity - řešeno přes DbContextFactory
 2. **ContentDialog resource access**: Dialogy ztrácejí přístup ke global resources - všechny konvertory musí být explicitně definovány v App.xaml
 3. **ListView initialization**: Data musí být načtena před `InitializeComponent()` v konstruktoru stránky
+4. **ContentDialog multiple instances**: WinUI nepovoluje více dialogů najednou - řešeno zpožděním + retry + try-catch
+5. **Clean + Rebuild nutnost**: Při změnách XAML/ViewModels vždy Build → Clean Solution, pak Rebuild
 
 ## Styl práce (z GEMINI.md)
 - **Komunikace**: Pouze česky, jasná, stručná, profesionální
