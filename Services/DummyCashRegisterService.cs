@@ -22,6 +22,11 @@ namespace Sklad_2.Services
             return Task.CompletedTask;
         }
 
+        public Task MakeDepositAsync(decimal amount)
+        {
+            return Task.CompletedTask;
+        }
+
         public Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync()
         {
             var history = new List<CashRegisterEntry>

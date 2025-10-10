@@ -25,7 +25,7 @@ namespace Sklad_2.ViewModels
         private decimal currentCashInTill;
 
         [ObservableProperty]
-        private decimal initialAmount;
+        private decimal depositAmount;
 
         [ObservableProperty]
         private decimal actualAmountForReconciliation;
@@ -67,10 +67,22 @@ namespace Sklad_2.ViewModels
         }
 
         [RelayCommand]
-        private async Task SetInitialAmountAsync()
+        private void MakeDeposit()
         {
-            await _cashRegisterService.InitializeTillAsync(InitialAmount);
-            await LoadCashRegisterDataAsync();
+            if (DepositAmount > 0)
+            {
+                _messenger.Send(new ShowDepositConfirmationMessage(DepositAmount));
+            }
+        }
+
+        public async Task ExecuteDepositAsync()
+        {
+            if (DepositAmount > 0)
+            {
+                await _cashRegisterService.MakeDepositAsync(DepositAmount);
+                DepositAmount = 0;
+                await LoadCashRegisterDataAsync();
+            }
         }
 
         [RelayCommand]

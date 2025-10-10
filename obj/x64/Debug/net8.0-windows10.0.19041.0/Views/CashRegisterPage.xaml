@@ -32,16 +32,13 @@
                     </StackPanel>
                 </Border>
 
-      <!-- Nastavení počáteční hotovosti / Vklad -->
+      <!-- Vklad -->
       <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
         <StackPanel Spacing="12">
-          <TextBlock Text="Nastavit počáteční hotovost / Vklad" Style="{ThemeResource
-  SubtitleTextBlockStyle}"/>
-          <!-- <TextBox Header="Částka" PlaceholderText="Zadejte částku..." Text="{x:Bind
-  ViewModel.InitialAmount, Mode=TwoWay, Converter={StaticResource DecimalConverter}}" InputScope="Number"/>
-  -->
-                                  <TextBox x:ConnectionId='11' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                         InputScope="Number"                                                                                                                                          />          <!-- <Button Content="Nastavit / Vložit" Command="{x:Bind ViewModel.SetInitialAmountCommand}" HorizontalAlignment="Right"/> -->
-                                  <Button x:ConnectionId='12' Content="Nastavit / Vložit"                                                      HorizontalAlignment="Right"                                                                                                                                          />        </StackPanel>
+          <TextBlock Text="Vklad" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+          <TextBox x:ConnectionId='11' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                         InputScope="Number"/>
+          <Button x:ConnectionId='12' Content="Provést Vklad"                                                 HorizontalAlignment="Right"/>
+        </StackPanel>
       </Border>
 
       <!-- Denní kontrola pokladny -->

@@ -79,6 +79,11 @@ namespace Sklad_2.Services
             }
         }
 
+        public async Task MakeDepositAsync(decimal amount)
+        {
+            await RecordEntryAsync(EntryType.Deposit, amount, "Vklad do pokladny");
+        }
+
         public async Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync()
         {
             using var context = _dbContextFactory.CreateDbContext();
