@@ -97,8 +97,17 @@ namespace Sklad_2.ViewModels
             {
                 total += item.SubTotal;
                 // Recalculate VAT breakdown for the subtotal of items to be returned
-                var subTotalWithoutVat = item.SubTotal / (1 + (item.OriginalItem.VatRate / 100m));
-                totalWithoutVat += subTotalWithoutVat;
+                var vatRate = item.OriginalItem.VatRate;
+                if (vatRate < 0 || vatRate > 100)
+                {
+                    // Invalid VAT rate, skip VAT calculation
+                    totalWithoutVat += item.SubTotal;
+                }
+                else
+                {
+                    var subTotalWithoutVat = item.SubTotal / (1 + (vatRate / 100m));
+                    totalWithoutVat += subTotalWithoutVat;
+                }
             }
 
             TotalRefundAmount = total;
@@ -146,7 +155,10 @@ namespace Sklad_2.ViewModels
 
                     // Create return item
                     var totalRefundForItem = itemVM.ReturnQuantity * itemVM.OriginalItem.UnitPrice;
-                    var priceWithoutVatForItem = totalRefundForItem / (1 + (itemVM.OriginalItem.VatRate / 100m));
+                    var vatRate = itemVM.OriginalItem.VatRate;
+                    var priceWithoutVatForItem = (vatRate >= 0 && vatRate <= 100)
+                        ? totalRefundForItem / (1 + (vatRate / 100m))
+                        : totalRefundForItem; // fallback if VAT rate is invalid
                     var vatAmountForItem = totalRefundForItem - priceWithoutVatForItem;
 
                     returnItems.Add(new ReturnItem

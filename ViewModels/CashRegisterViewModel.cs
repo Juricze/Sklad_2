@@ -69,15 +69,24 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private void MakeDeposit()
         {
-            if (DepositAmount > 0)
+            if (DepositAmount <= 0)
             {
-                _messenger.Send(new ShowDepositConfirmationMessage(DepositAmount));
+                // Could trigger an error message here
+                return;
             }
+
+            if (DepositAmount > 10000000) // 10 million limit
+            {
+                // Could trigger an error message here
+                return;
+            }
+
+            _messenger.Send(new ShowDepositConfirmationMessage(DepositAmount));
         }
 
         public async Task ExecuteDepositAsync()
         {
-            if (DepositAmount > 0)
+            if (DepositAmount > 0 && DepositAmount <= 10000000)
             {
                 await _cashRegisterService.MakeDepositAsync(DepositAmount);
                 DepositAmount = 0;
@@ -88,6 +97,19 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task PerformDailyReconciliationAsync()
         {
+            // Validate that the amount is not negative and not unreasonably large
+            if (ActualAmountForReconciliation < 0)
+            {
+                // Could trigger an error message
+                return;
+            }
+
+            if (ActualAmountForReconciliation > 10000000) // 10 million limit
+            {
+                // Could trigger an error message
+                return;
+            }
+
             await _cashRegisterService.PerformDailyReconciliationAsync(ActualAmountForReconciliation);
             await LoadCashRegisterDataAsync();
         }

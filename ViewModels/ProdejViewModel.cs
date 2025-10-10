@@ -139,6 +139,13 @@ namespace Sklad_2.ViewModels
             IsCheckoutSuccessful = false;
             LastCreatedReceipt = null;
 
+            // Validate parameters
+            if (parameters == null)
+            {
+                CheckoutFailed?.Invoke(this, "Chyba: Neplatné platební údaje.");
+                return;
+            }
+
             parameters.TryGetValue("paymentMethod", out var paymentMethodObj);
             parameters.TryGetValue("receivedAmount", out var receivedAmountObj);
             parameters.TryGetValue("changeAmount", out var changeAmountObj);
@@ -146,6 +153,20 @@ namespace Sklad_2.ViewModels
             var paymentMethod = (paymentMethodObj is PaymentMethod) ? (PaymentMethod)paymentMethodObj : PaymentMethod.None;
             var receivedAmount = (receivedAmountObj is decimal) ? (decimal)receivedAmountObj : 0;
             var changeAmount = (changeAmountObj is decimal) ? (decimal)changeAmountObj : 0;
+
+            // Validate payment method
+            if (paymentMethod == PaymentMethod.None)
+            {
+                CheckoutFailed?.Invoke(this, "Musíte vybrat způsob platby.");
+                return;
+            }
+
+            // Validate amounts for cash payment
+            if (paymentMethod == PaymentMethod.Cash && (receivedAmount < 0 || changeAmount < 0))
+            {
+                CheckoutFailed?.Invoke(this, "Chyba: Neplatné částky při platbě hotovostí.");
+                return;
+            }
 
             var settings = _settingsService.CurrentSettings;
             if (string.IsNullOrWhiteSpace(settings.ShopName) ||
@@ -157,69 +178,82 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
-            var productsToUpdate = new List<Product>();
-            var receiptItemsForDb = new List<Sklad_2.Models.ReceiptItem>();
-
-            foreach (var item in Receipt.Items)
+            try
             {
-                var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
-                if (productInDb == null || productInDb.StockQuantity < item.Quantity)
+                var productsToUpdate = new List<Product>();
+                var receiptItemsForDb = new List<Sklad_2.Models.ReceiptItem>();
+
+                foreach (var item in Receipt.Items)
                 {
-                    string errorMessage = $"Produkt '{item.Product.Name}' již není dostupný v požadovaném množství. Požadováno: {item.Quantity}, Skladem: {productInDb?.StockQuantity ?? 0}.";
-                    CheckoutFailed?.Invoke(this, errorMessage);
-                    return;
+                    if (item == null || item.Product == null)
+                    {
+                        CheckoutFailed?.Invoke(this, "Chyba: Neplatná položka v košíku.");
+                        return;
+                    }
+
+                    var productInDb = await _dataService.GetProductAsync(item.Product.Ean);
+                    if (productInDb == null || productInDb.StockQuantity < item.Quantity)
+                    {
+                        string errorMessage = $"Produkt '{item.Product.Name}' již není dostupný v požadovaném množství. Požadováno: {item.Quantity}, Skladem: {productInDb?.StockQuantity ?? 0}.";
+                        CheckoutFailed?.Invoke(this, errorMessage);
+                        return;
+                    }
+
+                    productInDb.StockQuantity -= item.Quantity;
+                    productsToUpdate.Add(productInDb);
+
+                    receiptItemsForDb.Add(new Sklad_2.Models.ReceiptItem
+                    {
+                        ProductEan = item.Product.Ean,
+                        ProductName = item.Product.Name,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Product.SalePrice,
+                        TotalPrice = item.TotalPrice,
+                        VatRate = item.Product.VatRate,
+                        PriceWithoutVat = item.PriceWithoutVat,
+                        VatAmount = item.VatAmount
+                    });
                 }
 
-                productInDb.StockQuantity -= item.Quantity;
-                productsToUpdate.Add(productInDb);
-
-                receiptItemsForDb.Add(new Sklad_2.Models.ReceiptItem
+                var newReceipt = new Sklad_2.Models.Receipt
                 {
-                    ProductEan = item.Product.Ean,
-                    ProductName = item.Product.Name,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.Product.SalePrice,
-                    TotalPrice = item.TotalPrice,
-                    VatRate = item.Product.VatRate,
-                    PriceWithoutVat = item.PriceWithoutVat,
-                    VatAmount = item.VatAmount
-                });
-            }
+                    SaleDate = DateTime.Now,
+                    TotalAmount = Receipt.GrandTotal,
+                    PaymentMethod = GetPaymentMethodString(paymentMethod),
+                    Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
+                    ShopName = settings.ShopName,
+                    ShopAddress = settings.ShopAddress,
+                    CompanyId = settings.CompanyId,
+                    VatId = settings.VatId,
+                    IsVatPayer = settings.IsVatPayer,
+                    TotalAmountWithoutVat = Receipt.GrandTotalWithoutVat,
+                    TotalVatAmount = Receipt.GrandTotalVatAmount,
+                    ReceivedAmount = receivedAmount,
+                    ChangeAmount = changeAmount
+                };
 
-            var newReceipt = new Sklad_2.Models.Receipt
-            {
-                SaleDate = DateTime.Now,
-                TotalAmount = Receipt.GrandTotal,
-                PaymentMethod = GetPaymentMethodString(paymentMethod),
-                Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
-                ShopName = settings.ShopName,
-                ShopAddress = settings.ShopAddress,
-                CompanyId = settings.CompanyId,
-                VatId = settings.VatId,
-                IsVatPayer = settings.IsVatPayer,
-                TotalAmountWithoutVat = Receipt.GrandTotalWithoutVat,
-                TotalVatAmount = Receipt.GrandTotalVatAmount,
-                ReceivedAmount = receivedAmount,
-                ChangeAmount = changeAmount
-            };
+                var (success, serviceErrorMessage) = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate);
 
-            var (success, serviceErrorMessage) = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate);
-
-            if (success)
-            {
-                if (paymentMethod == PaymentMethod.Cash)
+                if (success)
                 {
-                    await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
-                    CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
+                    if (paymentMethod == PaymentMethod.Cash)
+                    {
+                        await _cashRegisterService.RecordEntryAsync(EntryType.Sale, newReceipt.TotalAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
+                        CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
+                    }
+                    Receipt.Clear();
+                    ScannedProduct = null;
+                    LastCreatedReceipt = newReceipt;
+                    IsCheckoutSuccessful = true;
                 }
-                Receipt.Clear();
-                ScannedProduct = null;
-                LastCreatedReceipt = newReceipt;
-                IsCheckoutSuccessful = true;
+                else
+                {
+                    CheckoutFailed?.Invoke(this, serviceErrorMessage);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                CheckoutFailed?.Invoke(this, serviceErrorMessage);
+                CheckoutFailed?.Invoke(this, $"Neočekávaná chyba při dokončování prodeje: {ex.Message}");
             }
         }
 

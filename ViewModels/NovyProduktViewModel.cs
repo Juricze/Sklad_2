@@ -117,6 +117,24 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
+            if (salePriceValue <= 0 || purchasePriceValue <= 0)
+            {
+                StatusMessage = "Ceny musí být větší než 0.";
+                return;
+            }
+
+            if (salePriceValue > 1000000 || purchasePriceValue > 1000000)
+            {
+                StatusMessage = "Cena je příliš vysoká (maximum 1 000 000 Kč).";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Ean) || Ean.Length < 3)
+            {
+                StatusMessage = "EAN kód musí obsahovat alespoň 3 znaky.";
+                return;
+            }
+
             var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
             if (vatConfig == null || vatConfig.Rate == 0)
             {
