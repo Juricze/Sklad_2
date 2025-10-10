@@ -28,7 +28,7 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(IncrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(DecrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
-        private Sklad_2.Services.ReceiptItem selectedReceiptItem;
+        private CartItem selectedReceiptItem;
 
         [ObservableProperty]
         private Receipt lastCreatedReceipt;

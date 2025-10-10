@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sklad_2.Models;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Sklad_2.Data
@@ -17,15 +18,35 @@ namespace Sklad_2.Data
 
         public DatabaseContext()
         {
-            Database.EnsureCreated();
+            try
+            {
+                Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při inicializaci databáze: {ex.Message}");
+                throw new InvalidOperationException("Nepodařilo se vytvořit nebo připojit k databázi. Zkontrolujte přístupová práva.", ex);
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var baseDirectory = AppContext.BaseDirectory;
-            var dbFolderPath = Path.Combine(baseDirectory, "db");
-            Directory.CreateDirectory(dbFolderPath);
+            // Použití LocalApplicationData místo BaseDirectory (EXE složky)
+            var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var dbFolderPath = Path.Combine(localAppDataPath, "Sklad_2_Data");
+
+            try
+            {
+                Directory.CreateDirectory(dbFolderPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Chyba při vytváření složky pro databázi: {ex.Message}");
+                throw;
+            }
+
             var dbPath = Path.Combine(dbFolderPath, "sklad.db");
+            Debug.WriteLine($"Cesta k databázi: {dbPath}");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
     }

@@ -1,21 +1,21 @@
 using Sklad_2.Models;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Sklad_2.Services
 {
     public interface IReceiptService
     {
-        ObservableCollection<ReceiptItem> Items { get; }
+        ObservableCollection<CartItem> Items { get; }
         void AddProduct(Models.Product product);
-        void RemoveItem(ReceiptItem item);
+        void RemoveItem(CartItem item);
         void Clear();
         decimal GrandTotal { get; }
         decimal GrandTotalWithoutVat { get; }
         decimal GrandTotalVatAmount { get; }
 
         // New properties for last receipt
-        List<ReceiptItem> LastReceiptItems { get; }
+        List<CartItem> LastReceiptItems { get; }
         decimal LastReceiptGrandTotal { get; }
 
         void FinalizeCurrentReceipt(); // New method to copy current to last

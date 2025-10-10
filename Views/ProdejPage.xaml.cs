@@ -90,7 +90,7 @@ namespace Sklad_2.Views
 
         private void IncrementButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as FrameworkElement)?.DataContext is Sklad_2.Services.ReceiptItem item)
+            if ((sender as FrameworkElement)?.DataContext is Sklad_2.Services.CartItem item)
             {
                 ViewModel.IncrementQuantityCommand.Execute(item);
             }
@@ -98,7 +98,7 @@ namespace Sklad_2.Views
 
         private void DecrementButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as FrameworkElement)?.DataContext is Sklad_2.Services.ReceiptItem item)
+            if ((sender as FrameworkElement)?.DataContext is Sklad_2.Services.CartItem item)
             {
                 ViewModel.DecrementQuantityCommand.Execute(item);
             }

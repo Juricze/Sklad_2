@@ -49,7 +49,7 @@
                               SelectedItem="{x:Bind ViewModel.SelectedReceiptItem, Mode=TwoWay}"
                               SelectionMode="Single">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="services:ReceiptItem">
+                            <DataTemplate x:DataType="services:CartItem">
                                 <Grid ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>

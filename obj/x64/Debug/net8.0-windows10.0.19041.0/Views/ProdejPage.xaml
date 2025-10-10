@@ -49,7 +49,7 @@
                                                                                                 
                               SelectionMode="Single">
                         <ListView.ItemTemplate>
-                            <DataTemplate                                  >
+                            <DataTemplate                               >
                                 <Grid x:ConnectionId='12' ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>

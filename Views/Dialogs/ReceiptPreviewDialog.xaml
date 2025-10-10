@@ -16,6 +16,7 @@
 
     <ContentDialog.Resources>
         <converters:PaymentMethodToVisibilityConverter x:Key="PaymentMethodToVisibilityConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </ContentDialog.Resources>
 
     <StackPanel Spacing="16" MinWidth="400">
@@ -27,14 +28,20 @@
                     <TextBlock Text="{x:Bind Receipt.ShopAddress, Mode=OneWay}" HorizontalAlignment="Center"/>
                     <TextBlock HorizontalAlignment="Center">
                         <Run Text="IČ: "/><Run Text="{x:Bind Receipt.CompanyId, Mode=OneWay}"/>
-                        <Run Text=" | DIČ: "/><Run Text="{x:Bind Receipt.VatId, Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock HorizontalAlignment="Center" Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Run Text="DIČ: "/><Run Text="{x:Bind Receipt.VatId, Mode=OneWay}"/>
                     </TextBlock>
                 </StackPanel>
 
                 <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
                 <!-- Informace o dokladu -->
-                <TextBlock Text="ÚČTENKA - DAŇOVÝ DOKLAD" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
+                <StackPanel HorizontalAlignment="Center" Spacing="0">
+                    <TextBlock Text="ÚČTENKA" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="DAŇOVÝ DOKLAD" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Center"
+                               Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -58,7 +65,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
+                    <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
+                               Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
                 </Grid>
                 <ItemsRepeater ItemsSource="{x:Bind Receipt.Items, Mode=OneWay}">
@@ -72,7 +80,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{x:Bind ProductName}"/>
-                                    <TextBlock Grid.Column="1" Text="{x:Bind VatRateFormatted, Mode=OneWay}"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind VatRateFormatted, Mode=OneWay}"
+                                               Visibility="{Binding Receipt.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     <TextBlock Grid.Column="2" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
                                 <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
@@ -91,7 +100,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Grid.Column="0" Spacing="4"
+                                Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="Souhrn DPH" FontWeight="Bold"/>
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>

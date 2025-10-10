@@ -7,7 +7,11 @@ using System.Collections.Specialized;
 
 namespace Sklad_2.Services
 {
-    public partial class ReceiptItem : ObservableObject
+    /// <summary>
+    /// CartItem represents a product in the shopping cart (UI only).
+    /// Different from Models.ReceiptItem which is the database entity.
+    /// </summary>
+    public partial class CartItem : ObservableObject
     {
         [ObservableProperty]
         private Product product;
@@ -32,14 +36,14 @@ namespace Sklad_2.Services
 
     public partial class ReceiptService : ObservableObject, IReceiptService
     {
-        public ObservableCollection<ReceiptItem> Items { get; } = new ObservableCollection<ReceiptItem>();
+        public ObservableCollection<CartItem> Items { get; } = new ObservableCollection<CartItem>();
 
         public decimal GrandTotal => Items.Sum(i => i.TotalPrice);
         public decimal GrandTotalWithoutVat => Items.Sum(i => i.PriceWithoutVat);
         public decimal GrandTotalVatAmount => Items.Sum(i => i.VatAmount);
 
         [ObservableProperty]
-        private List<ReceiptItem> lastReceiptItems = new List<ReceiptItem>();
+        private List<CartItem> lastReceiptItems = new List<CartItem>();
 
         [ObservableProperty]
         private decimal lastReceiptGrandTotal;
@@ -57,7 +61,7 @@ namespace Sklad_2.Services
 
             if (e.OldItems != null)
             {
-                foreach (ReceiptItem item in e.OldItems)
+                foreach (CartItem item in e.OldItems)
                 {
                     item.PropertyChanged -= OnItemPropertyChanged;
                 }
@@ -65,7 +69,7 @@ namespace Sklad_2.Services
 
             if (e.NewItems != null)
             {
-                foreach (ReceiptItem item in e.NewItems)
+                foreach (CartItem item in e.NewItems)
                 {
                     item.PropertyChanged += OnItemPropertyChanged;
                 }
@@ -74,7 +78,7 @@ namespace Sklad_2.Services
 
         private void OnItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ReceiptItem.Quantity))
+            if (e.PropertyName == nameof(CartItem.Quantity))
             {
                 OnPropertyChanged(nameof(GrandTotal));
                 OnPropertyChanged(nameof(GrandTotalWithoutVat));
@@ -93,11 +97,11 @@ namespace Sklad_2.Services
             }
             else
             {
-                Items.Add(new ReceiptItem { Product = product, Quantity = 1 });
+                Items.Add(new CartItem { Product = product, Quantity = 1 });
             }
         }
 
-        public void RemoveItem(ReceiptItem item)
+        public void RemoveItem(CartItem item)
         {
             if (item != null)
             {
