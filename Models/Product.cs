@@ -30,6 +30,6 @@ namespace Sklad_2.Models
 
         public string SalePriceFormatted => $"{SalePrice:C}";
 
-        public string VatRateFormatted => $"{vatRate} %";
+        public string VatRateFormatted => $"{VatRate} %";
     }
 }

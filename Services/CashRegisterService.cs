@@ -13,11 +13,13 @@ namespace Sklad_2.Services
     {
         private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
         private readonly IMessenger _messenger;
+        private readonly ISettingsService _settingsService;
 
-        public CashRegisterService(IDbContextFactory<DatabaseContext> dbContextFactory, IMessenger messenger)
+        public CashRegisterService(IDbContextFactory<DatabaseContext> dbContextFactory, IMessenger messenger, ISettingsService settingsService)
         {
             _dbContextFactory = dbContextFactory;
             _messenger = messenger;
+            _settingsService = settingsService;
         }
 
         public async Task<decimal> GetCurrentCashInTillAsync()
@@ -41,7 +43,6 @@ namespace Sklad_2.Services
 
             switch (type)
             {
-                case EntryType.InitialDeposit:
                 case EntryType.Deposit:
                 case EntryType.Sale:
                     newCashInTill += amount;
@@ -49,6 +50,14 @@ namespace Sklad_2.Services
                 case EntryType.Withdrawal:
                 case EntryType.DailyReconciliation:
                     newCashInTill -= amount;
+                    break;
+                case EntryType.Return:
+                    newCashInTill -= amount;
+                    break;
+                case EntryType.DayClose:
+                case EntryType.DayStart:
+                    // Day close/start sets the till to the specified amount
+                    newCashInTill = amount;
                     break;
             }
 
@@ -65,18 +74,9 @@ namespace Sklad_2.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task InitializeTillAsync(decimal initialAmount)
+        public async Task SetDayStartCashAsync(decimal initialAmount)
         {
-            using var context = _dbContextFactory.CreateDbContext();
-            var hasEntries = await context.CashRegisterEntries.AnyAsync();
-            if (!hasEntries)
-            {
-                await RecordEntryAsync(EntryType.InitialDeposit, initialAmount, "Počáteční vklad do pokladny");
-            }
-            else
-            {
-                await RecordEntryAsync(EntryType.Deposit, initialAmount, "Vklad do pokladny");
-            }
+            await RecordEntryAsync(EntryType.DayStart, initialAmount, "Zahájení nového dne - počáteční stav pokladny");
         }
 
         public async Task MakeDepositAsync(decimal amount)
@@ -107,6 +107,53 @@ namespace Sklad_2.Services
             if (difference != 0)
             {
                 await RecordEntryAsync(EntryType.DailyReconciliation, difference, $"Denní kontrola pokladny. Rozdíl: {difference:C}");
+            }
+        }
+
+        public async Task<(bool Success, string ErrorMessage)> PerformDayCloseAsync(decimal actualAmount)
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var lastCloseDate = _settingsService.CurrentSettings.LastDayCloseDate?.Date;
+
+                // Check if already closed today
+                if (lastCloseDate.HasValue && lastCloseDate.Value == today)
+                {
+                    return (false, $"Denní uzavírka již byla provedena dne {lastCloseDate.Value:dd.MM.yyyy}. Uzavírku lze provést pouze jednou denně.");
+                }
+
+                // Validate actual amount
+                if (actualAmount < 0)
+                {
+                    return (false, "Částka nesmí být záporná.");
+                }
+
+                if (actualAmount > 10000000)
+                {
+                    return (false, "Částka je příliš vysoká (maximum 10 000 000 Kč).");
+                }
+
+                // Get current cash from system
+                var currentCash = await GetCurrentCashInTillAsync();
+                var difference = currentCash - actualAmount;
+
+                // Record the day close entry
+                var description = difference == 0
+                    ? "Denní uzavírka - bez rozdílu"
+                    : $"Denní uzavírka - rozdíl: {difference:C} ({(difference > 0 ? "přebytek" : "manko")})";
+
+                await RecordEntryAsync(EntryType.DayClose, actualAmount, description);
+
+                // Update last close date
+                _settingsService.CurrentSettings.LastDayCloseDate = today;
+                await _settingsService.SaveSettingsAsync();
+
+                return (true, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Chyba při uzavírání dne: {ex.Message}");
             }
         }
     }

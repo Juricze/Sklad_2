@@ -52,6 +52,18 @@
         </StackPanel>
       </Border>
 
+      <!-- Uzavírka dne -->
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Uzavírka dne" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+          <TextBlock Text="Uzavírka dne uzavře obchodní den a zaznamená konečný stav pokladny. Tuto operaci lze provést pouze jednou denně." TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}"/>
+          <TextBox Header="Skutečná hotovost v pokladně" PlaceholderText="Zadejte napočítanou hotovost..."
+  Text="{x:Bind ViewModel.DayCloseAmount, Mode=TwoWay, Converter={StaticResource InlineDecimalConverter}}" InputScope="Number"/>
+          <TextBlock Text="{x:Bind ViewModel.DayCloseStatusMessage, Mode=OneWay}" Foreground="{ThemeResource SystemErrorTextColor}" TextWrapping="Wrap" Visibility="{x:Bind ViewModel.IsDayCloseError, Mode=OneWay}"/>
+          <Button Content="Uzavřít den" Command="{x:Bind ViewModel.PerformDayCloseCommand}" HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}"/>
+        </StackPanel>
+      </Border>
+
       <!-- Historie transakcí -->
       <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
         <StackPanel Spacing="12">

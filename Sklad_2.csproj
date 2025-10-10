@@ -10,6 +10,7 @@
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

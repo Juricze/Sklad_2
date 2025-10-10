@@ -17,7 +17,7 @@ namespace Sklad_2.Services
             return Task.CompletedTask;
         }
 
-        public Task InitializeTillAsync(decimal initialAmount)
+        public Task SetDayStartCashAsync(decimal initialAmount)
         {
             return Task.CompletedTask;
         }
@@ -32,7 +32,7 @@ namespace Sklad_2.Services
             var history = new List<CashRegisterEntry>
             {
                 new CashRegisterEntry { Timestamp = DateTime.Now.AddHours(-1), Type = EntryType.Sale, Amount = 50m, Description = "Test Sale", CurrentCashInTill = 100m },
-                new CashRegisterEntry { Timestamp = DateTime.Now.AddHours(-2), Type = EntryType.InitialDeposit, Amount = 100m, Description = "Initial Till", CurrentCashInTill = 50m }
+                new CashRegisterEntry { Timestamp = DateTime.Now.AddHours(-2), Type = EntryType.DayStart, Amount = 100m, Description = "Day Start", CurrentCashInTill = 100m }
             };
             return Task.FromResult(history);
         }
@@ -40,6 +40,12 @@ namespace Sklad_2.Services
         public Task PerformDailyReconciliationAsync(decimal actualAmount)
         {
             return Task.CompletedTask;
+        }
+
+        public Task<(bool Success, string ErrorMessage)> PerformDayCloseAsync(decimal actualAmount)
+        {
+            // Dummy implementation - always succeeds
+            return Task.FromResult((true, string.Empty));
         }
     }
 }

@@ -9,9 +9,10 @@ namespace Sklad_2.Services
     {
         Task<decimal> GetCurrentCashInTillAsync();
         Task RecordEntryAsync(EntryType type, decimal amount, string description);
-        Task InitializeTillAsync(decimal initialAmount);
+        Task SetDayStartCashAsync(decimal initialAmount);
         Task MakeDepositAsync(decimal amount);
         Task<List<CashRegisterEntry>> GetCashRegisterHistoryAsync();
         Task PerformDailyReconciliationAsync(decimal actualAmount);
+        Task<(bool Success, string ErrorMessage)> PerformDayCloseAsync(decimal actualAmount);
     }
 }

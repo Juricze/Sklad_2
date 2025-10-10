@@ -14,5 +14,6 @@ namespace Sklad_2.Models.Settings
         public string AdminPassword { get; set; }
         public string SalePassword { get; set; }
         public DateTime? LastSaleLoginDate { get; set; }
+        public DateTime? LastDayCloseDate { get; set; }
     }
 }

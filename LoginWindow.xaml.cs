@@ -108,73 +108,13 @@ namespace Sklad_2
             }
         }
 
-        private async void HandleLoginSucceeded(string role)
+        private void HandleLoginSucceeded(string role)
         {
             _authService.SetCurrentRole(role);
 
             Debug.WriteLine($"LoginSucceeded: Role = {role}");
 
-            if (role == "Prodej")
-            {
-                var currentDate = DateTime.Today;
-                var lastLoginDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date;
-
-                Debug.WriteLine($"Current Date: {currentDate}");
-                Debug.WriteLine($"Last Sale Login Date: {lastLoginDate}");
-
-                bool isNewDay = false;
-                string promptMessage = "";
-
-                if (lastLoginDate == null)
-                {
-                    isNewDay = true;
-                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
-                    Debug.WriteLine("Condition: lastLoginDate is null. isNewDay = true.");
-                }
-                else if (currentDate > lastLoginDate)
-                {
-                    isNewDay = true;
-                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
-                    Debug.WriteLine("Condition: currentDate > lastLoginDate. isNewDay = true.");
-                }
-                else if (currentDate < lastLoginDate)
-                {
-                    isNewDay = true;
-                    promptMessage = "Upozornění: Systémový čas byl posunut zpět. Pro zajištění integrity dat je nutné zahájit nový obchodní den. Prosím, zadejte počáteční stav pokladny.";
-                    Debug.WriteLine("Condition: currentDate < lastLoginDate. isNewDay = true.");
-                }
-
-                Debug.WriteLine($"isNewDay after conditions: {isNewDay}");
-
-                if (isNewDay)
-                {
-                    Debug.WriteLine("Attempting to show NewDayConfirmationDialog.");
-                    var newDayDialog = new NewDayConfirmationDialog();
-                    newDayDialog.SetPromptText(promptMessage);
-                    newDayDialog.XamlRoot = this.Content.XamlRoot;
-
-                    var result = await newDayDialog.ShowAsync();
-                    Debug.WriteLine($"NewDayConfirmationDialog result: {result}");
-
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Initialize till with the entered amount
-                        var cashRegisterService = (Application.Current as App).Services.GetRequiredService<ICashRegisterService>();
-                        await cashRegisterService.PerformDailyReconciliationAsync(newDayDialog.InitialAmount);
-
-                        // Update last login date
-                        _settingsService.CurrentSettings.LastSaleLoginDate = currentDate;
-                        await _settingsService.SaveSettingsAsync();
-                    }
-                    else
-                    {
-                        // User cancelled, close the app as initial amount is mandatory
-                        Application.Current.Exit();
-                        return;
-                    }
-                }
-            }
-
+            // Create and show MainWindow (it will handle new day logic itself)
             var mainWindow = new MainWindow();
             mainWindow.Activate();
             this.Close();

@@ -17,6 +17,7 @@ namespace Sklad_2
         MicaController m_micaController;
         SystemBackdropConfiguration m_configurationSource;
         private readonly IAuthService _authService;
+        private readonly ISettingsService _settingsService;
         private bool IsSalesRole;
 
         public MainWindow()
@@ -25,12 +26,16 @@ namespace Sklad_2
 
             var serviceProvider = (Application.Current as App).Services;
             _authService = serviceProvider.GetRequiredService<IAuthService>();
+            _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             IsSalesRole = _authService.CurrentRole == "Prodej";
 
             TrySetSystemBackdrop();
 
             // The initial page will get its ViewModel in its constructor.
             ContentFrame.Content = new ProdejPage();
+
+            // Handle new day dialog after window is activated
+            this.Activated += OnFirstActivated;
 
             // Hide "Přehled prodejů" for Sales role
             if (IsSalesRole)
@@ -80,6 +85,86 @@ namespace Sklad_2
             }
 
             return false; // Mica is not supported on this system
+        }
+
+        private bool _hasHandledNewDay = false;
+
+        private async void OnFirstActivated(object sender, WindowActivatedEventArgs args)
+        {
+            // Only run once when window is first activated (not deactivated)
+            if (_hasHandledNewDay || args.WindowActivationState == WindowActivationState.Deactivated)
+                return;
+
+            _hasHandledNewDay = true;
+            this.Activated -= OnFirstActivated; // Unsubscribe
+
+            // Check for new day if user is in Sales role
+            if (IsSalesRole)
+            {
+                var currentDate = DateTime.Today;
+                var lastLoginDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date;
+
+                bool isNewDay = false;
+                string promptMessage = "";
+
+                if (lastLoginDate == null)
+                {
+                    isNewDay = true;
+                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
+                }
+                else if (currentDate > lastLoginDate)
+                {
+                    isNewDay = true;
+                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
+                }
+                else if (currentDate < lastLoginDate)
+                {
+                    isNewDay = true;
+                    promptMessage = $"⚠️ VAROVÁNÍ: Detekována změna systémového času!\n\n" +
+                                  $"Poslední přihlášení: {lastLoginDate:dd.MM.yyyy}\n" +
+                                  $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
+                                  $"Systémový čas byl posunut zpět, což může být způsobeno chybou synchronizace nebo manipulací. " +
+                                  $"Pro zachování integrity účetních dat je nutné zahájit nový obchodní den.\n\n" +
+                                  $"Zadejte počáteční stav pokladny:";
+                }
+
+                if (isNewDay)
+                {
+                    // Ensure XamlRoot is available before showing dialog
+                    // On slower machines, window might not be fully rendered yet
+                    int retries = 0;
+                    while (this.Content?.XamlRoot == null && retries < 20)
+                    {
+                        await System.Threading.Tasks.Task.Delay(50);
+                        retries++;
+                    }
+
+                    var newDayDialog = new Views.Dialogs.NewDayConfirmationDialog();
+                    newDayDialog.SetPromptText(promptMessage);
+                    newDayDialog.XamlRoot = this.Content.XamlRoot;
+
+                    var result = await newDayDialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // Set day start cash with the entered amount
+                        var cashRegisterService = (Application.Current as App).Services.GetRequiredService<ICashRegisterService>();
+                        await cashRegisterService.SetDayStartCashAsync(newDayDialog.InitialAmount);
+
+                        // Update last login date
+                        _settingsService.CurrentSettings.LastSaleLoginDate = currentDate;
+                        await _settingsService.SaveSettingsAsync();
+
+                        // Note: CashRegisterViewModel will load data when user navigates to Pokladna page
+                        // (via Loaded event in CashRegisterPage)
+                    }
+                    else
+                    {
+                        // User cancelled, close the app as initial amount is mandatory
+                        Application.Current.Exit();
+                    }
+                }
+            }
         }
 
         private void Window_Activated(object sender, WindowActivatedEventArgs args)

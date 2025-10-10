@@ -12,8 +12,8 @@ namespace Sklad_2.ViewModels
             {
                 switch (Entry.Type)
                 {
-                    case EntryType.InitialDeposit:
-                        return "Počáteční vklad";
+                    case EntryType.DayStart:
+                        return "Zahájení dne";
                     case EntryType.Sale:
                         return "Prodej";
                     case EntryType.Withdrawal:
@@ -21,9 +21,11 @@ namespace Sklad_2.ViewModels
                     case EntryType.Deposit:
                         return "Vklad";
                     case EntryType.DailyReconciliation:
-                        return "Denní uzávěrka";
+                        return "Denní kontrola";
                     case EntryType.Return:
-                        return "Výběr";
+                        return "Vratka";
+                    case EntryType.DayClose:
+                        return "Uzavření dne";
                     default:
                         return Entry.Type.ToString();
                 }

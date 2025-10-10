@@ -21,6 +21,24 @@ namespace Sklad_2.Views.Dialogs
         {
             if (decimal.TryParse(InitialAmountTextBox.Text, out decimal amount))
             {
+                // Validate amount is not negative
+                if (amount < 0)
+                {
+                    IsPrimaryButtonEnabled = false;
+                    ErrorTextBlock.Text = "Částka nesmí být záporná.";
+                    ErrorTextBlock.Visibility = Visibility.Visible;
+                    return;
+                }
+
+                // Validate amount is not unreasonably large (10 million limit)
+                if (amount > 10000000)
+                {
+                    IsPrimaryButtonEnabled = false;
+                    ErrorTextBlock.Text = "Částka je příliš vysoká (maximum 10 000 000 Kč).";
+                    ErrorTextBlock.Visibility = Visibility.Visible;
+                    return;
+                }
+
                 InitialAmount = amount;
                 IsPrimaryButtonEnabled = true;
                 ErrorTextBlock.Visibility = Visibility.Collapsed;

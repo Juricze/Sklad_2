@@ -18,6 +18,8 @@ namespace Sklad_2.ViewModels
         private readonly IAuthService _authService;
         private readonly IMessenger _messenger;
 
+        public event EventHandler<string> DayCloseSucceeded;
+
         [ObservableProperty]
         private bool isSalesRole;
 
@@ -31,6 +33,18 @@ namespace Sklad_2.ViewModels
         private decimal actualAmountForReconciliation;
 
         [ObservableProperty]
+        private decimal dayCloseAmount;
+
+        [ObservableProperty]
+        private string dayCloseStatusMessage;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsDayCloseError))]
+        private bool isDayCloseErrorVisible;
+
+        public bool IsDayCloseError => IsDayCloseErrorVisible;
+
+        [ObservableProperty]
         private ObservableCollection<CashRegisterEntry> cashRegisterHistory;
 
         public CashRegisterViewModel(ICashRegisterService cashRegisterService, IAuthService authService, IMessenger messenger)
@@ -39,19 +53,22 @@ namespace Sklad_2.ViewModels
             _authService = authService;
             _messenger = messenger;
             CashRegisterHistory = new ObservableCollection<CashRegisterEntry>();
-            
+
             // Initial check
             IsSalesRole = _authService.CurrentRole == "Prodej";
-            Debug.WriteLine($"CashRegisterViewModel: Initial IsSalesRole = {IsSalesRole} (CurrentRole: {_authService.CurrentRole})");
 
             // Register for messages
             _messenger.Register<RoleChangedMessage>(this);
+            _messenger.Register<CashRegisterUpdatedMessage, string>(this, "CashRegisterUpdateToken", async (r, m) =>
+            {
+                // When a CashRegisterUpdatedMessage is received, reload the data
+                await LoadCashRegisterDataAsync();
+            });
         }
 
         public void Receive(RoleChangedMessage message)
         {
             IsSalesRole = message.Value == "Prodej";
-            Debug.WriteLine($"CashRegisterViewModel: Received RoleChangedMessage. New IsSalesRole = {IsSalesRole} (Role: {message.Value})");
         }
 
         [RelayCommand]
@@ -114,11 +131,29 @@ namespace Sklad_2.ViewModels
             await LoadCashRegisterDataAsync();
         }
 
-        // Implement IRecipient interface
-        // public void Receive(CashRegisterUpdatedMessage message)
-        // {
-        //     // When a CashRegisterUpdatedMessage is received, reload the data
-        //     LoadCashRegisterDataAsync().FireAndForgetSafeAsync();
-        // }
+        [RelayCommand]
+        private async Task PerformDayCloseAsync()
+        {
+            IsDayCloseErrorVisible = false;
+            DayCloseStatusMessage = string.Empty;
+
+            var (success, errorMessage) = await _cashRegisterService.PerformDayCloseAsync(DayCloseAmount);
+
+            if (success)
+            {
+                // Success - trigger event for UI to show dialog
+                DayCloseSucceeded?.Invoke(this, $"Den byl úspěšně uzavřen. Stav pokladny: {DayCloseAmount:C}");
+
+                // Clear the input
+                DayCloseAmount = 0;
+                await LoadCashRegisterDataAsync();
+            }
+            else
+            {
+                // Error - show error message inline
+                DayCloseStatusMessage = errorMessage;
+                IsDayCloseErrorVisible = true;
+            }
+        }
     }
 }

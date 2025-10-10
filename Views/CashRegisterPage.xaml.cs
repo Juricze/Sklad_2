@@ -16,12 +16,20 @@ namespace Sklad_2.Views
             ViewModel = (CashRegisterViewModel)(App.Current as App).Services.GetService(typeof(CashRegisterViewModel));
             _messenger = (IMessenger)(App.Current as App).Services.GetService(typeof(IMessenger));
             this.InitializeComponent();
-            ViewModel.LoadCashRegisterDataCommand.Execute(null);
 
             _messenger.Register<ShowDepositConfirmationMessage>(this, (r, m) =>
             {
                 ShowConfirmationDialog(m.Value);
             });
+
+            // Subscribe to day close events
+            ViewModel.DayCloseSucceeded += HandleDayCloseSucceeded;
+
+            // Load data when page is loaded (not just in constructor)
+            this.Loaded += (s, e) =>
+            {
+                ViewModel.LoadCashRegisterDataCommand.Execute(null);
+            };
         }
 
         private async void ShowConfirmationDialog(decimal amount)
@@ -42,6 +50,43 @@ namespace Sklad_2.Views
             {
                 await ViewModel.ExecuteDepositAsync();
             }
+        }
+
+        private void HandleDayCloseSucceeded(object sender, string message)
+        {
+            // Use DispatcherQueue to ensure we're on UI thread and delay to avoid dialog conflict
+            this.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, async () =>
+            {
+                // Wait for any existing dialogs to close (WinUI limitation)
+                // Longer delay for slower machines
+                await System.Threading.Tasks.Task.Delay(800);
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Uzavírka dne provedena",
+                    Content = message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                try
+                {
+                    await dialog.ShowAsync();
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    // Dialog was already open, ignore and try again after delay
+                    await System.Threading.Tasks.Task.Delay(300);
+                    try
+                    {
+                        await dialog.ShowAsync();
+                    }
+                    catch
+                    {
+                        // Still failed, give up silently
+                    }
+                }
+            });
         }
     }
 }
