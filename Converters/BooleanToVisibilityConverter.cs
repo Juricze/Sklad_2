@@ -9,6 +9,13 @@ namespace Sklad_2.Converters
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             bool boolValue = value is bool b && b;
+
+            // If parameter is "Inverse", invert the boolean value
+            if (parameter as string == "Inverse")
+            {
+                boolValue = !boolValue;
+            }
+
             return boolValue ? Visibility.Visible : Visibility.Collapsed;
         }
 

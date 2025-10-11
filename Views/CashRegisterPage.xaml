@@ -42,7 +42,7 @@
       </Border>
 
       <!-- Denní kontrola pokladny -->
-      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" Visibility="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
         <StackPanel Spacing="12">
           <TextBlock Text="Denní kontrola pokladny" Style="{ThemeResource
   SubtitleTextBlockStyle}"/>

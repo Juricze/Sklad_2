@@ -7,11 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 WinUI 3 aplikace pro správu skladu a prodeje, postavená na .NET 8 s architekturou MVVM.
 
 ## Technologie
-- **UI Framework**: WinUI 3 (Windows App SDK 1.5)
-- **Runtime**: .NET 8.0 (target: net8.0-windows10.0.19041.0)
+- **UI Framework**: WinUI 3 (Windows App SDK 1.5.240428000)
+- **Runtime**: .NET 8.0 (target: net8.0-windows10.0.19041.0, min: 10.0.17763.0)
 - **Database**: SQLite s Entity Framework Core 8.0.4
 - **MVVM**: CommunityToolkit.Mvvm 8.2.2
 - **DI**: Microsoft.Extensions.DependencyInjection 8.0.0
+- **Build Tools**: Windows SDK Build Tools 10.0.22621.3233
+- **Platformy**: x86, x64, ARM64
+
+**Poznámka**: Aplikace je určena výhradně pro Windows 10 build 19041+ (verze 2004 a novější). Projekt nemá unit testy.
 
 ## Build a spuštění
 ```bash
@@ -128,8 +132,9 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 1. **TwoWay binding issue**: WinUI má problém s TwoWay bindingem na DbContext entity - řešeno přes DbContextFactory
 2. **ContentDialog resource access**: Dialogy ztrácejí přístup ke global resources - všechny konvertory musí být explicitně definovány v App.xaml
 3. **ListView initialization**: Data musí být načtena před `InitializeComponent()` v konstruktoru stránky
-4. **ContentDialog multiple instances**: WinUI nepovoluje více dialogů najednou - řešeno zpožděním + retry + try-catch
-5. **Clean + Rebuild nutnost**: Při změnách XAML/ViewModels vždy Build → Clean Solution, pak Rebuild
+4. **ContentDialog multiple instances**: WinUI nepovoluje více dialogů najednou - řešeno zpožděním (800ms) + retry s 300ms + try-catch
+5. **Clean + Rebuild nutnost**: Při změnách XAML/ViewModels **VŽDY** Build → Clean Solution, pak Rebuild Solution (WinUI/XAML projekty cachují sestavení)
+6. **XamlRoot timing**: Dialog v MainWindow vyžaduje čekání na `XamlRoot` - robustní while loop s retry (max 20×50ms) místo pevného delay
 
 ## Styl práce (z GEMINI.md)
 - **Komunikace**: Pouze česky, jasná, stručná, profesionální

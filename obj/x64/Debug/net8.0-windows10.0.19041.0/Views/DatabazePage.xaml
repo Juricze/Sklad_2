@@ -15,11 +15,16 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBox x:ConnectionId='12' 
+            <TextBox x:ConnectionId='15'
                 PlaceholderText="Hledat podle názvu nebo EAN..."
                                                                                                       
                 MinWidth="300"/>
-            <Button x:ConnectionId='13'                                                                                                                                                                                            >
+            <ComboBox x:ConnectionId='16'
+                Header="Kategorie"
+                                                           
+                                                                               
+                MinWidth="150"/>
+            <Button x:ConnectionId='17'                                                  >
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE74D;"/>
                     <TextBlock Text="Smazat vybrané"/>
@@ -32,43 +37,45 @@
                                                                           
                                                                           
             SelectionMode="Single">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="5*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="1" Text="Název" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="3" Text="Skladem" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="5" Text="Cena" FontWeight="Bold"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+            <ListView.Header>
+                <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button x:ConnectionId='3' Grid.Column="1" Content="Název ▲▼"                                            CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button x:ConnectionId='4' Grid.Column="3" Content="Skladem ▲▼"                                            CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="5" Text="Nákupní cena" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button x:ConnectionId='5' Grid.Column="6" Content="Prodejní cena ▲▼"                                            CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                </Grid>
+            </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate                            >
-                    <Grid x:ConnectionId='5' Padding="12" ColumnSpacing="12">
+                    <Grid x:ConnectionId='7' Padding="12" ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="5*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:ConnectionId='6' Grid.Column="0"                     VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='7' Grid.Column="1"                      VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='8' Grid.Column="2"                          VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='9' Grid.Column="3"                               VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='10' Grid.Column="4"                                               VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='11' Grid.Column="5"                                                 VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='8' Grid.Column="0"                     VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='9' Grid.Column="1"                      VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='10' Grid.Column="2"                          VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='11' Grid.Column="3"                               VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='12' Grid.Column="4"                                               VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='13' Grid.Column="5"                                                     VerticalAlignment="Center"/>
+                        <TextBlock x:ConnectionId='14' Grid.Column="6"                                                 VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

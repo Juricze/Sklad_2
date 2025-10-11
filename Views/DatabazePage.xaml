@@ -15,11 +15,16 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBox 
+            <TextBox
                 PlaceholderText="Hledat podle názvu nebo EAN..."
                 Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 MinWidth="300"/>
-            <Button Command="{x:Bind ViewModel.DeleteProductCommand}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}">
+            <ComboBox
+                Header="Kategorie"
+                ItemsSource="{x:Bind ViewModel.Categories}"
+                SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                MinWidth="150"/>
+            <Button Command="{x:Bind ViewModel.DeleteProductCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE74D;"/>
                     <TextBlock Text="Smazat vybrané"/>
@@ -32,43 +37,45 @@
             ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.SelectedProduct, Mode=TwoWay}"
             SelectionMode="Single">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="5*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="1" Text="Název" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="3" Text="Skladem" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="5" Text="Cena" FontWeight="Bold"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+            <ListView.Header>
+                <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="4*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Název ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Grid.Column="3" Content="Skladem ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="5" Text="Nákupní cena" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Grid.Column="6" Content="Prodejní cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                </Grid>
+            </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:Product">
                     <Grid Padding="12" ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="5*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{x:Bind Ean}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="{x:Bind Category}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="3" Text="{x:Bind StockQuantity}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="4" Text="{x:Bind VatRateFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="5" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="{x:Bind PurchasePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
