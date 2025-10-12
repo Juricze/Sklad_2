@@ -178,10 +178,57 @@ namespace Sklad_2
             m_configurationSource.IsInputActive = args.WindowActivationState != WindowActivationState.Deactivated;
         }
 
-        private void Window_Closed(object sender, WindowEventArgs args)
+        private async void Window_Closed(object sender, WindowEventArgs args)
         {
-            // Make sure any Mica/Acrylic controller is disposed so it doesn't try to
-            // use this closed window.
+            // Check if day close was performed (only for Sales role)
+            if (IsSalesRole)
+            {
+                var lastDayCloseDate = _settingsService.CurrentSettings.LastDayCloseDate;
+                bool isDayClosedToday = lastDayCloseDate?.Date == DateTime.Today;
+
+                if (!isDayClosedToday)
+                {
+                    // Cancel the close event
+                    args.Handled = true;
+
+                    // Show warning dialog
+                    var dialog = new ContentDialog
+                    {
+                        Title = "Uzavírka dne nebyla provedena",
+                        Content = "Nebyla provedena uzavírka dne.\n\nPřejděte do Pokladny a proveďte uzavírku dne před zavřením aplikace.\n\nOpravdu si přejete zavřít aplikaci?",
+                        PrimaryButtonText = "Zavřít aplikaci",
+                        CloseButtonText = "Zrušit",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.Content.XamlRoot
+                    };
+
+                    var result = await dialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // User confirmed - force close
+                        // Unsubscribe from Closed event to prevent recursion
+                        this.Closed -= Window_Closed;
+
+                        // Dispose resources
+                        if (m_micaController != null)
+                        {
+                            m_micaController.Dispose();
+                            m_micaController = null;
+                        }
+                        this.Activated -= Window_Activated;
+                        ((FrameworkElement)this.Content).ActualThemeChanged -= Window_ThemeChanged;
+                        m_configurationSource = null;
+
+                        // Close the window
+                        this.Close();
+                    }
+                    // else: User cancelled - window stays open
+                    return;
+                }
+            }
+
+            // Normal close - dispose resources
             if (m_micaController != null)
             {
                 m_micaController.Dispose();
