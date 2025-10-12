@@ -487,21 +487,6 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Links Section -->
-                            <StackPanel Spacing="12" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16" CornerRadius="4">
-                                <TextBlock Text="Odkazy" FontWeight="SemiBold" FontSize="16"/>
-
-                                <HyperlinkButton Content="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"
-                                                 NavigateUri="{x:Bind ViewModel.GitHubLink, Mode=OneWay}"
-                                                 Padding="0"/>
-
-                                <TextBlock TextWrapping="Wrap"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Zdrojový kód aplikace je k dispozici na GitHubu. Vítáme pull requesty a hlášení chyb!
-                                </TextBlock>
-                            </StackPanel>
-
                             <!-- License Section -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16" CornerRadius="4">
                                 <TextBlock Text="Licence" FontWeight="SemiBold" FontSize="16"/>

@@ -46,9 +46,6 @@ namespace Sklad_2.ViewModels
         private string description = "Moderní aplikace pro správu skladu, prodeje a pokladny postavená na WinUI 3";
 
         [ObservableProperty]
-        private string gitHubLink = "https://github.com/jhejda/Sklad_2";
-
-        [ObservableProperty]
         private string backupStatusMessage;
 
         [ObservableProperty]

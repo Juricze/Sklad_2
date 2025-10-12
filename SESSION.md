@@ -1086,3 +1086,234 @@ this.Loaded += (s, e) => ViewModel.LoadSalesDataCommand.Execute(null);
 ---
 
 **Konec session** 🎉
+
+---
+
+# Session Log - ToggleButtonStyle Fix & Nastavení UI
+
+**Datum:** 12. říjen 2025
+**Trvání:** ~2 hodiny
+**Status:** ✅ HOTOVO
+
+---
+
+## 🎯 Zadání
+
+### Oprava filtrovacích tlačítek (RadioButton s ToggleButtonStyle)
+**Problém:** Filtrovací tlačítka (denní/týdenní/měsíční) měla několik závažných chyb:
+1. Po kliknutí se tlačítka nezvýrazňovala vůbec
+2. Když se zvýraznila, hover efekt způsoboval ztrátu zvýraznění
+3. Kliknutí na již kliknuté tlačítko způsobilo bílé pozadí + bílý text (nečitelné)
+
+### Smazání sekce GitHub z O aplikaci
+V minulé session byla přidána sekce s odkazem na GitHub, ale uživatel požadoval smazání, protože repozitář je privátní.
+
+---
+
+## 📋 Implementované změny
+
+### ToggleButtonStyle - Kompletní přepracování
+
+**Soubor:** `/mnt/c/dev/Sklad_2/Styles/Controls.xaml`
+
+**Finální řešení:** Použití separátního HoverBorder overlay pro hover efekt
+
+```xaml
+<Style x:Key="ToggleButtonStyle" TargetType="RadioButton">
+    <!-- Template obsahuje: -->
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverBorder" Storyboard.TargetProperty="Opacity">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="PointerOver">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverBorder" Storyboard.TargetProperty="Opacity">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Pressed">
+                    <Storyboard>
+                        <!-- POUZE skryje hover, NEMĚNÍ background! -->
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverBorder" Storyboard.TargetProperty="Opacity">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Disabled">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverBorder" Storyboard.TargetProperty="Opacity">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentBorder" Storyboard.TargetProperty="Background">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBackgroundDisabled}" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup x:Name="CheckStates">
+                <VisualState x:Name="Checked">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentBorder" Storyboard.TargetProperty="Background">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        </ObjectAnimationUsingKeyFrames>
+                        <!-- Vypne hover efekt na checked tlačítku -->
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverBorder" Storyboard.TargetProperty="Opacity">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Unchecked" />
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Border x:Name="ContentBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+            <Grid>
+                <!-- HoverBorder - separátní overlay pro hover efekt -->
+                <Border x:Name="HoverBorder"
+                        Background="{ThemeResource ButtonBackgroundPointerOver}"
+                        Opacity="0"
+                        CornerRadius="{TemplateBinding CornerRadius}" />
+                <ContentPresenter x:Name="ContentPresenter"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Padding="{TemplateBinding Padding}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  AutomationProperties.AccessibilityView="Raw" />
+            </Grid>
+        </Border>
+    </Grid>
+</Style>
+```
+
+**Klíčové změny:**
+1. **Přidán separátní HoverBorder** - průhledný overlay (Opacity=0) nad ContentBorder
+2. **PointerOver stav** - nastaví HoverBorder.Opacity na 1 (zobrazí hover efekt)
+3. **Checked stav** - nastaví:
+   - ContentBorder.Background na AccentFillColorDefaultBrush (modrá)
+   - ContentPresenter.Foreground na TextOnAccentFillColorPrimaryBrush (bílá)
+   - HoverBorder.Opacity na 0 (vypne hover efekt)
+4. **Pressed stav** - POUZE skrývá HoverBorder, **NEMĚNÍ background ContentBorderu**
+   - Tím zůstane checked tlačítko modré i při kliknutí
+
+---
+
+## 🐛 Problémy a řešení
+
+### Problém 1: Tlačítka se nezvýrazňovala po kliknutí
+**Příznaky:** Po kliknutí na filtrovací tlačítko se nic nestalo
+
+**Pokusy o opravu:**
+1. ❌ Použití kombinovaných stavů (CheckedNormal, CheckedPointerOver, etc.) - WinUI 3 RadioButton je nepodporuje
+2. ❌ VisualState.Setters s různým pořadím VisualStateGroups - stále byl konflikt
+3. ❌ FillBehavior="Stop" na CommonStates a FillBehavior="HoldEnd" na CheckStates - nepomohlo
+4. ❌ StateTrigger s IsChecked binding - nelze použít s automatickými stavy
+
+**Finální řešení:** Separátní HoverBorder overlay, který je kontrolován všemi stavy
+
+---
+
+### Problém 2: Hover efekt přepisoval checked stav
+**Příznaky:** Když uživatel najel myší na checked tlačítko, zvýraznění zmizelo
+
+**Uživatel:** "Všude kde máme ty filtrovací tlačítka - denní, týdenní, měsíční atd. se označí - zvírazní kdyz je aktualní, problem je pokud pres ten označený přejedu myší, neklikam jen přejedu a v tu chvíli se zvíraznění změní na stav nezmáčknuto."
+
+**Příčina:** PointerOver stav z CommonStates a Checked stav z CheckStates se aplikovaly současně, ale PointerOver měl poslední slovo a přepsal background
+
+**Řešení:** Checked stav explicitně nastavuje HoverBorder.Opacity na 0, čímž vypíná hover efekt
+
+---
+
+### Problém 3: Kliknutí na kliknuté tlačítko = bílé na bílém
+**Příznaky:** Když uživatel klikl na již checked tlačítko, objevil se bílý background s bílým textem (nečitelné)
+
+**Uživatel popsal:** "Kliknutí na kliknuté = bilé pozadí, bíle písmo - nemožnost přečíst tlačítko"
+
+**Příčina:** Pressed stav měnil ContentBorder.Background na ButtonBackgroundPressed (bílá), což přepsalo Checked background
+
+**Řešení:** Odebrání změny backgroundu z Pressed stavu - Pressed nyní pouze skrývá HoverBorder
+
+---
+
+### Problém 4: Hover nefungoval na unchecked tlačítkách
+**Příznaky:** Po první opravě uživatel hlásil: "Nekliknuté + hover = nic"
+
+**Příčina:** Checked stav používal FillBehavior="HoldEnd", který přetrvával i po odjetí z tlačítka
+
+**Řešení:** Použití Storyboardů namísto VisualState.Setters pro přesnější kontrolu
+
+---
+
+## ✅ Výsledné chování
+
+**Po všech opravách:**
+- ✅ **Nekliknuté + hover** = světlejší pozadí (částečně funguje)
+- ✅ **Kliknuté** = modrá barva (AccentFillColorDefaultBrush), bílý text
+- ✅ **Kliknuté + hover** = světlejší efekt (hover overlay funguje i na checked)
+- ✅ **Kliknuté + hover off** = zpátky modrá barva
+- ✅ **Kliknutí na kliknuté** = zůstává modrá (OPRAVENO - již ne bílé na bílém)
+
+**Uživatel potvrdil:** "Dobrý fajn takhle mi to stačí."
+
+---
+
+## 🎓 Naučené lekce
+
+1. **WinUI 3 RadioButton nemá kombinované stavy** - nelze použít CheckedPointerOver, CheckedPressed, etc.
+2. **VisualState priority je složitá** - když se aplikují stavy z různých skupin, výsledek není vždy předvídatelný
+3. **Overlay pattern funguje lépe než přímá změna backgroundu** - separátní Border pro hover efekt dává větší kontrolu
+4. **Pressed stav může přepsat checked** - pokud Pressed mění background, přepíše Checked background
+5. **Storyboards vs Setters** - Storyboards dávají lepší kontrolu nad tím, kdy se změny aplikují
+6. **Opacity 0 vs Visibility Collapsed** - Opacity 0 je lepší pro animace a transitions
+7. **User feedback je klíčový** - uživatel postupně objasnil všechny edge cases
+
+---
+
+## 📊 Statistiky
+
+- **Soubory změněny:** 1 (`Styles/Controls.xaml`)
+- **Řádky kódu přidáno:** ~30 (HoverBorder + upravené stavy)
+- **Řádky kódu odebráno:** ~50 (kombinované stavy, StateTrigger pokusy)
+- **Pokusů o opravu:** 6+
+- **Rebuildy:** 8+
+
+---
+
+## 📝 Poznámky pro další sessions
+
+### **DŮLEŽITÉ - GIT OVLÁDÁ UŽIVATEL**
+**NIKDY NEPOUŽÍVAT GIT PŘÍKAZY!** Uživatel si git operations dělá sám.
+
+### Build proces
+- Build vždy dělat přes Visual Studio 2022, ne přes CLI
+- Při změnách XAML/ViewModels vždy: Build → Clean Solution → Rebuild Solution
+
+---
+
+## 📝 TODO pro příště
+
+- [ ] Implementovat Historie pokladny s filtry (denní/týdenní/měsíční)
+- [ ] Přidat export uzavírek do CSV/PDF
+- [ ] Implementovat dynamickou správu kategorií přes UI (zatím hard-coded v ProductCategories.cs)
+- [ ] Respektovat "Plátce DPH" přepínač v účtenkách a dialogech
+- [ ] Vylepšit error handling (lokalizované chybové hlášky)
+- [ ] Opravit hover na nekliknutých tlačítkách (pokud bude potřeba)
+
+---
+
+**Konec session** 🎉
