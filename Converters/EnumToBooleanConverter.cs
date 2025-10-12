@@ -14,13 +14,26 @@ namespace Sklad_2.Converters
                 return false;
             }
 
-            if (value == null || !Enum.IsDefined(value.GetType(), value))
+            if (value == null)
             {
                 return false;
             }
 
-            var enumValue = Enum.Parse(value.GetType(), enumString);
-            return value.Equals(enumValue);
+            var enumType = value.GetType();
+            if (!enumType.IsEnum)
+            {
+                return false;
+            }
+
+            try
+            {
+                var enumValue = Enum.Parse(enumType, enumString);
+                return value.Equals(enumValue);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
@@ -34,8 +47,28 @@ namespace Sklad_2.Converters
             {
                 return DependencyProperty.UnsetValue;
             }
-            
-            return Enum.Parse(typeof(DateFilterType), enumString);
+
+            try
+            {
+                // Try DateFilterType first (most common case)
+                if (Enum.IsDefined(typeof(DateFilterType), enumString))
+                {
+                    return Enum.Parse(typeof(DateFilterType), enumString);
+                }
+
+                // If targetType is provided and is an enum, use it
+                if (targetType != null && targetType.IsEnum)
+                {
+                    return Enum.Parse(targetType, enumString);
+                }
+
+                return DependencyProperty.UnsetValue;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"EnumToBooleanConverter.ConvertBack error: targetType={targetType?.Name}, parameter={parameter}, ex={ex.Message}");
+                return DependencyProperty.UnsetValue;
+            }
         }
     }
 }

@@ -18,8 +18,17 @@ namespace Sklad_2
         public App()
         {
             this.InitializeComponent();
+            this.UnhandledException += App_UnhandledException;
             RequestedTheme = ApplicationTheme.Light;
             Services = ConfigureServices();
+        }
+
+        private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"UNHANDLED EXCEPTION: {e.Message}");
+            System.Diagnostics.Debug.WriteLine($"Exception: {e.Exception}");
+            System.Diagnostics.Debug.WriteLine($"StackTrace: {e.Exception?.StackTrace}");
+            e.Handled = false; // Let it crash to see the error
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)

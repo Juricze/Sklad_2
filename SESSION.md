@@ -420,3 +420,669 @@ Všechny testy prošly úspěšně:
 ---
 
 **Konec session** 🎉
+
+---
+
+# Session Log - Dashboard prodejů & Vylepšení databáze
+
+**Datum:** 11. říjen 2025 (pokračování)
+**Trvání:** ~2 hodiny
+**Status:** ✅ HOTOVO
+
+---
+
+## 🎯 Zadání
+
+### Bod 1 & 2: Role-based UI restrictions ✅
+- Skrýt panel "Denní kontrola pokladny" pro roli "Prodej"
+- Zakázat tlačítko "Smazat vybrané" pro roli "Prodej" v Databázi produktů
+
+### Bod 3: Databáze produktů - Vylepšení ✅
+- Filtrování podle kategorie
+- Řazení (klik na hlavičku sloupce: Název, Skladem, Cena)
+- Přidat sloupec "Nákupní cena"
+- Fix: EAN vyhledávání - přesný prefix match (StartsWith místo Contains)
+
+### Bod 5: Dashboard prodejů ✅
+Vytvořit futuristický dashboard s:
+- KPI karty (celkové tržby, průměr, DPH, čistá tržba)
+- Top 5 nejprodávanějších produktů
+- Nejméně prodávané produkty (5)
+- Statistiky způsobů platby
+- Seznam posledních prodejů
+- Časové filtry (Celkem/Dnešní/Týdenní/Měsíční/Vlastní)
+- Auto-refresh při otevření stránky
+
+---
+
+## 📋 Implementované změny
+
+### 1. Role-based UI restrictions (Bod 1 & 2)
+
+#### `Converters/BooleanToVisibilityConverter.cs`
+```csharp
+public object Convert(object value, Type targetType, object parameter, string language)
+{
+    bool boolValue = value is bool b && b;
+    if (parameter as string == "Inverse")
+    {
+        boolValue = !boolValue;
+    }
+    return boolValue ? Visibility.Visible : Visibility.Collapsed;
+}
+```
+
+#### `Views/CashRegisterPage.xaml`
+```xaml
+<Border Style="{StaticResource CardBorderStyle}"
+        Visibility="{x:Bind ViewModel.IsSalesRole, Mode=OneWay,
+                     Converter={StaticResource BooleanToVisibilityConverter},
+                     ConverterParameter=Inverse}">
+    <!-- Denní kontrola pokladny panel -->
+</Border>
+```
+
+#### `ViewModels/DatabazeViewModel.cs`
+```csharp
+private bool CanDeleteProduct() => SelectedProduct != null && !IsSalesRole;
+```
+
+**Výsledek:** Role "Prodej" nemá přístup k denní kontrole a mazání produktů ✅
+
+---
+
+### 2. Databáze produktů - Vylepšení (Bod 3)
+
+#### `Models/Product.cs`
+```csharp
+public string PurchasePriceFormatted => $"{PurchasePrice:C}";
+```
+
+#### `ViewModels/DatabazeViewModel.cs`
+```csharp
+public enum SortColumn { None, Name, StockQuantity, SalePrice }
+public enum SortDirection { Ascending, Descending }
+
+[ObservableProperty]
+private string selectedCategory;
+
+[ObservableProperty]
+private SortColumn currentSortColumn = SortColumn.None;
+
+[ObservableProperty]
+private SortDirection currentSortDirection = SortDirection.Ascending;
+
+public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>
+{
+    "Všechny kategorie",
+    "Nápoje", "Potraviny", "Alkohol", "Tabák", "Cukrovinky",
+    "Pečivo", "Mléčné výrobky", "Zelenina a ovoce", "Maso a uzeniny",
+    "Mražené potraviny", "Drogerie", "Ostatní"
+};
+
+[RelayCommand]
+private void SortBy(string columnName)
+{
+    var column = Enum.Parse<SortColumn>(columnName);
+
+    if (CurrentSortColumn == column)
+    {
+        CurrentSortDirection = CurrentSortDirection == SortDirection.Ascending
+            ? SortDirection.Descending
+            : SortDirection.Ascending;
+    }
+    else
+    {
+        CurrentSortColumn = column;
+        CurrentSortDirection = SortDirection.Ascending;
+    }
+
+    ApplySorting();
+}
+
+private void ApplySorting()
+{
+    if (CurrentSortColumn == SortColumn.None) return;
+
+    IEnumerable<Product> sorted = CurrentSortColumn switch
+    {
+        SortColumn.Name => CurrentSortDirection == SortDirection.Ascending
+            ? FilteredProducts.OrderBy(p => p.Name)
+            : FilteredProducts.OrderByDescending(p => p.Name),
+        SortColumn.StockQuantity => CurrentSortDirection == SortDirection.Ascending
+            ? FilteredProducts.OrderBy(p => p.StockQuantity)
+            : FilteredProducts.OrderByDescending(p => p.StockQuantity),
+        SortColumn.SalePrice => CurrentSortDirection == SortDirection.Ascending
+            ? FilteredProducts.OrderBy(p => p.SalePrice)
+            : FilteredProducts.OrderByDescending(p => p.SalePrice),
+        _ => FilteredProducts
+    };
+
+    FilteredProducts.Clear();
+    foreach (var product in sorted)
+    {
+        FilteredProducts.Add(product);
+    }
+}
+
+private void FilterProducts()
+{
+    var filtered = _allProducts.AsEnumerable();
+
+    // Category filter
+    if (!string.IsNullOrEmpty(SelectedCategory) &&
+        SelectedCategory != "Všechny kategorie")
+    {
+        filtered = filtered.Where(p => p.Category == SelectedCategory);
+    }
+
+    // Search filter - FIXED: StartsWith místo Contains
+    if (!string.IsNullOrEmpty(SearchText))
+    {
+        filtered = filtered.Where(p =>
+            p.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase) ||
+            p.Ean.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase));
+    }
+
+    FilteredProducts.Clear();
+    foreach (var product in filtered)
+    {
+        FilteredProducts.Add(product);
+    }
+
+    ApplySorting();
+}
+```
+
+#### `Views/DatabazePage.xaml`
+```xaml
+<!-- Category Filter -->
+<ComboBox Header="Kategorie" Width="200"
+          ItemsSource="{x:Bind ViewModel.Categories}"
+          SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
+
+<!-- Sortable Headers -->
+<Button Content="Název ▲▼"
+        Command="{x:Bind ViewModel.SortByCommand}"
+        CommandParameter="Name"
+        Style="{ThemeResource TextBlockButtonStyle}"/>
+<Button Content="Skladem ▲▼"
+        Command="{x:Bind ViewModel.SortByCommand}"
+        CommandParameter="StockQuantity"
+        Style="{ThemeResource TextBlockButtonStyle}"/>
+<Button Content="Prodejní cena ▲▼"
+        Command="{x:Bind ViewModel.SortByCommand}"
+        CommandParameter="SalePrice"
+        Style="{ThemeResource TextBlockButtonStyle}"/>
+
+<!-- Added Purchase Price Column -->
+<TextBlock Text="{x:Bind PurchasePriceFormatted}" Grid.Column="4"/>
+```
+
+**Výsledek:** Plně funkční filtrování, řazení a přesné vyhledávání ✅
+
+---
+
+### 3. Dashboard prodejů (Bod 5)
+
+#### Nové modely
+
+**`Models/DailySales.cs`**
+```csharp
+public class DailySales
+{
+    public DateTime Date { get; set; }
+    public decimal TotalAmount { get; set; }
+    public int NumberOfSales { get; set; }
+    public string DateLabel => Date.ToString("dd.MM");
+    public string ShortDateLabel => Date.ToString("dd");
+}
+```
+
+**`Models/TopProduct.cs`**
+```csharp
+public class TopProduct
+{
+    public string ProductName { get; set; }
+    public int QuantitySold { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public string RevenueFormatted => $"{TotalRevenue:C}";
+    public double PercentageOfTotal { get; set; }
+}
+```
+
+**`Models/PaymentMethodStats.cs`**
+```csharp
+public class PaymentMethodStats
+{
+    public string PaymentMethod { get; set; }
+    public int Count { get; set; }
+    public decimal TotalAmount { get; set; }
+    public double Percentage { get; set; }
+    public string AmountFormatted => $"{TotalAmount:C}";
+}
+```
+
+**`Models/DateFilterType.cs`** - Přidán enum value
+```csharp
+public enum DateFilterType
+{
+    All,      // NOVÉ - zobrazí všechny záznamy
+    Daily,
+    Weekly,
+    Monthly,
+    Custom
+}
+```
+
+#### ViewModel Extensions
+
+**`ViewModels/PrehledProdejuViewModel.cs`**
+```csharp
+[ObservableProperty]
+[NotifyPropertyChangedFor(nameof(AverageSaleAmountFormatted))]
+private decimal averageSaleAmount;
+
+public string AverageSaleAmountFormatted => $"{AverageSaleAmount:C}";
+
+[ObservableProperty]
+private ObservableCollection<TopProduct> topProducts = new();
+
+[ObservableProperty]
+private ObservableCollection<TopProduct> worstProducts = new();
+
+[ObservableProperty]
+private ObservableCollection<PaymentMethodStats> paymentMethodStats = new();
+
+[ObservableProperty]
+private DateFilterType selectedFilter = DateFilterType.All;
+
+partial void OnSelectedFilterChanged(DateFilterType value)
+{
+    SetDateRangeForFilter(value);
+    LoadSalesDataCommand.Execute(null);
+}
+
+private void SetDateRangeForFilter(DateFilterType filter)
+{
+    var now = DateTime.Now;
+    switch (filter)
+    {
+        case DateFilterType.All:
+            StartDate = new DateTimeOffset(new DateTime(2000, 1, 1));
+            EndDate = new DateTimeOffset(new DateTime(2099, 12, 31, 23, 59, 59));
+            break;
+        case DateFilterType.Daily:
+            StartDate = new DateTimeOffset(now.Date);
+            EndDate = new DateTimeOffset(now.Date.AddDays(1).AddSeconds(-1));
+            break;
+        case DateFilterType.Weekly:
+            var startOfWeek = now.Date.AddDays(-(int)now.DayOfWeek + (int)DayOfWeek.Monday);
+            StartDate = new DateTimeOffset(startOfWeek);
+            EndDate = new DateTimeOffset(startOfWeek.AddDays(7).AddSeconds(-1));
+            break;
+        case DateFilterType.Monthly:
+            StartDate = new DateTimeOffset(new DateTime(now.Year, now.Month, 1));
+            EndDate = new DateTimeOffset(new DateTime(now.Year, now.Month,
+                DateTime.DaysInMonth(now.Year, now.Month), 23, 59, 59));
+            break;
+        case DateFilterType.Custom:
+            // Keep current dates
+            break;
+    }
+}
+
+private void CalculateTotals()
+{
+    TotalSalesAmount = Sales.Sum(r => r.TotalAmount);
+    TotalSalesAmountWithoutVat = Sales.Sum(r => r.TotalAmountWithoutVat);
+    TotalVatAmount = Sales.Sum(r => r.TotalVatAmount);
+    NumberOfReceipts = Sales.Count;
+    AverageSaleAmount = NumberOfReceipts > 0 ? TotalSalesAmount / NumberOfReceipts : 0;
+
+    CalculateTopProducts();
+    CalculateWorstProducts();
+    CalculatePaymentMethodStats();
+}
+
+private void CalculateTopProducts()
+{
+    TopProducts.Clear();
+
+    var productStats = Sales
+        .SelectMany(r => r.Items ?? new ObservableCollection<ReceiptItem>())
+        .GroupBy(item => item.ProductName)
+        .Select(g => new TopProduct
+        {
+            ProductName = g.Key,
+            QuantitySold = g.Sum(item => item.Quantity),
+            TotalRevenue = g.Sum(item => item.TotalPrice)
+        })
+        .OrderByDescending(p => p.TotalRevenue)
+        .Take(5)
+        .ToList();
+
+    var maxRevenue = productStats.FirstOrDefault()?.TotalRevenue ?? 1;
+    foreach (var product in productStats)
+    {
+        product.PercentageOfTotal = maxRevenue > 0
+            ? (double)(product.TotalRevenue / maxRevenue) * 100
+            : 0;
+        TopProducts.Add(product);
+    }
+}
+
+private void CalculateWorstProducts()
+{
+    WorstProducts.Clear();
+
+    var productStats = Sales
+        .SelectMany(r => r.Items ?? new ObservableCollection<ReceiptItem>())
+        .GroupBy(item => item.ProductName)
+        .Select(g => new TopProduct
+        {
+            ProductName = g.Key,
+            QuantitySold = g.Sum(item => item.Quantity),
+            TotalRevenue = g.Sum(item => item.TotalPrice)
+        })
+        .OrderBy(p => p.QuantitySold)  // Ascending - worst sellers
+        .Take(5)
+        .ToList();
+
+    var maxQuantity = productStats.LastOrDefault()?.QuantitySold ?? 1;
+    foreach (var product in productStats)
+    {
+        product.PercentageOfTotal = maxQuantity > 0
+            ? (double)product.QuantitySold / maxQuantity * 100
+            : 0;
+        WorstProducts.Add(product);
+    }
+}
+
+private void CalculatePaymentMethodStats()
+{
+    PaymentMethodStats.Clear();
+
+    var paymentStats = Sales
+        .GroupBy(r => r.PaymentMethod)
+        .Select(g => new PaymentMethodStats
+        {
+            PaymentMethod = g.Key,
+            Count = g.Count(),
+            TotalAmount = g.Sum(r => r.TotalAmount)
+        })
+        .ToList();
+
+    var totalAmount = paymentStats.Sum(p => p.TotalAmount);
+    foreach (var stat in paymentStats)
+    {
+        stat.Percentage = totalAmount > 0
+            ? (double)(stat.TotalAmount / totalAmount) * 100
+            : 0;
+        PaymentMethodStats.Add(stat);
+    }
+}
+```
+
+#### View Implementation
+
+**`Views/PrehledProdejuPage.xaml.cs`**
+```csharp
+public PrehledProdejuPage()
+{
+    ViewModel = (Application.Current as App).Services
+        .GetRequiredService<PrehledProdejuViewModel>();
+    this.InitializeComponent();
+    this.DataContext = ViewModel;
+
+    // Auto-load data when page is opened
+    this.Loaded += (s, e) => ViewModel.LoadSalesDataCommand.Execute(null);
+}
+```
+
+**`Views/PrehledProdejuPage.xaml`** - Dashboard layout
+```xaml
+<!-- Header with filters -->
+<TextBlock Text="📊 Přehled prodejů" Style="{ThemeResource TitleTextBlockStyle}"/>
+
+<!-- Filter Radio Buttons -->
+<StackPanel Orientation="Horizontal" Spacing="8">
+    <RadioButton Content="Celkem"
+                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=TwoWay,
+                             Converter={StaticResource EnumToBooleanConverter},
+                             ConverterParameter=All}"
+                 Style="{StaticResource ToggleButtonStyle}"/>
+    <RadioButton Content="Dnešní" .../>
+    <RadioButton Content="Týdenní" .../>
+    <RadioButton Content="Měsíční" .../>
+    <RadioButton Content="Vlastní" .../>
+</StackPanel>
+
+<!-- 4 KPI Cards -->
+<Grid ColumnSpacing="16">
+    <!-- Total Sales -->
+    <Border Style="{StaticResource KpiCardStyle}">
+        <FontIcon Glyph="&#xE7BF;" Foreground="#007AFF"/>
+        <TextBlock Text="Celkové tržby"/>
+        <TextBlock Text="{x:Bind ViewModel.TotalSalesAmountFormatted}"/>
+    </Border>
+
+    <!-- Average Sale -->
+    <Border Style="{StaticResource KpiCardStyle}">
+        <FontIcon Glyph="&#xE8A1;" Foreground="#34C759"/>
+        <TextBlock Text="Průměrný prodej"/>
+        <TextBlock Text="{x:Bind ViewModel.AverageSaleAmountFormatted}"/>
+    </Border>
+
+    <!-- VAT Amount -->
+    <Border Style="{StaticResource KpiCardStyle}">
+        <FontIcon Glyph="&#xE8A9;" Foreground="#FF9500"/>
+        <TextBlock Text="Celkem DPH"/>
+        <TextBlock Text="{x:Bind ViewModel.TotalVatAmountFormatted}"/>
+    </Border>
+
+    <!-- Net Amount -->
+    <Border Style="{StaticResource KpiCardStyle}">
+        <FontIcon Glyph="&#xE7C3;" Foreground="#AF52DE"/>
+        <TextBlock Text="Bez DPH"/>
+        <TextBlock Text="{x:Bind ViewModel.TotalSalesAmountWithoutVatFormatted}"/>
+    </Border>
+</Grid>
+
+<!-- 3 Quick Stats Cards -->
+<Grid ColumnSpacing="16">
+    <Border Style="{StaticResource CardBorderStyle}">
+        <TextBlock Text="📅 Denní průměr"/>
+        <FontIcon Glyph="&#xE787;" FontSize="48" Foreground="#007AFF"/>
+        <TextBlock Text="{x:Bind ViewModel.AverageSaleAmountFormatted}"/>
+    </Border>
+    <!-- Similar for Receipt Count and VAT Info -->
+</Grid>
+
+<!-- 3 Column Layout: Top Products | Worst Products | Payment Methods -->
+<Grid ColumnSpacing="16">
+    <!-- Top 5 Products -->
+    <Border Grid.Column="0">
+        <TextBlock Text="🏆 Top 5 produktů"/>
+        <ItemsControl ItemsSource="{x:Bind ViewModel.TopProducts}">
+            <ProgressBar Value="{x:Bind PercentageOfTotal}" Foreground="#007AFF"/>
+        </ItemsControl>
+    </Border>
+
+    <!-- Worst Products -->
+    <Border Grid.Column="1">
+        <TextBlock Text="📉 Nejméně prodávané"/>
+        <ItemsControl ItemsSource="{x:Bind ViewModel.WorstProducts}">
+            <ProgressBar Value="{x:Bind PercentageOfTotal}" Foreground="#FF3B30"/>
+        </ItemsControl>
+    </Border>
+
+    <!-- Payment Methods -->
+    <Border Grid.Column="2">
+        <TextBlock Text="💳 Způsoby platby"/>
+        <ItemsControl ItemsSource="{x:Bind ViewModel.PaymentMethodStats}">
+            <ProgressBar Value="{x:Bind Percentage}" Foreground="#34C759"/>
+        </ItemsControl>
+    </Border>
+</Grid>
+
+<!-- Recent Sales List -->
+<Border Style="{StaticResource CardBorderStyle}">
+    <TextBlock Text="📋 Poslední prodeje"/>
+    <ListView ItemsSource="{x:Bind ViewModel.Sales}" MaxHeight="400"/>
+</Border>
+```
+
+---
+
+## 🐛 Problémy a řešení
+
+### Problém 1: LiveCharts Runtime Crash
+**Příznaky:** Aplikace spadla s code 0xffffffff při otevření Přehled Prodejů
+
+**Pokusy o opravu:**
+1. ❌ Změna mapping signature na `(sales, index) => new(index, (double)sales.TotalAmount)`
+2. ❌ Změna typu os na `IEnumerable<ICartesianAxis>`
+3. ❌ ObservableCollection approach
+4. ❌ Zjednodušený `LineSeries<double>` bez custom mapping
+
+**Rozhodnutí uživatele:** "Tak to udelej bhez grafů no... to je teda nemilé ale asi to přežiju"
+
+**Finální řešení:** Nahrazení grafu 3 velkými stat kartami (📅 Denní průměr, 📄 Počet účtenek, 💰 DPH Info)
+
+---
+
+### Problém 2: EAN Search Too Broad
+**Příznaky:** Vyhledávání "2" našlo EAN "123" i "1234"
+
+**Uživatel:** "Zadáš '2' → má najít nic (žádný nezačíná '2')"
+
+**Řešení:** Změna z `Contains()` na `StartsWith()` pro EAN i Name
+```csharp
+// PŘED
+filtered = filtered.Where(p =>
+    p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+    p.Ean.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+// PO
+filtered = filtered.Where(p =>
+    p.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase) ||
+    p.Ean.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase));
+```
+
+---
+
+### Problém 3: Payment Methods Not Auto-Updating
+**Příznaky:** Po prodeji s kartou se statistiky neaktualizovaly automaticky
+
+**Uživatel:** "Aha už to chápu. Myslel jsem že se aktualizují autoamticky při otevření karty Přehled prodejů."
+
+**Řešení:** Přidán Page.Loaded event handler
+```csharp
+this.Loaded += (s, e) => ViewModel.LoadSalesDataCommand.Execute(null);
+```
+
+**Výsledek:** Data se automaticky načítají při každém otevření stránky ✅
+
+---
+
+### Problém 4: FilterRadioButtonStyle Not Found
+**Příznaky:** XAML referenční neexistující styl `FilterRadioButtonStyle`
+
+**Řešení:** Změna na existující `ToggleButtonStyle` z `Styles/Controls.xaml`
+```xaml
+<!-- PŘED -->
+<RadioButton Style="{StaticResource FilterRadioButtonStyle}"/>
+
+<!-- PO -->
+<RadioButton Style="{StaticResource ToggleButtonStyle}"/>
+```
+
+---
+
+## ✅ Testování
+
+### Test 1: Role-based restrictions ✅
+- Role "Prodej": Panel "Denní kontrola" skrytý ✅
+- Role "Prodej": Tlačítko "Smazat vybrané" disabled ✅
+- Role "Vlastník": Vše dostupné ✅
+
+### Test 2: Databáze produktů ✅
+- Filtrování podle kategorie ✅
+- Řazení podle názvu (A-Z, Z-A) ✅
+- Řazení podle skladem (vzestupně, sestupně) ✅
+- Řazení podle ceny (vzestupně, sestupně) ✅
+- EAN vyhledávání "123" → najde pouze "123xxx", ne "x123" ✅
+- Sloupec nákupní ceny zobrazený ✅
+
+### Test 3: Dashboard - KPI Cards ✅
+- Celkové tržby zobrazené správně ✅
+- Průměrný prodej vypočítán ✅
+- DPH zobrazené správně ✅
+- Čistá tržba (bez DPH) správná ✅
+
+### Test 4: Dashboard - Top/Worst Products ✅
+- Top 5 produktů seřazeno podle tržeb ✅
+- Progress bar zobrazuje relativní podíl ✅
+- Nejméně prodávané seřazeno podle množství (vzestupně) ✅
+- Červený progress bar pro worst products ✅
+
+### Test 5: Dashboard - Payment Methods ✅
+- Statistiky plateb zobrazené ✅
+- Percentage vypočítaná správně ✅
+- Zelený progress bar ✅
+
+### Test 6: Dashboard - Filters ✅
+- "Celkem" (All) - zobrazí všechny prodeje ✅
+- "Dnešní" - pouze dnešní prodeje ✅
+- "Týdenní" - aktuální týden ✅
+- "Měsíční" - aktuální měsíc ✅
+- "Vlastní" - zobrazí DatePicker ✅
+- Auto-refresh při změně filtru ✅
+
+### Test 7: Dashboard - Auto-load ✅
+- Otevření stránky "Přehled prodejů" → data se načtou automaticky ✅
+- Po prodeji → přepnutí na Přehled → aktuální data ✅
+
+---
+
+## 📊 Statistiky
+
+- **Soubory změněny:** 12
+- **Nové soubory:** 3 (DailySales.cs, TopProduct.cs, PaymentMethodStats.cs)
+- **Řádky kódu přidáno:** ~600
+- **Řádky kódu odebráno:** ~100 (LiveCharts kód)
+- **Nové metody:** 5 (CalculateTopProducts, CalculateWorstProducts, CalculatePaymentMethodStats, SortBy, SetDateRangeForFilter)
+- **Build errors fixed:** 4
+- **Rebuildy:** 10+
+
+---
+
+## 🎓 Naučené lekce
+
+1. **LiveCharts nestabilní** - Verze 2.0.0-rc2 způsobuje runtime crashes, lepší použít custom řešení
+2. **StartsWith vs Contains** - Pro prefix matching vždy použít StartsWith
+3. **Page.Loaded event** - Spolehlivý způsob auto-načtení dat
+4. **Enum filters** - Elegantní řešení pro time-based filtering
+5. **ToggleButtonStyle** - WinUI má vestavěný styl pro radio buttons jako toggle buttons
+6. **LINQ GroupBy** - Výkonný způsob agregace dat pro statistiky
+7. **Progress bars** - Vizuálně atraktivní způsob zobrazení relativních hodnot
+
+---
+
+## 📝 TODO pro příště
+
+- [x] Bod 1: Role-based UI restrictions
+- [x] Bod 2: Smazání produktů pouze pro "Vlastník"
+- [x] Bod 3: Databáze produktů - filtrování, řazení, nákupní cena
+- [ ] Bod 4: ??? (nevíme co to bylo)
+- [x] Bod 5: Dashboard prodejů
+- [ ] Implementovat Historie pokladny s filtry (denní/týdenní/měsíční)
+- [ ] Přidat export uzavírek do CSV/PDF
+- [ ] Implementovat úpravu kategorií přes UI (zatím hard-coded)
+- [ ] Respektovat "Plátce DPH" přepínač v účtenkách
+- [ ] Vylepšit error handling (lokalizované chybové hlášky)
+
+---
+
+**Konec session** 🎉

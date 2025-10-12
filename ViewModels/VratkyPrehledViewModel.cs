@@ -93,7 +93,9 @@ namespace Sklad_2.ViewModels
                         endDate = DateTime.Today.AddDays(1).AddTicks(-1);
                         break;
                     case DateFilterType.Weekly:
-                        startDate = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+                        int currentDayOfWeek = (int)DateTime.Today.DayOfWeek;
+                        int daysToSubtract = (currentDayOfWeek == 0) ? 6 : currentDayOfWeek - 1;
+                        startDate = DateTime.Today.AddDays(-daysToSubtract);
                         endDate = startDate.AddDays(7).AddTicks(-1);
                         break;
                     case DateFilterType.Monthly:

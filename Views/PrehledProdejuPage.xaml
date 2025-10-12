@@ -8,81 +8,305 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <Style x:Key="KpiCardStyle" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="#F5F5F5" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
-        <TextBlock Grid.Row="0" Text="Přehled prodejů" Style="{ThemeResource TitleTextBlockStyle}"/>
+        <Style x:Key="KpiIconStyle" TargetType="FontIcon">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="Foreground" Value="#007AFF"/>
+        </Style>
+    </Page.Resources>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,12,0,12">
-            <DatePicker Header="Od data" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
-            <DatePicker Header="Do data" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
-            <Button Content="Filtrovat" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.LoadSalesDataCommand}"/>
-        </StackPanel>
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Grid Grid.Row="2" ColumnSpacing="24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Spacing="16">
+                <TextBlock Text="📊 Přehled prodejů" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
 
-            <ListView Grid.Column="0" ItemsSource="{x:Bind ViewModel.Sales, Mode=OneWay}">
-                <ListView.HeaderTemplate>
-                    <DataTemplate>
-                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.HeaderTemplate>
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Receipt">
-                        <Grid Padding="12" ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{x:Bind SaleDateFormatted}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountFormatted}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                <!-- Filter Buttons -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <RadioButton Content="Celkem"
+                                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=All}"
+                                 Command="{x:Bind ViewModel.SetFilterCommand}"
+                                 CommandParameter="All"
+                                 Style="{StaticResource ToggleButtonStyle}"/>
+                    <RadioButton Content="Dnešní"
+                                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Daily}"
+                                 Command="{x:Bind ViewModel.SetFilterCommand}"
+                                 CommandParameter="Daily"
+                                 Style="{StaticResource ToggleButtonStyle}"/>
+                    <RadioButton Content="Týdenní"
+                                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Weekly}"
+                                 Command="{x:Bind ViewModel.SetFilterCommand}"
+                                 CommandParameter="Weekly"
+                                 Style="{StaticResource ToggleButtonStyle}"/>
+                    <RadioButton Content="Měsíční"
+                                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Monthly}"
+                                 Command="{x:Bind ViewModel.SetFilterCommand}"
+                                 CommandParameter="Monthly"
+                                 Style="{StaticResource ToggleButtonStyle}"/>
+                    <RadioButton Content="Vlastní"
+                                 IsChecked="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Custom}"
+                                 Command="{x:Bind ViewModel.SetFilterCommand}"
+                                 CommandParameter="Custom"
+                                 Style="{StaticResource ToggleButtonStyle}"/>
+                </StackPanel>
 
-            <StackPanel Grid.Column="1" Spacing="12">
-                <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <!-- Custom Date Range -->
+                <StackPanel Orientation="Horizontal" Spacing="12"
+                            Visibility="{x:Bind ViewModel.SelectedFilter, Mode=OneWay, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Custom}">
+                    <DatePicker Header="Od" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+                    <DatePicker Header="Do" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+                    <Button Content="Načíst data" VerticalAlignment="Bottom" Command="{x:Bind ViewModel.LoadSalesDataCommand}" Style="{StaticResource AccentButtonStyle}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- KPI Cards -->
+            <Grid Grid.Row="1" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Total Sales -->
+                <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Celkový přehled" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <TextBlock>
-                            <Run Text="Počet účtenek:" FontWeight="Bold"/>
+                        <FontIcon Glyph="&#xE7BF;" Style="{StaticResource KpiIconStyle}"/>
+                        <TextBlock Text="Celkové tržby" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
+                        <TextBlock Text="{x:Bind ViewModel.TotalSalesAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
+                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
                             <Run Text="{x:Bind ViewModel.NumberOfReceipts, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock>
-                            <Run Text="Celkem bez DPH:" FontWeight="Bold"/>
-                            <Run Text="{x:Bind ViewModel.TotalSalesAmountWithoutVatFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock>
-                            <Run Text="Celkem DPH:" FontWeight="Bold"/>
-                            <Run Text="{x:Bind ViewModel.TotalVatAmountFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock>
-                            <Run Text="Celkem s DPH:" FontWeight="Bold"/>
-                            <Run Text="{x:Bind ViewModel.TotalSalesAmountFormatted, Mode=OneWay}"/>
+                            <Run Text=" účtenek"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
-            </StackPanel>
+
+                <!-- Average Sale -->
+                <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}">
+                    <StackPanel Spacing="8">
+                        <FontIcon Glyph="&#xE8A1;" Style="{StaticResource KpiIconStyle}" Foreground="#34C759"/>
+                        <TextBlock Text="Průměrný prodej" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
+                        <TextBlock Text="{x:Bind ViewModel.AverageSaleAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
+                        <TextBlock Text="na účtenku" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- VAT Amount -->
+                <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}">
+                    <StackPanel Spacing="8">
+                        <FontIcon Glyph="&#xE8A9;" Style="{StaticResource KpiIconStyle}" Foreground="#FF9500"/>
+                        <TextBlock Text="Celkem DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
+                        <TextBlock Text="{x:Bind ViewModel.TotalVatAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
+                        <TextBlock Text="{x:Bind ViewModel.TotalSalesAmountWithoutVatFormatted, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Net Amount -->
+                <Border Grid.Column="3" Style="{StaticResource KpiCardStyle}">
+                    <StackPanel Spacing="8">
+                        <FontIcon Glyph="&#xE7C3;" Style="{StaticResource KpiIconStyle}" Foreground="#AF52DE"/>
+                        <TextBlock Text="Bez DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
+                        <TextBlock Text="{x:Bind ViewModel.TotalSalesAmountWithoutVatFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#AF52DE"/>
+                        <TextBlock Text="čistá tržba" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Quick Stats -->
+            <Grid Grid.Row="2" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="📅 Denní průměr" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Grid.Column="0" Glyph="&#xE787;" FontSize="48" Foreground="#007AFF" Margin="0,0,16,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.DailyAverageAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
+                                <TextBlock Text="průměrně denně" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="📄 Počet účtenek" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Grid.Column="0" Glyph="&#xE8A1;" FontSize="48" Foreground="#34C759" Margin="0,0,16,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.NumberOfReceipts, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
+                                <TextBlock Text="celkem prodejů" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="💰 DPH Info" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Grid.Column="0" Glyph="&#xE8A9;" FontSize="48" Foreground="#FF9500" Margin="0,0,16,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.TotalVatAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
+                                <TextBlock Text="celkem DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Products and Payment Methods -->
+            <Grid Grid.Row="3" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Top Products -->
+                <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="🏆 Top 5 produktů" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:TopProduct">
+                                    <Grid Margin="0,8,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="{x:Bind ProductName}" FontWeight="SemiBold"/>
+                                            <ProgressBar Value="{x:Bind PercentageOfTotal}" Maximum="100" Foreground="#34C759" Height="4"/>
+                                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
+                                                <Run Text="{x:Bind QuantitySold}"/>
+                                                <Run Text=" ks"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind RevenueFormatted}" FontWeight="Bold" Foreground="#34C759" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <!-- Worst Products -->
+                <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="📉 Nejméně prodávané" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.WorstProducts, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:TopProduct">
+                                    <Grid Margin="0,8,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="{x:Bind ProductName}" FontWeight="SemiBold"/>
+                                            <ProgressBar Value="{x:Bind PercentageOfTotal}" Maximum="100" Foreground="#FF3B30" Height="4"/>
+                                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
+                                                <Run Text="{x:Bind QuantitySold}"/>
+                                                <Run Text=" ks"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind RevenueFormatted}" FontWeight="Bold" Foreground="#FF3B30" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <!-- Payment Methods -->
+                <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="💳 Platební metody" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.PaymentMethodStats, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:PaymentMethodStats">
+                                    <Grid Margin="0,8,0,8">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{x:Bind PaymentMethod}" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
+                                                <Run Text="{x:Bind PercentageFormatted}"/>
+                                                <Run Text="%"/>
+                                            </TextBlock>
+                                        </Grid>
+                                        <ProgressBar Grid.Row="1" Value="{x:Bind Percentage}" Maximum="100" Foreground="#007AFF" Height="4" Margin="0,4,0,4"/>
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
+                                                <Run Text="{x:Bind Count}"/>
+                                                <Run Text=" transakcí"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="1" Text="{x:Bind AmountFormatted}" FontWeight="Bold" Foreground="#007AFF"/>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </Page>

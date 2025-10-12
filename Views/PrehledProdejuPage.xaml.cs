@@ -12,13 +12,21 @@ namespace Sklad_2.Views
 
         public PrehledProdejuPage()
         {
-            this.InitializeComponent();
             ViewModel = (Application.Current as App).Services.GetRequiredService<PrehledProdejuViewModel>();
+            this.InitializeComponent();
+            this.DataContext = ViewModel;
+
+            // Load data when page is loaded
+            this.Loaded += (s, e) =>
+            {
+                ViewModel.LoadSalesDataCommand.Execute(null);
+            };
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            // Also load on navigation
             ViewModel.LoadSalesDataCommand.Execute(null);
         }
     }

@@ -20,6 +20,7 @@
             <converters:DeficitToBrushConverter x:Key="DeficitToBrushConverter"/>
             <converters:EntryTypeToStringConverter x:Key="EntryTypeToStringConverter"/>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:BooleanToEnabledConverter x:Key="BooleanToEnabledConverter"/>
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
