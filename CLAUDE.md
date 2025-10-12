@@ -66,6 +66,29 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 ### Navigace
 `MainWindow.xaml.cs` obsahuje hlavní `NavigationView` s metodou `NavView_ItemInvoked()`, která řídí navigaci mezi stránkami. Stránky jsou vytvářeny jako nové instance při každém přepnutí.
 
+### Status Bar (Informační panel)
+Umístěn v `NavigationView.PaneFooter` (nad tlačítkem Odhlásit), zobrazuje stručný přehled stavu systému:
+
+**Levý sloupec (Nastavení):**
+- 🏢 **Firma**: Vyplněno/Nevyplněno (kontroluje `ShopName` a `ShopAddress`)
+- ⚙️ **DPH kat**: Nastaveno/Nenastaveno (existence `VatConfig` záznamů)
+- 🧾 **DPH**: Plátce/Neplátce (podle `IsVatPayer`)
+- 💾 **Databáze**: OK/Chyba (test spojení s databází)
+
+**Pravý sloupec (Hardware & Denní):**
+- 🖨️ **Tiskárna**: Připojena/Odpojena (kontroluje `PrinterPath`)
+- 📱 **Scanner**: Připojen/Odpojen (placeholder - zatím vždy "Odpojen")
+- 💰 **Uzavírka**: Provedena/Neprovedena (kontrola `LastDayCloseDate`)
+
+**Barevné indikátory:**
+- Zelená (#34C759): OK stav
+- Červená (#FF3B30): Chyba/kritický problém
+- Oranžová (#FF9500): Upozornění
+- Modrá (#007AFF): Informace (DPH)
+- Šedá (#999999): Neutrální/neaktivní
+
+**Auto-refresh**: Status bar se automaticky aktualizuje při startu aplikace a po každé navigaci mezi stránkami (`StatusBarViewModel.RefreshStatusAsync()`).
+
 ### Autentizace a role
 - **Login flow**: `LoginWindow` → `MainWindow` (po úspěšném přihlášení)
 - **Role**: "Prodej" (omezená práva) a "Vlastník" (plná práva)
@@ -79,13 +102,14 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 
 ### Key Pages
 - **ProdejPage**: Prodej produktů, správa košíku, platby (hotovost/karta)
-- **DatabazePage**: Seznam produktů s možností editace (ListView)
+- **DatabazePage**: Seznam produktů s možností editace (ListView), filtrování podle kategorie, řazení podle sloupců
 - **NovyProduktPage**: Přidání nového produktu
 - **UctenkyPage**: Historie účtenek s filtry (denní/týdenní/měsíční/vlastní)
 - **VratkyPage**: Zpracování vratek a dobropisů
-- **VratkyPrehledPage**: Přehled vratek
+- **VratkyPrehledPage**: Přehled vratek s filtry
 - **CashRegisterPage**: Správa pokladny (vklady, denní kontrola, uzavírka dne)
-- **CashRegisterHistoryPage**: Historie transakcí pokladny
+- **CashRegisterHistoryPage**: Historie transakcí pokladny s filtry
+- **PrehledProdejuPage**: Dashboard prodejů s KPI kartami, top/worst produkty, platební metody, filtry (Celkem/Dnešní/Týdenní/Měsíční/Vlastní)
 - **NastaveniPage**: Nastavení aplikace s NavigationView menu (DPH, kategorie, firma)
 
 ### DPH (VAT) System
@@ -93,7 +117,7 @@ Projekt používá `CommunityToolkit.Mvvm.Messaging` (WeakReferenceMessenger) pr
 - **UI**: Nastavení v "Nastavení → Sazby DPH"
 - **Auto-fill**: Při vytváření produktu se automaticky předvyplní sazba DPH podle kategorie
 - **Účtenky**: Detailní souhrn DPH seskupený podle sazeb
-- **Plátce DPH**: Přepínač v nastavení (UI zatím nerespektuje - known issue v TODO)
+- **Plátce DPH**: Přepínač v nastavení plně implementován
 
 ### Kategorie produktů
 Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kategorií je hard-coded (zatím není dynamická správa přes UI).
@@ -122,6 +146,10 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - Validace: pouze 1× denně (kontrola `LastDayCloseDate`)
    - Vytvoří `DayClose` záznam s napočítanou částkou
    - Vypočítá rozdíl (přebytek/manko)
+6. **Zavření aplikace**:
+   - Kontrola, zda byla provedena uzavírka dne
+   - Pokud ne → Dialog s upozorněním a možností zrušit zavření
+   - Ochrana pouze pro roli "Prodej"
 
 #### Timing a robustnost
 - **MainWindow dialog**: Čeká na `XamlRoot` (max 20×50ms)
@@ -141,3 +169,83 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 - **Vývoj**: Inkrementální (krok za krokem), po každé změně ověřit funkčnost
 - **Chyby**: Vždy vyžadovat přesné chybové hlášky z Visual Studio před opravou
 - **Design**: Striktně dodržovat Mica design s černobílou paletou
+
+---
+
+## 📝 TODO List
+
+### ✅ Hotovo (aktualizováno 12.10.2025)
+
+1. ✅ **Role-based UI restrictions**
+   - Skrytý panel "Denní kontrola pokladny" pro roli "Prodej"
+   - Tlačítko "Smazat vybrané" disabled pro roli "Prodej"
+
+2. ✅ **Databáze produktů - vylepšení**
+   - Filtrování podle kategorie
+   - Řazení (klik na hlavičku: Název, Skladem, Cena)
+   - Přidán sloupec "Nákupní cena"
+   - Fix: EAN vyhledávání - přesný prefix match (StartsWith)
+
+3. ✅ **Status Bar (Informační panel)**
+   - Zobrazení stavu: Firma, DPH kategorie, DPH plátce/neplátce, Databáze
+   - Zobrazení hardware: Tiskárna, Scanner, Uzavírka dne
+   - Barevné indikátory (zelená/červená/oranžová/modrá/šedá)
+   - Auto-refresh při startu a navigaci
+
+4. ✅ **Dashboard prodejů (Přehled prodejů)**
+   - KPI karty (celkové tržby, průměr na účtenku, DPH, čistá tržba)
+   - Quick Stats (Denní průměr vypočítaný podle časového horizontu, Počet účtenek, DPH Info)
+   - Top 5 nejprodávanějších produktů
+   - Nejméně prodávané produkty (5)
+   - Statistiky platebních metod
+   - Časové filtry (Celkem/Dnešní/Týdenní/Měsíční/Vlastní)
+   - Auto-refresh při otevření stránky
+   - Oprava týdenního filtru (Sunday edge case) ve všech ViewModelech
+
+5. ✅ **Denní otevírka/uzavírka pokladny**
+   - Zahájení nového dne při prvním přihlášení
+   - Ochrana proti změně systémového času
+   - Uzavírka dne s kontrolou rozdílu (přebytek/manko)
+   - Validace všech částek (0-10M Kč)
+   - Kontrola uzavírky při zavírání aplikace (pouze role "Prodej")
+
+6. ✅ **DPH systém**
+   - Konfigurace DPH pro kategorie
+   - Přepínač Plátce/Neplátce plně implementován
+   - Auto-fill sazby DPH podle kategorie produktu
+
+7. ✅ **Historie a přehledy**
+   - CashRegisterHistoryPage s filtry
+   - UctenkyPage s filtry
+   - VratkyPrehledPage s filtry
+
+### ⏳ Zbývá udělat
+
+1. ⏳ **Export uzavírek do CSV/PDF**
+   - Export denních uzavírek pokladny
+   - Export přehledů prodejů
+
+2. ⏳ **Úprava kategorií přes UI**
+   - Zatím hard-coded v `ProductCategories.cs`
+   - Umožnit přidávat/odebírat/upravovat kategorie v nastavení
+
+3. ⏳ **Vylepšit error handling**
+   - Lokalizované chybové hlášky (zatím anglické exception messages)
+   - User-friendly error dialogy
+
+4. ⏳ **Scanner integrace**
+   - Implementovat skutečnou detekci EAN scanneru
+   - Aktualizovat StatusBarViewModel
+
+5. ⏳ **Tisk - pokročilé funkce**
+   - Skutečná detekce připojení tiskárny (ne jen kontrola cesty)
+   - Test tisku ze status baru?
+
+### 💡 Možná budoucí vylepšení
+
+- Grafy vývoje tržeb v čase (najít stabilní charting library)
+- Nejvyšší/nejnižší účtenka v dashboardu
+- Srovnání s předchozím obdobím (% růst/pokles)
+- Nejčastější hodina prodeje (rush hour analýza)
+- Cloud záloha databáze
+- Multi-store podpora
