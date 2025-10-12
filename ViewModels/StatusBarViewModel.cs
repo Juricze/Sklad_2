@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
 using Sklad_2.Services;
 using System;
 using System.Linq;
@@ -11,6 +13,7 @@ namespace Sklad_2.ViewModels
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
         private readonly IPrintService _printService;
+        private readonly IMessenger _messenger;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PrinterStatusText), nameof(PrinterStatusColor))]
@@ -58,11 +61,24 @@ namespace Sklad_2.ViewModels
         public string VatConfigStatusColor => IsVatConfigComplete ? "#34C759" : "#FF9500";
         public string DatabaseStatusColor => IsDatabaseOk ? "#34C759" : "#FF3B30";
 
-        public StatusBarViewModel(IDataService dataService, ISettingsService settingsService, IPrintService printService)
+        public StatusBarViewModel(IDataService dataService, ISettingsService settingsService, IPrintService printService, IMessenger messenger)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _printService = printService;
+            _messenger = messenger;
+
+            // Listen for settings changes
+            _messenger.Register<SettingsChangedMessage>(this, async (r, m) =>
+            {
+                await RefreshStatusAsync();
+            });
+
+            // Listen for VAT config changes
+            _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
+            {
+                await RefreshStatusAsync();
+            });
         }
 
         public async Task RefreshStatusAsync()
@@ -71,8 +87,8 @@ namespace Sklad_2.ViewModels
             var settings = _settingsService.CurrentSettings;
             IsPrinterConnected = !string.IsNullOrWhiteSpace(settings.PrinterPath);
 
-            // Check scanner status (placeholder - add real implementation if you have scanner service)
-            IsScannerConnected = false; // TODO: Implement scanner check
+            // Check scanner status
+            IsScannerConnected = !string.IsNullOrWhiteSpace(settings.ScannerPath);
 
             // Check if day was closed today
             var lastDayCloseDate = settings.LastDayCloseDate;

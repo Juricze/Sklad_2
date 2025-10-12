@@ -8,11 +8,13 @@ namespace Sklad_2.Views
     public sealed partial class NastaveniPage : Page
     {
         public NastaveniViewModel ViewModel { get; }
+        public CategoryManagementViewModel CategoryVM { get; }
 
         public NastaveniPage()
         {
             this.InitializeComponent();
             ViewModel = ((App)Application.Current).Services.GetRequiredService<NastaveniViewModel>();
+            CategoryVM = ((App)Application.Current).Services.GetRequiredService<CategoryManagementViewModel>();
         }
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -22,6 +24,7 @@ namespace Sklad_2.Views
                 var tag = args.InvokedItemContainer.Tag.ToString();
                 CompanySettingsPanel.Visibility = tag == "Company" ? Visibility.Visible : Visibility.Collapsed;
                 VatSettingsPanel.Visibility = tag == "VAT" ? Visibility.Visible : Visibility.Collapsed;
+                CategoriesPanel.Visibility = tag == "Categories" ? Visibility.Visible : Visibility.Collapsed;
                 PasswordSettingsPanel.Visibility = tag == "Passwords" ? Visibility.Visible : Visibility.Collapsed;
                 SystemSettingsPanel.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
                 AboutPanel.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;

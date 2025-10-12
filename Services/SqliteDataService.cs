@@ -179,5 +179,34 @@ namespace Sklad_2.Services
             }
             await context.SaveChangesAsync();
         }
+
+        // Category Management
+        public async Task<int> GetProductCountByCategoryAsync(string categoryName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Products.CountAsync(p => p.Category == categoryName);
+        }
+
+        public async Task UpdateProductsCategoryAsync(string oldCategoryName, string newCategoryName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var products = await context.Products.Where(p => p.Category == oldCategoryName).ToListAsync();
+            foreach (var product in products)
+            {
+                product.Category = newCategoryName;
+            }
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteVatConfigAsync(string categoryName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var config = await context.VatConfigs.FindAsync(categoryName);
+            if (config != null)
+            {
+                context.VatConfigs.Remove(config);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

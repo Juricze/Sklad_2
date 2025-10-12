@@ -27,5 +27,10 @@ namespace Sklad_2.Services
         // VAT Configs
         Task<List<VatConfig>> GetVatConfigsAsync();
         Task SaveVatConfigsAsync(IEnumerable<VatConfig> vatConfigs);
+
+        // Category Management
+        Task<int> GetProductCountByCategoryAsync(string categoryName);
+        Task UpdateProductsCategoryAsync(string oldCategoryName, string newCategoryName);
+        Task DeleteVatConfigAsync(string categoryName);
     }
 }

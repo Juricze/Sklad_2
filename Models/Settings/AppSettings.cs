@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Sklad_2.Models.Settings
@@ -11,9 +12,19 @@ namespace Sklad_2.Models.Settings
         public string VatId { get; set; }
         public bool IsVatPayer { get; set; }
         public string PrinterPath { get; set; }
+        public string ScannerPath { get; set; }
         public string AdminPassword { get; set; }
         public string SalePassword { get; set; }
         public DateTime? LastSaleLoginDate { get; set; }
         public DateTime? LastDayCloseDate { get; set; }
+
+        // Product categories (dynamically managed)
+        public List<string> Categories { get; set; } = new List<string>
+        {
+            "Potraviny",
+            "Drogerie",
+            "Elektronika",
+            "Ostatní"
+        };
     }
 }

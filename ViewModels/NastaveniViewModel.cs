@@ -28,10 +28,25 @@ namespace Sklad_2.ViewModels
         private AppSettings settings;
 
         [ObservableProperty]
-        private string appVersion;
+        private string appVersion = "0.5.0";
 
         [ObservableProperty]
-        private string gitHubLink = "https://github.com/your-repo-link"; // Placeholder
+        private string appName = "Sklad 2 - Skladový a prodejní systém";
+
+        [ObservableProperty]
+        private string author = "Jiří Hejda";
+
+        [ObservableProperty]
+        private string contactEmail = "ji.hejda@gmail.com";
+
+        [ObservableProperty]
+        private string copyright = "Copyright © 2025 Jiří Hejda";
+
+        [ObservableProperty]
+        private string description = "Moderní aplikace pro správu skladu, prodeje a pokladny postavená na WinUI 3";
+
+        [ObservableProperty]
+        private string gitHubLink = "https://github.com/jhejda/Sklad_2";
 
         [ObservableProperty]
         private string backupStatusMessage;
@@ -58,6 +73,18 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string salePasswordStatus;
 
+        [ObservableProperty]
+        private string vatStatusMessage;
+
+        [ObservableProperty]
+        private bool isVatStatusError;
+
+        [ObservableProperty]
+        private string companyStatusMessage;
+
+        [ObservableProperty]
+        private bool isCompanyStatusError;
+
         public ObservableCollection<VatConfig> VatConfigs { get; } = new();
 
         public NastaveniViewModel(ISettingsService settingsService, IPrintService printService, IDataService dataService, IMessenger messenger, IAuthService authService)
@@ -68,12 +95,17 @@ namespace Sklad_2.ViewModels
             _messenger = messenger;
             _authService = authService;
             Settings = _settingsService.CurrentSettings;
-            AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             // Pre-fill the sale password box with the current password
             NewSalePassword = Settings.SalePassword;
 
             LoadVatConfigsCommand.Execute(null);
+
+            // Listen for category changes
+            _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
+            {
+                await LoadVatConfigsAsync();
+            });
         }
 
         [RelayCommand]
@@ -97,6 +129,75 @@ namespace Sklad_2.ViewModels
             }
         }
 
+        [RelayCommand]
+        private async Task SaveVatConfigsAsync()
+        {
+            VatStatusMessage = string.Empty;
+            try
+            {
+                await _dataService.SaveVatConfigsAsync(VatConfigs);
+                _messenger.Send(new VatConfigsChangedMessage());
+                ShowVatSuccess("Sazby DPH byly úspěšně uloženy.");
+            }
+            catch (Exception ex)
+            {
+                ShowVatError($"Chyba při ukládání sazeb DPH: {ex.Message}");
+            }
+        }
+
+        private void ShowVatError(string message)
+        {
+            VatStatusMessage = message;
+            IsVatStatusError = true;
+        }
+
+        private void ShowVatSuccess(string message)
+        {
+            VatStatusMessage = message;
+            IsVatStatusError = false;
+        }
+
+        [RelayCommand]
+        private void ClearVatStatus()
+        {
+            VatStatusMessage = string.Empty;
+            IsVatStatusError = false;
+        }
+
+        [RelayCommand]
+        private async Task SaveCompanyInfoAsync()
+        {
+            CompanyStatusMessage = string.Empty;
+            try
+            {
+                await _settingsService.SaveSettingsAsync();
+                _messenger.Send(new SettingsChangedMessage());
+                ShowCompanySuccess("Firemní údaje byly úspěšně uloženy.");
+            }
+            catch (Exception ex)
+            {
+                ShowCompanyError($"Chyba při ukládání firemních údajů: {ex.Message}");
+            }
+        }
+
+        private void ShowCompanyError(string message)
+        {
+            CompanyStatusMessage = message;
+            IsCompanyStatusError = true;
+        }
+
+        private void ShowCompanySuccess(string message)
+        {
+            CompanyStatusMessage = message;
+            IsCompanyStatusError = false;
+        }
+
+        [RelayCommand]
+        private void ClearCompanyStatus()
+        {
+            CompanyStatusMessage = string.Empty;
+            IsCompanyStatusError = false;
+        }
 
         [RelayCommand]
         private async Task SaveSettingsAsync()

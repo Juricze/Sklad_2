@@ -24,6 +24,8 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:BooleanToEnabledConverter x:Key="BooleanToEnabledConverter"/>
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

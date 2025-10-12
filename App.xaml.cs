@@ -80,7 +80,12 @@ namespace Sklad_2
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<CashRegisterHistoryViewModel>();
-            services.AddSingleton<StatusBarViewModel>();
+            services.AddSingleton<StatusBarViewModel>(sp => new StatusBarViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<IPrintService>(),
+                sp.GetRequiredService<IMessenger>()));
+            services.AddSingleton<CategoryManagementViewModel>();
 
             // Transient ViewModels (for dialogs, login, etc.)
             services.AddTransient<LoginViewModel>();
