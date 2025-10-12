@@ -1,4 +1,4 @@
-﻿<Window
+﻿<Window x:ConnectionId='1'
     x:Class="Sklad_2.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -26,9 +26,96 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.PaneFooter>
-                <NavigationViewItem x:ConnectionId='3' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
+                <StackPanel Spacing="8">
+                    <!-- Status Bar -->
+                    <Border Background="#F5F5F5"
+                            CornerRadius="8"
+                            Padding="12,8"
+                            BorderBrush="#E0E0E0"
+                            BorderThickness="1"
+                            Margin="8,0,8,8">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left Column: Settings -->
+                            <StackPanel Grid.Column="0" Spacing="6">
+                                <!-- Company Info -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='16' Glyph="&#xE82D;" FontSize="12"                                                                      />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Firma:"/>
+                                        <Run x:ConnectionId='17'                                                                                                                                      FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- VAT Config -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='14' Glyph="&#xE713;" FontSize="12"                                                                    />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="DPH kat:"/>
+                                        <Run x:ConnectionId='15'                                                                                                                                  FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- VAT Payer -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='12' Glyph="&#xE8A9;" FontSize="12"                                                                   />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="DPH:"/>
+                                        <Run x:ConnectionId='13'                                                                                                                                FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Database -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='10' Glyph="&#xE896;" FontSize="12"                                                                   />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Databáze:"/>
+                                        <Run x:ConnectionId='11'                                                                                                                                FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Right Column: Hardware & Daily -->
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <!-- Printer -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='8' Glyph="&#xE749;" FontSize="12"                                                                  />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Tiskárna:"/>
+                                        <Run x:ConnectionId='9'                                                                                                                              FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Scanner -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='6' Glyph="&#xE8B4;" FontSize="12"                                                                  />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Scanner:"/>
+                                        <Run x:ConnectionId='7'                                                                                                                              FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Day Close -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon x:ConnectionId='4' Glyph="&#xE8B7;" FontSize="12"                                                                   />
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Uzavírka:"/>
+                                        <Run x:ConnectionId='5'                                                                                                                                FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Logout Button -->
+                    <NavigationViewItem x:ConnectionId='3' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
+                </StackPanel>
             </NavigationView.PaneFooter>
-            <Frame x:ConnectionId='4' x:Name="ContentFrame">
+            <Frame x:ConnectionId='18' x:Name="ContentFrame">
                 <views:ProdejPage/>
             </Frame>
         </NavigationView>

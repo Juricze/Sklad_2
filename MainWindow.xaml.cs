@@ -20,16 +20,22 @@ namespace Sklad_2
         private readonly ISettingsService _settingsService;
         private bool IsSalesRole;
 
+        public StatusBarViewModel StatusBarVM { get; }
+
         public MainWindow()
         {
-            this.InitializeComponent();
-
             var serviceProvider = (Application.Current as App).Services;
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+            StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
             IsSalesRole = _authService.CurrentRole == "Prodej";
 
+            this.InitializeComponent();
+
             TrySetSystemBackdrop();
+
+            // Refresh status bar
+            _ = StatusBarVM.RefreshStatusAsync();
 
             // The initial page will get its ViewModel in its constructor.
             ContentFrame.Content = new ProdejPage();
@@ -263,6 +269,9 @@ namespace Sklad_2
                     break;
             }
             ContentFrame.Content = page;
+
+            // Refresh status bar after navigation
+            _ = StatusBarVM.RefreshStatusAsync();
         }
 
         private void Logout_Tapped(object sender, TappedRoutedEventArgs e)

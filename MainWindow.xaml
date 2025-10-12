@@ -26,7 +26,94 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.PaneFooter>
-                <NavigationViewItem Content="Odhlásit" Tag="Logout" Icon="Undo" Tapped="Logout_Tapped"/>
+                <StackPanel Spacing="8">
+                    <!-- Status Bar -->
+                    <Border Background="#F5F5F5"
+                            CornerRadius="8"
+                            Padding="12,8"
+                            BorderBrush="#E0E0E0"
+                            BorderThickness="1"
+                            Margin="8,0,8,8">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left Column: Settings -->
+                            <StackPanel Grid.Column="0" Spacing="6">
+                                <!-- Company Info -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE82D;" FontSize="12" Foreground="{x:Bind StatusBarVM.CompanyInfoStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Firma:"/>
+                                        <Run Text="{x:Bind StatusBarVM.CompanyInfoStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.CompanyInfoStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- VAT Config -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE713;" FontSize="12" Foreground="{x:Bind StatusBarVM.VatConfigStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="DPH kat:"/>
+                                        <Run Text="{x:Bind StatusBarVM.VatConfigStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.VatConfigStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- VAT Payer -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE8A9;" FontSize="12" Foreground="{x:Bind StatusBarVM.VatPayerStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="DPH:"/>
+                                        <Run Text="{x:Bind StatusBarVM.VatPayerStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.VatPayerStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Database -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE896;" FontSize="12" Foreground="{x:Bind StatusBarVM.DatabaseStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Databáze:"/>
+                                        <Run Text="{x:Bind StatusBarVM.DatabaseStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.DatabaseStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Right Column: Hardware & Daily -->
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <!-- Printer -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE749;" FontSize="12" Foreground="{x:Bind StatusBarVM.PrinterStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Tiskárna:"/>
+                                        <Run Text="{x:Bind StatusBarVM.PrinterStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.PrinterStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Scanner -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE8B4;" FontSize="12" Foreground="{x:Bind StatusBarVM.ScannerStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Scanner:"/>
+                                        <Run Text="{x:Bind StatusBarVM.ScannerStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.ScannerStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Day Close -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE8B7;" FontSize="12" Foreground="{x:Bind StatusBarVM.DayCloseStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Uzavírka:"/>
+                                        <Run Text="{x:Bind StatusBarVM.DayCloseStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.DayCloseStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Logout Button -->
+                    <NavigationViewItem Content="Odhlásit" Tag="Logout" Icon="Undo" Tapped="Logout_Tapped"/>
+                </StackPanel>
             </NavigationView.PaneFooter>
             <Frame x:Name="ContentFrame">
                 <views:ProdejPage/>
