@@ -37,8 +37,8 @@ namespace Sklad_2
             // Refresh status bar
             _ = StatusBarVM.RefreshStatusAsync();
 
-            // The initial page will get its ViewModel in its constructor.
-            ContentFrame.Content = new ProdejPage();
+            // Load initial page when ContentFrame is ready
+            ContentFrame.Loaded += OnContentFrameLoaded;
 
             // Handle new day dialog after window is activated
             this.Activated += OnFirstActivated;
@@ -94,6 +94,25 @@ namespace Sklad_2
         }
 
         private bool _hasHandledNewDay = false;
+
+        private void OnContentFrameLoaded(object sender, RoutedEventArgs e)
+        {
+            // Unsubscribe to prevent multiple calls
+            ContentFrame.Loaded -= OnContentFrameLoaded;
+
+            // The initial page will get its ViewModel in its constructor.
+            ContentFrame.Content = new ProdejPage();
+
+            // Set initial selected item in NavigationView
+            foreach (var item in NavView.MenuItems)
+            {
+                if (item is NavigationViewItem navItem && navItem.Tag as string == "Prodej")
+                {
+                    NavView.SelectedItem = navItem;
+                    break;
+                }
+            }
+        }
 
         private async void OnFirstActivated(object sender, WindowActivatedEventArgs args)
         {
@@ -276,6 +295,12 @@ namespace Sklad_2
                 return;
             }
 
+            // Ignore clicks on "Databaze" parent item (it should only expand/collapse)
+            if (tag == "Databaze")
+            {
+                return;
+            }
+
             switch (tag)
             {
                 case "Prodej":
@@ -317,8 +342,43 @@ namespace Sklad_2
             }
             ContentFrame.Content = page;
 
+            // Set SelectedItem to the correct NavigationViewItem
+            SetSelectedNavigationItem(tag);
+
             // Refresh status bar after navigation
             _ = StatusBarVM.RefreshStatusAsync();
+        }
+
+        private void SetSelectedNavigationItem(string tag)
+        {
+            // First check main menu items
+            foreach (var item in NavView.MenuItems)
+            {
+                if (item is NavigationViewItem navItem)
+                {
+                    if (navItem.Tag as string == tag)
+                    {
+                        NavView.SelectedItem = navItem;
+                        return;
+                    }
+
+                    // Check sub-menu items
+                    foreach (var subItem in navItem.MenuItems)
+                    {
+                        if (subItem is NavigationViewItem subNavItem && subNavItem.Tag as string == tag)
+                        {
+                            NavView.SelectedItem = subNavItem;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Check if it's settings
+            if (tag == "Nastaveni")
+            {
+                NavView.SelectedItem = NavView.SettingsItem;
+            }
         }
 
         private void Logout_Tapped(object sender, TappedRoutedEventArgs e)

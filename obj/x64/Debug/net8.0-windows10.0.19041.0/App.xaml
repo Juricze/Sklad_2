@@ -26,6 +26,7 @@
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
+            <converters:BooleanToStornoBrushConverter x:Key="BooleanToStornoBrushConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

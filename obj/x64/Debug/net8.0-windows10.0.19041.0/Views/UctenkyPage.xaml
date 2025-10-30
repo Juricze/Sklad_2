@@ -36,18 +36,18 @@
 
             <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8" Margin="0,12,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <RadioButton x:ConnectionId='26' Content="Denní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                      Tag="Daily"/>
-                    <RadioButton x:ConnectionId='27' Content="Týdenní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Weekly"/>
-                    <RadioButton x:ConnectionId='28' Content="Měsíční" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                        Tag="Monthly"/>
-                    <RadioButton x:ConnectionId='29' Content="Vlastní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Custom"/>
+                    <RadioButton x:ConnectionId='30' Content="Denní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                      Tag="Daily"/>
+                    <RadioButton x:ConnectionId='31' Content="Týdenní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Weekly"/>
+                    <RadioButton x:ConnectionId='32' Content="Měsíční" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                        Tag="Monthly"/>
+                    <RadioButton x:ConnectionId='33' Content="Vlastní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Custom"/>
                 </StackPanel>
-                <StackPanel x:ConnectionId='23' Orientation="Horizontal" Spacing="8"                                                                   >
-                    <CalendarDatePicker x:ConnectionId='24' Header="Od"                                                        HorizontalAlignment="Stretch"/>
-                    <CalendarDatePicker x:ConnectionId='25' Header="Do"                                                      HorizontalAlignment="Stretch"/>
+                <StackPanel x:ConnectionId='27' Orientation="Horizontal" Spacing="8"                                                                   >
+                    <CalendarDatePicker x:ConnectionId='28' Header="Od"                                                        HorizontalAlignment="Stretch"/>
+                    <CalendarDatePicker x:ConnectionId='29' Header="Do"                                                      HorizontalAlignment="Stretch"/>
                 </StackPanel>
             </StackPanel>
 
-            <ListView x:ConnectionId='16' Grid.Row="2"
+            <ListView x:ConnectionId='19' Grid.Row="2"
                                                                             
                                                                                     
                       SelectionMode="Single">
@@ -67,15 +67,21 @@
                 </ListView.HeaderTemplate>
                 <ListView.ItemTemplate>
                     <DataTemplate                            >
-                        <Grid x:ConnectionId='19' Padding="12" ColumnSpacing="12">
+                        <Grid x:ConnectionId='22' Padding="12" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:ConnectionId='20' Grid.Column="0"                                   VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='21' Grid.Column="1"                                      VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='22' Grid.Column="2"                               VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                                <Run x:ConnectionId='25'                                />
+                                <Run x:ConnectionId='26'                                  />
+                            </TextBlock>
+                            <TextBlock x:ConnectionId='23' Grid.Column="1"
+                                                                           
+                                       VerticalAlignment="Center"
+                                                                                                                               />
+                            <TextBlock x:ConnectionId='24' Grid.Column="2"                               VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -90,13 +96,31 @@
             <ScrollViewer>
                 <StackPanel Spacing="12" Padding="12">
                     <TextBlock Text="Detail účtenky" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <!-- Storno Warning Banner -->
+                    <Border x:ConnectionId='3' Background="#FFEBEE"
+                            BorderBrush="#FF3B30"
+                            BorderThickness="2"
+                            CornerRadius="4"
+                            Padding="12"
+                                                                                                 >
+                        <StackPanel Spacing="4">
+                            <TextBlock FontWeight="Bold" Foreground="#FF3B30">
+                                <Run Text="❌ STORNO ÚČTENKA"/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
+                                <Run Text="Tato účtenka stornuje původní účtenku č."/>
+                                <Run x:ConnectionId='18'                                                                          FontWeight="Bold"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Číslo účtenky:" FontWeight="Bold"/>
-                        <TextBlock x:ConnectionId='15' Grid.Column="1"                                                                 />
+                        <TextBlock x:ConnectionId='17' Grid.Column="1"                                                                              />
                     </Grid>
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
@@ -104,7 +128,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Datum:" FontWeight="Bold"/>
-                        <TextBlock x:ConnectionId='14' Grid.Column="1"                                                                         />
+                        <TextBlock x:ConnectionId='16' Grid.Column="1"                                                                         />
                     </Grid>
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
@@ -112,10 +136,18 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Platba:" FontWeight="Bold"/>
-                        <TextBlock x:ConnectionId='13' Grid.Column="1"                                                                     />
+                        <TextBlock x:ConnectionId='15' Grid.Column="1"                                                                     />
+                    </Grid>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Prodavač:" FontWeight="Bold"/>
+                        <TextBlock x:ConnectionId='14' Grid.Column="1"                                                                  />
                     </Grid>
 
-                    <ListView x:ConnectionId='3'                                                                     Margin="0,12,0,0" SelectionMode="None">
+                    <ListView x:ConnectionId='4'                                                                     Margin="0,12,0,0" SelectionMode="None">
                         <ListView.HeaderTemplate>
                             <DataTemplate>
                                 <Grid Padding="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
@@ -134,28 +166,28 @@
                         </ListView.HeaderTemplate>
                         <ListView.ItemTemplate>
                             <DataTemplate                                >
-                                <Grid x:ConnectionId='8' Padding="8" ColumnSpacing="12">
+                                <Grid x:ConnectionId='9' Padding="8" ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock x:ConnectionId='9' Grid.Column="0"                            />
-                                    <TextBlock x:ConnectionId='10' Grid.Column="1"                          HorizontalAlignment="Right"/>
-                                    <TextBlock x:ConnectionId='11' Grid.Column="2"                                                 HorizontalAlignment="Right"/>
-                                    <TextBlock x:ConnectionId='12' Grid.Column="3"                                                  FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='10' Grid.Column="0"                            />
+                                    <TextBlock x:ConnectionId='11' Grid.Column="1"                          HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='12' Grid.Column="2"                                                 HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='13' Grid.Column="3"                                                  FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <TextBlock x:ConnectionId='4'                                                                            
+                    <TextBlock x:ConnectionId='5'                                                                            
                                Style="{ThemeResource TitleTextBlockStyle}"
                                HorizontalAlignment="Right"
                                Margin="0,12,0,0"/>
 
-                    <Button x:ConnectionId='5' Content="Zobrazit náhled účtenky"
+                    <Button x:ConnectionId='6' Content="Zobrazit náhled účtenky"
                                                            
                             Style="{StaticResource PrimaryButtonStyle}"
                             HorizontalAlignment="Stretch"

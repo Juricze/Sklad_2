@@ -14,8 +14,10 @@ namespace Sklad_2.Views
 
         public UctenkyPage()
         {
-            this.InitializeComponent();
+            // IMPORTANT: ViewModel must be set BEFORE InitializeComponent() for x:Bind to work properly
             ViewModel = (Application.Current as App).Services.GetRequiredService<UctenkyViewModel>();
+
+            this.InitializeComponent();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)

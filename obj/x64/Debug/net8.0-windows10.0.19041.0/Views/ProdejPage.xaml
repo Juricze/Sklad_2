@@ -17,14 +17,54 @@
         <!-- Main content area -->
         <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <TextBox x:ConnectionId='21' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
+                <TextBox x:ConnectionId='26' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
             </Border>
             <Border x:ConnectionId='17' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='20'                                                           /></TextBlock>
-                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='19'                                                                    /></TextBlock>
-                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='18'                                                                    /> <Run Text="ks"/></TextBlock>
+                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='25'                                                           /></TextBlock>
+                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='24'                                                                    /></TextBlock>
+                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='23'                                                                    /> <Run Text="ks"/></TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Cancel Last Receipt Warning -->
+            <Border x:ConnectionId='18' Background="#FFF3CD"
+                    BorderBrush="#FF9500"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="16"
+                                                                                     
+                    Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE7BA;" Foreground="#FF9500" FontSize="24"/>
+                        <TextBlock Text="Poslední prodej můžete zrušit"
+                                   FontWeight="SemiBold"
+                                   FontSize="16"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock TextWrapping="Wrap">
+                            <Run Text="Účtenka č."/>
+                            <Run x:ConnectionId='20'                                                                     FontWeight="Bold"/>
+                            <Run Text=" • "/>
+                            <Run x:ConnectionId='21'                                                                                FontWeight="Bold"/>
+                            <Run Text=" • "/>
+                            <Run x:ConnectionId='22'                                                                        />
+                        </TextBlock>
+                        <TextBlock Text="Produkty budou vráceny do skladu a částka odečtena z pokladny."
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <Button x:ConnectionId='19' Content="Zrušit poslední prodej"
+                                                                 
+                            Background="#FF3B30"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"/>
                 </StackPanel>
             </Border>
         </StackPanel>

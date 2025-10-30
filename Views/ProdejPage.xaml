@@ -27,6 +27,46 @@
                     <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.StockQuantity, Mode=OneWay}"/> <Run Text="ks"/></TextBlock>
                 </StackPanel>
             </Border>
+
+            <!-- Cancel Last Receipt Warning -->
+            <Border Background="#FFF3CD"
+                    BorderBrush="#FF9500"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="16"
+                    Visibility="{x:Bind ViewModel.CanCancelLastReceipt, Mode=OneWay}"
+                    Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE7BA;" Foreground="#FF9500" FontSize="24"/>
+                        <TextBlock Text="Poslední prodej můžete zrušit"
+                                   FontWeight="SemiBold"
+                                   FontSize="16"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock TextWrapping="Wrap">
+                            <Run Text="Účtenka č."/>
+                            <Run Text="{x:Bind ViewModel.LastCreatedReceipt.ReceiptId, Mode=OneWay}" FontWeight="Bold"/>
+                            <Run Text=" • "/>
+                            <Run Text="{x:Bind ViewModel.LastCreatedReceipt.TotalAmountFormatted, Mode=OneWay}" FontWeight="Bold"/>
+                            <Run Text=" • "/>
+                            <Run Text="{x:Bind ViewModel.LastCreatedReceipt.PaymentMethod, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Text="Produkty budou vráceny do skladu a částka odečtena z pokladny."
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <Button Content="Zrušit poslední prodej"
+                            Click="CancelLastReceiptButton_Click"
+                            Background="#FF3B30"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- Receipt area -->

@@ -114,6 +114,28 @@ namespace Sklad_2.Services
                                  .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
         }
 
+        public async Task DeleteReceiptAsync(int receiptId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var receipt = await context.Receipts
+                                       .Include(r => r.Items)
+                                       .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
+            if (receipt != null)
+            {
+                context.Receipts.Remove(receipt);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<int> GetNextReceiptSequenceAsync(int year)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var maxSequence = await context.Receipts
+                                           .Where(r => r.ReceiptYear == year)
+                                           .MaxAsync(r => (int?)r.ReceiptSequence);
+            return (maxSequence ?? 0) + 1;
+        }
+
         public async Task SaveReturnAsync(Return returnDocument)
         {
             using var context = _contextFactory.CreateDbContext();

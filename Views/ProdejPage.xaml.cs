@@ -17,14 +17,18 @@ namespace Sklad_2.Views
 
         public ProdejPage()
         {
-            this.InitializeComponent();
+            // IMPORTANT: ViewModel must be set BEFORE InitializeComponent() for x:Bind to work properly
             ViewModel = (Application.Current as App).Services.GetRequiredService<ProdejViewModel>();
+
+            this.InitializeComponent();
+
             this.Loaded += (s, e) =>
             {
                 if (ViewModel != null)
                 {
                     ViewModel.ProductOutOfStock += ViewModel_ProductOutOfStock;
                     ViewModel.CheckoutFailed += ViewModel_CheckoutFailed;
+                    ViewModel.ReceiptCancelled += ViewModel_ReceiptCancelled;
                 }
             };
             this.Unloaded += (s, e) =>
@@ -33,6 +37,7 @@ namespace Sklad_2.Views
                 {
                     ViewModel.ProductOutOfStock -= ViewModel_ProductOutOfStock;
                     ViewModel.CheckoutFailed -= ViewModel_CheckoutFailed;
+                    ViewModel.ReceiptCancelled -= ViewModel_ReceiptCancelled;
                 }
             };
         }
@@ -56,6 +61,42 @@ namespace Sklad_2.Views
                 XamlRoot = this.XamlRoot
             };
             await dialog.ShowAsync();
+        }
+
+        private async void ViewModel_ReceiptCancelled(object sender, string message)
+        {
+            ContentDialog successDialog = new ContentDialog
+            {
+                Title = "Prodej zrušen",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await successDialog.ShowAsync();
+        }
+
+        private async void CancelLastReceiptButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show confirmation dialog
+            ContentDialog confirmDialog = new ContentDialog
+            {
+                Title = "Potvrzení zrušení prodeje",
+                Content = $"Opravdu chcete zrušit poslední prodej?\n\n" +
+                         $"Účtenka č. {ViewModel.LastCreatedReceipt?.ReceiptId}\n" +
+                         $"Částka: {ViewModel.LastCreatedReceipt?.TotalAmountFormatted}\n\n" +
+                         $"Produkty budou vráceny do skladu a částka odečtena z pokladny.\n" +
+                         $"Tato akce je nevratná.",
+                PrimaryButtonText = "Ano, zrušit prodej",
+                CloseButtonText = "Ne, ponechat",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.CancelLastReceiptCommand.ExecuteAsync(null);
+            }
         }
 
         private void EanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)

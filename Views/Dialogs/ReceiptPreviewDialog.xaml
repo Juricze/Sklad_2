@@ -48,7 +48,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0">
-                        <Run Text="Číslo dokladu: "/><Run Text="{x:Bind Receipt.ReceiptId, Mode=OneWay}"/>
+                        <Run Text="Číslo dokladu: "/><Run Text="{x:Bind Receipt.FormattedReceiptNumber, Mode=OneWay}"/>
                     </TextBlock>
                     <TextBlock Grid.Column="1" HorizontalAlignment="Right">
                         <Run Text="Datum: "/><Run Text="{x:Bind Receipt.SaleDateFormatted, Mode=OneWay}"/>

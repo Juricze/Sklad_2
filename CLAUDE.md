@@ -170,6 +170,10 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 - **Chyby**: Vždy vyžadovat přesné chybové hlášky z Visual Studio před opravou
 - **Design**: Striktně dodržovat Mica design s černobílou paletou
 
+## Session Workflow
+- **"pokracuj" / "pokračujem" / "pokračujeme"** → Začátek session - načti `SESSION.md` a pokračuj v práci
+- **"konec" / "končíme" / "končit"** → Konec session - shrň provedenou práci a zapiš do `SESSION.md`, aktualizuj TODO list
+
 ---
 
 ## 📝 TODO List
@@ -219,15 +223,23 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - UctenkyPage s filtry
    - VratkyPrehledPage s filtry
 
+8. ✅ **Dynamická správa kategorií**
+   - CategoriesPanel v NastaveniPage (Nastavení → Kategorie)
+   - Funkce: Přidat, přejmenovat, smazat kategorii
+   - ProductCategories.cs dynamicky načítá z AppSettings.Categories
+   - Automatická aktualizace produktů při přejmenování
+   - Ochrana proti smazání používané kategorie
+
 ### ⏳ Zbývá udělat
 
 1. ⏳ **Export uzavírek do CSV/PDF**
    - Export denních uzavírek pokladny
    - Export přehledů prodejů
 
-2. ⏳ **Úprava kategorií přes UI**
-   - Zatím hard-coded v `ProductCategories.cs`
-   - Umožnit přidávat/odebírat/upravovat kategorie v nastavení
+2. ⏳ **Implementovat skutečný PrintService**
+   - Zatím pouze placeholder (simuluje úspěch)
+   - Respektovat "Plátce DPH" přepínač v tisku účtenek
+   - Skutečná detekce připojení tiskárny
 
 3. ⏳ **Vylepšit error handling**
    - Lokalizované chybové hlášky (zatím anglické exception messages)
@@ -235,11 +247,7 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 
 4. ⏳ **Scanner integrace**
    - Implementovat skutečnou detekci EAN scanneru
-   - Aktualizovat StatusBarViewModel
-
-5. ⏳ **Tisk - pokročilé funkce**
-   - Skutečná detekce připojení tiskárny (ne jen kontrola cesty)
-   - Test tisku ze status baru?
+   - Aktualizovat StatusBarViewModel (zatím vždy "Odpojen")
 
 ### 💡 Možná budoucí vylepšení
 

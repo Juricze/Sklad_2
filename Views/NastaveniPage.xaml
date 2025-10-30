@@ -156,11 +156,13 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Heslo musí být vyplněno a obě pole musí souhlasit.
                                 </TextBlock>
-                                <PasswordBox Header="Nové heslo"
-                                             Password="{x:Bind ViewModel.NewAdminPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <PasswordBox x:Name="NewAdminPasswordBox"
+                                             Header="Nové heslo"
+                                             PasswordChanged="NewAdminPasswordBox_PasswordChanged"
                                              PlaceholderText="Zadejte nové heslo"/>
-                                <PasswordBox Header="Potvrzení nového hesla"
-                                             Password="{x:Bind ViewModel.ConfirmAdminPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <PasswordBox x:Name="ConfirmAdminPasswordBox"
+                                             Header="Potvrzení nového hesla"
+                                             PasswordChanged="ConfirmAdminPasswordBox_PasswordChanged"
                                              PlaceholderText="Zadejte heslo znovu"/>
                                 <Button Content="Změnit heslo Admina"
                                         Command="{x:Bind ViewModel.ChangeAdminPasswordCommand}"
@@ -188,8 +190,9 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Ponechte prázdné pro uzamčení role Prodej. Vyplněním hesla povolíte přístup pro tuto roli.
                                 </TextBlock>
-                                <PasswordBox Header="Heslo pro 'Prodej'"
-                                             Password="{x:Bind ViewModel.NewSalePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <PasswordBox x:Name="NewSalePasswordBox"
+                                             Header="Heslo pro 'Prodej'"
+                                             PasswordChanged="NewSalePasswordBox_PasswordChanged"
                                              PlaceholderText="Ponechte prázdné pro uzamčení"/>
                                 <Button Content="Nastavit heslo pro 'Prodej'"
                                         Command="{x:Bind ViewModel.ChangeSalePasswordCommand}"
@@ -283,6 +286,40 @@
                                         Margin="0,8,0,0"
                                         Visibility="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
                                     <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Export to PDF Section (for Finanční úřad) -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Export pro Finanční úřad" FontWeight="SemiBold"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    Exportujte přehled účtenek do HTML formátu pro předložení Finančnímu úřadu. HTML lze snadno vytisknout nebo uložit jako PDF.
+                                </TextBlock>
+
+                                <!-- Date Range Selection -->
+                                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                                    <CalendarDatePicker Header="Od" Date="{x:Bind ViewModel.ExportStartDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="200"/>
+                                    <CalendarDatePicker Header="Do" Date="{x:Bind ViewModel.ExportEndDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="200"/>
+                                </StackPanel>
+
+                                <Button Content="Exportovat účtenky do HTML"
+                                        Command="{x:Bind ViewModel.ExportReceiptsToHtmlCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Stretch"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+
+                                <!-- Export Status -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="8"
+                                        Margin="0,8,0,0"
+                                        Visibility="{x:Bind ViewModel.ExportStatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <TextBlock Text="{x:Bind ViewModel.ExportStatusMessage, Mode=OneWay}"
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>

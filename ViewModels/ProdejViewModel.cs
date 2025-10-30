@@ -17,6 +17,7 @@ namespace Sklad_2.ViewModels
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
         private readonly ICashRegisterService _cashRegisterService;
+        private readonly IAuthService _authService;
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -30,10 +31,37 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
         private CartItem selectedReceiptItem;
 
+        partial void OnSelectedReceiptItemChanged(CartItem oldValue, CartItem newValue)
+        {
+            // Unsubscribe from old item
+            if (oldValue != null)
+            {
+                oldValue.PropertyChanged -= OnSelectedItemPropertyChanged;
+            }
+
+            // Subscribe to new item
+            if (newValue != null)
+            {
+                newValue.PropertyChanged += OnSelectedItemPropertyChanged;
+            }
+        }
+
+        private void OnSelectedItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // When Quantity changes on the selected item, re-evaluate CanExecute
+            if (e.PropertyName == nameof(CartItem.Quantity))
+            {
+                IncrementQuantityCommand.NotifyCanExecuteChanged();
+                DecrementQuantityCommand.NotifyCanExecuteChanged();
+            }
+        }
+
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanCancelLastReceipt))]
         private Receipt lastCreatedReceipt;
 
         public bool IsCheckoutSuccessful { get; private set; }
+        public bool CanCancelLastReceipt => LastCreatedReceipt != null;
 
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
@@ -43,11 +71,12 @@ namespace Sklad_2.ViewModels
         public string GrandTotalWithoutVatFormatted => $"Základ: {Receipt.GrandTotalWithoutVat:C}";
         public string GrandTotalVatAmountFormatted => $"DPH: {Receipt.GrandTotalVatAmount:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IAuthService authService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _cashRegisterService = cashRegisterService;
+            _authService = authService;
             Receipt = receiptService;
 
             // Listen for changes in the service to update UI
@@ -64,11 +93,15 @@ namespace Sklad_2.ViewModels
 
         public event EventHandler<Product> ProductOutOfStock;
         public event EventHandler<string> CheckoutFailed;
+        public event EventHandler<string> ReceiptCancelled;
 
         [RelayCommand]
         private async Task FindProductAsync(string eanCode)
         {
             if (string.IsNullOrWhiteSpace(eanCode)) return;
+
+            // Clear last receipt when starting a new sale
+            LastCreatedReceipt = null;
 
             ScannedProduct = null;
             var product = await _dataService.GetProductAsync(eanCode);
@@ -215,14 +248,21 @@ namespace Sklad_2.ViewModels
                     });
                 }
 
+                // Get next receipt sequence number for current year
+                int currentYear = DateTime.Now.Year;
+                int nextSequence = await _dataService.GetNextReceiptSequenceAsync(currentYear);
+
                 var newReceipt = new Sklad_2.Models.Receipt
                 {
                     SaleDate = DateTime.Now,
+                    ReceiptYear = currentYear,
+                    ReceiptSequence = nextSequence,
                     TotalAmount = Receipt.GrandTotal,
                     PaymentMethod = GetPaymentMethodString(paymentMethod),
                     Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
                     ShopName = settings.ShopName,
                     ShopAddress = settings.ShopAddress,
+                    SellerName = _authService.CurrentRole,  // Store who performed the sale
                     CompanyId = settings.CompanyId,
                     VatId = settings.VatId,
                     IsVatPayer = settings.IsVatPayer,
@@ -265,6 +305,115 @@ namespace Sklad_2.ViewModels
                 PaymentMethod.Card => "Kartou",
                 _ => "Neznámá",
             };
+        }
+
+        [RelayCommand]
+        private async Task CancelLastReceiptAsync()
+        {
+            if (LastCreatedReceipt == null) return;
+
+            try
+            {
+                var receiptId = LastCreatedReceipt.ReceiptId;
+                var totalAmount = LastCreatedReceipt.TotalAmount;
+                var paymentMethod = LastCreatedReceipt.PaymentMethod;
+
+                // 1. Get full receipt from DB with items
+                var originalReceipt = await _dataService.GetReceiptByIdAsync(receiptId);
+                if (originalReceipt == null || originalReceipt.Items == null)
+                {
+                    CheckoutFailed?.Invoke(this, "Chyba: Účtenka nebyla nalezena v databázi.");
+                    return;
+                }
+
+                // 2. Return products to stock
+                var productsToUpdate = new List<Product>();
+                foreach (var item in originalReceipt.Items)
+                {
+                    var product = await _dataService.GetProductAsync(item.ProductEan);
+                    if (product != null)
+                    {
+                        product.StockQuantity += item.Quantity;
+                        productsToUpdate.Add(product);
+                    }
+                }
+
+                // 3. Update products in DB
+                foreach (var product in productsToUpdate)
+                {
+                    await _dataService.UpdateProductAsync(product);
+                }
+
+                // 4. Create STORNO receipt (new receipt with negative values)
+                var stornoItems = new ObservableCollection<Sklad_2.Models.ReceiptItem>();
+                foreach (var item in originalReceipt.Items)
+                {
+                    stornoItems.Add(new Sklad_2.Models.ReceiptItem
+                    {
+                        ProductEan = item.ProductEan,
+                        ProductName = item.ProductName,
+                        Quantity = -item.Quantity,  // NEGATIVE quantity
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = -item.TotalPrice,  // NEGATIVE total
+                        VatRate = item.VatRate,
+                        PriceWithoutVat = -item.PriceWithoutVat,  // NEGATIVE
+                        VatAmount = -item.VatAmount  // NEGATIVE
+                    });
+                }
+
+                // Get next receipt sequence number for storno receipt
+                int currentYear = DateTime.Now.Year;
+                int nextSequence = await _dataService.GetNextReceiptSequenceAsync(currentYear);
+
+                var stornoReceipt = new Sklad_2.Models.Receipt
+                {
+                    SaleDate = DateTime.Now,
+                    ReceiptYear = currentYear,
+                    ReceiptSequence = nextSequence,
+                    TotalAmount = -originalReceipt.TotalAmount,  // NEGATIVE
+                    PaymentMethod = originalReceipt.PaymentMethod,
+                    Items = stornoItems,
+                    ShopName = originalReceipt.ShopName,
+                    ShopAddress = originalReceipt.ShopAddress,
+                    SellerName = _authService.CurrentRole,  // Who performed the cancellation
+                    CompanyId = originalReceipt.CompanyId,
+                    VatId = originalReceipt.VatId,
+                    IsVatPayer = originalReceipt.IsVatPayer,
+                    TotalAmountWithoutVat = -originalReceipt.TotalAmountWithoutVat,  // NEGATIVE
+                    TotalVatAmount = -originalReceipt.TotalVatAmount,  // NEGATIVE
+                    ReceivedAmount = originalReceipt.ReceivedAmount,
+                    ChangeAmount = originalReceipt.ChangeAmount,
+                    IsStorno = true,  // Mark as STORNO
+                    OriginalReceiptId = receiptId  // Link to original
+                };
+
+                // 5. Save storno receipt to DB
+                await _dataService.SaveReceiptAsync(stornoReceipt);
+
+                // 6. Remove from cash register (only for cash payments)
+                if (paymentMethod == "Hotově")
+                {
+                    await _cashRegisterService.RecordEntryAsync(
+                        EntryType.Return,
+                        totalAmount,
+                        $"Storno účtenky #{receiptId}");
+                    CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(
+                        new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
+                }
+
+                // 7. Clear last receipt reference
+                LastCreatedReceipt = null;
+
+                // 8. Notify UI
+                ReceiptCancelled?.Invoke(this, $"Účtenka #{receiptId} byla stornována.\n\n" +
+                    $"Vytvořena storno účtenka #{stornoReceipt.ReceiptId} s negativními hodnotami.\n" +
+                    $"Produkty vráceny do skladu, částka {totalAmount:C} odečtena z pokladny.\n\n" +
+                    $"Obě účtenky zůstávají v historii pro audit.");
+            }
+            catch (Exception ex)
+            {
+                CheckoutFailed?.Invoke(this, $"Chyba při rušení účtenky: {ex.Message}");
+            }
         }
     }
 }

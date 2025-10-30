@@ -63,7 +63,12 @@ namespace Sklad_2
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
             // ViewModels
-            services.AddSingleton<ProdejViewModel>();
+            services.AddSingleton<ProdejViewModel>(sp => new ProdejViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IReceiptService>(),
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<ICashRegisterService>(),
+                sp.GetRequiredService<IAuthService>()));
             services.AddSingleton<PrijemZboziViewModel>();
             services.AddSingleton<DatabazeViewModel>();
             services.AddSingleton<NastaveniViewModel>();

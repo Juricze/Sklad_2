@@ -14,7 +14,7 @@
                 <NavigationViewItem Content="Naskladnění" Tag="Naskladneni" Icon="Add"/>
                 <NavigationViewItem Content="Vratky" Tag="Vratky" Icon="Undo"/>
                 <NavigationViewItem Content="Pokladna" Tag="Pokladna" Icon="Calculator"/>
-                <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder">
+                <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder" SelectsOnInvoked="False">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Produkty (Přehled)" Tag="Produkty" Icon="Document"/>
                         <NavigationViewItem Content="Nový produkt" Tag="NovyProdukt" Icon="Add"/>
@@ -115,9 +115,7 @@
                     <NavigationViewItem x:ConnectionId='3' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
                 </StackPanel>
             </NavigationView.PaneFooter>
-            <Frame x:ConnectionId='18' x:Name="ContentFrame">
-                <views:ProdejPage/>
-            </Frame>
+            <Frame x:ConnectionId='18' x:Name="ContentFrame"/>
         </NavigationView>
     </Grid>
 </Window>

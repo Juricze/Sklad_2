@@ -14,8 +14,10 @@ namespace Sklad_2.Views
 
         public VratkyPage()
         {
-            this.InitializeComponent();
+            // IMPORTANT: ViewModel must be set BEFORE InitializeComponent() for x:Bind to work properly
             ViewModel = (Application.Current as App).Services.GetRequiredService<VratkyViewModel>();
+
+            this.InitializeComponent();
         }
 
         private async void ReceiptIdTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)

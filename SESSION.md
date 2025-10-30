@@ -1307,12 +1307,470 @@ V minulé session byla přidána sekce s odkazem na GitHub, ale uživatel požad
 
 ## 📝 TODO pro příště
 
-- [ ] Implementovat Historie pokladny s filtry (denní/týdenní/měsíční)
+- [x] Implementovat Historie pokladny s filtry (denní/týdenní/měsíční) ✅
+- [x] Implementovat dynamickou správu kategorií přes UI ✅
+  - CategoriesPanel v NastaveniPage (přidat/přejmenovat/smazat)
+  - ProductCategories.cs dynamicky načítá z AppSettings.Categories
 - [ ] Přidat export uzavírek do CSV/PDF
-- [ ] Implementovat dynamickou správu kategorií přes UI (zatím hard-coded v ProductCategories.cs)
-- [ ] Respektovat "Plátce DPH" přepínač v účtenkách a dialogech
+- [ ] Respektovat "Plátce DPH" přepínač v tisku účtenek
+  - PrintService je zatím placeholder (tisk není implementován)
 - [ ] Vylepšit error handling (lokalizované chybové hlášky)
-- [ ] Opravit hover na nekliknutých tlačítkách (pokud bude potřeba)
+- [ ] Scanner integrace (skutečná detekce)
+- [ ] Implementovat skutečný PrintService (nahradit placeholder)
+
+---
+
+**Konec session** 🎉
+
+---
+
+# Session Log - Aktualizace TODO stavu
+
+**Datum:** 28. říjen 2025
+**Trvání:** 5 minut
+**Status:** ✅ OVĚŘENO
+
+---
+
+## 🎯 Úkol
+
+Zkontrolovat aktuální stav projektu a ověřit, co je hotové podle TODO listu.
+
+---
+
+## ✅ Zjištění
+
+### Nově dokončené funkce (objeveno při kontrole):
+
+1. **Historie pokladny s filtry** ✅
+   - `Views/CashRegisterHistoryPage.xaml` existuje
+   - Filtry: denní, týdenní, měsíční, vlastní
+   - ViewModel: `CashRegisterHistoryViewModel`
+
+2. **Dynamická správa kategorií** ✅
+   - `Views/NastaveniPage.xaml` - CategoriesPanel (řádek 294-380)
+   - UI funkce:
+     - Přidat novou kategorii
+     - Přejmenovat existující kategorii (automaticky aktualizuje produkty)
+     - Smazat kategorii (ochrana proti smazání používané kategorie)
+   - ViewModel: `CategoryManagementViewModel` (alias `CategoryVM`)
+   - Backend:
+     - `Models/Settings/AppSettings.cs` - `Categories` property
+     - `Models/ProductCategories.cs` - dynamicky načítá z AppSettings (řádky 10-43)
+     - Fallback na defaultní kategorie pokud service nedostupný
+
+### Zbývá implementovat:
+
+1. **Export uzavírek do CSV/PDF** ⏳
+   - Žádný export kód nenalezen
+
+2. **Respektovat "Plátce DPH" v tisku** ⏳
+   - `PrintService.cs` je placeholder (řádky 8-36)
+   - Metody `PrintReceiptAsync()` a `TestPrintAsync()` pouze simulují úspěch
+   - Nerespektuje `AppSettings.IsVatPayer`
+
+3. **Error handling** ⏳
+   - Exception messages zatím anglické
+   - Chybí user-friendly error dialogy
+
+4. **Scanner integrace** ⏳
+   - `AppSettings.ScannerPath` existuje, ale žádná detekce
+   - StatusBarViewModel zobrazuje vždy "Odpojen"
+
+5. **Tisk - pokročilé funkce** ⏳
+   - Žádná skutečná detekce připojení tiskárny
+   - PrintService je prázdný placeholder
+
+---
+
+## 📊 Aktuální stav projektu
+
+**Hotovo:** 8/13 hlavních funkcí (61%)
+
+### ✅ Implementováno:
+1. Role-based UI restrictions
+2. Databáze produktů - vylepšení
+3. Status Bar (Informační panel)
+4. Dashboard prodejů
+5. Denní otevírka/uzavírka pokladny
+6. DPH systém (konfigurace)
+7. **Historie pokladny** (nově ověřeno)
+8. **Dynamická správa kategorií** (nově ověřeno)
+
+### ⏳ Zbývá:
+1. Export (CSV/PDF)
+2. Respektovat Plátce DPH v tisku
+3. Error handling
+4. Scanner integrace
+5. Implementace skutečného PrintService
+
+---
+
+**Konec session** 🎉
+
+---
+
+# Session Log - PPD Compliance & Professional Storno System
+
+**Datum:** 30. říjen 2025
+**Trvání:** ~4 hodiny
+**Status:** ✅ HOTOVO
+
+---
+
+## 🎯 Zadání
+
+### 1. Oprava navigace a x:Bind problémů
+- Opravit problém s navigací: "DATABAZE" klikatelná, ale nemá být
+- Problém: Po startu tlačítko MINUS nefunguje, až po opětovném kliknutí na menu PRODEJ
+
+### 2. Oprava ukládání hesla pro roli "Prodej"
+- Heslo se neukládalo kvůli TwoWay binding problémům s PasswordBox
+
+### 3. Storno prodeje
+- Implementovat "Zrušit poslední prodej" přímo na stránce Prodej
+- Vrátit produkty do skladu, částku z pokladny, vytvořit storno účtenku
+
+### 4. PPD Compliance (Primární pokladní doklad)
+- Přidat identifikaci prodavače do Receipt modelu
+- Upravit čísla účtenek na profesionální formát: **2025/0001**
+- Implementovat **profesionální storno systém** (místo mazání)
+- Přidat **export do HTML/PDF** pro Finanční úřad
+
+---
+
+## 📋 Implementované změny
+
+### 1. Identifikace prodavače (SellerName)
+
+**Models/Receipt.cs:**
+```csharp
+[ObservableProperty]
+private string sellerName;  // "Admin" or "Prodej"
+```
+
+**ProdejViewModel.cs:**
+```csharp
+private readonly IAuthService _authService;
+
+var newReceipt = new Receipt
+{
+    SellerName = _authService.CurrentRole,  // Ukládá aktuální roli
+    // ...
+};
+```
+
+---
+
+### 2. Formátované čísla účtenek (2025/0001)
+
+**Models/Receipt.cs:**
+```csharp
+[ObservableProperty]
+private int receiptYear;  // 2025
+
+[ObservableProperty]
+private int receiptSequence;  // 1, 2, 3...
+
+public string FormattedReceiptNumber => $"{ReceiptYear}/{ReceiptSequence:D4}";  // 2025/0001
+```
+
+**Services:**
+```csharp
+Task<int> GetNextReceiptSequenceAsync(int year);
+
+// Získá nejvyšší sequence pro daný rok a přičte 1
+var maxSequence = await context.Receipts
+                               .Where(r => r.ReceiptYear == year)
+                               .MaxAsync(r => (int?)r.ReceiptSequence);
+return (maxSequence ?? 0) + 1;
+```
+
+**Výsledek:**
+- 2025/0001, 2025/0002, ...
+- 2026/0001 (nový rok = reset)
+
+---
+
+### 3. Profesionální storno systém
+
+**Původní:** Mazání účtenky ❌ NELEGÁLNÍ
+**Nový:** Vytvoření storno účtenky s **negativními hodnotami** ✅ LEGÁLNÍ
+
+**Models/Receipt.cs:**
+```csharp
+[ObservableProperty]
+private bool isStorno;
+
+[ObservableProperty]
+private int? originalReceiptId;  // Odkaz na původní účtenku
+```
+
+**ProdejViewModel.cs - CancelLastReceiptAsync():**
+```csharp
+// 1. Načte původní účtenku
+var originalReceipt = await _dataService.GetReceiptByIdAsync(receiptId);
+
+// 2. Vrátí produkty do skladu
+product.StockQuantity += item.Quantity;
+
+// 3. Vytvoří STORNO účtenku s NEGATIVNÍMI hodnotami
+var stornoReceipt = new Receipt
+{
+    TotalAmount = -originalReceipt.TotalAmount,  // -500 Kč
+    Items = stornoItems,  // Záporná množství
+    IsStorno = true,
+    OriginalReceiptId = receiptId,
+    ReceiptYear = currentYear,
+    ReceiptSequence = nextSequence  // Pokračuje v číselné řadě!
+};
+
+// 4. Uloží storno účtenku (NEMAZÁNÍ!)
+await _dataService.SaveReceiptAsync(stornoReceipt);
+```
+
+**Příklad:**
+```
+Účtenka č. 2025/0007  - 500 Kč     (normální)
+❌ Účtenka č. 2025/0008  - -500 Kč  (storno č. 7)
+Účtenka č. 2025/0009  - 350 Kč     (nový prodej)
+```
+
+**UI (UctenkyPage):**
+- Červená ikona ❌ + červená částka
+- Warning banner: "STORNO ÚČTENKA - stornuje č. 2025/0007"
+
+---
+
+### 4. Export do HTML/PDF pro FÚ
+
+**Umístění:** Nastavení → Systém → "Export pro Finanční úřad"
+
+**Features:**
+- Výběr datového rozsahu (Od/Do)
+- Generování HTML tabulky se všemi účtenkami
+- Informace o firmě (IČ, DIČ, plátce DPH)
+- Souhrn za období (počet, celkem, DPH)
+- Automatické otevření v prohlížeči
+- Uložení do `Documents/Sklad_2_Exports/`
+- Možnost vytisknout (Ctrl+P) nebo uložit jako PDF
+
+**NastaveniViewModel.cs:**
+```csharp
+[RelayCommand]
+private async Task ExportReceiptsToHtmlAsync()
+{
+    var receipts = await _dataService.GetReceiptsAsync(startDate, endDate);
+    var html = GenerateReceiptsHtml(receipts, startDate, endDate);
+
+    var filePath = Path.Combine(documentsPath, "Sklad_2_Exports", fileName);
+    File.WriteAllText(filePath, html);
+
+    // Otevře v prohlížeči
+    Process.Start(new ProcessStartInfo { FileName = filePath, UseShellExecute = true });
+}
+```
+
+**HTML tabulka obsahuje:**
+- Číslo účtenky (formát 2025/0001)
+- Datum a čas
+- Prodavač
+- Způsob platby
+- Celkem / Základ / DPH
+- Storno účtenky červeně
+
+---
+
+### 5. Opravy navigace a x:Bind
+
+**Problém:** 8 stránek mělo ViewModel inicializovaný **PO** `InitializeComponent()` → x:Bind nefungovalo správně
+
+**Opravené stránky:**
+1. ProdejPage
+2. NastaveniPage
+3. CashRegisterHistoryPage
+4. NovyProduktPage
+5. PrijemZboziPage
+6. UctenkyPage
+7. VratkyPage
+8. VratkyPrehledPage
+
+**Řešení:**
+```csharp
+public ProdejPage()
+{
+    // IMPORTANT: ViewModel must be set BEFORE InitializeComponent()
+    ViewModel = (Application.Current as App).Services.GetRequiredService<ProdejViewModel>();
+
+    this.InitializeComponent();  // x:Bind nyní funguje správně
+}
+```
+
+---
+
+## 🐛 Problémy a řešení
+
+### Problém 1: MINUS tlačítko nefungovalo po startu
+**4 příčiny:**
+1. Hardcoded ProdejPage v Frame XAML
+2. ViewModel po InitializeComponent()
+3. Quantity změna neaktualizovala CanExecute
+4. Page načtena příliš brzy
+
+**Řešení:** Odstranění hardcoded page, ViewModel před Init, PropertyChanged listener, Frame.Loaded event
+
+---
+
+### Problém 2: PasswordBox binding
+**Příčina:** WinUI security - Password property je write-only
+
+**Řešení:** Event handlers místo x:Bind
+
+---
+
+### Problém 3: Databáze chyba
+**Příčina:** Nové sloupce v Receipt (SellerName, ReceiptYear, etc.), ale stará databáze
+
+**Řešení:** Smazat `%LocalAppData%\Sklad_2_Data\sklad.db` (žádné migrace podle projektu)
+
+---
+
+## ✅ PPD Compliance Status
+
+**✅ Máme:**
+- Číslo účtenky (2025/0001)
+- Datum a čas
+- Položky produktů (název, množství, cena, DPH)
+- Celková částka, DPH rozpad
+- Způsob platby
+- **Identifikace prodavače**
+- Údaje o firmě (IČ, DIČ)
+- **Profesionální storno** (negativní hodnoty)
+- **Export do HTML/PDF**
+
+**⏳ Chybí:**
+- Systém uživatelských účtů (zatím jen role Admin/Prodej)
+- Skutečný tisk účtenek (PrintService je placeholder)
+- Fiskální tiskárna (volitelné)
+
+---
+
+## 📝 TODO pro příště
+
+### 🔴 **PRIORITNÍ - UI vylepšení pro Neplátce DPH**
+- [ ] **Skrýt panel "Sazby DPH"** v Nastavení když `IsVatPayer = false`
+- [ ] **Zjednodušit formulář nového produktu** - nevyžadovat výběr sazby DPH pro neplátce
+- [ ] **Skrýt DPH informace v statistikách** (Přehled prodejů, KPI karty)
+- [ ] **Skrýt VAT sloupce v přehledech** produktů pro neplátce
+- [ ] **Zvážit skrytí správy kategorií** pro neplátce (upřesnit s uživatelem)
+- [ ] **Vše navázat na trigger** `IsVatPayer` - dynamické zobrazení/skrytí prvků
+- [ ] Testovat přepínání mezi Plátce/Neplátce a správné zobrazení UI
+
+### 🔴 **PRIORITNÍ - Systém uživatelských účtů**
+- [ ] Implementovat databázovou tabulku Users
+- [ ] Nahradit fixed roles (Admin/Prodej) skutečnými uživateli
+- [ ] Každý prodavač vlastní login + jméno
+- [ ] Role/oprávnění per uživatel
+- [ ] SellerName bude skutečné jméno místo "Prodej"
+
+### ⏳ **Sekundární:**
+- [ ] Export uzavírek do CSV/PDF
+- [ ] Skutečný PrintService (tisk na běžnou tiskárnu)
+- [ ] Respektovat "Plátce DPH" v tisku
+- [ ] Scanner integrace
+- [ ] Vylepšit error handling
+
+---
+
+**Konec session** 🎉
+
+---
+
+# Session Log - TODO Update & FÚ Requirements Clarification
+
+**Datum:** 31. říjen 2025
+**Trvání:** ~15 minut
+**Status:** ✅ HOTOVO
+
+---
+
+## 🎯 Zadání
+
+Pokračování z předchozí session - dokončit aktualizaci TODO listu a objasnit požadavky FÚ (Finanční úřad) pro neplátce DPH.
+
+---
+
+## 📋 Provedené změny
+
+### 1. Aktualizace SESSION.md TODO
+
+Přidána nová prioritní sekce pro UI vylepšení pro neplátce DPH:
+
+```markdown
+### 🔴 **PRIORITNÍ - UI vylepšení pro Neplátce DPH**
+- [ ] **Skrýt panel "Sazby DPH"** v Nastavení když `IsVatPayer = false`
+- [ ] **Zjednodušit formulář nového produktu** - nevyžadovat výběr sazby DPH pro neplátce
+- [ ] **Skrýt DPH informace v statistikách** (Přehled prodejů, KPI karty)
+- [ ] **Skrýt VAT sloupce v přehledech** produktů pro neplátce
+- [ ] **Zvážit skrytí správy kategorií** pro neplátce (upřesnit s uživatelem)
+- [ ] **Vše navázat na trigger** `IsVatPayer` - dynamické zobrazení/skrytí prvků
+- [ ] Testovat přepínání mezi Plátce/Neplátce a správné zobrazení UI
+```
+
+**Důvod:** Uživatel chce optimalizovat aplikaci pro režim neplátce DPH - skrýt všechny DPH-related prvky UI když nejsou potřeba.
+
+---
+
+## 💬 Diskuze - Požadavky FÚ pro neplátce DPH
+
+### Otázka 1: Faktury od dodavatelů
+**Uživatel:** "Nestačí si prostě jen uchovat papírovou formu Faktury od dodavatele?"
+
+**Odpověď:** ✅ **Ano, úplně stačí!**
+- Papírové faktury v archivaci (šanony podle měsíců/let)
+- FÚ akceptuje papírovou formu
+- Doporučení: Vést si evidenci nákupů (třeba sešit) pro kontrolu ziskovosti a inventury
+- **Není nutné mít v aplikaci** (ale může pomoct)
+
+### Otázka 2: Inventury
+**Uživatel:** "Inventury - to se mi zdá také na papír ne?"
+
+**Odpověď:** ✅ **Ano, v pořádku!**
+- Inventura na papír je platná
+- Projít sklad, spočítat kusy, zapsat
+- FÚ to akceptuje (hlavně správné datum + podpis)
+- Pak upravit stavy v aplikaci (DatabazePage)
+- Pro malý obchod/sklad naprosto dostačující
+
+### Shrnutí - Co má uživatel hotové
+
+**✅ V aplikaci:**
+- Prodeje (účtenky s DPH rozpadem)
+- Pokladna (denní otevírka/uzavírka)
+- Profesionální storno systém
+- Export pro FÚ (HTML/PDF)
+- Evidence produktů (sklad)
+
+**✅ Papírově:**
+- Faktury od dodavatelů
+- Inventury
+
+**Závěr:** Pro neplátce DPH je to **úplně dostačující setup**! 👍
+
+---
+
+## 📊 Statistiky
+
+- **Soubory změněny:** 1 (SESSION.md)
+- **Řádky přidáno:** ~15 (TODO items)
+- **Otázky zodpovězeno:** 4
+- **Trvání:** 15 minut
+
+---
+
+## 📝 TODO pro příště
+
+- Viz aktualizovaný TODO list výše (UI vylepšení pro neplátce DPH)
 
 ---
 

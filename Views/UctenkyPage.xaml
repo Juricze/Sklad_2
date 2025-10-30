@@ -73,8 +73,14 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{x:Bind SaleDateFormatted}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountFormatted}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                                <Run Text="{x:Bind StornoIndicator}"/>
+                                <Run Text="{x:Bind SaleDateFormatted}"/>
+                            </TextBlock>
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind TotalAmountFormatted}"
+                                       VerticalAlignment="Center"
+                                       Foreground="{x:Bind IsStorno, Converter={StaticResource BooleanToStornoBrushConverter}}"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
@@ -90,13 +96,31 @@
             <ScrollViewer>
                 <StackPanel Spacing="12" Padding="12">
                     <TextBlock Text="Detail účtenky" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <!-- Storno Warning Banner -->
+                    <Border Background="#FFEBEE"
+                            BorderBrush="#FF3B30"
+                            BorderThickness="2"
+                            CornerRadius="4"
+                            Padding="12"
+                            Visibility="{x:Bind ViewModel.SelectedReceipt.IsStorno, Mode=OneWay}">
+                        <StackPanel Spacing="4">
+                            <TextBlock FontWeight="Bold" Foreground="#FF3B30">
+                                <Run Text="❌ STORNO ÚČTENKA"/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
+                                <Run Text="Tato účtenka stornuje původní účtenku č."/>
+                                <Run Text="{x:Bind ViewModel.SelectedReceipt.OriginalReceiptId, Mode=OneWay}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Číslo účtenky:" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.ReceiptId, Mode=OneWay}"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.FormattedReceiptNumber, Mode=OneWay}"/>
                     </Grid>
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
@@ -113,6 +137,14 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Platba:" FontWeight="Bold"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.PaymentMethod, Mode=OneWay}"/>
+                    </Grid>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Prodavač:" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedReceipt.SellerName, Mode=OneWay}"/>
                     </Grid>
 
                     <ListView ItemsSource="{x:Bind ViewModel.SelectedReceipt.Items, Mode=OneWay}" Margin="0,12,0,0" SelectionMode="None">
