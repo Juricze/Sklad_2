@@ -1,4 +1,5 @@
 <Page
+    x:Name="page"
     x:Class="Sklad_2.Views.DatabazePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -52,7 +53,7 @@
                     <Button Grid.Column="1" Content="Název ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
                     <TextBlock Grid.Column="2" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="3" Content="Skladem ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
-                    <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBlock Grid.Column="5" Text="Nákupní cena" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="6" Content="Prodejní cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
                 </Grid>
@@ -73,7 +74,7 @@
                         <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="{x:Bind Category}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="3" Text="{x:Bind StockQuantity}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="{x:Bind VatRateFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="{x:Bind VatRateFormatted, Mode=OneWay}" VerticalAlignment="Center" Visibility="{Binding ViewModel.IsVatPayer, ElementName=page, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <TextBlock Grid.Column="5" Text="{x:Bind PurchasePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="6" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
                     </Grid>

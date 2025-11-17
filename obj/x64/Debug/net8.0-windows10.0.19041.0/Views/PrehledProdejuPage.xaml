@@ -45,27 +45,27 @@
 
                 <!-- Filter Buttons -->
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <RadioButton x:ConnectionId='37' Content="Celkem"
+                    <RadioButton x:ConnectionId='40' Content="Celkem"
                                                                                                                                                                       
                                                                               
                                  CommandParameter="All"
                                  Style="{StaticResource ToggleButtonStyle}"/>
-                    <RadioButton x:ConnectionId='38' Content="Dnešní"
+                    <RadioButton x:ConnectionId='41' Content="Dnešní"
                                                                                                                                                                         
                                                                               
                                  CommandParameter="Daily"
                                  Style="{StaticResource ToggleButtonStyle}"/>
-                    <RadioButton x:ConnectionId='39' Content="Týdenní"
+                    <RadioButton x:ConnectionId='42' Content="Týdenní"
                                                                                                                                                                          
                                                                               
                                  CommandParameter="Weekly"
                                  Style="{StaticResource ToggleButtonStyle}"/>
-                    <RadioButton x:ConnectionId='40' Content="Měsíční"
+                    <RadioButton x:ConnectionId='43' Content="Měsíční"
                                                                                                                                                                           
                                                                               
                                  CommandParameter="Monthly"
                                  Style="{StaticResource ToggleButtonStyle}"/>
-                    <RadioButton x:ConnectionId='41' Content="Vlastní"
+                    <RadioButton x:ConnectionId='44' Content="Vlastní"
                                                                                                                                                                          
                                                                               
                                  CommandParameter="Custom"
@@ -73,11 +73,11 @@
                 </StackPanel>
 
                 <!-- Custom Date Range -->
-                <StackPanel x:ConnectionId='33' Orientation="Horizontal" Spacing="12"
+                <StackPanel x:ConnectionId='36' Orientation="Horizontal" Spacing="12"
                                                                                                                                                                         >
-                    <DatePicker x:ConnectionId='34' Header="Od"                                                 />
-                    <DatePicker x:ConnectionId='35' Header="Do"                                               />
-                    <Button x:ConnectionId='36' Content="Načíst data" VerticalAlignment="Bottom"                                                   Style="{StaticResource AccentButtonStyle}"/>
+                    <DatePicker x:ConnectionId='37' Header="Od"                                                 />
+                    <DatePicker x:ConnectionId='38' Header="Do"                                               />
+                    <Button x:ConnectionId='39' Content="Načíst data" VerticalAlignment="Bottom"                                                   Style="{StaticResource AccentButtonStyle}"/>
                 </StackPanel>
             </StackPanel>
 
@@ -95,9 +95,9 @@
                     <StackPanel Spacing="8">
                         <FontIcon Glyph="&#xE7BF;" Style="{StaticResource KpiIconStyle}"/>
                         <TextBlock Text="Celkové tržby" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
-                        <TextBlock x:ConnectionId='31'                                                                  Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
+                        <TextBlock x:ConnectionId='34'                                                                  Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
                         <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999">
-                            <Run x:ConnectionId='32'                                                        />
+                            <Run x:ConnectionId='35'                                                        />
                             <Run Text=" účtenek"/>
                         </TextBlock>
                     </StackPanel>
@@ -108,27 +108,27 @@
                     <StackPanel Spacing="8">
                         <FontIcon Glyph="&#xE8A1;" Style="{StaticResource KpiIconStyle}" Foreground="#34C759"/>
                         <TextBlock Text="Průměrný prodej" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
-                        <TextBlock x:ConnectionId='30'                                                                   Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
+                        <TextBlock x:ConnectionId='33'                                                                   Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
                         <TextBlock Text="na účtenku" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                     </StackPanel>
                 </Border>
 
                 <!-- VAT Amount -->
-                <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}">
+                <Border x:ConnectionId='28' Grid.Column="2" Style="{StaticResource KpiCardStyle}"                                                                                                                 >
                     <StackPanel Spacing="8">
                         <FontIcon Glyph="&#xE8A9;" Style="{StaticResource KpiIconStyle}" Foreground="#FF9500"/>
                         <TextBlock Text="Celkem DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
-                        <TextBlock x:ConnectionId='28'                                                                Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
-                        <TextBlock x:ConnectionId='29'                                                                            Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
+                        <TextBlock x:ConnectionId='31'                                                                Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
+                        <TextBlock x:ConnectionId='32'                                                                            Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Net Amount -->
-                <Border Grid.Column="3" Style="{StaticResource KpiCardStyle}">
+                <Border x:ConnectionId='29' Grid.Column="3" Style="{StaticResource KpiCardStyle}"                                                                                                                 >
                     <StackPanel Spacing="8">
                         <FontIcon Glyph="&#xE7C3;" Style="{StaticResource KpiIconStyle}" Foreground="#AF52DE"/>
                         <TextBlock Text="Bez DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#666666"/>
-                        <TextBlock x:ConnectionId='27'                                                                            Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#AF52DE"/>
+                        <TextBlock x:ConnectionId='30'                                                                            Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#AF52DE"/>
                         <TextBlock Text="čistá tržba" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                     </StackPanel>
                 </Border>
@@ -152,7 +152,7 @@
                             </Grid.ColumnDefinitions>
                             <FontIcon Grid.Column="0" Glyph="&#xE787;" FontSize="48" Foreground="#007AFF" Margin="0,0,16,0"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock x:ConnectionId='26'                                                                    Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
+                                <TextBlock x:ConnectionId='27'                                                                    Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#007AFF"/>
                                 <TextBlock Text="průměrně denně" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                             </StackPanel>
                         </Grid>
@@ -169,14 +169,14 @@
                             </Grid.ColumnDefinitions>
                             <FontIcon Grid.Column="0" Glyph="&#xE8A1;" FontSize="48" Foreground="#34C759" Margin="0,0,16,0"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock x:ConnectionId='25'                                                         Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
+                                <TextBlock x:ConnectionId='26'                                                         Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#34C759"/>
                                 <TextBlock Text="celkem prodejů" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="20">
+                <Border x:ConnectionId='24' Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="20"                                                                                                                 >
                     <StackPanel Spacing="12">
                         <TextBlock Text="💰 DPH Info" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
                         <Grid>
@@ -186,7 +186,7 @@
                             </Grid.ColumnDefinitions>
                             <FontIcon Grid.Column="0" Glyph="&#xE8A9;" FontSize="48" Foreground="#FF9500" Margin="0,0,16,0"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock x:ConnectionId='24'                                                                Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
+                                <TextBlock x:ConnectionId='25'                                                                Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="#FF9500"/>
                                 <TextBlock Text="celkem DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="#999999"/>
                             </StackPanel>
                         </Grid>

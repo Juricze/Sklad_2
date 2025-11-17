@@ -58,42 +58,39 @@
             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
             <!-- Položky -->
-            <ListView x:ConnectionId='2'                                                          SelectionMode="None">
-                <ListView.HeaderTemplate>
-                    <DataTemplate>
-                        <Grid Padding="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
-                            <TextBlock Grid.Column="2" Text="Vráceno celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.HeaderTemplate>
-                <ListView.ItemTemplate>
+            <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
+                <TextBlock x:ConnectionId='18' Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
+                                                                                                                                                />
+                <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
+            </Grid>
+            <ItemsRepeater x:ConnectionId='2'                                                         >
+                <ItemsRepeater.ItemTemplate>
                     <DataTemplate                               >
-                        <StackPanel x:ConnectionId='13' Padding="8">
+                        <StackPanel x:ConnectionId='12' Padding="8">
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:ConnectionId='16' Grid.Column="0"                            />
-                                <TextBlock x:ConnectionId='17' Grid.Column="1"                                              
-                                           Visibility="{Binding ReturnDocument.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <TextBlock x:ConnectionId='18' Grid.Column="2"                                                   FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                <TextBlock x:ConnectionId='15' Grid.Column="0"                            />
+                                <TextBlock x:ConnectionId='16' Grid.Column="1"                                              
+                                           Visibility="{Binding IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock x:ConnectionId='17' Grid.Column="2"                                                   FontWeight="SemiBold" HorizontalAlignment="Right"/>
                             </Grid>
                             <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
-                                <Run x:ConnectionId='14'                                 /><Run Text=" ks x "/><Run x:ConnectionId='15'                                                />
+                                <Run x:ConnectionId='13'                                 /><Run Text=" ks x "/><Run x:ConnectionId='14'                                                />
                             </TextBlock>
                         </StackPanel>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
 
             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 

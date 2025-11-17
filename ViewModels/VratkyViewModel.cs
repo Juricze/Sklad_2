@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
@@ -15,6 +17,9 @@ namespace Sklad_2.ViewModels
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
         private readonly ICashRegisterService _cashRegisterService;
+        private readonly IMessenger _messenger;
+
+        public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
         [ObservableProperty]
         private string receiptIdToSearch;
@@ -49,11 +54,18 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return lastCreatedReturn;
 
-        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService)
+        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IMessenger messenger)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _cashRegisterService = cashRegisterService;
+            _messenger = messenger;
+
+            // Listen for settings changes to update IsVatPayer property
+            _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
+            {
+                OnPropertyChanged(nameof(IsVatPayer));
+            });
         }
 
         [RelayCommand]

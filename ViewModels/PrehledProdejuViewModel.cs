@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
@@ -13,6 +15,10 @@ namespace Sklad_2.ViewModels
     public partial class PrehledProdejuViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly ISettingsService _settingsService;
+        private readonly IMessenger _messenger;
+
+        public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
         [ObservableProperty]
         private ObservableCollection<Receipt> sales = new ObservableCollection<Receipt>();
@@ -89,11 +95,20 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private ObservableCollection<PaymentMethodStats> paymentMethodStats = new ObservableCollection<PaymentMethodStats>();
 
-        public PrehledProdejuViewModel(IDataService dataService)
+        public PrehledProdejuViewModel(IDataService dataService, ISettingsService settingsService, IMessenger messenger)
         {
             _dataService = dataService;
+            _settingsService = settingsService;
+            _messenger = messenger;
+
             // Set initial date range for "All" filter
             SetDateRangeForFilter(DateFilterType.All);
+
+            // Listen for settings changes to update IsVatPayer property
+            _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
+            {
+                OnPropertyChanged(nameof(IsVatPayer));
+            });
         }
 
         partial void OnSelectedFilterChanged(DateFilterType value)

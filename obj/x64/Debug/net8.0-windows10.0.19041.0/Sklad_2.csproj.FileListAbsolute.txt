@@ -429,7 +429,6 @@ C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialo
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\CardPaymentConfirmationDialog.g.cs
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\CardPaymentConfirmationDialog.xaml
 C:\Dev\Apps\Sklad_2\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\Dialogs\CardPaymentConfirmationDialog.xbf
-C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Internal.FrameworkUdk.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\App.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\LoginWindow.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.xbf
@@ -464,6 +463,7 @@ C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\marshal.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.DirectManipulation.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Graphics.Display.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.InputStateManager.dll
+C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Internal.FrameworkUdk.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.UI.Composition.OSSupport.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.UI.dll
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.UI.Input.dll

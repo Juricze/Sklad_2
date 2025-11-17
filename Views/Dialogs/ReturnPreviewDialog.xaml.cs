@@ -11,6 +11,7 @@ namespace Sklad_2.Views.Dialogs
     {
         public Return ReturnDocument { get; }
         public ObservableCollection<VatSummary> VatSummaries { get; } = new();
+        public bool IsVatPayer => ReturnDocument?.IsVatPayer ?? false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

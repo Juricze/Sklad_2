@@ -16,11 +16,14 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly IAuthService _authService;
+        private readonly ISettingsService _settingsService;
         private readonly IMessenger _messenger;
         private List<VatConfig> _vatConfigs;
 
         [ObservableProperty]
         private bool isSalesRole;
+
+        public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
         [ObservableProperty]
         private string ean = string.Empty;
@@ -48,10 +51,11 @@ namespace Sklad_2.ViewModels
 
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
-        public NovyProduktViewModel(IDataService dataService, IAuthService authService, IMessenger messenger)
+        public NovyProduktViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger)
         {
             _dataService = dataService;
             _authService = authService;
+            _settingsService = settingsService;
             _messenger = messenger;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
 
@@ -63,6 +67,13 @@ namespace Sklad_2.ViewModels
             _messenger.Register<VatConfigsChangedMessage>(this, (r, m) =>
             {
                 LoadVatConfigsAsync();
+            });
+
+            // Listen for settings changes to update IsVatPayer property
+            _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
+            {
+                OnPropertyChanged(nameof(IsVatPayer));
+                UpdateVatRateForSelectedCategory();
             });
 
             LoadVatConfigsAsync();
@@ -135,11 +146,22 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
-            var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
-            if (vatConfig == null || vatConfig.Rate == 0)
+            // VAT validation - only required for VAT payers
+            decimal vatRateToUse = 0;
+            if (_settingsService.CurrentSettings.IsVatPayer)
             {
-                StatusMessage = $"Pro kategorii '{SelectedCategory}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
-                return;
+                var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+                if (vatConfig == null || vatConfig.Rate == 0)
+                {
+                    StatusMessage = $"Pro kategorii '{SelectedCategory}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
+                    return;
+                }
+                vatRateToUse = (decimal)vatConfig.Rate;
+            }
+            else
+            {
+                // For non-VAT payers, set VAT rate to 0
+                vatRateToUse = 0;
             }
 
             var newProduct = new Product
@@ -150,7 +172,7 @@ namespace Sklad_2.ViewModels
                 SalePrice = salePriceValue,
                 PurchasePrice = purchasePriceValue,
                 StockQuantity = 0, // New products start with 0 stock
-                VatRate = (decimal)this.VatRate
+                VatRate = vatRateToUse
             };
 
             try

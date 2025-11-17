@@ -18,16 +18,16 @@
                 AlwaysShowHeader="False">
                 <NavigationView.MenuItems>
                     <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
-                    <NavigationViewItem Content="Sazby DPH" Tag="VAT"/>
-                    <NavigationViewItem x:ConnectionId='3' Content="Kategorie" Tag="Categories"                                                                                                              />
-                    <NavigationViewItem x:ConnectionId='4' Content="Hesla" Tag="Passwords"                                                                                                              />
+                    <NavigationViewItem x:ConnectionId='3' Content="Sazby DPH" Tag="VAT"                                                                                                                 />
+                    <NavigationViewItem x:ConnectionId='4' Content="Kategorie" Tag="Categories"                                                                                                              />
+                    <NavigationViewItem x:ConnectionId='5' Content="Hesla" Tag="Passwords"                                                                                                              />
                     <NavigationViewItem Content="Systém" Tag="System"/>
                     <NavigationViewItem Content="O aplikaci" Tag="About"/>
                 </NavigationView.MenuItems>
 
                 <Grid Padding="0,12,0,0">
                     <!-- Company Settings Panel -->
-                    <ScrollViewer x:ConnectionId='5' x:Name="CompanySettingsPanel" Visibility="Visible" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='6' x:Name="CompanySettingsPanel" Visibility="Visible" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="Firemní údaje" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
@@ -37,27 +37,27 @@
 
                             <!-- Company Info Form -->
                             <StackPanel Spacing="12" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16" CornerRadius="4">
-                                <TextBox x:ConnectionId='64' Header="Název obchodu"
+                                <TextBox x:ConnectionId='65' Header="Název obchodu"
                                                                                                                                       
                                          PlaceholderText="Např. Můj obchod s.r.o."
                                                                                             />
 
-                                <TextBox x:ConnectionId='65' Header="Adresa"
+                                <TextBox x:ConnectionId='66' Header="Adresa"
                                                                                                                                          
                                          PlaceholderText="Např. Hlavní 123, 110 00 Praha"
                                                                                             />
 
-                                <TextBox x:ConnectionId='66' Header="IČ (Identifikační číslo)"
+                                <TextBox x:ConnectionId='67' Header="IČ (Identifikační číslo)"
                                                                                                                                        
                                          PlaceholderText="Např. 12345678"
                                                                                             />
 
-                                <TextBox x:ConnectionId='67' Header="DIČ (Daňové identifikační číslo)"
+                                <TextBox x:ConnectionId='68' Header="DIČ (Daňové identifikační číslo)"
                                                                                                                                    
                                          PlaceholderText="Např. CZ12345678"
                                                                                             />
 
-                                <ToggleSwitch x:ConnectionId='68' Header="Plátce DPH"
+                                <ToggleSwitch x:ConnectionId='69' Header="Plátce DPH"
                                               OnContent="Ano"
                                               OffContent="Ne"
                                                                                                         
@@ -65,20 +65,20 @@
                             </StackPanel>
 
                             <!-- Save Button -->
-                            <Button x:ConnectionId='61' Content="Uložit firemní údaje"
+                            <Button x:ConnectionId='62' Content="Uložit firemní údaje"
                                                                                        
                                     Style="{StaticResource AccentButtonStyle}"
                                     HorizontalAlignment="Stretch"
                                                                                        />
 
                             <!-- Status Message -->
-                            <Border x:ConnectionId='62' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            <Border x:ConnectionId='63' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
                                     CornerRadius="4"
                                     Padding="12"
                                                                                                                                                              >
-                                <TextBlock x:ConnectionId='63'                                                            
+                                <TextBlock x:ConnectionId='64'                                                            
                                            TextWrapping="Wrap"
                                                                                                                                                                 />
                             </Border>
@@ -86,7 +86,7 @@
                     </ScrollViewer>
 
                     <!-- VAT Settings Panel -->
-                    <ScrollViewer x:ConnectionId='6' x:Name="VatSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='7' x:Name="VatSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="Konfigurace sazeb DPH" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
@@ -100,12 +100,12 @@
                                     <TextBlock Grid.Column="0" Text="Kategorie" FontWeight="SemiBold" />
                                     <TextBlock Grid.Column="1" Text="Sazba DPH (%)" FontWeight="SemiBold" />
                                 </Grid>
-                                <ItemsRepeater x:ConnectionId='56'                                                         >
+                                <ItemsRepeater x:ConnectionId='57'                                                         >
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate                              >
-                                            <Grid x:ConnectionId='58' ColumnDefinitions="*,Auto" Padding="0,12,0,12" VerticalAlignment="Center" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                                <TextBlock x:ConnectionId='59' Grid.Column="0"                              VerticalAlignment="Center" FontSize="14"/>
-                                                <NumberBox x:ConnectionId='60' Grid.Column="1"
+                                            <Grid x:ConnectionId='59' ColumnDefinitions="*,Auto" Padding="0,12,0,12" VerticalAlignment="Center" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                                <TextBlock x:ConnectionId='60' Grid.Column="0"                              VerticalAlignment="Center" FontSize="14"/>
+                                                <NumberBox x:ConnectionId='61' Grid.Column="1"
                                                                                              
                                                            SpinButtonPlacementMode="Compact"
                                                            SmallChange="1"
@@ -121,20 +121,20 @@
                             </StackPanel>
 
                             <!-- Save Button -->
-                            <Button x:ConnectionId='53' Content="Uložit sazby DPH"
+                            <Button x:ConnectionId='54' Content="Uložit sazby DPH"
                                                                                       
                                     Style="{StaticResource AccentButtonStyle}"
                                     HorizontalAlignment="Stretch"
                                                                                        />
 
                             <!-- Status Message -->
-                            <Border x:ConnectionId='54' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            <Border x:ConnectionId='55' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
                                     CornerRadius="4"
                                     Padding="12"
                                                                                                                                                          >
-                                <TextBlock x:ConnectionId='55'                                                        
+                                <TextBlock x:ConnectionId='56'                                                        
                                            TextWrapping="Wrap"
                                                                                                                                                             />
                             </Border>
@@ -142,7 +142,7 @@
                     </ScrollViewer>
 
                     <!-- Password Settings Panel -->
-                    <ScrollViewer x:ConnectionId='7' x:Name="PasswordSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='8' x:Name="PasswordSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="Správa hesel" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
@@ -156,28 +156,28 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Heslo musí být vyplněno a obě pole musí souhlasit.
                                 </TextBlock>
-                                <PasswordBox x:ConnectionId='48' x:Name="NewAdminPasswordBox"
+                                <PasswordBox x:ConnectionId='49' x:Name="NewAdminPasswordBox"
                                              Header="Nové heslo"
                                                                                                   
                                              PlaceholderText="Zadejte nové heslo"/>
-                                <PasswordBox x:ConnectionId='49' x:Name="ConfirmAdminPasswordBox"
+                                <PasswordBox x:ConnectionId='50' x:Name="ConfirmAdminPasswordBox"
                                              Header="Potvrzení nového hesla"
                                                                                                       
                                              PlaceholderText="Zadejte heslo znovu"/>
-                                <Button x:ConnectionId='50' Content="Změnit heslo Admina"
+                                <Button x:ConnectionId='51' Content="Změnit heslo Admina"
                                                                                                
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"/>
 
                                 <!-- Admin Password Status -->
-                                <Border x:ConnectionId='51' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='52' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                 >
-                                    <TextBlock x:ConnectionId='52'                                                           
+                                    <TextBlock x:ConnectionId='53'                                                           
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
@@ -190,24 +190,24 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Ponechte prázdné pro uzamčení role Prodej. Vyplněním hesla povolíte přístup pro tuto roli.
                                 </TextBlock>
-                                <PasswordBox x:ConnectionId='44' x:Name="NewSalePasswordBox"
+                                <PasswordBox x:ConnectionId='45' x:Name="NewSalePasswordBox"
                                              Header="Heslo pro 'Prodej'"
                                                                                                  
                                              PlaceholderText="Ponechte prázdné pro uzamčení"/>
-                                <Button x:ConnectionId='45' Content="Nastavit heslo pro 'Prodej'"
+                                <Button x:ConnectionId='46' Content="Nastavit heslo pro 'Prodej'"
                                                                                               
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"/>
 
                                 <!-- Sale Password Status -->
-                                <Border x:ConnectionId='46' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='47' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                >
-                                    <TextBlock x:ConnectionId='47'                                                          
+                                    <TextBlock x:ConnectionId='48'                                                          
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
@@ -217,7 +217,7 @@
                     </ScrollViewer>
 
                     <!-- System Settings Panel -->
-                    <ScrollViewer x:ConnectionId='8' x:Name="SystemSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='9' x:Name="SystemSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="Systémová nastavení" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
@@ -228,25 +228,25 @@
                             <!-- Printer Section -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Nastavení tiskárny" FontWeight="SemiBold"/>
-                                <TextBox x:ConnectionId='40' Header="Cesta k tiskárně"
+                                <TextBox x:ConnectionId='41' Header="Cesta k tiskárně"
                                                                                                                                          
                                          PlaceholderText="Např. \\server\tiskarna nebo COM1"
                                                                                             />
-                                <Button x:ConnectionId='41' Content="Test tisku"
+                                <Button x:ConnectionId='42' Content="Test tisku"
                                                                                      
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"
                                                                                            />
 
                                 <!-- Printer Status -->
-                                <Border x:ConnectionId='42' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='43' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                    >
-                                    <TextBlock x:ConnectionId='43'                                                              
+                                    <TextBlock x:ConnectionId='44'                                                              
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
@@ -259,7 +259,7 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Zadejte cestu k EAN scanneru nebo COM port. Scanner bude použit pro rychlé skenování produktů.
                                 </TextBlock>
-                                <TextBox x:ConnectionId='39' Header="Cesta k EAN scanneru"
+                                <TextBox x:ConnectionId='40' Header="Cesta k EAN scanneru"
                                                                                                                                          
                                          PlaceholderText="Např. COM2 nebo USB"
                                                                                             />
@@ -271,21 +271,21 @@
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     Zálohujte databázi do složky Dokumenty/Sklad_2_Backups. Záloha obsahuje všechny produkty, účtenky a nastavení.
                                 </TextBlock>
-                                <Button x:ConnectionId='36' Content="Zálohovat databázi"
+                                <Button x:ConnectionId='37' Content="Zálohovat databázi"
                                                                                           
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"
                                                                                            />
 
                                 <!-- Database Status -->
-                                <Border x:ConnectionId='37' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='38' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                 >
-                                    <TextBlock x:ConnectionId='38'                                                           
+                                    <TextBlock x:ConnectionId='39'                                                           
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
@@ -301,25 +301,25 @@
 
                                 <!-- Date Range Selection -->
                                 <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
-                                    <CalendarDatePicker x:ConnectionId='34' Header="Od"                                                        HorizontalAlignment="Stretch" Width="200"/>
-                                    <CalendarDatePicker x:ConnectionId='35' Header="Do"                                                      HorizontalAlignment="Stretch" Width="200"/>
+                                    <CalendarDatePicker x:ConnectionId='35' Header="Od"                                                        HorizontalAlignment="Stretch" Width="200"/>
+                                    <CalendarDatePicker x:ConnectionId='36' Header="Do"                                                      HorizontalAlignment="Stretch" Width="200"/>
                                 </StackPanel>
 
-                                <Button x:ConnectionId='31' Content="Exportovat účtenky do HTML"
+                                <Button x:ConnectionId='32' Content="Exportovat účtenky do HTML"
                                                                                                 
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"
                                                                                            />
 
                                 <!-- Export Status -->
-                                <Border x:ConnectionId='32' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='33' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                 >
-                                    <TextBlock x:ConnectionId='33'                                                           
+                                    <TextBlock x:ConnectionId='34'                                                           
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
@@ -329,21 +329,21 @@
                     </ScrollViewer>
 
                     <!-- Categories Panel -->
-                    <ScrollViewer x:ConnectionId='9' x:Name="CategoriesPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='10' x:Name="CategoriesPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="Správa kategorií produktů" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
                             <!-- Current Categories List -->
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Aktuální kategorie:" FontWeight="SemiBold"/>
-                                <ListView x:ConnectionId='28'                                                          
+                                <ListView x:ConnectionId='29'                                                          
                                                                                                           
                                           MaxHeight="200"
                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                           BorderThickness="1">
                                     <ListView.ItemTemplate>
                                         <DataTemplate                      >
-                                            <TextBlock x:ConnectionId='30'                 Padding="8"/>
+                                            <TextBlock x:ConnectionId='31'                 Padding="8"/>
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
                                 </ListView>
@@ -352,18 +352,18 @@
                             <!-- Add Category -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Přidat novou kategorii" FontWeight="SemiBold"/>
-                                <TextBox x:ConnectionId='24' Header="Název kategorie"                                                                                              PlaceholderText="Např. Nápoje"/>
-                                <Button x:ConnectionId='25' Content="Přidat kategorii"                                                  Style="{StaticResource AccentButtonStyle}"/>
+                                <TextBox x:ConnectionId='25' Header="Název kategorie"                                                                                              PlaceholderText="Např. Nápoje"/>
+                                <Button x:ConnectionId='26' Content="Přidat kategorii"                                                  Style="{StaticResource AccentButtonStyle}"/>
 
                                 <!-- Add Status Message -->
-                                <Border x:ConnectionId='26' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='27' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                               >
-                                    <TextBlock x:ConnectionId='27'                                                         
+                                    <TextBlock x:ConnectionId='28'                                                         
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                                                                                                                                  />
@@ -374,19 +374,19 @@
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Přejmenovat kategorii" FontWeight="SemiBold"/>
                                 <TextBlock Text="Vyberte kategorii ze seznamu výše a zadejte nový název:" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBox x:ConnectionId='20' Header="Nový název"                                                                                                 PlaceholderText="Nový název kategorie"/>
-                                <Button x:ConnectionId='21' Content="Přejmenovat kategorii"                                                     Style="{StaticResource AccentButtonStyle}"/>
+                                <TextBox x:ConnectionId='21' Header="Nový název"                                                                                                 PlaceholderText="Nový název kategorie"/>
+                                <Button x:ConnectionId='22' Content="Přejmenovat kategorii"                                                     Style="{StaticResource AccentButtonStyle}"/>
                                 <TextBlock Text="Poznámka: Přejmenování automaticky aktualizuje všechny produkty s touto kategorií." TextWrapping="Wrap" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
 
                                 <!-- Rename Status Message -->
-                                <Border x:ConnectionId='22' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='23' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                  >
-                                    <TextBlock x:ConnectionId='23'                                                            
+                                    <TextBlock x:ConnectionId='24'                                                            
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                                                                                                                                     />
@@ -397,17 +397,17 @@
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource SystemErrorTextColor}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Smazat kategorii" FontWeight="SemiBold" Foreground="{ThemeResource SystemErrorTextColor}"/>
                                 <TextBlock Text="Vyberte kategorii ze seznamu a smažte ji. Pozor: Kategorii nelze smazat, pokud je použita u některých produktů!" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <Button x:ConnectionId='17' Content="Smazat vybranou kategorii"                                                     Style="{StaticResource DangerButtonStyle}"/>
+                                <Button x:ConnectionId='18' Content="Smazat vybranou kategorii"                                                     Style="{StaticResource DangerButtonStyle}"/>
 
                                 <!-- Delete Status Message -->
-                                <Border x:ConnectionId='18' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <Border x:ConnectionId='19' Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Padding="8"
                                         Margin="0,8,0,0"
                                                                                                                                                                  >
-                                    <TextBlock x:ConnectionId='19'                                                            
+                                    <TextBlock x:ConnectionId='20'                                                            
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                                                                                                                                     />
@@ -417,18 +417,18 @@
                     </ScrollViewer>
 
                     <!-- About Panel -->
-                    <ScrollViewer x:ConnectionId='10' x:Name="AboutPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:ConnectionId='11' x:Name="AboutPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="24" Padding="0,0,12,0">
                             <TextBlock Text="O aplikaci" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
                             <!-- App Info Section -->
                             <StackPanel Spacing="12" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16" CornerRadius="4">
-                                <TextBlock x:ConnectionId='11'                                               
+                                <TextBlock x:ConnectionId='12'                                               
                                            FontSize="18"
                                            FontWeight="SemiBold"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock x:ConnectionId='12'                                                   
+                                <TextBlock x:ConnectionId='13'                                                   
                                            TextWrapping="Wrap"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            Margin="0,8,0,0"/>
@@ -440,20 +440,20 @@
                                 <StackPanel Spacing="8">
                                     <TextBlock>
                                         <Run Text="Verze:" FontWeight="SemiBold"/>
-                                        <Run x:ConnectionId='16'                                                  />
+                                        <Run x:ConnectionId='17'                                                  />
                                     </TextBlock>
 
                                     <TextBlock>
                                         <Run Text="Vytvořil:" FontWeight="SemiBold"/>
-                                        <Run x:ConnectionId='15'                                              />
+                                        <Run x:ConnectionId='16'                                              />
                                     </TextBlock>
 
                                     <TextBlock>
                                         <Run Text="Kontakt:" FontWeight="SemiBold"/>
-                                        <Run x:ConnectionId='14'                                                    />
+                                        <Run x:ConnectionId='15'                                                    />
                                     </TextBlock>
 
-                                    <TextBlock x:ConnectionId='13'                                                 
+                                    <TextBlock x:ConnectionId='14'                                                 
                                                FontSize="12"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Margin="0,8,0,0"/>

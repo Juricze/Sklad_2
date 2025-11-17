@@ -18,7 +18,7 @@
                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                     <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                     <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
-                                        <StackPanel>
+                    <StackPanel Visibility="{x:Bind ViewModel.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Text="{x:Bind ViewModel.VatRateDisplay, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
                     </StackPanel>

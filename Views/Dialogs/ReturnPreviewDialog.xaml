@@ -58,22 +58,19 @@
             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
             <!-- Položky -->
-            <ListView ItemsSource="{x:Bind ReturnDocument.Items, Mode=OneWay}" SelectionMode="None">
-                <ListView.HeaderTemplate>
-                    <DataTemplate>
-                        <Grid Padding="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"/>
-                            <TextBlock Grid.Column="2" Text="Vráceno celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.HeaderTemplate>
-                <ListView.ItemTemplate>
+            <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
+                <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
+                           Visibility="{x:Bind ReturnDocument.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
+            </Grid>
+            <ItemsRepeater ItemsSource="{x:Bind ReturnDocument.Items, Mode=OneWay}">
+                <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="models:ReturnItem">
                         <StackPanel Padding="8">
                             <Grid ColumnSpacing="12">
@@ -84,7 +81,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{x:Bind ProductName}"/>
                                 <TextBlock Grid.Column="1" Text="{x:Bind VatRateFormatted, Mode=OneWay}"
-                                           Visibility="{Binding ReturnDocument.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                           Visibility="{Binding IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 <TextBlock Grid.Column="2" Text="{x:Bind TotalRefundFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                             </Grid>
                             <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
@@ -92,8 +89,8 @@
                             </TextBlock>
                         </StackPanel>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
 
             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 

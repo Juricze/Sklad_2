@@ -18,7 +18,7 @@
                 AlwaysShowHeader="False">
                 <NavigationView.MenuItems>
                     <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
-                    <NavigationViewItem Content="Sazby DPH" Tag="VAT"/>
+                    <NavigationViewItem Content="Sazby DPH" Tag="VAT" Visibility="{x:Bind ViewModel.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Kategorie" Tag="Categories" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Hesla" Tag="Passwords" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Systém" Tag="System"/>

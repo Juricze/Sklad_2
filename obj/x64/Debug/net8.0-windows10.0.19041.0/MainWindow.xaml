@@ -28,7 +28,8 @@
             <NavigationView.PaneFooter>
                 <StackPanel Spacing="8">
                     <!-- Status Bar -->
-                    <Border Background="#F5F5F5"
+                    <Border x:ConnectionId='3' x:Name="StatusBarBorder"
+                            Background="#F5F5F5"
                             CornerRadius="8"
                             Padding="12,8"
                             BorderBrush="#E0E0E0"
@@ -44,37 +45,37 @@
                             <StackPanel Grid.Column="0" Spacing="6">
                                 <!-- Company Info -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='16' Glyph="&#xE82D;" FontSize="12"                                                                      />
+                                    <FontIcon x:ConnectionId='17' Glyph="&#xE82D;" FontSize="12"                                                                      />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="Firma:"/>
-                                        <Run x:ConnectionId='17'                                                                                                                                      FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='18'                                                                                                                                      FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
                                 <!-- VAT Config -->
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='14' Glyph="&#xE713;" FontSize="12"                                                                    />
+                                <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{Binding StatusBarVM.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <FontIcon x:ConnectionId='15' Glyph="&#xE713;" FontSize="12"                                                                    />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="DPH kat:"/>
-                                        <Run x:ConnectionId='15'                                                                                                                                  FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='16'                                                                                                                                  FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
                                 <!-- VAT Payer -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='12' Glyph="&#xE8A9;" FontSize="12"                                                                   />
+                                    <FontIcon x:ConnectionId='13' Glyph="&#xE8A9;" FontSize="12"                                                                   />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="DPH:"/>
-                                        <Run x:ConnectionId='13'                                                                                                                                FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='14'                                                                                                                                FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
                                 <!-- Database -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='10' Glyph="&#xE896;" FontSize="12"                                                                   />
+                                    <FontIcon x:ConnectionId='11' Glyph="&#xE896;" FontSize="12"                                                                   />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="Databáze:"/>
-                                        <Run x:ConnectionId='11'                                                                                                                                FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='12'                                                                                                                                FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
@@ -83,28 +84,28 @@
                             <StackPanel Grid.Column="1" Spacing="6">
                                 <!-- Printer -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='8' Glyph="&#xE749;" FontSize="12"                                                                  />
+                                    <FontIcon x:ConnectionId='9' Glyph="&#xE749;" FontSize="12"                                                                  />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="Tiskárna:"/>
-                                        <Run x:ConnectionId='9'                                                                                                                              FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='10'                                                                                                                              FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
                                 <!-- Scanner -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='6' Glyph="&#xE8B4;" FontSize="12"                                                                  />
+                                    <FontIcon x:ConnectionId='7' Glyph="&#xE8B4;" FontSize="12"                                                                  />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="Scanner:"/>
-                                        <Run x:ConnectionId='7'                                                                                                                              FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='8'                                                                                                                              FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
                                 <!-- Day Close -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon x:ConnectionId='4' Glyph="&#xE8B7;" FontSize="12"                                                                   />
+                                    <FontIcon x:ConnectionId='5' Glyph="&#xE8B7;" FontSize="12"                                                                   />
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="Uzavírka:"/>
-                                        <Run x:ConnectionId='5'                                                                                                                                FontWeight="SemiBold"/>
+                                        <Run x:ConnectionId='6'                                                                                                                                FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
@@ -112,10 +113,10 @@
                     </Border>
 
                     <!-- Logout Button -->
-                    <NavigationViewItem x:ConnectionId='3' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
+                    <NavigationViewItem x:ConnectionId='4' Content="Odhlásit" Tag="Logout" Icon="Undo"                       />
                 </StackPanel>
             </NavigationView.PaneFooter>
-            <Frame x:ConnectionId='18' x:Name="ContentFrame"/>
+            <Frame x:ConnectionId='19' x:Name="ContentFrame"/>
         </NavigationView>
     </Grid>
 </Window>

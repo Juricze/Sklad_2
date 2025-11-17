@@ -25,6 +25,8 @@ namespace Sklad_2.ViewModels
 
         public bool IsAdmin => _authService.CurrentRole == "Admin";
 
+        public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
+
         [ObservableProperty]
         private AppSettings settings;
 
@@ -110,6 +112,12 @@ namespace Sklad_2.ViewModels
             _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
             {
                 await LoadVatConfigsAsync();
+            });
+
+            // Listen for settings changes to update IsVatPayer property
+            _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
+            {
+                OnPropertyChanged(nameof(IsVatPayer));
             });
         }
 

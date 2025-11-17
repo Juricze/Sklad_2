@@ -70,16 +70,28 @@ namespace Sklad_2
                 sp.GetRequiredService<ICashRegisterService>(),
                 sp.GetRequiredService<IAuthService>()));
             services.AddSingleton<PrijemZboziViewModel>();
-            services.AddSingleton<DatabazeViewModel>();
+            services.AddSingleton<DatabazeViewModel>(sp => new DatabazeViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<NastaveniViewModel>();
             services.AddSingleton<UctenkyViewModel>();
             services.AddSingleton<VratkyPrehledViewModel>();
             services.AddSingleton<NovyProduktViewModel>(sp => new NovyProduktViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IMessenger>()));
-            services.AddSingleton<PrehledProdejuViewModel>();
-            services.AddSingleton<VratkyViewModel>();
+            services.AddSingleton<PrehledProdejuViewModel>(sp => new PrehledProdejuViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<IMessenger>()));
+            services.AddSingleton<VratkyViewModel>(sp => new VratkyViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<ICashRegisterService>(),
+                sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<CashRegisterViewModel>(sp => new CashRegisterViewModel(
                 sp.GetRequiredService<ICashRegisterService>(),
                 sp.GetRequiredService<IAuthService>(),

@@ -31,6 +31,7 @@ namespace Sklad_2
             IsSalesRole = _authService.CurrentRole == "Prodej";
 
             this.InitializeComponent();
+            StatusBarBorder.DataContext = this;
 
             TrySetSystemBackdrop();
 

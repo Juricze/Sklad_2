@@ -28,7 +28,8 @@
             <NavigationView.PaneFooter>
                 <StackPanel Spacing="8">
                     <!-- Status Bar -->
-                    <Border Background="#F5F5F5"
+                    <Border x:Name="StatusBarBorder"
+                            Background="#F5F5F5"
                             CornerRadius="8"
                             Padding="12,8"
                             BorderBrush="#E0E0E0"
@@ -52,7 +53,7 @@
                                 </StackPanel>
 
                                 <!-- VAT Config -->
-                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{Binding StatusBarVM.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <FontIcon Glyph="&#xE713;" FontSize="12" Foreground="{x:Bind StatusBarVM.VatConfigStatusColor, Mode=OneWay}"/>
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="DPH kat:"/>

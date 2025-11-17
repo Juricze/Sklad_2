@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
@@ -28,11 +30,15 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly IAuthService _authService;
+        private readonly ISettingsService _settingsService;
+        private readonly IMessenger _messenger;
         private List<Product> _allProducts = new List<Product>();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
         private bool isSalesRole;
+
+        public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
         public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>();
@@ -50,10 +56,12 @@ namespace Sklad_2.ViewModels
         private SortColumn _currentSortColumn = SortColumn.None;
         private SortDirection _currentSortDirection = SortDirection.Ascending;
 
-        public DatabazeViewModel(IDataService dataService, IAuthService authService)
+        public DatabazeViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger)
         {
             _dataService = dataService;
             _authService = authService;
+            _settingsService = settingsService;
+            _messenger = messenger;
             IsSalesRole = _authService.CurrentRole == "Prodej";
 
             // Initialize categories
@@ -63,6 +71,12 @@ namespace Sklad_2.ViewModels
                 Categories.Add(category);
             }
             SelectedCategory = "Vše";
+
+            // Listen for settings changes to update IsVatPayer property
+            _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
+            {
+                OnPropertyChanged(nameof(IsVatPayer));
+            });
         }
 
         [RelayCommand]
