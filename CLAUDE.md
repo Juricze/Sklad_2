@@ -178,7 +178,7 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 
 ## 📝 TODO List
 
-### ✅ Hotovo (aktualizováno 12.10.2025)
+### ✅ Hotovo (aktualizováno 18.11.2025)
 
 1. ✅ **Role-based UI restrictions**
    - Skrytý panel "Denní kontrola pokladny" pro roli "Prodej"
@@ -229,6 +229,13 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - ProductCategories.cs dynamicky načítá z AppSettings.Categories
    - Automatická aktualizace produktů při přejmenování
    - Ochrana proti smazání používané kategorie
+
+9. ✅ **UI optimalizace pro neplátce DPH** (18.11.2025)
+   - Dynamické skrývání DPH prvků podle IsVatPayer
+   - Podmíněná validace - neplátce nemusí nastavovat DPH kategorie
+   - Skryté komponenty: panel Sazby DPH, pole Sazba DPH, DPH KPI karty, DPH sloupce, Status Bar "DPH kat"
+   - Auto-refresh při změně nastavení Plátce/Neplátce
+   - Právně správné doklady pro neplátce (bez DIČ, bez "DAŇOVÝ DOKLAD", bez DPH rozkladu)
 
 ### ⏳ Zbývá udělat
 

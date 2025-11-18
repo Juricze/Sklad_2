@@ -6,9 +6,11 @@ Themes\LuxuryWhite.xbf
 Views\CashRegisterHistoryPage.xbf
 Views\CashRegisterPage.xbf
 Views\DatabazePage.xbf
+Views\Dialogs\AddEditUserDialog.xbf
 Views\Dialogs\CardPaymentConfirmationDialog.xbf
 Views\Dialogs\CashConfirmationDialog.xbf
 Views\Dialogs\CashPaymentDialog.xbf
+Views\Dialogs\CreateFirstAdminDialog.xbf
 Views\Dialogs\NewDayConfirmationDialog.xbf
 Views\Dialogs\OutOfStockDialog.xbf
 Views\Dialogs\PasswordPromptDialog.xbf

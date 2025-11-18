@@ -230,5 +230,43 @@ namespace Sklad_2.Services
                 await context.SaveChangesAsync();
             }
         }
+
+        // User Management
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Users.ToListAsync();
+        }
+
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        }
+
+        public async Task CreateUserAsync(User user)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task SetUserActiveAsync(int userId, bool isActive)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var user = await context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = isActive;
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

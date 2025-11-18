@@ -36,14 +36,14 @@
 
             <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8" Margin="0,12,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <RadioButton x:ConnectionId='30' Content="Denní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                      Tag="Daily"/>
-                    <RadioButton x:ConnectionId='31' Content="Týdenní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Weekly"/>
-                    <RadioButton x:ConnectionId='32' Content="Měsíční" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                        Tag="Monthly"/>
-                    <RadioButton x:ConnectionId='33' Content="Vlastní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Custom"/>
+                    <RadioButton x:ConnectionId='31' Content="Denní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                      Tag="Daily"/>
+                    <RadioButton x:ConnectionId='32' Content="Týdenní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Weekly"/>
+                    <RadioButton x:ConnectionId='33' Content="Měsíční" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                        Tag="Monthly"/>
+                    <RadioButton x:ConnectionId='34' Content="Vlastní" Style="{StaticResource ToggleButtonStyle}"                                                                                                                                                                       Tag="Custom"/>
                 </StackPanel>
-                <StackPanel x:ConnectionId='27' Orientation="Horizontal" Spacing="8"                                                                   >
-                    <CalendarDatePicker x:ConnectionId='28' Header="Od"                                                        HorizontalAlignment="Stretch"/>
-                    <CalendarDatePicker x:ConnectionId='29' Header="Do"                                                      HorizontalAlignment="Stretch"/>
+                <StackPanel x:ConnectionId='28' Orientation="Horizontal" Spacing="8"                                                                   >
+                    <CalendarDatePicker x:ConnectionId='29' Header="Od"                                                        HorizontalAlignment="Stretch"/>
+                    <CalendarDatePicker x:ConnectionId='30' Header="Do"                                                      HorizontalAlignment="Stretch"/>
                 </StackPanel>
             </StackPanel>
 
@@ -55,13 +55,15 @@
                     <DataTemplate>
                         <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
                             <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
                             <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="3" Text="Prodavač" FontWeight="Bold"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.HeaderTemplate>
@@ -69,19 +71,21 @@
                     <DataTemplate                            >
                         <Grid x:ConnectionId='22' Padding="12" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" VerticalAlignment="Center">
-                                <Run x:ConnectionId='25'                                />
-                                <Run x:ConnectionId='26'                                  />
+                                <Run x:ConnectionId='26'                                />
+                                <Run x:ConnectionId='27'                                  />
                             </TextBlock>
                             <TextBlock x:ConnectionId='23' Grid.Column="1"
                                                                            
                                        VerticalAlignment="Center"
                                                                                                                                />
                             <TextBlock x:ConnectionId='24' Grid.Column="2"                               VerticalAlignment="Center"/>
+                            <TextBlock x:ConnectionId='25' Grid.Column="3"                            VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

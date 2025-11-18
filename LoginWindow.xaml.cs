@@ -20,11 +20,13 @@ namespace Sklad_2
 
         public LoginWindow()
         {
-            this.InitializeComponent();
             var serviceProvider = (Application.Current as App).Services;
             ViewModel = serviceProvider.GetRequiredService<LoginViewModel>();
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+
+            this.InitializeComponent();
+            LoginGrid.DataContext = this;
             ExtendsContentIntoTitleBar = true;
 
             // Initialize timer
@@ -34,7 +36,7 @@ namespace Sklad_2
 
             // Subscribe to ViewModel events
             ViewModel.RequestPasswordAsync += HandleRequestPasswordAsync;
-            ViewModel.CreatePasswordAsync += HandleCreatePasswordAsync;
+            ViewModel.RequestFirstAdminAsync += HandleRequestFirstAdminAsync;
             ViewModel.LoginSucceeded += HandleLoginSucceeded;
             ViewModel.LoginFailed += HandleLoginFailed;
 
@@ -47,6 +49,7 @@ namespace Sklad_2
             this.DispatcherQueue.TryEnqueue(async () =>
             {
                 await _settingsService.LoadSettingsAsync();
+                await ViewModel.LoadUsersAsync();
                 _timer.Start();
                 UpdateDateTime(); // Initial update
             });
@@ -84,35 +87,34 @@ namespace Sklad_2
             return null; // User cancelled
         }
 
-        private async Task<string> HandleCreatePasswordAsync(string prompt)
+        private async Task<(bool confirmed, string username, string displayName, string password)> HandleRequestFirstAdminAsync(
+            string title, string defaultUsername, string defaultDisplayName)
         {
-            var dialog = new PasswordPromptDialog();
-            dialog.Title = "Vytvořit heslo";
-            dialog.SetPromptText(prompt);
+            // Wait for XamlRoot to be available
+            int retries = 0;
+            while (this.Content?.XamlRoot == null && retries < 20)
+            {
+                await Task.Delay(50);
+                retries++;
+            }
+
+            var dialog = new CreateFirstAdminDialog();
+            dialog.SetDefaults(defaultUsername, defaultDisplayName);
             dialog.XamlRoot = this.Content.XamlRoot;
 
-            while (true)
-            {
-                var result = await dialog.ShowAsync();
+            var result = await dialog.ShowAsync();
 
-                if (result == ContentDialogResult.Primary)
-                {
-                    if (string.IsNullOrWhiteSpace(dialog.Password))
-                    {
-                        dialog.SetErrorText("Heslo nemůže být prázdné.");
-                        continue; // Show the dialog again
-                    }
-                    return dialog.Password;
-                }
-                return null; // User cancelled
+            if (result == ContentDialogResult.Primary)
+            {
+                return (true, dialog.Username, dialog.DisplayName, dialog.Password);
             }
+
+            return (false, null, null, null);
         }
 
-        private void HandleLoginSucceeded(string role)
+        private void HandleLoginSucceeded()
         {
-            _authService.SetCurrentRole(role);
-
-            Debug.WriteLine($"LoginSucceeded: Role = {role}");
+            Debug.WriteLine($"LoginSucceeded: User = {_authService.CurrentUser?.DisplayName}");
 
             // Create and show MainWindow (it will handle new day logic itself)
             var mainWindow = new MainWindow();
@@ -120,16 +122,18 @@ namespace Sklad_2
             this.Close();
         }
 
-        private async void HandleLoginFailed(string errorMessage)
+        private void HandleLoginFailed()
         {
-            var errorDialog = new ContentDialog
+            // Error is already shown in ViewModel's StatusMessage
+            Debug.WriteLine("Login failed");
+        }
+
+        private async void UserButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Models.User user)
             {
-                Title = "Přihlášení selhalo",
-                Content = errorMessage,
-                CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
-            };
-            await errorDialog.ShowAsync();
+                await ViewModel.SelectUserCommand.ExecuteAsync(user);
+            }
         }
     }
 }

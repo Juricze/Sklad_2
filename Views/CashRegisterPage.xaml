@@ -63,35 +63,6 @@
           <Button Content="Uzavřít den" Command="{x:Bind ViewModel.PerformDayCloseCommand}" HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}"/>
         </StackPanel>
       </Border>
-
-      <!-- Historie transakcí -->
-      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Historie transakcí" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-          <ListView ItemsSource="{x:Bind ViewModel.CashRegisterHistory, Mode=OneWay}">
-            <ListView.ItemTemplate>
-              <DataTemplate x:DataType="models:CashRegisterEntry">
-                <Grid ColumnSpacing="12">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBlock Grid.Column="0" Text="{x:Bind Timestamp}"
-  FontWeight="SemiBold"/>
-                  <TextBlock Grid.Column="1" Text="{x:Bind Description}"/>
-                  <TextBlock Grid.Column="2" Text="{x:Bind Amount,
-  Converter={StaticResource InlineCurrencyConverter}}" HorizontalAlignment="Right"/>
-                  <TextBlock Grid.Column="3" Text="{x:Bind CurrentCashInTill,
-  Mode=OneWay, Converter={StaticResource InlineCurrencyConverter}}" HorizontalAlignment="Right"
-  FontWeight="Bold"/>
-                </Grid>
-              </DataTemplate>
-            </ListView.ItemTemplate>
-          </ListView>
-        </StackPanel>
-      </Border>
     </StackPanel>
   </Grid>
 </Page>

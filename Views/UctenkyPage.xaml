@@ -55,13 +55,15 @@
                     <DataTemplate>
                         <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Datum" FontWeight="Bold"/>
                             <TextBlock Grid.Column="1" Text="Celkem" FontWeight="Bold"/>
                             <TextBlock Grid.Column="2" Text="Platba" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="3" Text="Prodavač" FontWeight="Bold"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.HeaderTemplate>
@@ -69,9 +71,10 @@
                     <DataTemplate x:DataType="models:Receipt">
                         <Grid Padding="12" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" VerticalAlignment="Center">
                                 <Run Text="{x:Bind StornoIndicator}"/>
@@ -82,6 +85,7 @@
                                        VerticalAlignment="Center"
                                        Foreground="{x:Bind IsStorno, Converter={StaticResource BooleanToStornoBrushConverter}}"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{x:Bind SellerName}" VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

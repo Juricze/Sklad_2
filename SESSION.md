@@ -17,6 +17,31 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
+## 📅 **Poslední session: 18. listopad 2025**
+
+### ✅ Hotovo:
+**Kompletní UI optimalizace pro neplátce DPH** - 6 fází implementováno a otestováno
+
+**Upraveno 17 souborů:**
+- ViewModels (6): NastaveniViewModel, NovyProduktViewModel, PrehledProdejuViewModel, DatabazeViewModel, VratkyViewModel, StatusBarViewModel
+- Views (7): NastaveniPage, NovyProduktPage, PrehledProdejuPage, DatabazePage, VratkyPage, MainWindow, ReturnPreviewDialog
+- Code-behind (2): MainWindow.xaml.cs, ReturnPreviewDialog.xaml.cs
+- DI (1): App.xaml.cs
+
+**Klíčové změny:**
+- ✅ Dynamické skrývání DPH prvků podle `IsVatPayer`
+- ✅ Podmíněná validace - neplátce DPH nemusí nastavovat DPH kategorie
+- ✅ Auto-refresh při změně settings
+- ✅ Právně správné doklady pro neplátce DPH
+
+### 🔧 Další úkoly:
+1. **PRIORITA:** Systém uživatelských účtů
+2. Export uzavírek do CSV/PDF
+3. Skutečný PrintService
+4. Scanner integrace
+
+---
+
 ## 🎓 Klíčové naučené lekce
 
 ### WinUI 3 / XAML specifika
@@ -86,6 +111,34 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 9. **StartsWith vs Contains pro vyhledávání**
    - Pro prefix matching (EAN, názvy) použít `StartsWith()`
    - `Contains()` najde příliš mnoho výsledků
+
+10. **Window vs Page - DataContext a binding**
+   - `Window` nemá property `DataContext` (pouze `Page` má)
+   - `Window` má omezení s `{x:Bind}` na některých prvcích
+   - **Řešení:** Nastavit DataContext na konkrétní element (např. Grid, Border)
+   ```csharp
+   this.InitializeComponent();
+   StatusBarBorder.DataContext = this;  // Nastavení jen pro část UI
+   ```
+   - Pro Visibility binding v Window raději použít `{Binding}` místo `{x:Bind}`
+
+11. **ListView.HeaderTemplate binding problémy**
+   - `ListView.HeaderTemplate` nemá správný DataContext v některých případech
+   - **Řešení:** Použít samostatný `Grid` pro hlavičku + `ItemsRepeater` pro data
+   ```xaml
+   <!-- Hlavička -->
+   <Grid>
+       <TextBlock Text="Header" Visibility="{x:Bind ViewModel.IsVisible}"/>
+   </Grid>
+   <!-- Data -->
+   <ItemsRepeater ItemsSource="{x:Bind Items}">
+       <ItemsRepeater.ItemTemplate>
+           <DataTemplate>
+               <TextBlock Text="{x:Bind Property}" Visibility="{Binding ParentProperty}"/>
+           </DataTemplate>
+       </ItemsRepeater.ItemTemplate>
+   </ItemsRepeater>
+   ```
 
 ### Databáze (EF Core + SQLite)
 
@@ -184,14 +237,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ### 🔴 Prioritní úkoly (listopad 2025):
 
-1. **UI vylepšení pro Neplátce DPH**
-   - Skrýt panel "Sazby DPH" když `IsVatPayer = false`
-   - Zjednodušit formulář nového produktu (nevyžadovat DPH)
-   - Skrýt DPH informace v statistikách a přehledech
-   - Dynamické zobrazení/skrytí podle `IsVatPayer`
-   - Testovat přepínání Plátce/Neplátce
-
-2. **Systém uživatelských účtů**
+1. **Systém uživatelských účtů** ⏳ NEXT
    - Implementovat databázovou tabulku Users
    - Nahradit fixed roles (Admin/Prodej) skutečnými uživateli
    - Každý prodavač vlastní login + jméno
@@ -209,7 +255,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 9/14 hlavních funkcí (~64%)
+**Hotovo:** 10/14 hlavních funkcí (~71%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -220,15 +266,15 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 6. DPH systém (konfigurace)
 7. Historie pokladny s filtry
 8. Dynamická správa kategorií
-9. **PPD Compliance** (profesionální účtenky, storno, export FÚ)
+9. PPD Compliance (profesionální účtenky, storno, export FÚ)
+10. **UI optimalizace pro neplátce DPH** ✅ NOVÉ!
 
 ### ⏳ Zbývá:
-1. UI optimalizace pro neplátce DPH
-2. Systém uživatelských účtů
-3. Export uzavírek (CSV/PDF)
-4. Tisk (PrintService je placeholder)
-5. Scanner integrace
+1. Systém uživatelských účtů
+2. Export uzavírek (CSV/PDF)
+3. Tisk (PrintService je placeholder)
+4. Scanner integrace
 
 ---
 
-**Poslední aktualizace:** 17. listopad 2025
+**Poslední aktualizace:** 18. listopad 2025

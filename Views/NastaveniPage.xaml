@@ -20,6 +20,7 @@
                     <NavigationViewItem Content="Firemní údaje" Tag="Company" IsSelected="True"/>
                     <NavigationViewItem Content="Sazby DPH" Tag="VAT" Visibility="{x:Bind ViewModel.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Kategorie" Tag="Categories" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
+                    <NavigationViewItem Content="Uživatelé" Tag="Users" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Hesla" Tag="Passwords" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Systém" Tag="System"/>
                     <NavigationViewItem Content="O aplikaci" Tag="About"/>
@@ -208,6 +209,95 @@
                                         Margin="0,8,0,0"
                                         Visibility="{x:Bind ViewModel.SalePasswordStatus, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
                                     <TextBlock Text="{x:Bind ViewModel.SalePasswordStatus, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Users Panel -->
+                    <ScrollViewer x:Name="UsersPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="24" Padding="0,0,12,0">
+                            <TextBlock Text="Správa uživatelů" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+                            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                Spravujte uživatelské účty pro přístup do aplikace. Každý uživatel má jedinečné přihlašovací jméno, zobrazované jméno a roli.
+                            </TextBlock>
+
+                            <!-- Users List -->
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Uživatelé:" FontWeight="SemiBold"/>
+                                <ListView ItemsSource="{x:Bind UserMgmtVM.Users, Mode=OneWay}"
+                                          SelectedItem="{x:Bind UserMgmtVM.SelectedUser, Mode=TwoWay}"
+                                          MaxHeight="300"
+                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                          BorderThickness="1">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:User">
+                                            <Grid ColumnSpacing="12" Padding="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="2*"/>
+                                                    <ColumnDefinition Width="2*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon Grid.Column="0" Glyph="{x:Bind Role, Converter={StaticResource RoleToIconConverter}}" FontSize="16"/>
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Username}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="{x:Bind DisplayName}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{x:Bind RoleDisplayName}" VerticalAlignment="Center"/>
+                                                <Border Grid.Column="4"
+                                                        Background="{x:Bind IsActive, Converter={StaticResource BooleanToColorConverter}}"
+                                                        CornerRadius="10"
+                                                        Padding="8,2">
+                                                    <TextBlock Text="{x:Bind StatusDisplayName}"
+                                                               FontSize="11"
+                                                               Foreground="White"
+                                                               FontWeight="SemiBold"/>
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+
+                            <!-- Add User -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Přidat nového uživatele" FontWeight="SemiBold"/>
+                                <Button Content="+ Přidat uživatele"
+                                        Command="{x:Bind UserMgmtVM.AddUserCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"/>
+                            </StackPanel>
+
+                            <!-- Edit User -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Upravit uživatele" FontWeight="SemiBold"/>
+                                <TextBlock Text="Vyberte uživatele ze seznamu a upravte jeho údaje:" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Button Content="Upravit vybraného uživatele"
+                                        Command="{x:Bind UserMgmtVM.EditUserCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        IsEnabled="{x:Bind UserMgmtVM.IsUserSelected, Mode=OneWay}"/>
+                            </StackPanel>
+
+                            <!-- Toggle User Active Status -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Aktivovat/Deaktivovat uživatele" FontWeight="SemiBold"/>
+                                <TextBlock Text="Vyberte uživatele a změňte jeho stav. Deaktivovaní uživatelé se nemohou přihlásit." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Button Content="Změnit stav vybraného uživatele"
+                                        Command="{x:Bind UserMgmtVM.ToggleUserActiveCommand}"
+                                        IsEnabled="{x:Bind UserMgmtVM.IsUserSelected, Mode=OneWay}"/>
+
+                                <!-- Status Message -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="8"
+                                        Margin="0,8,0,0"
+                                        Visibility="{x:Bind UserMgmtVM.StatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <TextBlock Text="{x:Bind UserMgmtVM.StatusMessage, Mode=OneWay}"
                                                TextWrapping="Wrap"
                                                FontSize="13"
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>

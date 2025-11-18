@@ -262,7 +262,7 @@ namespace Sklad_2.ViewModels
                     Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
                     ShopName = settings.ShopName,
                     ShopAddress = settings.ShopAddress,
-                    SellerName = _authService.CurrentRole,  // Store who performed the sale
+                    SellerName = _authService.CurrentUser?.DisplayName ?? "Neznámý",  // Store who performed the sale
                     CompanyId = settings.CompanyId,
                     VatId = settings.VatId,
                     IsVatPayer = settings.IsVatPayer,
@@ -375,7 +375,7 @@ namespace Sklad_2.ViewModels
                     Items = stornoItems,
                     ShopName = originalReceipt.ShopName,
                     ShopAddress = originalReceipt.ShopAddress,
-                    SellerName = _authService.CurrentRole,  // Who performed the cancellation
+                    SellerName = _authService.CurrentUser?.DisplayName ?? "Neznámý",  // Who performed the cancellation
                     CompanyId = originalReceipt.CompanyId,
                     VatId = originalReceipt.VatId,
                     IsVatPayer = originalReceipt.IsVatPayer,

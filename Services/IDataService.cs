@@ -34,5 +34,12 @@ namespace Sklad_2.Services
         Task<int> GetProductCountByCategoryAsync(string categoryName);
         Task UpdateProductsCategoryAsync(string oldCategoryName, string newCategoryName);
         Task DeleteVatConfigAsync(string categoryName);
+
+        // User Management
+        Task<List<User>> GetAllUsersAsync();
+        Task<User> GetUserByUsernameAsync(string username);
+        Task CreateUserAsync(User user);
+        Task UpdateUserAsync(User user);
+        Task SetUserActiveAsync(int userId, bool isActive);
     }
 }

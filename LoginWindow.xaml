@@ -1,5 +1,6 @@
 <Window
     x:Class="Sklad_2.LoginWindow"
+    x:Name="LoginWindowRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,18 +8,42 @@
     mc:Ignorable="d"
     Title="Přihlášení">
 
-    <Grid Padding="24" Loaded="LoginWindow_Loaded">
-        <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="300">
+    <Grid x:Name="LoginGrid" Padding="24" Loaded="LoginWindow_Loaded">
+        <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="400">
             <TextBlock x:Name="DateTextBlock" FontSize="18" HorizontalAlignment="Center"/>
             <TextBlock x:Name="TimeTextBlock" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
             <TextBlock x:Name="DayOfWeekTextBlock" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
 
-            <TextBlock Text="Vyberte profil" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
-            
-            <Button Content="Admin" HorizontalAlignment="Stretch" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.SelectAdminCommand}"/>
-            <Button Content="Prodej" HorizontalAlignment="Stretch" Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.SelectProdejCommand}"/>
+            <TextBlock Text="Vyberte uživatele" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,12"/>
 
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,24,0,0" Foreground="{ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <!-- Loading indicator -->
+            <ProgressRing IsActive="{Binding ViewModel.IsLoading, Mode=OneWay}"
+                          Visibility="{Binding ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                          HorizontalAlignment="Center"/>
+
+            <!-- Users list -->
+            <ItemsRepeater ItemsSource="{Binding ViewModel.Users, Mode=OneWay}">
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Button HorizontalAlignment="Stretch"
+                                Margin="0,4"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="UserButton_Click"
+                                Tag="{Binding}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="{Binding Role, Converter={StaticResource RoleToIconConverter}}" FontSize="16"/>
+                                <TextBlock Text="{Binding DisplayName}" FontSize="16"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+
+            <TextBlock Text="{Binding ViewModel.StatusMessage, Mode=OneWay}"
+                       Margin="0,12,0,0"
+                       Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>

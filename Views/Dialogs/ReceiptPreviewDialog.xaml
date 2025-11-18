@@ -54,6 +54,9 @@
                         <Run Text="Datum: "/><Run Text="{x:Bind Receipt.SaleDateFormatted, Mode=OneWay}"/>
                     </TextBlock>
                 </Grid>
+                <TextBlock HorizontalAlignment="Left">
+                    <Run Text="Prodavač: "/><Run Text="{x:Bind Receipt.SellerName, Mode=OneWay}"/>
+                </TextBlock>
 
                 <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
 

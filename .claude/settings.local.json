@@ -3,7 +3,10 @@
     "allow": [
       "Bash(for file in Views/*Page.xaml.cs)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(powershell -Command \"(Get-Content ''C:\\dev\\Sklad_2\\Services\\SqliteDataService.cs'').Count\")",
+      "Bash(powershell -Command \"(Get-Content ''C:\\dev\\Sklad_2\\Views\\NastaveniPage.xaml'').Count\")",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

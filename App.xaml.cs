@@ -57,7 +57,9 @@ namespace Sklad_2
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();
             services.AddSingleton<ICashRegisterService, CashRegisterService>();
-            services.AddSingleton<IAuthService, AuthService>();
+            services.AddSingleton<IAuthService>(sp => new AuthService(
+                sp.GetRequiredService<IMessenger>(),
+                sp.GetRequiredService<IDataService>()));
 
             // Messaging
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
@@ -103,9 +105,13 @@ namespace Sklad_2
                 sp.GetRequiredService<IPrintService>(),
                 sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<CategoryManagementViewModel>();
+            services.AddSingleton<UserManagementViewModel>(sp => new UserManagementViewModel(
+                sp.GetRequiredService<IDataService>()));
 
             // Transient ViewModels (for dialogs, login, etc.)
-            services.AddTransient<LoginViewModel>();
+            services.AddTransient<LoginViewModel>(sp => new LoginViewModel(
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IAuthService>()));
 
             return services.BuildServiceProvider();
         }

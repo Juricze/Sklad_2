@@ -28,7 +28,7 @@
       <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
         <StackPanel Spacing="12">
                         <TextBlock Text="Aktuální hotovost v pokladně" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <TextBlock x:ConnectionId='17'                                                                                                              Style="{ThemeResource DisplayTextBlockStyle}" FontWeight="Bold"/>
+                        <TextBlock x:ConnectionId='10'                                                                                                              Style="{ThemeResource DisplayTextBlockStyle}" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
 
@@ -36,8 +36,8 @@
       <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
         <StackPanel Spacing="12">
           <TextBlock Text="Vklad" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-          <TextBox x:ConnectionId='15' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                         InputScope="Number"/>
-          <Button x:ConnectionId='16' Content="Provést Vklad"                                                 HorizontalAlignment="Right"/>
+          <TextBox x:ConnectionId='8' Header="Částka" PlaceholderText="Zadejte částku..."                                                                                                         InputScope="Number"/>
+          <Button x:ConnectionId='9' Content="Provést Vklad"                                                 HorizontalAlignment="Right"/>
         </StackPanel>
       </Border>
 
@@ -46,9 +46,9 @@
         <StackPanel Spacing="12">
           <TextBlock Text="Denní kontrola pokladny" Style="{ThemeResource
   SubtitleTextBlockStyle}"/>
-          <TextBox x:ConnectionId='13' Header="Skutečná hotovost" PlaceholderText="Zadejte skutečnou hotovost..."
+          <TextBox x:ConnectionId='6' Header="Skutečná hotovost" PlaceholderText="Zadejte skutečnou hotovost..."
                                                                                                                           InputScope="Number"/>
-          <Button x:ConnectionId='14' Content="Provést kontrolu"                                                                HorizontalAlignment="Right"/>
+          <Button x:ConnectionId='7' Content="Provést kontrolu"                                                                HorizontalAlignment="Right"/>
         </StackPanel>
       </Border>
 
@@ -57,39 +57,10 @@
         <StackPanel Spacing="12">
           <TextBlock Text="Uzavírka dne" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
           <TextBlock Text="Uzavírka dne uzavře obchodní den a zaznamená konečný stav pokladny. Tuto operaci lze provést pouze jednou denně." TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}"/>
-          <TextBox x:ConnectionId='10' Header="Skutečná hotovost v pokladně" PlaceholderText="Zadejte napočítanou hotovost..."
+          <TextBox x:ConnectionId='3' Header="Skutečná hotovost v pokladně" PlaceholderText="Zadejte napočítanou hotovost..."
                                                                                                            InputScope="Number"/>
-          <TextBlock x:ConnectionId='11'                                                              Foreground="{ThemeResource SystemErrorTextColor}" TextWrapping="Wrap"                                                             />
-          <Button x:ConnectionId='12' Content="Uzavřít den"                                                     HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}"/>
-        </StackPanel>
-      </Border>
-
-      <!-- Historie transakcí -->
-      <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Historie transakcí" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-          <ListView x:ConnectionId='3'                                                                  >
-            <ListView.ItemTemplate>
-              <DataTemplate                                      >
-                <Grid x:ConnectionId='5' ColumnSpacing="12">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBlock x:ConnectionId='6' Grid.Column="0"                          
-  FontWeight="SemiBold"/>
-                  <TextBlock x:ConnectionId='7' Grid.Column="1"                            />
-                  <TextBlock x:ConnectionId='8' Grid.Column="2"                      
-                                                       HorizontalAlignment="Right"/>
-                  <TextBlock x:ConnectionId='9' Grid.Column="3"                                 
-                                                                    HorizontalAlignment="Right"
-  FontWeight="Bold"/>
-                </Grid>
-              </DataTemplate>
-            </ListView.ItemTemplate>
-          </ListView>
+          <TextBlock x:ConnectionId='4'                                                              Foreground="{ThemeResource SystemErrorTextColor}" TextWrapping="Wrap"                                                             />
+          <Button x:ConnectionId='5' Content="Uzavřít den"                                                     HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}"/>
         </StackPanel>
       </Border>
     </StackPanel>

@@ -19,6 +19,7 @@ namespace Sklad_2
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
         private bool IsSalesRole;
+        private bool IsAdmin;
 
         public StatusBarViewModel StatusBarVM { get; }
 
@@ -28,7 +29,8 @@ namespace Sklad_2
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
-            IsSalesRole = _authService.CurrentRole == "Prodej";
+            IsSalesRole = _authService.CurrentUser?.Role == "Cashier";
+            IsAdmin = _authService.CurrentUser?.Role == "Admin";
 
             this.InitializeComponent();
             StatusBarBorder.DataContext = this;
@@ -44,7 +46,7 @@ namespace Sklad_2
             // Handle new day dialog after window is activated
             this.Activated += OnFirstActivated;
 
-            // Hide "Přehled prodejů" for Sales role
+            // Hide menu items based on role
             if (IsSalesRole)
             {
                 foreach (var item in NavView.MenuItems)
@@ -53,10 +55,14 @@ namespace Sklad_2
                     {
                         foreach (var subItem in mainItem.MenuItems)
                         {
-                            if (subItem is NavigationViewItem navItem && navItem.Tag as string == "PrehledProdeju")
+                            if (subItem is NavigationViewItem navItem)
                             {
-                                navItem.Visibility = Visibility.Collapsed;
-                                break;
+                                var tag = navItem.Tag as string;
+                                // Hide for Cashier role
+                                if (tag == "PrehledProdeju" || tag == "NovyProdukt" || tag == "HistoriePokladny")
+                                {
+                                    navItem.Visibility = Visibility.Collapsed;
+                                }
                             }
                         }
                         break;

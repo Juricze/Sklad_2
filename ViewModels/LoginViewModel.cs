@@ -1,83 +1,123 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
 {
     public partial class LoginViewModel : ObservableObject
     {
-        private readonly ISettingsService _settingsService;
+        private readonly IDataService _dataService;
+        private readonly IAuthService _authService;
+
+        [ObservableProperty]
+        private ObservableCollection<User> users = new();
 
         [ObservableProperty]
         private string statusMessage;
 
+        [ObservableProperty]
+        private bool isLoading;
+
         // Events for View interaction
         public Func<string, Task<string>> RequestPasswordAsync { get; set; }
-        public Func<string, Task<string>> CreatePasswordAsync { get; set; }
-        public Action<string> LoginFailed { get; set; }
-        public Action<string> LoginSucceeded { get; set; }
+        public Func<string, string, string, Task<(bool confirmed, string username, string displayName, string password)>> RequestFirstAdminAsync { get; set; }
+        public Action LoginFailed { get; set; }
+        public Action LoginSucceeded { get; set; }
 
-
-        public LoginViewModel(ISettingsService settingsService)
+        public LoginViewModel(IDataService dataService, IAuthService authService)
         {
-            _settingsService = settingsService;
+            _dataService = dataService;
+            _authService = authService;
         }
 
-        [RelayCommand]
-        private async Task SelectAdminAsync()
+        public async Task LoadUsersAsync()
         {
-            var adminPassword = _settingsService.CurrentSettings.AdminPassword;
-
-            if (string.IsNullOrEmpty(adminPassword))
+            IsLoading = true;
+            try
             {
-                // First time login for Admin: Create password
-                var newPassword = await CreatePasswordAsync?.Invoke("Vytvořte heslo pro Admina:");
-                if (!string.IsNullOrEmpty(newPassword))
+                var allUsers = await _dataService.GetAllUsersAsync();
+                Users.Clear();
+
+                // Only show active users
+                foreach (var user in allUsers)
                 {
-                    _settingsService.CurrentSettings.AdminPassword = newPassword;
-                    await _settingsService.SaveSettingsAsync();
-                    LoginSucceeded?.Invoke("Admin");
+                    if (user.IsActive)
+                    {
+                        Users.Add(user);
+                    }
                 }
+
+                // If no users exist, prompt to create first admin
+                if (Users.Count == 0)
+                {
+                    StatusMessage = "Žádní uživatelé nenalezeni. Vytvořte prvního administrátora.";
+                    await CreateFirstAdminAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Chyba načítání uživatelů: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task CreateFirstAdminAsync()
+        {
+            var result = await RequestFirstAdminAsync?.Invoke(
+                "Vytvořte prvního administrátora",
+                "admin",
+                "Administrátor");
+
+            if (result.confirmed)
+            {
+                var admin = new User
+                {
+                    Username = result.username,
+                    DisplayName = result.displayName,
+                    Password = result.password,
+                    Role = "Admin",
+                    IsActive = true,
+                    CreatedDate = DateTime.Now
+                };
+
+                await _dataService.CreateUserAsync(admin);
+                Users.Add(admin);
+                StatusMessage = "Administrátor vytvořen úspěšně.";
             }
             else
             {
-                // Normal Admin login
-                var enteredPassword = await RequestPasswordAsync?.Invoke("Zadejte heslo pro Admina:");
-                if (enteredPassword == adminPassword)
-                {
-                    LoginSucceeded?.Invoke("Admin");
-                }
-                else if (enteredPassword != null) // User entered a password, but it was wrong
-                {
-                    LoginFailed?.Invoke("Nesprávné heslo.");
-                }
+                // User cancelled - close app
+                System.Environment.Exit(0);
             }
         }
 
         [RelayCommand]
-        private async Task SelectProdejAsync()
+        private async Task SelectUserAsync(User user)
         {
-            var salePassword = _settingsService.CurrentSettings.SalePassword;
+            if (user == null) return;
 
-            if (string.IsNullOrEmpty(salePassword))
+            var enteredPassword = await RequestPasswordAsync?.Invoke($"Zadejte heslo pro {user.DisplayName}:");
+
+            if (enteredPassword == null) return; // User cancelled
+
+            var success = await _authService.LoginAsync(user.Username, enteredPassword);
+
+            if (success)
             {
-                LoginFailed?.Invoke("Profil 'Prodej' je uzamčen. Admin musí nejprve nastavit heslo v nastavení.");
+                LoginSucceeded?.Invoke();
             }
             else
             {
-                var enteredPassword = await RequestPasswordAsync?.Invoke("Zadejte heslo pro Prodej:");
-                if (enteredPassword == salePassword)
-                {
-                    LoginSucceeded?.Invoke("Prodej");
-                }
-                else if (enteredPassword != null)
-                {
-                    LoginFailed?.Invoke("Nesprávné heslo.");
-                }
+                StatusMessage = "Nesprávné heslo.";
+                LoginFailed?.Invoke();
             }
-            await Task.CompletedTask; // To satisfy async method signature, can be removed if not needed
         }
     }
 }
