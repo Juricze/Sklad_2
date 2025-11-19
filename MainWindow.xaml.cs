@@ -20,12 +20,14 @@ namespace Sklad_2
         private readonly ISettingsService _settingsService;
         private bool IsSalesRole;
         private bool IsAdmin;
+        private bool _isClosing = false;
 
         public StatusBarViewModel StatusBarVM { get; }
 
         public MainWindow()
         {
-            var serviceProvider = (Application.Current as App).Services;
+            var app = Application.Current as App;
+            var serviceProvider = app.Services;
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
@@ -34,6 +36,9 @@ namespace Sklad_2
 
             this.InitializeComponent();
             StatusBarBorder.DataContext = this;
+
+            // Update app's current window reference for pickers/dialogs in pages
+            app.CurrentWindow = this;
 
             TrySetSystemBackdrop();
 
@@ -206,6 +211,15 @@ namespace Sklad_2
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
+            // Prevent multiple executions
+            if (_isClosing)
+                return;
+
+            _isClosing = true;
+
+            // Always cancel initial close to show backup dialog
+            args.Handled = true;
+
             // Check if day close was performed (only for Sales role)
             if (IsSalesRole)
             {
@@ -214,9 +228,6 @@ namespace Sklad_2
 
                 if (!isDayClosedToday)
                 {
-                    // Cancel the close event
-                    args.Handled = true;
-
                     // Show warning dialog
                     var dialog = new ContentDialog
                     {
@@ -230,39 +241,102 @@ namespace Sklad_2
 
                     var result = await dialog.ShowAsync();
 
-                    if (result == ContentDialogResult.Primary)
+                    if (result != ContentDialogResult.Primary)
                     {
-                        // User confirmed - force close
-                        // Unsubscribe from Closed event to prevent recursion
-                        this.Closed -= Window_Closed;
-
-                        // Dispose resources
-                        if (m_micaController != null)
-                        {
-                            m_micaController.Dispose();
-                            m_micaController = null;
-                        }
-                        this.Activated -= Window_Activated;
-                        ((FrameworkElement)this.Content).ActualThemeChanged -= Window_ThemeChanged;
-                        m_configurationSource = null;
-
-                        // Close the window
-                        this.Close();
+                        // User cancelled - window stays open, reset flag
+                        _isClosing = false;
+                        return;
                     }
-                    // else: User cancelled - window stays open
-                    return;
                 }
             }
 
-            // Normal close - dispose resources
-            if (m_micaController != null)
+            // Perform backup in background
+            await System.Threading.Tasks.Task.Run(() => PerformDatabaseSync());
+
+            // Show completion dialog
+            var completionDialog = new ContentDialog
             {
-                m_micaController.Dispose();
-                m_micaController = null;
+                Title = "Záloha dokončena",
+                Content = "Databáze byla úspěšně zálohována.\n\nAplikace bude nyní zavřena.",
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            await completionDialog.ShowAsync();
+
+            // Unsubscribe from Closed event
+            this.Closed -= Window_Closed;
+
+            // Exit application with success code
+            this.DispatcherQueue.TryEnqueue(() => System.Environment.Exit(0));
+        }
+
+        private void PerformDatabaseSync()
+        {
+            try
+            {
+                var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+                var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
+                var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
+
+                // Determine backup path with inline logic (avoid service calls during disposal)
+                string backupFolderPath;
+
+                // Try to read custom path from settings file directly
+                var settingsPath = System.IO.Path.Combine(sourceFolderPath, "AppSettings.json");
+                string customBackupPath = null;
+
+                if (System.IO.File.Exists(settingsPath))
+                {
+                    try
+                    {
+                        var json = System.IO.File.ReadAllText(settingsPath);
+                        var settings = System.Text.Json.JsonSerializer.Deserialize<Models.Settings.AppSettings>(json);
+                        customBackupPath = settings?.BackupPath;
+                    }
+                    catch { /* Ignore parsing errors */ }
+                }
+
+                // Priority 1: Custom BackupPath from settings
+                if (!string.IsNullOrWhiteSpace(customBackupPath) && System.IO.Directory.Exists(customBackupPath))
+                {
+                    backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
+                }
+                // Priority 2: OneDrive
+                else
+                {
+                    string oneDrivePath = System.Environment.GetEnvironmentVariable("OneDrive");
+                    if (!string.IsNullOrEmpty(oneDrivePath) && System.IO.Directory.Exists(oneDrivePath))
+                    {
+                        backupFolderPath = System.IO.Path.Combine(oneDrivePath, "Sklad_2_Data");
+                    }
+                    // Priority 3: Documents (fallback)
+                    else
+                    {
+                        backupFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
+                    }
+                }
+
+                System.IO.Directory.CreateDirectory(backupFolderPath);
+                var backupFilePath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
+
+                if (System.IO.File.Exists(sourceDbPath))
+                {
+                    System.IO.File.Copy(sourceDbPath, backupFilePath, true);
+
+                    var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "AppSettings.json");
+                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "AppSettings.json");
+                    if (System.IO.File.Exists(sourceSettingsPath))
+                    {
+                        System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
+                    }
+                }
             }
-            this.Activated -= Window_Activated;
-            ((FrameworkElement)this.Content).ActualThemeChanged -= Window_ThemeChanged;
-            m_configurationSource = null;
+            catch
+            {
+                // Silent fail - don't block app close
+            }
         }
 
         private void Window_ThemeChanged(FrameworkElement sender, object args)

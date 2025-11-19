@@ -9,5 +9,6 @@ namespace Sklad_2.Services
         AppSettings CurrentSettings { get; set; }
         Task LoadSettingsAsync();
         Task SaveSettingsAsync();
+        string GetBackupFolderPath();
     }
 }

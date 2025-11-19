@@ -20,10 +20,6 @@ namespace Sklad_2.ViewModels
         private bool isPrinterConnected;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ScannerStatusText), nameof(ScannerStatusColor))]
-        private bool isScannerConnected;
-
-        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(DayCloseStatusText), nameof(DayCloseStatusColor))]
         private bool isDayClosedToday;
 
@@ -45,7 +41,6 @@ namespace Sklad_2.ViewModels
 
         // Status texts
         public string PrinterStatusText => IsPrinterConnected ? "Připojena" : "Odpojena";
-        public string ScannerStatusText => IsScannerConnected ? "Připojen" : "Odpojen";
         public string DayCloseStatusText => IsDayClosedToday ? "Provedena" : "Neprovedena";
         public string VatPayerStatusText => IsVatPayer ? "Plátce" : "Neplátce";
         public string CompanyInfoStatusText => IsCompanyInfoComplete ? "Vyplněno" : "Nevyplněno";
@@ -54,7 +49,6 @@ namespace Sklad_2.ViewModels
 
         // Status colors
         public string PrinterStatusColor => IsPrinterConnected ? "#34C759" : "#FF3B30";
-        public string ScannerStatusColor => IsScannerConnected ? "#34C759" : "#999999";
         public string DayCloseStatusColor => IsDayClosedToday ? "#34C759" : "#FF9500";
         public string VatPayerStatusColor => "#007AFF";
         public string CompanyInfoStatusColor => IsCompanyInfoComplete ? "#34C759" : "#FF9500";
@@ -86,9 +80,6 @@ namespace Sklad_2.ViewModels
             // Check printer status
             var settings = _settingsService.CurrentSettings;
             IsPrinterConnected = !string.IsNullOrWhiteSpace(settings.PrinterPath);
-
-            // Check scanner status
-            IsScannerConnected = !string.IsNullOrWhiteSpace(settings.ScannerPath);
 
             // Check if day was closed today
             var lastDayCloseDate = settings.LastDayCloseDate;

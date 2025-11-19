@@ -6,7 +6,9 @@
       "Bash(done)",
       "Bash(powershell -Command \"(Get-Content ''C:\\dev\\Sklad_2\\Services\\SqliteDataService.cs'').Count\")",
       "Bash(powershell -Command \"(Get-Content ''C:\\dev\\Sklad_2\\Views\\NastaveniPage.xaml'').Count\")",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "WebFetch(domain:www.manualslib.com)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

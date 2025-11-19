@@ -91,15 +91,6 @@
                                     </TextBlock>
                                 </StackPanel>
 
-                                <!-- Scanner -->
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE8B4;" FontSize="12" Foreground="{x:Bind StatusBarVM.ScannerStatusColor, Mode=OneWay}"/>
-                                    <TextBlock FontSize="11" Foreground="#666666">
-                                        <Run Text="Scanner:"/>
-                                        <Run Text="{x:Bind StatusBarVM.ScannerStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.ScannerStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
-                                    </TextBlock>
-                                </StackPanel>
-
                                 <!-- Day Close -->
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <FontIcon Glyph="&#xE8B7;" FontSize="12" Foreground="{x:Bind StatusBarVM.DayCloseStatusColor, Mode=OneWay}"/>

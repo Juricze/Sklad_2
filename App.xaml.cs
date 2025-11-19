@@ -15,6 +15,13 @@ namespace Sklad_2
         public IServiceProvider Services { get; }
         private Window m_window;
 
+        // Public accessor for current window (needed for dialogs/pickers in pages)
+        public Window CurrentWindow
+        {
+            get => m_window;
+            set => m_window = value;
+        }
+
         public App()
         {
             this.InitializeComponent();
@@ -31,10 +38,13 @@ namespace Sklad_2
             e.Handled = false; // Let it crash to see the error
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
             var settingsService = Services.GetRequiredService<ISettingsService>();
+            await settingsService.LoadSettingsAsync();
 
+            // Restore from backup if newer version exists
+            await RestoreFromBackupIfNewerAsync(settingsService);
 
             // Show the LoginWindow first
             m_window = new LoginWindow();
@@ -42,6 +52,52 @@ namespace Sklad_2
 
             // m_window = new MainWindow();
             // m_window.Activate();
+        }
+
+        private async Task RestoreFromBackupIfNewerAsync(ISettingsService settingsService)
+        {
+            try
+            {
+                var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+                var localFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
+                var localDbPath = System.IO.Path.Combine(localFolderPath, "sklad.db");
+
+                // Priority: BackupPath → OneDrive → Documents
+                var backupFolderPath = settingsService.GetBackupFolderPath();
+                var backupDbPath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
+
+                if (!System.IO.File.Exists(backupDbPath))
+                {
+                    return; // No backup exists yet
+                }
+
+                // Compare modification times
+                var localLastWrite = System.IO.File.Exists(localDbPath)
+                    ? System.IO.File.GetLastWriteTime(localDbPath)
+                    : DateTime.MinValue;
+                var backupLastWrite = System.IO.File.GetLastWriteTime(backupDbPath);
+
+                // If backup version is newer, restore it
+                if (backupLastWrite > localLastWrite)
+                {
+                    System.IO.Directory.CreateDirectory(localFolderPath);
+                    System.IO.File.Copy(backupDbPath, localDbPath, true);
+
+                    // Also restore settings if they exist
+                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "AppSettings.json");
+                    var localSettingsPath = System.IO.Path.Combine(localFolderPath, "AppSettings.json");
+                    if (System.IO.File.Exists(backupSettingsPath))
+                    {
+                        System.IO.File.Copy(backupSettingsPath, localSettingsPath, true);
+                    }
+                }
+            }
+            catch
+            {
+                // Silent fail - don't block app startup
+            }
+
+            await Task.CompletedTask;
         }
 
         private static IServiceProvider ConfigureServices()
@@ -77,7 +133,12 @@ namespace Sklad_2
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IMessenger>()));
-            services.AddSingleton<NastaveniViewModel>();
+            services.AddSingleton<NastaveniViewModel>(sp => new NastaveniViewModel(
+                sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<IPrintService>(),
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IMessenger>(),
+                sp.GetRequiredService<IAuthService>()));
             services.AddSingleton<UctenkyViewModel>();
             services.AddSingleton<VratkyPrehledViewModel>();
             services.AddSingleton<NovyProduktViewModel>(sp => new NovyProduktViewModel(

@@ -52,26 +52,13 @@ namespace Sklad_2.ViewModels
         private string backupStatusMessage;
 
         [ObservableProperty]
+        private string activeBackupPath;
+
+        [ObservableProperty]
         private string testPrintStatusMessage;
         
         [ObservableProperty]
         private string saveStatusMessage;
-
-        // Password Management Properties
-        [ObservableProperty]
-        private string newAdminPassword;
-
-        [ObservableProperty]
-        private string confirmAdminPassword;
-
-        [ObservableProperty]
-        private string newSalePassword;
-
-        [ObservableProperty]
-        private string adminPasswordStatus;
-
-        [ObservableProperty]
-        private string salePasswordStatus;
 
         [ObservableProperty]
         private string vatStatusMessage;
@@ -107,6 +94,7 @@ namespace Sklad_2.ViewModels
             Settings = _settingsService.CurrentSettings;
 
             LoadVatConfigsCommand.Execute(null);
+            UpdateActiveBackupPath();
 
             // Listen for category changes
             _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
@@ -235,6 +223,29 @@ namespace Sklad_2.ViewModels
         }
 
         [RelayCommand]
+        private async Task SaveBackupPathAsync()
+        {
+            try
+            {
+                await _settingsService.SaveSettingsAsync();
+                UpdateActiveBackupPath();
+                BackupStatusMessage = "Cesta pro zálohy byla úspěšně uložena.";
+                await Task.Delay(3000);
+                BackupStatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                BackupStatusMessage = $"Chyba při ukládání cesty: {ex.Message}";
+            }
+        }
+
+        private void UpdateActiveBackupPath()
+        {
+            var path = _settingsService.GetBackupFolderPath();
+            ActiveBackupPath = $"Aktivní cesta: {path}";
+        }
+
+        [RelayCommand]
         private async Task BackupDatabaseAsync()
         {
             BackupStatusMessage = string.Empty;
@@ -244,14 +255,26 @@ namespace Sklad_2.ViewModels
                 var sourceFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = Path.Combine(sourceFolderPath, "sklad.db");
 
-                var backupFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
+                // Priority: BackupPath → OneDrive → Documents
+                string backupFolderPath = _settingsService.GetBackupFolderPath();
+
                 Directory.CreateDirectory(backupFolderPath);
-                var backupFilePath = Path.Combine(backupFolderPath, $"sklad_backup_{DateTime.Now:yyyyMMdd_HHmmss}.db");
+                var backupFilePath = Path.Combine(backupFolderPath, "sklad.db");
 
                 if (File.Exists(sourceDbPath))
                 {
+                    // Copy database file
                     File.Copy(sourceDbPath, backupFilePath, true);
-                    BackupStatusMessage = $"Databáze úspěšně zálohována do: {backupFilePath}";
+
+                    // Also copy settings if they exist
+                    var sourceSettingsPath = Path.Combine(sourceFolderPath, "AppSettings.json");
+                    var backupSettingsPath = Path.Combine(backupFolderPath, "AppSettings.json");
+                    if (File.Exists(sourceSettingsPath))
+                    {
+                        File.Copy(sourceSettingsPath, backupSettingsPath, true);
+                    }
+
+                    BackupStatusMessage = $"Databáze úspěšně synchronizována do: {backupFilePath}";
                 }
                 else
                 {
@@ -260,56 +283,9 @@ namespace Sklad_2.ViewModels
             }
             catch (Exception ex)
             {
-                BackupStatusMessage = $"Chyba při zálohování databáze: {ex.Message}";
+                BackupStatusMessage = $"Chyba při synchronizaci databáze: {ex.Message}";
             }
             await Task.CompletedTask;
-        }
-
-        [RelayCommand]
-        private async Task ChangeAdminPasswordAsync()
-        {
-            AdminPasswordStatus = string.Empty;
-            if (string.IsNullOrWhiteSpace(NewAdminPassword) || string.IsNullOrWhiteSpace(ConfirmAdminPassword))
-            {
-                AdminPasswordStatus = "Heslo ani jeho potvrzení nesmí být prázdné.";
-                return;
-            }
-
-            if (NewAdminPassword != ConfirmAdminPassword)
-            {
-                AdminPasswordStatus = "Zadaná hesla se neshodují.";
-                return;
-            }
-
-            try
-            {
-                Settings.AdminPassword = NewAdminPassword;
-                await _settingsService.SaveSettingsAsync();
-                AdminPasswordStatus = "Heslo pro Admina bylo úspěšně změněno.";
-                NewAdminPassword = string.Empty;
-                ConfirmAdminPassword = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                AdminPasswordStatus = $"Chyba při ukládání hesla: {ex.Message}";
-            }
-        }
-
-        [RelayCommand]
-        private async Task ChangeSalePasswordAsync()
-        {
-            SalePasswordStatus = string.Empty;
-            try
-            {
-                Settings.SalePassword = NewSalePassword;
-                await _settingsService.SaveSettingsAsync();
-                SalePasswordStatus = "Heslo pro roli Prodej bylo úspěšně nastaveno.";
-                // Note: PasswordBox will be cleared by the page code-behind
-            }
-            catch (Exception ex)
-            {
-                SalePasswordStatus = $"Chyba při ukládání hesla: {ex.Message}";
-            }
         }
 
         [RelayCommand]
@@ -367,9 +343,8 @@ namespace Sklad_2.ViewModels
                 // Generate HTML
                 var html = GenerateReceiptsHtml(receipts, startDate, endDate);
 
-                // Save to Documents folder
-                var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                var exportFolderPath = Path.Combine(documentsPath, "Sklad_2_Exports");
+                // Save to backup folder (same as database backups)
+                var exportFolderPath = _settingsService.GetBackupFolderPath();
                 Directory.CreateDirectory(exportFolderPath);
 
                 var fileName = $"Uctenky_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.html";

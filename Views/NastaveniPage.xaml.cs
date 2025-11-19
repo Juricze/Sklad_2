@@ -27,27 +27,6 @@ namespace Sklad_2.Views
             // Connect UserMgmtVM dialog handlers
             UserMgmtVM.RequestAddUserAsync += HandleRequestAddUserAsync;
             UserMgmtVM.RequestEditUserAsync += HandleRequestEditUserAsync;
-
-            // Pre-fill the sale password box with current password (if set)
-            if (!string.IsNullOrEmpty(ViewModel.Settings.SalePassword))
-            {
-                NewSalePasswordBox.Password = ViewModel.Settings.SalePassword;
-            }
-        }
-
-        private void NewAdminPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            ViewModel.NewAdminPassword = NewAdminPasswordBox.Password;
-        }
-
-        private void ConfirmAdminPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            ViewModel.ConfirmAdminPassword = ConfirmAdminPasswordBox.Password;
-        }
-
-        private void NewSalePasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            ViewModel.NewSalePassword = NewSalePasswordBox.Password;
         }
 
         private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -59,7 +38,6 @@ namespace Sklad_2.Views
                 VatSettingsPanel.Visibility = tag == "VAT" ? Visibility.Visible : Visibility.Collapsed;
                 CategoriesPanel.Visibility = tag == "Categories" ? Visibility.Visible : Visibility.Collapsed;
                 UsersPanel.Visibility = tag == "Users" ? Visibility.Visible : Visibility.Collapsed;
-                PasswordSettingsPanel.Visibility = tag == "Passwords" ? Visibility.Visible : Visibility.Collapsed;
                 SystemSettingsPanel.Visibility = tag == "System" ? Visibility.Visible : Visibility.Collapsed;
                 AboutPanel.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;
 
@@ -100,6 +78,26 @@ namespace Sklad_2.Views
             }
 
             return (false, null, null, null, null);
+        }
+
+        private async void BrowseBackupFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            folderPicker.FileTypeFilter.Add("*");
+
+            // Get the window handle from current app window
+            var app = Application.Current as App;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
+
+            var folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                ViewModel.Settings.BackupPath = folder.Path;
+                // Update preview of active path (not saved yet, but shows what it will be)
+                await ViewModel.SaveBackupPathCommand.ExecuteAsync(null);
+            }
         }
     }
 }

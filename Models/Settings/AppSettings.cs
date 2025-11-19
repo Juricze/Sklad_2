@@ -13,8 +13,7 @@ namespace Sklad_2.Models.Settings
         public bool IsVatPayer { get; set; }
         public string PrinterPath { get; set; }
         public string ScannerPath { get; set; }
-        public string AdminPassword { get; set; }
-        public string SalePassword { get; set; }
+        public string BackupPath { get; set; }
         public DateTime? LastSaleLoginDate { get; set; }
         public DateTime? LastDayCloseDate { get; set; }
 

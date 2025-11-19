@@ -66,5 +66,24 @@ namespace Sklad_2.Services
             await File.WriteAllTextAsync(settingsFilePath, json);
             Debug.WriteLine($"Settings saved. LastSaleLoginDate: {CurrentSettings.LastSaleLoginDate}");
         }
+
+        public string GetBackupFolderPath()
+        {
+            // Priority 1: Custom BackupPath from settings
+            if (!string.IsNullOrWhiteSpace(CurrentSettings.BackupPath) && Directory.Exists(CurrentSettings.BackupPath))
+            {
+                return Path.Combine(CurrentSettings.BackupPath, "Sklad_2_Data");
+            }
+
+            // Priority 2: OneDrive
+            string oneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+            if (!string.IsNullOrEmpty(oneDrivePath) && Directory.Exists(oneDrivePath))
+            {
+                return Path.Combine(oneDrivePath, "Sklad_2_Data");
+            }
+
+            // Priority 3: Documents (fallback)
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
+        }
     }
 }

@@ -21,7 +21,6 @@
                     <NavigationViewItem Content="Sazby DPH" Tag="VAT" Visibility="{x:Bind ViewModel.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Kategorie" Tag="Categories" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Uživatelé" Tag="Users" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
-                    <NavigationViewItem Content="Hesla" Tag="Passwords" Visibility="{x:Bind ViewModel.IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"/>
                     <NavigationViewItem Content="Systém" Tag="System"/>
                     <NavigationViewItem Content="O aplikaci" Tag="About"/>
                 </NavigationView.MenuItems>
@@ -139,81 +138,6 @@
                                            TextWrapping="Wrap"
                                            Foreground="{x:Bind ViewModel.IsVatStatusError, Mode=OneWay, Converter={StaticResource BooleanToColorConverter}}"/>
                             </Border>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <!-- Password Settings Panel -->
-                    <ScrollViewer x:Name="PasswordSettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="24" Padding="0,0,12,0">
-                            <TextBlock Text="Správa hesel" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-
-                            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                Změňte hesla pro přístup do aplikace. Heslo pro roli Admin je povinné, heslo pro roli Prodej je volitelné.
-                            </TextBlock>
-
-                            <!-- Admin Password Section -->
-                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Změna hesla pro Admina" FontWeight="SemiBold"/>
-                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Heslo musí být vyplněno a obě pole musí souhlasit.
-                                </TextBlock>
-                                <PasswordBox x:Name="NewAdminPasswordBox"
-                                             Header="Nové heslo"
-                                             PasswordChanged="NewAdminPasswordBox_PasswordChanged"
-                                             PlaceholderText="Zadejte nové heslo"/>
-                                <PasswordBox x:Name="ConfirmAdminPasswordBox"
-                                             Header="Potvrzení nového hesla"
-                                             PasswordChanged="ConfirmAdminPasswordBox_PasswordChanged"
-                                             PlaceholderText="Zadejte heslo znovu"/>
-                                <Button Content="Změnit heslo Admina"
-                                        Command="{x:Bind ViewModel.ChangeAdminPasswordCommand}"
-                                        Style="{StaticResource AccentButtonStyle}"
-                                        HorizontalAlignment="Stretch"/>
-
-                                <!-- Admin Password Status -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="4"
-                                        Padding="8"
-                                        Margin="0,8,0,0"
-                                        Visibility="{x:Bind ViewModel.AdminPasswordStatus, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
-                                    <TextBlock Text="{x:Bind ViewModel.AdminPasswordStatus, Mode=OneWay}"
-                                               TextWrapping="Wrap"
-                                               FontSize="13"
-                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- Sale Password Section -->
-                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Nastavení hesla pro roli Prodej" FontWeight="SemiBold"/>
-                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Ponechte prázdné pro uzamčení role Prodej. Vyplněním hesla povolíte přístup pro tuto roli.
-                                </TextBlock>
-                                <PasswordBox x:Name="NewSalePasswordBox"
-                                             Header="Heslo pro 'Prodej'"
-                                             PasswordChanged="NewSalePasswordBox_PasswordChanged"
-                                             PlaceholderText="Ponechte prázdné pro uzamčení"/>
-                                <Button Content="Nastavit heslo pro 'Prodej'"
-                                        Command="{x:Bind ViewModel.ChangeSalePasswordCommand}"
-                                        Style="{StaticResource AccentButtonStyle}"
-                                        HorizontalAlignment="Stretch"/>
-
-                                <!-- Sale Password Status -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="4"
-                                        Padding="8"
-                                        Margin="0,8,0,0"
-                                        Visibility="{x:Bind ViewModel.SalePasswordStatus, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
-                                    <TextBlock Text="{x:Bind ViewModel.SalePasswordStatus, Mode=OneWay}"
-                                               TextWrapping="Wrap"
-                                               FontSize="13"
-                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                </Border>
-                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -343,25 +267,69 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Scanner Section -->
+                            <!-- Backup Path Configuration -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Nastavení EAN scanneru" FontWeight="SemiBold"/>
+                                <TextBlock Text="Nastavení cesty pro zálohy a exporty" FontWeight="SemiBold"/>
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Zadejte cestu k EAN scanneru nebo COM port. Scanner bude použit pro rychlé skenování produktů.
+                                    Nastavte vlastní složku pro ukládání záloh databáze a exportů pro FÚ.
+                                    Pokud cestu nenastavíte, použije se OneDrive (pokud je dostupný) nebo složka Dokumenty.
                                 </TextBlock>
-                                <TextBox Header="Cesta k EAN scanneru"
-                                         Text="{x:Bind ViewModel.Settings.ScannerPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         PlaceholderText="Např. COM2 nebo USB"
+
+                                <!-- Active Backup Path Display -->
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="12"
+                                        Margin="0,4,0,4">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="📁 Aktuálně používaná cesta" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{x:Bind ViewModel.ActiveBackupPath, Mode=OneWay}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                   FontFamily="Consolas"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBox Header="Cesta k záložní složce"
+                                         Text="{x:Bind ViewModel.Settings.BackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PlaceholderText="Např. C:\Zálohy nebo prázdné pro automatickou detekci"
                                          IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Button Content="Procházet složky..."
+                                        Click="BrowseBackupFolderButton_Click"
+                                        HorizontalAlignment="Left"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Button Content="Uložit cestu"
+                                        Command="{x:Bind ViewModel.SaveBackupPathCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,8,0,0"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+
+                                <!-- Backup Status -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="8"
+                                        Margin="0,8,0,0"
+                                        Visibility="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                </Border>
                             </StackPanel>
 
-                            <!-- Database Section -->
+                            <!-- Database Sync Section -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Správa databáze" FontWeight="SemiBold"/>
+                                <TextBlock Text="Synchronizace databáze" FontWeight="SemiBold"/>
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Zálohujte databázi do složky Dokumenty/Sklad_2_Backups. Záloha obsahuje všechny produkty, účtenky a nastavení.
+                                    Databáze se automaticky zálohuje při zavření aplikace do nastavené složky.
+                                    Tlačítko níže provede okamžitou synchronizaci.
                                 </TextBlock>
-                                <Button Content="Zálohovat databázi"
+                                <Button Content="Synchronizovat nyní"
                                         Command="{x:Bind ViewModel.BackupDatabaseCommand}"
                                         Style="{StaticResource AccentButtonStyle}"
                                         HorizontalAlignment="Stretch"
