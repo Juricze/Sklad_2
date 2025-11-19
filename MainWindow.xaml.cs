@@ -18,9 +18,9 @@ namespace Sklad_2
         SystemBackdropConfiguration m_configurationSource;
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
-        private bool IsSalesRole;
-        private bool IsAdmin;
-        private bool _isClosing = false;
+        private readonly bool IsSalesRole;
+        private readonly bool IsAdmin;
+        private bool _isClosing;
 
         public StatusBarViewModel StatusBarVM { get; }
 
@@ -349,12 +349,13 @@ namespace Sklad_2
 
         private void SetConfigurationSourceTheme()
         {
-            switch (((FrameworkElement)this.Content).ActualTheme)
+            m_configurationSource.Theme = ((FrameworkElement)this.Content).ActualTheme switch
             {
-                case ElementTheme.Dark: m_configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark; break;
-                case ElementTheme.Light: m_configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light; break;
-                case ElementTheme.Default: m_configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default; break;
-            }
+                ElementTheme.Dark => Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark,
+                ElementTheme.Light => Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light,
+                ElementTheme.Default => Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default,
+                _ => Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default
+            };
         }
 
 
@@ -497,10 +498,12 @@ namespace Sklad_2
 
             if (m_dispatcherQueueController == null)
             {
-                DispatcherQueueOptions options;
-                options.dwSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(DispatcherQueueOptions));
-                options.threadType = 2;    // DQTYPE_THREAD_CURRENT
-                options.apartmentType = 2; // DQTAT_COM_STA
+                var options = new DispatcherQueueOptions
+                {
+                    dwSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(DispatcherQueueOptions)),
+                    threadType = 2,    // DQTYPE_THREAD_CURRENT
+                    apartmentType = 2  // DQTAT_COM_STA
+                };
 
                 System.IntPtr dispatcherQueueController_ptr = System.IntPtr.Zero;
                 CreateDispatcherQueueController(options, ref dispatcherQueueController_ptr);
