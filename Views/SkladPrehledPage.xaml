@@ -144,7 +144,18 @@
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
                                     <TextBlock Text="{x:Bind ProductName}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{x:Bind ProductEan}" FontSize="11" Opacity="0.7"/>
+                                    <Button Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            HorizontalAlignment="Left"
+                                            Click="CopyEan_Click"
+                                            Tag="{x:Bind ProductEan}"
+                                            ToolTipService.ToolTip="Klikněte pro zkopírování EAN">
+                                        <TextBlock FontSize="11" Opacity="0.7" TextDecorations="Underline">
+                                            <Run Text="📋"/>
+                                            <Run Text="{x:Bind ProductEan}"/>
+                                        </TextBlock>
+                                    </Button>
                                 </StackPanel>
 
                                 <TextBlock Grid.Column="2"

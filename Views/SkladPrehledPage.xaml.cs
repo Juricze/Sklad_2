@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Models;
 using Sklad_2.ViewModels;
 using System;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace Sklad_2.Views
 {
@@ -38,6 +39,37 @@ namespace Sklad_2.Views
                 {
                     ViewModel.SelectedDateFilter = filterType;
                 }
+            }
+        }
+
+        private void CopyEan_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string ean)
+            {
+                var dataPackage = new DataPackage();
+                dataPackage.SetText(ean);
+                Clipboard.SetContent(dataPackage);
+
+                // Store original content
+                var originalContent = button.Content;
+
+                // Show confirmation
+                var confirmText = new TextBlock
+                {
+                    Text = "✓ Zkopírováno",
+                    FontSize = 11,
+                    Opacity = 0.7
+                };
+                button.Content = confirmText;
+
+                // Reset after 1 second
+                var timer = new System.Threading.Timer(_ =>
+                {
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        button.Content = originalContent;
+                    });
+                }, null, 1000, System.Threading.Timeout.Infinite);
             }
         }
     }
