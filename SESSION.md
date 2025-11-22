@@ -17,28 +17,46 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 18. listopad 2025**
+## 📅 **Poslední session: 19. listopad 2025**
 
 ### ✅ Hotovo:
-**Kompletní UI optimalizace pro neplátce DPH** - 6 fází implementováno a otestováno
+**Vlastní cesta pro zálohy a exporty + Dialog při zavření aplikace**
 
-**Upraveno 17 souborů:**
-- ViewModels (6): NastaveniViewModel, NovyProduktViewModel, PrehledProdejuViewModel, DatabazeViewModel, VratkyViewModel, StatusBarViewModel
-- Views (7): NastaveniPage, NovyProduktPage, PrehledProdejuPage, DatabazePage, VratkyPage, MainWindow, ReturnPreviewDialog
-- Code-behind (2): MainWindow.xaml.cs, ReturnPreviewDialog.xaml.cs
-- DI (1): App.xaml.cs
+**Upraveno 6 souborů:**
+- Models (1): AppSettings.cs - přidán BackupPath
+- Services (2): ISettingsService.cs, SettingsService.cs - přidán GetBackupFolderPath()
+- ViewModels (1): NastaveniViewModel.cs - UI pro výběr cesty, ActiveBackupPath zobrazení
+- Views (1): NastaveniPage.xaml - UI pro nastavení cesty
+- Code-behind (2): NastaveniPage.xaml.cs (FolderPicker), MainWindow.xaml.cs (dialog při zavření)
+- DI (1): App.xaml.cs - CurrentWindow property, RestoreFromBackupIfNewerAsync()
 
 **Klíčové změny:**
-- ✅ Dynamické skrývání DPH prvků podle `IsVatPayer`
-- ✅ Podmíněná validace - neplátce DPH nemusí nastavovat DPH kategorie
-- ✅ Auto-refresh při změně settings
-- ✅ Právně správné doklady pro neplátce DPH
+- ✅ Vlastní konfigurovatelná cesta pro zálohy a exporty FÚ
+- ✅ Priorita: Vlastní cesta → OneDrive → Dokumenty (fallback)
+- ✅ UI zobrazení aktivní cesty (📁 ikona + modrý text)
+- ✅ Dialog "Záloha dokončena" při zavření aplikace
+- ✅ Čisté ukončení s exit code 0 (Environment.Exit)
+- ✅ Opraveny chyby: NullReferenceException, Invalid window handle, Access Violation
+- ✅ Opraveny build warningy (readonly fields, switch expression, object init)
+
+**Technické detaily:**
+- `GetBackupFolderPath()` v SettingsService - centralizovaná logika
+- Export FÚ používá STEJNOU cestu jako zálohy
+- Dialog při zavření: Task.Run() → dialog → Environment.Exit(0) přes DispatcherQueue
+- FolderPicker fix: `app.CurrentWindow` místo `Window.Current` (null v WinUI 3)
+- Flag `_isClosing` zabraňuje nekonečnému cyklu Window_Closed
+
+### 🧪 Zbývá otestovat:
+1. Výběr záložní složky v Nastavení → Systém
+2. Ověřit, že záloha se ukládá do vybrané složky
+3. Ověřit, že export FÚ se ukládá do stejné složky
+4. Zavření aplikace - dialog "Záloha dokončena" + exit code 0
 
 ### 🔧 Další úkoly:
 1. **PRIORITA:** Systém uživatelských účtů
 2. Export uzavírek do CSV/PDF
 3. Skutečný PrintService
-4. Scanner integrace
+4. Scanner integrace (POZASTAVENO - HID scanners fungují automaticky)
 
 ---
 
@@ -140,6 +158,44 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    </ItemsRepeater>
    ```
 
+12. **Window.Current je null v WinUI 3** ⚠️ NOVÉ!
+   - `Microsoft.UI.Xaml.Window.Current` vrací `null`
+   - **Řešení pro FolderPicker:**
+   ```csharp
+   // V App.xaml.cs
+   public Window CurrentWindow { get; set; }
+
+   // V MainWindow konstruktoru
+   app.CurrentWindow = this;
+
+   // Pro FolderPicker
+   var app = Application.Current as App;
+   var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+   ```
+
+13. **Window_Closed a async operace** ⚠️ NOVÉ!
+   - Přímé volání file operací v `Window_Closed` může způsobit Access Violation
+   - **Řešení:**
+   ```csharp
+   private async void Window_Closed(object sender, WindowEventArgs args)
+   {
+       // Prevent multiple executions
+       if (_isClosing) return;
+       _isClosing = true;
+       args.Handled = true;  // Cancel initial close
+
+       // Perform operations
+       await Task.Run(() => PerformBackup());
+       await completionDialog.ShowAsync();
+
+       // Unsubscribe and exit
+       this.Closed -= Window_Closed;
+       this.DispatcherQueue.TryEnqueue(() => Environment.Exit(0));
+   }
+   ```
+   - Flag `_isClosing` zabraňuje nekonečnému cyklu
+   - `Environment.Exit(0)` vrací správný exit code (ne -1)
+
 ### Databáze (EF Core + SQLite)
 
 1. **Žádné migrace!**
@@ -149,6 +205,12 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 2. **DbContextFactory pattern**
    - Registrace: `services.AddDbContextFactory<DatabaseContext>()`
    - Workaround pro WinUI TwoWay binding issues
+
+3. **Hybrid Backup Strategy** ⚠️ NOVÉ!
+   - Aplikace běží 100% offline z LocalAppData
+   - Záloha na OneDrive/vlastní složku při zavření
+   - Restore při startu pokud backup je novější
+   - **NIKDY** neukládat živou databázi přímo na OneDrive (riziko korupce)
 
 ### Pokladna (Cash Register)
 
@@ -168,7 +230,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 **Profesionální storno systém:**
 - ❌ **NIKDY NEMAZAT účtenku** (nelegální!)
 - ✅ Vytvořit storno účtenku s **negativními hodnotami**
-- Storno pokračuje v číselné řadě (2025/0007 → ❌2025/0008)
+- Storno pokračuje v číselné řadě (2025/0007 → 2025/0008)
 - `IsStorno = true`, `OriginalReceiptId` pro odkaz
 
 **Formát účtenek:**
@@ -200,6 +262,12 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 ### Problém: ListView initialization
 - Data musí být načtena před `InitializeComponent()`
 - **Řešení:** Načíst data v konstruktoru ViewModelu
+
+### Problém: Build warningy - platform support
+- Mnoho warningů "is only supported on Windows 10.0.17763.0+"
+- **Vysvětlení:** Analyzátor zatím neví, že projekt cílí POUZE Windows
+- WinUI build proces tyto warningy automaticky vyřeší
+- **Lze ignorovat** - zmizí po dokončení buildu
 
 ---
 
@@ -237,7 +305,14 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ### 🔴 Prioritní úkoly (listopad 2025):
 
-1. **Systém uživatelských účtů** ⏳ NEXT
+1. **Vlastní cesta pro zálohy** ✅ HOTOVO!
+   - ✅ Konfigurovatelná cesta v Nastavení → Systém
+   - ✅ Priorita: Vlastní → OneDrive → Dokumenty
+   - ✅ Export FÚ používá stejnou cestu
+   - ✅ Dialog při zavření aplikace
+   - 🧪 Zbývá otestovat v produkci
+
+2. **Systém uživatelských účtů** ⏳ NEXT
    - Implementovat databázovou tabulku Users
    - Nahradit fixed roles (Admin/Prodej) skutečnými uživateli
    - Každý prodavač vlastní login + jméno
@@ -248,14 +323,14 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 - Export uzavírek do CSV/PDF
 - Skutečný PrintService (tisk na běžnou tiskárnu)
 - Respektovat "Plátce DPH" v tisku
-- Scanner integrace
+- Scanner integrace (POZASTAVENO - HID funguje automaticky)
 - Vylepšit error handling (lokalizované hlášky)
 
 ---
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 10/14 hlavních funkcí (~71%)
+**Hotovo:** 11/14 hlavních funkcí (~79%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -267,14 +342,14 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 7. Historie pokladny s filtry
 8. Dynamická správa kategorií
 9. PPD Compliance (profesionální účtenky, storno, export FÚ)
-10. **UI optimalizace pro neplátce DPH** ✅ NOVÉ!
+10. UI optimalizace pro neplátce DPH
+11. **Vlastní cesta pro zálohy + Dialog při zavření** ✅ NOVÉ!
 
 ### ⏳ Zbývá:
 1. Systém uživatelských účtů
 2. Export uzavírek (CSV/PDF)
 3. Tisk (PrintService je placeholder)
-4. Scanner integrace
 
 ---
 
-**Poslední aktualizace:** 18. listopad 2025
+**Poslední aktualizace:** 19. listopad 2025

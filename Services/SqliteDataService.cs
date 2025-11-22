@@ -44,7 +44,7 @@ namespace Sklad_2.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate)
+        public async Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate, string userName)
         {
             using var context = _contextFactory.CreateDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();
@@ -52,9 +52,41 @@ namespace Sklad_2.Services
             {
                 await context.Receipts.AddAsync(receipt);
 
+                // Track stock changes before updating
+                var stockChanges = new Dictionary<string, (Product product, int oldStock)>();
                 foreach (var product in productsToUpdate)
                 {
+                    var originalProduct = await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Ean == product.Ean);
+                    if (originalProduct != null)
+                    {
+                        stockChanges[product.Ean] = (product, originalProduct.StockQuantity);
+                    }
                     context.Products.Update(product);
+                }
+
+                await context.SaveChangesAsync();
+
+                // Create stock movement records for each product sold
+                foreach (var kvp in stockChanges)
+                {
+                    var product = kvp.Value.product;
+                    var oldStock = kvp.Value.oldStock;
+                    var quantityChange = product.StockQuantity - oldStock;
+
+                    var stockMovement = new StockMovement
+                    {
+                        ProductEan = product.Ean,
+                        ProductName = product.Name,
+                        MovementType = StockMovementType.Sale,
+                        QuantityChange = quantityChange,
+                        StockBefore = oldStock,
+                        StockAfter = product.StockQuantity,
+                        Timestamp = DateTime.Now,
+                        UserName = userName,
+                        Notes = $"Prodej (účtenka {receipt.ReceiptYear}/{receipt.ReceiptSequence})",
+                        ReferenceId = receipt.ReceiptId
+                    };
+                    await context.StockMovements.AddAsync(stockMovement);
                 }
 
                 await context.SaveChangesAsync();
@@ -267,6 +299,49 @@ namespace Sklad_2.Services
                 user.IsActive = isActive;
                 await context.SaveChangesAsync();
             }
+        }
+
+        // Stock Movements
+        public async Task AddStockMovementAsync(StockMovement movement)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.StockMovements.AddAsync(movement);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<StockMovement>> GetStockMovementsAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.StockMovements
+                .OrderByDescending(sm => sm.Timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<List<StockMovement>> GetStockMovementsAsync(DateTime startDate, DateTime endDate)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.StockMovements
+                .Where(sm => sm.Timestamp >= startDate && sm.Timestamp <= endDate)
+                .OrderByDescending(sm => sm.Timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<List<StockMovement>> GetStockMovementsByProductAsync(string productEan)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.StockMovements
+                .Where(sm => sm.ProductEan == productEan)
+                .OrderByDescending(sm => sm.Timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<List<StockMovement>> GetStockMovementsByTypeAsync(StockMovementType movementType)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.StockMovements
+                .Where(sm => sm.MovementType == movementType)
+                .OrderByDescending(sm => sm.Timestamp)
+                .ToListAsync();
         }
     }
 }

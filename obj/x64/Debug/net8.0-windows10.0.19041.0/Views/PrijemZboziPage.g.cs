@@ -360,7 +360,7 @@ namespace Sklad_2.Views
                     }
                 }
             }
-            private void Update_ViewModel_AddToStockCommand(global::CommunityToolkit.Mvvm.Input.IRelayCommand obj, int phase)
+            private void Update_ViewModel_AddToStockCommand(global::CommunityToolkit.Mvvm.Input.IAsyncRelayCommand obj, int phase)
             {
                 if ((phase & ((1 << 0) | NOT_PHASED )) != 0)
                 {

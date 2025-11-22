@@ -17,6 +17,11 @@
                 <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder" SelectsOnInvoked="False">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Produkty (Přehled)" Tag="Produkty" Icon="Document"/>
+                        <NavigationViewItem Content="Sklad (Přehled)" Tag="SkladPrehled">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7B8;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem Content="Nový produkt" Tag="NovyProdukt" Icon="Add"/>
                         <NavigationViewItem Content="Účtenky (přehled)" Tag="Uctenky" Icon="Calculator"/>
                         <NavigationViewItem Content="Vratky (přehled)" Tag="VratkyPrehled" Icon="Calculator"/>

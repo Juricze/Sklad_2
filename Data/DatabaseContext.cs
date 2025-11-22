@@ -16,12 +16,30 @@ namespace Sklad_2.Data
         public DbSet<CashRegisterEntry> CashRegisterEntries { get; set; }
         public DbSet<VatConfig> VatConfigs { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
 
         public DatabaseContext()
         {
             try
             {
-                Database.EnsureCreated();
+                Debug.WriteLine("DatabaseContext: Creating database...");
+                var created = Database.EnsureCreated();
+                Debug.WriteLine($"DatabaseContext: Database created = {created}");
+
+                // Log all tables
+                var connection = Database.GetDbConnection();
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT name FROM sqlite_master WHERE type='table'";
+                using (var reader = command.ExecuteReader())
+                {
+                    Debug.WriteLine("DatabaseContext: Tables in database:");
+                    while (reader.Read())
+                    {
+                        Debug.WriteLine($"  - {reader.GetString(0)}");
+                    }
+                }
+                connection.Close();
             }
             catch (Exception ex)
             {

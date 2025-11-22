@@ -22,7 +22,7 @@ namespace Sklad_2.Services
         Task<List<Return>> GetReturnsAsync();
         Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate);
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
-        Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate);
+        Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate, string userName);
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();
         Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate);
 
@@ -41,5 +41,12 @@ namespace Sklad_2.Services
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task SetUserActiveAsync(int userId, bool isActive);
+
+        // Stock Movements
+        Task AddStockMovementAsync(StockMovement movement);
+        Task<List<StockMovement>> GetStockMovementsAsync();
+        Task<List<StockMovement>> GetStockMovementsAsync(DateTime startDate, DateTime endDate);
+        Task<List<StockMovement>> GetStockMovementsByProductAsync(string productEan);
+        Task<List<StockMovement>> GetStockMovementsByTypeAsync(StockMovementType movementType);
     }
 }

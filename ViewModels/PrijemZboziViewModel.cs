@@ -10,6 +10,7 @@ namespace Sklad_2.ViewModels
     public partial class PrijemZboziViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly IAuthService _authService;
 
         [ObservableProperty]
         private string ean = string.Empty;
@@ -27,9 +28,10 @@ namespace Sklad_2.ViewModels
 
         public bool IsProductFound => FoundProduct != null;
 
-        public PrijemZboziViewModel(IDataService dataService)
+        public PrijemZboziViewModel(IDataService dataService, IAuthService authService)
         {
             _dataService = dataService;
+            _authService = authService;
         }
 
         [RelayCommand]
@@ -66,7 +68,7 @@ namespace Sklad_2.ViewModels
         private bool CanAddToStock() => FoundProduct != null;
 
         [RelayCommand(CanExecute = nameof(CanAddToStock))]
-        private void AddToStock()
+        private async Task AddToStockAsync()
         {
             StatusMessage = string.Empty;
 
@@ -82,11 +84,36 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
+            if (stockQuantityValue <= 0)
+            {
+                StatusMessage = "Počet kusů musí být větší než 0.";
+                return;
+            }
+
             try
             {
                 // Use FoundProduct directly, as it should already be loaded
+                int stockBefore = FoundProduct.StockQuantity;
                 FoundProduct.StockQuantity += stockQuantityValue;
-                _dataService.UpdateProductAsync(FoundProduct);
+                int stockAfter = FoundProduct.StockQuantity;
+
+                await _dataService.UpdateProductAsync(FoundProduct);
+
+                // Record stock movement - Stock In
+                var stockMovement = new StockMovement
+                {
+                    ProductEan = FoundProduct.Ean,
+                    ProductName = FoundProduct.Name,
+                    MovementType = StockMovementType.StockIn,
+                    QuantityChange = stockQuantityValue,
+                    StockBefore = stockBefore,
+                    StockAfter = stockAfter,
+                    Timestamp = DateTime.Now,
+                    UserName = _authService.CurrentUser?.DisplayName ?? "Systém",
+                    Notes = $"Naskladnění +{stockQuantityValue} ks"
+                };
+                await _dataService.AddStockMovementAsync(stockMovement);
+
                 StatusMessage = $"Skladové zásoby produktu '{FoundProduct.Name}' (EAN: {FoundProduct.Ean}) byly navýšeny o {stockQuantityValue} ks. Nový stav: {FoundProduct.StockQuantity} ks.";
             }
             catch (Exception ex)

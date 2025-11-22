@@ -185,6 +185,22 @@ namespace Sklad_2.ViewModels
                 else
                 {
                     await _dataService.AddProductAsync(newProduct);
+
+                    // Record stock movement - Product Created
+                    var stockMovement = new StockMovement
+                    {
+                        ProductEan = newProduct.Ean,
+                        ProductName = newProduct.Name,
+                        MovementType = StockMovementType.ProductCreated,
+                        QuantityChange = 0,
+                        StockBefore = 0,
+                        StockAfter = 0,
+                        Timestamp = DateTime.Now,
+                        UserName = _authService.CurrentUser?.DisplayName ?? "Systém",
+                        Notes = "Nový produkt vytvořen"
+                    };
+                    await _dataService.AddStockMovementAsync(stockMovement);
+
                     StatusMessage = "Nový produkt byl úspěšně přidán do databáze!";
 
                     // Clear fields

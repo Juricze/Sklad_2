@@ -453,6 +453,7 @@ C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xb
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xbf
+C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\SkladPrehledPage.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPage.xbf
 C:\dev\Sklad_2\bin\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xbf
@@ -812,6 +813,8 @@ C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.g.
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.g.cs
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.g.i.cs
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.g.cs
+C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\SkladPrehledPage.g.i.cs
+C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\SkladPrehledPage.g.cs
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.g.i.cs
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.g.cs
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPage.g.i.cs
@@ -843,6 +846,7 @@ C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xa
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xaml
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xaml
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xaml
+C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\SkladPrehledPage.xaml
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.xaml
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPage.xaml
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xaml
@@ -870,6 +874,7 @@ C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\NovyProduktPage.xb
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrehledProdejuPage.xbf
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\PrijemZboziPage.xbf
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\ProdejPage.xbf
+C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\SkladPrehledPage.xbf
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\UctenkyPage.xbf
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPage.xbf
 C:\dev\Sklad_2\obj\x64\Debug\net8.0-windows10.0.19041.0\Views\VratkyPrehledPage.xbf

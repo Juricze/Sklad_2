@@ -272,7 +272,9 @@ namespace Sklad_2.ViewModels
                     ChangeAmount = changeAmount
                 };
 
-                var (success, serviceErrorMessage) = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate);
+                var userName = _authService.CurrentUser?.DisplayName ?? "Neznámý";
+                var result = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate, userName);
+                var (success, serviceErrorMessage) = result;
 
                 if (success)
                 {

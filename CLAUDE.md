@@ -237,6 +237,23 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - Auto-refresh při změně nastavení Plátce/Neplátce
    - Právně správné doklady pro neplátce (bez DIČ, bez "DAŇOVÝ DOKLAD", bez DPH rozkladu)
 
+10. ✅ **Vlastní cesta pro zálohy a exporty** (19.11.2025)
+   - Konfigurovatelná cesta v Nastavení → Systém
+   - Priorita: Vlastní cesta → OneDrive → Dokumenty (fallback)
+   - UI zobrazení aktivní cesty (📁 ikona + modrý text)
+   - FolderPicker pro výběr složky
+   - Export FÚ používá stejnou cestu jako zálohy
+   - Dialog "Záloha dokončena" při zavření aplikace
+   - Čisté ukončení s exit code 0 (Environment.Exit)
+   - Hybrid backup strategy: aplikace běží offline, záloha při zavření
+   - Auto-restore při startu pokud backup je novější
+
+11. ✅ **Systém uživatelských účtů** (22.11.2025)
+   - Databázová tabulka Users
+   - Skutečné uživatele s přihlášením (nahrazuje fixed roles)
+   - Role/oprávnění per uživatel
+   - SellerName = skutečné jméno prodavače
+
 ### ⏳ Zbývá udělat
 
 1. ⏳ **Export uzavírek do CSV/PDF**
@@ -252,15 +269,11 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - Lokalizované chybové hlášky (zatím anglické exception messages)
    - User-friendly error dialogy
 
-4. ⏳ **Scanner integrace**
-   - Implementovat skutečnou detekci EAN scanneru
-   - Aktualizovat StatusBarViewModel (zatím vždy "Odpojen")
-
 ### 💡 Možná budoucí vylepšení
 
 - Grafy vývoje tržeb v čase (najít stabilní charting library)
 - Nejvyšší/nejnižší účtenka v dashboardu
 - Srovnání s předchozím obdobím (% růst/pokles)
 - Nejčastější hodina prodeje (rush hour analýza)
-- Cloud záloha databáze
 - Multi-store podpora
+- Scanner integrace (POZASTAVENO - EAN scanners fungují jako HID klávesnice automaticky)

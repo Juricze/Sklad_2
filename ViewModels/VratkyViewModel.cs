@@ -18,6 +18,7 @@ namespace Sklad_2.ViewModels
         private readonly ISettingsService _settingsService;
         private readonly ICashRegisterService _cashRegisterService;
         private readonly IMessenger _messenger;
+        private readonly IAuthService _authService;
 
         public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
@@ -54,12 +55,13 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return lastCreatedReturn;
 
-        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IMessenger messenger)
+        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IMessenger messenger, IAuthService authService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _cashRegisterService = cashRegisterService;
             _messenger = messenger;
+            _authService = authService;
 
             // Listen for settings changes to update IsVatPayer property
             _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
@@ -161,8 +163,25 @@ namespace Sklad_2.ViewModels
                     var product = await _dataService.GetProductAsync(itemVM.OriginalItem.ProductEan);
                     if (product != null)
                     {
+                        int stockBefore = product.StockQuantity;
                         product.StockQuantity += itemVM.ReturnQuantity;
+                        int stockAfter = product.StockQuantity;
                         await _dataService.UpdateProductAsync(product);
+
+                        // Record stock movement - Return
+                        var stockMovement = new StockMovement
+                        {
+                            ProductEan = product.Ean,
+                            ProductName = product.Name,
+                            MovementType = StockMovementType.Return,
+                            QuantityChange = itemVM.ReturnQuantity,
+                            StockBefore = stockBefore,
+                            StockAfter = stockAfter,
+                            Timestamp = DateTime.Now,
+                            UserName = _authService.CurrentUser?.DisplayName ?? "Systém",
+                            Notes = $"Vratka k účtence č. {FoundReceipt.ReceiptId}"
+                        };
+                        await _dataService.AddStockMovementAsync(stockMovement);
                     }
 
                     // Create return item

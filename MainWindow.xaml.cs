@@ -52,7 +52,7 @@ namespace Sklad_2
             this.Activated += OnFirstActivated;
 
             // Hide menu items based on role
-            if (IsSalesRole)
+            if (IsSalesRole || !IsAdmin)
             {
                 foreach (var item in NavView.MenuItems)
                 {
@@ -65,6 +65,11 @@ namespace Sklad_2
                                 var tag = navItem.Tag as string;
                                 // Hide for Cashier role
                                 if (tag == "PrehledProdeju" || tag == "NovyProdukt" || tag == "HistoriePokladny")
+                                {
+                                    navItem.Visibility = Visibility.Collapsed;
+                                }
+                                // Hide "Sklad (Přehled)" for non-Admin
+                                if (tag == "SkladPrehled" && !IsAdmin)
                                 {
                                     navItem.Visibility = Visibility.Collapsed;
                                 }
@@ -399,6 +404,9 @@ namespace Sklad_2
                     break;
                 case "Produkty":
                     page = new DatabazePage();
+                    break;
+                case "SkladPrehled":
+                    page = new SkladPrehledPage();
                     break;
                 case "NovyProdukt":
                     page = new NovyProduktPage();
