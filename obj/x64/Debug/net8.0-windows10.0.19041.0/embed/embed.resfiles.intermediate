@@ -19,6 +19,7 @@ Views\Dialogs\ReceiptPreviewDialog.xbf
 Views\Dialogs\ReturnPreviewDialog.xbf
 Views\NastaveniPage.xbf
 Views\NovyProduktPage.xbf
+Views\PoukazyPage.xbf
 Views\PrehledProdejuPage.xbf
 Views\PrijemZboziPage.xbf
 Views\ProdejPage.xbf

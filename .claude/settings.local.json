@@ -8,7 +8,10 @@
       "Bash(powershell -Command \"(Get-Content ''C:\\dev\\Sklad_2\\Views\\NastaveniPage.xaml'').Count\")",
       "Bash(powershell:*)",
       "WebFetch(domain:www.manualslib.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(dotnet build:*)",
+      "Bash(Select-String -Pattern \"error|warning\")",
+      "Bash(Select-Object -First 20)"
     ],
     "deny": [],
     "ask": []

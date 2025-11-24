@@ -27,6 +27,8 @@ namespace Sklad_2.Models
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(TotalAmountFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
         private decimal totalAmount; // Total with VAT
 
         [ObservableProperty]
@@ -88,6 +90,33 @@ namespace Sklad_2.Models
 
         [ObservableProperty]
         private int? originalReceiptId; // Reference to cancelled receipt
+
+        // Gift Card fields
+        [ObservableProperty]
+        private bool containsGiftCardSale; // True if this receipt includes gift card sale(s)
+
+        [ObservableProperty]
+        private decimal giftCardSaleAmount; // Total value of gift cards sold on this receipt
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
+        private bool containsGiftCardRedemption; // True if gift card was used as payment
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GiftCardRedemptionAmountFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
+        private decimal giftCardRedemptionAmount; // Total value of gift cards redeemed on this receipt
+
+        public string GiftCardRedemptionAmountFormatted => $"{GiftCardRedemptionAmount:C}";
+
+        /// <summary>
+        /// Částka k úhradě po odečtení dárkového poukazu (pro zobrazení v seznamech)
+        /// </summary>
+        public decimal AmountToPay => TotalAmount - (ContainsGiftCardRedemption ? GiftCardRedemptionAmount : 0);
+
+        public string AmountToPayFormatted => $"{AmountToPay:C}";
 
         [ObservableProperty]
         private ObservableCollection<ReceiptItem> items;

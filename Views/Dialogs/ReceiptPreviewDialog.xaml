@@ -136,8 +136,19 @@
 
                     <!-- Celkem -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <TextBlock Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="CELKEM POLOŽKY" Style="{ThemeResource CaptionTextBlockStyle}"/>
+                        <TextBlock Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+
+                        <!-- Dárkový poukaz (pokud byl použit) -->
+                        <StackPanel Visibility="{x:Bind Receipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8,0,0">
+                            <TextBlock Text="Dárkový poukaz:" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right" Foreground="#34C759"/>
+                        </StackPanel>
+
+                        <!-- K úhradě -->
+                        <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,12"/>
+                        <TextBlock Text="K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock Text="{x:Bind AmountToPay, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
 
                         <TextBlock Text="HRAZENO KARTOU" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,12,0,0"
                                    Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Kartou'}"/>

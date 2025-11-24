@@ -14,14 +14,23 @@ namespace Sklad_2.Views.Dialogs
             get => _grandTotal;
             set => SetProperty(ref _grandTotal, value);
         }
+
+        private bool _hasGiftCardLoaded;
+        public bool HasGiftCardLoaded
+        {
+            get => _hasGiftCardLoaded;
+            set => SetProperty(ref _hasGiftCardLoaded, value);
+        }
+
         public PaymentMethod SelectedPaymentMethod { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PaymentSelectionDialog(decimal grandTotal)
+        public PaymentSelectionDialog(decimal grandTotal, bool hasGiftCardLoaded = false)
         {
             this.InitializeComponent();
             GrandTotal = grandTotal;
+            HasGiftCardLoaded = hasGiftCardLoaded;
             SelectedPaymentMethod = PaymentMethod.None;
             this.DataContext = this;
         }
@@ -35,6 +44,12 @@ namespace Sklad_2.Views.Dialogs
         private void CardButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             SelectedPaymentMethod = PaymentMethod.Card;
+            this.Hide();
+        }
+
+        private void GiftCardButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            SelectedPaymentMethod = PaymentMethod.GiftCard;
             this.Hide();
         }
 

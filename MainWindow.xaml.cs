@@ -73,6 +73,11 @@ namespace Sklad_2
                                 {
                                     navItem.Visibility = Visibility.Collapsed;
                                 }
+                                // Hide "Dárkové poukazy" for non-Admin
+                                if (tag == "Poukazy" && !IsAdmin)
+                                {
+                                    navItem.Visibility = Visibility.Collapsed;
+                                }
                             }
                         }
                         break;
@@ -422,6 +427,9 @@ namespace Sklad_2
                     break;
                 case "HistoriePokladny":
                     page = new CashRegisterHistoryPage();
+                    break;
+                case "Poukazy":
+                    page = new PoukazyPage();
                     break;
                 case "Nastaveni":
                     page = new NastaveniPage();

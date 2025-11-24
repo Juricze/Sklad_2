@@ -24,13 +24,13 @@
             <StackPanel Spacing="16">
                 <!-- Hlavička -->
                 <StackPanel HorizontalAlignment="Center" Spacing="4">
-                    <TextBlock x:ConnectionId='27'                                               Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center"/>
-                    <TextBlock x:ConnectionId='28'                                                  HorizontalAlignment="Center"/>
+                    <TextBlock x:ConnectionId='30'                                               Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center"/>
+                    <TextBlock x:ConnectionId='31'                                                  HorizontalAlignment="Center"/>
                     <TextBlock HorizontalAlignment="Center">
-                        <Run Text="IČ: "/><Run x:ConnectionId='31'                                               />
+                        <Run Text="IČ: "/><Run x:ConnectionId='34'                                               />
                     </TextBlock>
-                    <TextBlock x:ConnectionId='29' HorizontalAlignment="Center"                                                                                                               >
-                        <Run Text="DIČ: "/><Run x:ConnectionId='30'                                           />
+                    <TextBlock x:ConnectionId='32' HorizontalAlignment="Center"                                                                                                               >
+                        <Run Text="DIČ: "/><Run x:ConnectionId='33'                                           />
                     </TextBlock>
                 </StackPanel>
 
@@ -39,7 +39,7 @@
                 <!-- Informace o dokladu -->
                 <StackPanel HorizontalAlignment="Center" Spacing="0">
                     <TextBlock Text="ÚČTENKA" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
-                    <TextBlock x:ConnectionId='26' Text="DAŇOVÝ DOKLAD" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Center"
+                    <TextBlock x:ConnectionId='29' Text="DAŇOVÝ DOKLAD" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Center"
                                                                                                                                              />
                 </StackPanel>
                 <Grid>
@@ -48,14 +48,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0">
-                        <Run Text="Číslo dokladu: "/><Run x:ConnectionId='25'                                                            />
+                        <Run Text="Číslo dokladu: "/><Run x:ConnectionId='28'                                                            />
                     </TextBlock>
                     <TextBlock Grid.Column="1" HorizontalAlignment="Right">
-                        <Run Text="Datum: "/><Run x:ConnectionId='24'                                                       />
+                        <Run Text="Datum: "/><Run x:ConnectionId='27'                                                       />
                     </TextBlock>
                 </Grid>
                 <TextBlock HorizontalAlignment="Left">
-                    <Run Text="Prodavač: "/><Run x:ConnectionId='23'                                                />
+                    <Run Text="Prodavač: "/><Run x:ConnectionId='26'                                                />
                 </TextBlock>
 
                 <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
@@ -68,27 +68,27 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                    <TextBlock x:ConnectionId='22' Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
+                    <TextBlock x:ConnectionId='25' Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
                                                                                                                                              />
                     <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
                 </Grid>
                 <ItemsRepeater x:ConnectionId='2'                                                  >
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate                                >
-                            <StackPanel x:ConnectionId='16' Padding="8">
+                            <StackPanel x:ConnectionId='19' Padding="8">
                                 <Grid ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock x:ConnectionId='19' Grid.Column="0"                            />
-                                    <TextBlock x:ConnectionId='20' Grid.Column="1"                                              
+                                    <TextBlock x:ConnectionId='22' Grid.Column="0"                            />
+                                    <TextBlock x:ConnectionId='23' Grid.Column="1"                                              
                                                Visibility="{Binding Receipt.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    <TextBlock x:ConnectionId='21' Grid.Column="2"                                                  FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                    <TextBlock x:ConnectionId='24' Grid.Column="2"                                                  FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
                                 <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
-                                    <Run x:ConnectionId='17'                         /><Run Text=" ks x "/><Run x:ConnectionId='18'                                                />
+                                    <Run x:ConnectionId='20'                         /><Run Text=" ks x "/><Run x:ConnectionId='21'                                                />
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
@@ -116,18 +116,18 @@
                             <TextBlock Grid.Column="1" Text="Základ" HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="2" Text="DPH" HorizontalAlignment="Right"/>
                         </Grid>
-                        <ItemsRepeater x:ConnectionId='9'                                                 >
+                        <ItemsRepeater x:ConnectionId='12'                                                 >
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate                               >
-                                    <Grid x:ConnectionId='11' ColumnSpacing="12">
+                                    <Grid x:ConnectionId='14' ColumnSpacing="12">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock x:ConnectionId='12' Grid.Column="0"                                              />
-                                        <TextBlock x:ConnectionId='13' Grid.Column="1"                                                             HorizontalAlignment="Right"/>
-                                        <TextBlock x:ConnectionId='14' Grid.Column="2"                                                      HorizontalAlignment="Right"/>
+                                        <TextBlock x:ConnectionId='15' Grid.Column="0"                                              />
+                                        <TextBlock x:ConnectionId='16' Grid.Column="1"                                                             HorizontalAlignment="Right"/>
+                                        <TextBlock x:ConnectionId='17' Grid.Column="2"                                                      HorizontalAlignment="Right"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
@@ -136,18 +136,29 @@
 
                     <!-- Celkem -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <TextBlock x:ConnectionId='4'                                                           Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="CELKEM POLOŽKY" Style="{ThemeResource CaptionTextBlockStyle}"/>
+                        <TextBlock x:ConnectionId='4'                                                           Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
 
-                        <TextBlock x:ConnectionId='5' Text="HRAZENO KARTOU" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,12,0,0"
+                        <!-- Dárkový poukaz (pokud byl použit) -->
+                        <StackPanel x:ConnectionId='5'                                                                                                                                Margin="0,8,0,0">
+                            <TextBlock Text="Dárkový poukaz:" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock x:ConnectionId='11'                                                                        Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right" Foreground="#34C759"/>
+                        </StackPanel>
+
+                        <!-- K úhradě -->
+                        <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,12"/>
+                        <TextBlock Text="K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock x:ConnectionId='6'                                                                                        Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+
+                        <TextBlock x:ConnectionId='7' Text="HRAZENO KARTOU" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,12,0,0"
                                                                                                                                                                                        />
 
-                        <StackPanel x:ConnectionId='6'                                                                                                                                                     >
+                        <StackPanel x:ConnectionId='8'                                                                                                                                                     >
                             <TextBlock Text="Obdržená hotovost:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"/>
-                            <TextBlock x:ConnectionId='7'                                                                                           Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock x:ConnectionId='9'                                                                                           Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
 
                             <TextBlock Text="Vráceno:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,4,0,0" HorizontalAlignment="Right"/>
-                            <TextBlock x:ConnectionId='8'                                                                                         Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock x:ConnectionId='10'                                                                                         Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

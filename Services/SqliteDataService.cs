@@ -343,5 +343,54 @@ namespace Sklad_2.Services
                 .OrderByDescending(sm => sm.Timestamp)
                 .ToListAsync();
         }
+
+        // Gift Cards
+        public async Task<GiftCard> GetGiftCardByEanAsync(string ean)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.GiftCards.FirstOrDefaultAsync(gc => gc.Ean == ean);
+        }
+
+        public async Task<List<GiftCard>> GetAllGiftCardsAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.GiftCards
+                .OrderByDescending(gc => gc.Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<GiftCard>> GetGiftCardsByStatusAsync(GiftCardStatus status)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.GiftCards
+                .Where(gc => gc.Status == status)
+                .OrderByDescending(gc => gc.Id)
+                .ToListAsync();
+        }
+
+        public async Task AddGiftCardAsync(GiftCard giftCard)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.GiftCards.AddAsync(giftCard);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateGiftCardAsync(GiftCard giftCard)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.GiftCards.Update(giftCard);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteGiftCardAsync(string ean)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var giftCard = await context.GiftCards.FirstOrDefaultAsync(gc => gc.Ean == ean);
+            if (giftCard != null)
+            {
+                context.GiftCards.Remove(giftCard);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

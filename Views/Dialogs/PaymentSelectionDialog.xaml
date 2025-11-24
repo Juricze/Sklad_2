@@ -13,9 +13,14 @@
         <TextBlock Text="Celkem k úhradě:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
         <TextBlock Text="{x:Bind GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16">
-            <Button Content="Hotově" Click="CashButton_Click" Style="{StaticResource AccentButtonStyle}" Width="120"/>
-            <Button Content="Kartou" Click="CardButton_Click" Style="{StaticResource AccentButtonStyle}" Width="120"/>
+        <StackPanel Spacing="12" HorizontalAlignment="Center">
+            <Button Content="Hotově" Click="CashButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
+            <Button Content="Kartou" Click="CardButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
+            <Button Content="Dárkovým poukazem"
+                    Click="GiftCardButton_Click"
+                    Style="{StaticResource AccentButtonStyle}"
+                    MinWidth="200"
+                    Visibility="{x:Bind HasGiftCardLoaded, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
         </StackPanel>
     </StackPanel>
 </ContentDialog>

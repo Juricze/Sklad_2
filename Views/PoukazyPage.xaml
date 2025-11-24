@@ -1,0 +1,258 @@
+<Page
+    x:Class="Sklad_2.Views.PoukazyPage"
+    x:Name="PageRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Sklad_2.Models"
+    xmlns:viewmodels="using:Sklad_2.ViewModels"
+    xmlns:converters="using:Sklad_2.Converters"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="Page_Loaded">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Správa dárkových poukazů" Style="{ThemeResource TitleTextBlockStyle}"/>
+
+            <!-- Add New Gift Card -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Přidat nový poukaz" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+                    <StackPanel Spacing="12">
+                        <!-- Step 1: Set Value -->
+                        <TextBox x:Name="ValueTextBox"
+                                 Header="1. Hodnota (Kč)"
+                                 Text="{x:Bind ViewModel.NewGiftCardValue, Mode=TwoWay}"
+                                 PlaceholderText="500"/>
+
+                        <!-- Step 2: Scan EAN codes -->
+                        <TextBox x:Name="EanTextBox"
+                                 Header="2. EAN kódy (skenujte nebo zadejte)"
+                                 PlaceholderText="Naskenujte EAN a stiskněte Enter..."
+                                 Text="{x:Bind ViewModel.NewGiftCardEan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 KeyDown="NewGiftCardEan_KeyDown"/>
+
+                        <TextBlock Text="💡 Tip: Nejprve nastavte hodnotu, pak skenujte EAN kódy. Po každém scanu (Enter) se poukaz automaticky přidá."
+                                   FontSize="12"
+                                   Opacity="0.7"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Filters & Search -->
+            <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <Grid ColumnSpacing="24" RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Statistics -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="24">
+                        <StackPanel>
+                            <TextBlock Text="Celkem" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" FontSize="20" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Rectangle Width="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                        <StackPanel>
+                            <TextBlock Text="Neprodané" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.NotIssuedCount, Mode=OneWay}" FontSize="16" Foreground="#999999"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Prodané (nevyužité)" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.IssuedCount, Mode=OneWay}" FontSize="16" Foreground="#FF9500" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Využité" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.UsedCount, Mode=OneWay}" FontSize="16" Foreground="#34C759"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Expirované" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.ExpiredCount, Mode=OneWay}" FontSize="16" Foreground="#FF3B30"/>
+                        </StackPanel>
+                        <Rectangle Width="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                        <StackPanel>
+                            <TextBlock Text="Závazek" FontSize="11" Opacity="0.7"/>
+                            <TextBlock Text="{x:Bind ViewModel.LiabilityAmountFormatted, Mode=OneWay}" FontSize="16" Foreground="#FF9500" FontWeight="Bold"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Sort -->
+                    <ComboBox Grid.Row="0" Grid.Column="1"
+                              Header="Řadit podle"
+                              SelectedIndex="0"
+                              SelectionChanged="SortComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Datum prodeje ↓"/>
+                        <ComboBoxItem Content="Datum prodeje ↑"/>
+                        <ComboBoxItem Content="Datum využití ↓"/>
+                        <ComboBoxItem Content="Datum využití ↑"/>
+                        <ComboBoxItem Content="Hodnota ↓"/>
+                        <ComboBoxItem Content="Hodnota ↑"/>
+                        <ComboBoxItem Content="EAN"/>
+                    </ComboBox>
+
+                    <!-- Filters Row 2 -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Filtr:" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <CheckBox Content="Neprodané" IsChecked="{x:Bind ViewModel.FilterNotIssued, Mode=TwoWay}"/>
+                        <CheckBox Content="Prodané (nevyužité)" IsChecked="{x:Bind ViewModel.FilterIssued, Mode=TwoWay}"/>
+                        <CheckBox Content="Využité" IsChecked="{x:Bind ViewModel.FilterUsed, Mode=TwoWay}"/>
+                        <CheckBox Content="Expirované" IsChecked="{x:Bind ViewModel.FilterExpired, Mode=TwoWay}"/>
+                        <CheckBox Content="Zrušené" IsChecked="{x:Bind ViewModel.FilterCancelled, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <!-- Search -->
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Header="Hledat"
+                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="EAN..."/>
+                </Grid>
+            </Border>
+
+            <!-- Gift Cards List -->
+            <ListView Grid.Row="3"
+                      ItemsSource="{x:Bind ViewModel.GiftCards, Mode=OneWay}"
+                      SelectionMode="None">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="MinHeight" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" Padding="8,6" BorderThickness="3,0,0,0" BorderBrush="Transparent">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="60"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="EAN" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="1" Text="Hodnota" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="Stav" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="3" Text="Prodáno" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="4" Text="Využito" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="5" Text="Platnost" FontWeight="SemiBold" FontSize="12"/>
+                                <TextBlock Grid.Column="6" Text="" FontWeight="SemiBold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:GiftCard">
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{x:Bind StatusColor}"
+                                BorderThickness="3,0,0,0"
+                                Padding="8,6">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="60"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- EAN -->
+                                <TextBlock Grid.Column="0"
+                                           Text="{x:Bind Ean}"
+                                           FontFamily="Consolas"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Value -->
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind ValueFormatted}"
+                                           FontWeight="SemiBold"
+                                           FontSize="13"
+                                           Foreground="{x:Bind StatusColor}"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Status -->
+                                <Border Grid.Column="2"
+                                        Background="{x:Bind StatusColor}"
+                                        CornerRadius="10"
+                                        Padding="6,2"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{x:Bind StatusFormatted}"
+                                               FontSize="10"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"/>
+                                </Border>
+
+                                <!-- Issued Date -->
+                                <TextBlock Grid.Column="3"
+                                           Text="{x:Bind IssuedDateFormatted}"
+                                           FontSize="12"
+                                           Opacity="0.8"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Used Date -->
+                                <TextBlock Grid.Column="4"
+                                           Text="{x:Bind UsedDateFormatted}"
+                                           FontSize="12"
+                                           Opacity="0.8"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Expiration -->
+                                <TextBlock Grid.Column="5"
+                                           Text="{x:Bind ExpirationDateFormatted}"
+                                           FontSize="12"
+                                           Opacity="0.8"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Delete Button -->
+                                <Button Grid.Column="6"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="4"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        Visibility="{x:Bind CanBeSold, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Command="{Binding ViewModel.DeleteGiftCardCommand, ElementName=PageRoot}"
+                                        CommandParameter="{x:Bind}"
+                                        ToolTipService.ToolTip="Smazat poukaz">
+                                    <FontIcon Glyph="&#xE74D;" Foreground="#FF3B30" FontSize="16"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </ScrollViewer>
+</Page>

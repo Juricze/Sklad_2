@@ -27,6 +27,11 @@
                         <NavigationViewItem Content="Vratky (přehled)" Tag="VratkyPrehled" Icon="Calculator"/>
                         <NavigationViewItem Content="Přehled prodejů" Tag="PrehledProdeju" Icon="Calculator"/>
                         <NavigationViewItem Content="Historie pokladny" Tag="HistoriePokladny" Icon="Calculator"/>
+                        <NavigationViewItem Content="Dárkové poukazy" Tag="Poukazy">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE8A1;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>

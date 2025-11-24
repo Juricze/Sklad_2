@@ -1004,7 +1004,7 @@ namespace Sklad_2.Views
                     }
                 }
             }
-            private void Update_ViewModel_FilterStartDate(global::System.DateTimeOffset obj, int phase)
+            private void Update_ViewModel_FilterStartDate(global::System.Nullable<global::System.DateTimeOffset> obj, int phase)
             {
                 if ((phase & ((1 << 0) | NOT_PHASED | DATA_CHANGED)) != 0)
                 {
@@ -1015,7 +1015,7 @@ namespace Sklad_2.Views
                     }
                 }
             }
-            private void Update_ViewModel_FilterEndDate(global::System.DateTimeOffset obj, int phase)
+            private void Update_ViewModel_FilterEndDate(global::System.Nullable<global::System.DateTimeOffset> obj, int phase)
             {
                 if ((phase & ((1 << 0) | NOT_PHASED | DATA_CHANGED)) != 0)
                 {
@@ -1073,7 +1073,7 @@ namespace Sklad_2.Views
                     {
                         if (this.dataRoot.ViewModel != null)
                         {
-                            this.dataRoot.ViewModel.FilterStartDate = (global::System.DateTimeOffset)this.obj24.Date;
+                            this.dataRoot.ViewModel.FilterStartDate = this.obj24.Date;
                         }
                     }
                 }
@@ -1086,7 +1086,7 @@ namespace Sklad_2.Views
                     {
                         if (this.dataRoot.ViewModel != null)
                         {
-                            this.dataRoot.ViewModel.FilterEndDate = (global::System.DateTimeOffset)this.obj25.Date;
+                            this.dataRoot.ViewModel.FilterEndDate = this.obj25.Date;
                         }
                     }
                 }

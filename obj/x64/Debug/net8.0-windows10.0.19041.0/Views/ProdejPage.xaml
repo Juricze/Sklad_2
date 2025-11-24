@@ -17,14 +17,89 @@
         <!-- Main content area -->
         <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <TextBox x:ConnectionId='26' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
+                <TextBox x:ConnectionId='34' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
             </Border>
             <Border x:ConnectionId='17' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='25'                                                           /></TextBlock>
-                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='24'                                                                    /></TextBlock>
-                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='23'                                                                    /> <Run Text="ks"/></TextBlock>
+                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='33'                                                           /></TextBlock>
+                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='32'                                                                    /></TextBlock>
+                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='31'                                                                    /> <Run Text="ks"/></TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Gift Card Redemption Section -->
+            <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Uplatnit dárkový poukaz" Style="{ThemeResource TitleTextBlockStyle}"/>
+                        <TextBlock Text="💡 Pro platbu poukazem (ne prodej poukazu) - skenujte poukaz do tohoto pole, ne do pole pro produkty výše!"
+                                   FontSize="12"
+                                   Opacity="0.7"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Input for Gift Card EAN -->
+                    <StackPanel Spacing="8">
+                        <TextBox x:ConnectionId='29' x:Name="GiftCardEanTextBox"
+                                 Header="EAN kód poukazu k uplatnění"
+                                 PlaceholderText="Naskenujte nebo zadejte EAN poukazu..."
+                                                                                                                             
+                                                                     />
+                        <Button x:ConnectionId='30' Content="Načíst poukaz"
+                                                                
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+
+                    <!-- Loaded Gift Card Info -->
+                    <Border x:ConnectionId='23' Background="#E8F5E9"
+                            BorderBrush="#4CAF50"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="12"
+                                                                                        >
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8A1;" Foreground="#4CAF50" FontSize="20"/>
+                                <TextBlock Text="Poukaz načten pro platbu" FontWeight="SemiBold" Foreground="#4CAF50" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock>
+                                <Run Text="Hodnota:"/>
+                                <Run x:ConnectionId='28'                                                               FontWeight="Bold"/>
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="EAN:"/>
+                                <Run x:ConnectionId='27'                                                            FontSize="11"/>
+                            </TextBlock>
+                            <Button x:ConnectionId='26' Content="Zrušit načtený poukaz"
+                                                                                     
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Warning: Partial Usage (Forfeiture) -->
+                    <Border x:ConnectionId='24' Background="#FFF3CD"
+                            BorderBrush="#FF9500"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="12"
+                                                                                             >
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE7BA;" Foreground="#FF9500" FontSize="20"/>
+                                <TextBlock Text="Upozornění: Částečné využití" FontWeight="SemiBold" Foreground="#FF9500" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap">
+                                <Run Text="Hodnota poukazu je vyšší než celková částka košíku."/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap">
+                                <Run Text="Zbývající částka"/>
+                                <Run x:ConnectionId='25'                                                                 FontWeight="Bold"/>
+                                <Run Text=" propadne a nelze ji použít v budoucnu."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 

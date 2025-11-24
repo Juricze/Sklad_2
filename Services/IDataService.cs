@@ -48,5 +48,13 @@ namespace Sklad_2.Services
         Task<List<StockMovement>> GetStockMovementsAsync(DateTime startDate, DateTime endDate);
         Task<List<StockMovement>> GetStockMovementsByProductAsync(string productEan);
         Task<List<StockMovement>> GetStockMovementsByTypeAsync(StockMovementType movementType);
+
+        // Gift Cards
+        Task<GiftCard> GetGiftCardByEanAsync(string ean);
+        Task<List<GiftCard>> GetAllGiftCardsAsync();
+        Task<List<GiftCard>> GetGiftCardsByStatusAsync(GiftCardStatus status);
+        Task AddGiftCardAsync(GiftCard giftCard);
+        Task UpdateGiftCardAsync(GiftCard giftCard);
+        Task DeleteGiftCardAsync(string ean);
     }
 }

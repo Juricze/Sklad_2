@@ -27,6 +27,11 @@ namespace Sklad_2.Views.Dialogs
 
         public ObservableCollection<VatSummary> VatSummaries { get; } = new();
 
+        /// <summary>
+        /// Částka k úhradě po odečtení dárkového poukazu
+        /// </summary>
+        public decimal AmountToPay => Receipt.TotalAmount - (Receipt.ContainsGiftCardRedemption ? Receipt.GiftCardRedemptionAmount : 0);
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ReceiptPreviewDialog(Receipt receipt)

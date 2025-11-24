@@ -113,6 +113,7 @@ namespace Sklad_2
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();
             services.AddSingleton<ICashRegisterService, CashRegisterService>();
+            services.AddSingleton<IGiftCardService, GiftCardService>();
             services.AddSingleton<IAuthService>(sp => new AuthService(
                 sp.GetRequiredService<IMessenger>(),
                 sp.GetRequiredService<IDataService>()));
@@ -126,7 +127,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IReceiptService>(),
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<ICashRegisterService>(),
-                sp.GetRequiredService<IAuthService>()));
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<IGiftCardService>()));
             services.AddSingleton<PrijemZboziViewModel>(sp => new PrijemZboziViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>()));
@@ -173,6 +175,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>()));
             services.AddSingleton<SkladPrehledViewModel>(sp => new SkladPrehledViewModel(
                 sp.GetRequiredService<IDataService>()));
+            services.AddSingleton<PoukazyViewModel>(sp => new PoukazyViewModel(
+                sp.GetRequiredService<IGiftCardService>()));
 
             // Transient ViewModels (for dialogs, login, etc.)
             services.AddTransient<LoginViewModel>(sp => new LoginViewModel(

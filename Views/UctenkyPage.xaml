@@ -16,6 +16,8 @@
                 <ResourceDictionary Source="/Styles/Controls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:AmountToBrushConverter x:Key="AmountToBrushConverter"/>
         </ResourceDictionary>
     </Page.Resources>
     <Grid Padding="24" ColumnSpacing="24">
@@ -81,9 +83,9 @@
                                 <Run Text="{x:Bind SaleDateFormatted}"/>
                             </TextBlock>
                             <TextBlock Grid.Column="1"
-                                       Text="{x:Bind TotalAmountFormatted}"
+                                       Text="{Binding AmountToPayFormatted, Mode=OneWay}"
                                        VerticalAlignment="Center"
-                                       Foreground="{x:Bind IsStorno, Converter={StaticResource BooleanToStornoBrushConverter}}"/>
+                                       Foreground="{Binding AmountToPay, Mode=OneWay, Converter={StaticResource AmountToBrushConverter}}"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="{x:Bind SellerName}" VerticalAlignment="Center"/>
                         </Grid>
@@ -186,10 +188,42 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.TotalAmountFormatted, Mode=OneWay}"
-                               Style="{ThemeResource TitleTextBlockStyle}"
-                               HorizontalAlignment="Right"
-                               Margin="0,12,0,0"/>
+                    <!-- Receipt Summary -->
+                    <StackPanel HorizontalAlignment="Right" Margin="0,12,0,0" Spacing="4">
+                        <TextBlock Text="CELKEM POLOŽKY" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.TotalAmountFormatted, Mode=OneWay}"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"
+                                   HorizontalAlignment="Right"/>
+
+                        <!-- Dárkový poukaz (pokud byl použit) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay}" Margin="0,8,0,0">
+                            <TextBlock Text="Dárkový poukaz:" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}"
+                                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                                       HorizontalAlignment="Right"
+                                       Foreground="#34C759"/>
+                        </StackPanel>
+
+                        <!-- K úhradě (pokud byl použit poukaz) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay}" Margin="0,8,0,0">
+                            <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind ViewModel.AmountToPayFormatted, Mode=OneWay}"
+                                       Style="{ThemeResource TitleTextBlockStyle}"
+                                       HorizontalAlignment="Right"
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <!-- Celkem uhrazeno (pokud NEBYL použit poukaz) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}" Margin="0,8,0,0">
+                            <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.TotalAmountFormatted, Mode=OneWay}"
+                                       Style="{ThemeResource TitleTextBlockStyle}"
+                                       HorizontalAlignment="Right"
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+                    </StackPanel>
 
                     <Button Content="Zobrazit náhled účtenky"
                             Click="ShowPreviewButton_Click"

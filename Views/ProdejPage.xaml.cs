@@ -29,6 +29,7 @@ namespace Sklad_2.Views
                     ViewModel.ProductOutOfStock += ViewModel_ProductOutOfStock;
                     ViewModel.CheckoutFailed += ViewModel_CheckoutFailed;
                     ViewModel.ReceiptCancelled += ViewModel_ReceiptCancelled;
+                    ViewModel.GiftCardValidationFailed += ViewModel_GiftCardValidationFailed;
                 }
             };
             this.Unloaded += (s, e) =>
@@ -38,6 +39,7 @@ namespace Sklad_2.Views
                     ViewModel.ProductOutOfStock -= ViewModel_ProductOutOfStock;
                     ViewModel.CheckoutFailed -= ViewModel_CheckoutFailed;
                     ViewModel.ReceiptCancelled -= ViewModel_ReceiptCancelled;
+                    ViewModel.GiftCardValidationFailed -= ViewModel_GiftCardValidationFailed;
                 }
             };
         }
@@ -75,6 +77,18 @@ namespace Sklad_2.Views
             await successDialog.ShowAsync();
         }
 
+        private async void ViewModel_GiftCardValidationFailed(object sender, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Chyba při načítání poukazu",
+                Content = errorMessage,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
+        }
+
         private async void CancelLastReceiptButton_Click(object sender, RoutedEventArgs e)
         {
             // Show confirmation dialog
@@ -108,6 +122,20 @@ namespace Sklad_2.Views
                 textBox.Text = string.Empty;
                 e.Handled = true;
             }
+        }
+
+        private async void GiftCardEanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                e.Handled = true;
+                await ViewModel.LoadGiftCardForRedemptionCommand.ExecuteAsync(ViewModel.GiftCardEanInput);
+            }
+        }
+
+        private async void LoadGiftCardButton_Click(object sender, RoutedEventArgs e)
+        {
+            await ViewModel.LoadGiftCardForRedemptionCommand.ExecuteAsync(ViewModel.GiftCardEanInput);
         }
 
         private async void ClearReceiptButton_Click(object sender, RoutedEventArgs e)
@@ -160,7 +188,10 @@ namespace Sklad_2.Views
                 return;
             }
 
-            var paymentSelectionDialog = new PaymentSelectionDialog(ViewModel.Receipt.GrandTotal)
+            // Payment dialog shows amount AFTER gift card deduction
+            var paymentSelectionDialog = new PaymentSelectionDialog(
+                ViewModel.AmountToPay,
+                ViewModel.ScannedGiftCard != null)
             {
                 XamlRoot = this.XamlRoot,
             };
@@ -171,12 +202,43 @@ namespace Sklad_2.Views
             switch (paymentSelectionDialog.SelectedPaymentMethod)
             {
                 case PaymentMethod.Cash:
-                    decimal grandTotal = ViewModel.Receipt.GrandTotal;
+                    // If gift card is loaded and covers full amount, skip cash dialog
+                    if (ViewModel.ScannedGiftCard != null && ViewModel.AmountToPay == 0)
+                    {
+                        // Show warning about forfeiture if applicable
+                        if (ViewModel.WillHavePartialUsage)
+                        {
+                            ContentDialog forfeitureWarningDialog = new ContentDialog
+                            {
+                                Title = "Upozornění: Částečné využití",
+                                Content = $"Hodnota poukazu ({ViewModel.GiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
+                                         $"Zbývající částka {ViewModel.ForfeitedAmountFormatted} propadne a nelze ji použít v budoucnu.\n\n" +
+                                         $"Chcete pokračovat?",
+                                PrimaryButtonText = "Ano, pokračovat",
+                                CloseButtonText = "Ne, zrušit",
+                                DefaultButton = ContentDialogButton.Close,
+                                XamlRoot = this.XamlRoot
+                            };
+                            var forfeitureResult = await forfeitureWarningDialog.ShowAsync();
+                            if (forfeitureResult != ContentDialogResult.Primary)
+                            {
+                                return;
+                            }
+                        }
+
+                        parameters.Add("paymentMethod", PaymentMethod.Cash);
+                        parameters.Add("receivedAmount", 0m);
+                        parameters.Add("changeAmount", 0m);
+                        await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
+                        break;
+                    }
+
+                    decimal amountToPay = ViewModel.AmountToPay;
                     ContentDialogResult cashPaymentResult;
                     decimal receivedAmount = 0m;
                     decimal changeAmount = 0m;
 
-                    var cashPaymentDialog = new CashPaymentDialog(grandTotal) { XamlRoot = this.XamlRoot };
+                    var cashPaymentDialog = new CashPaymentDialog(amountToPay) { XamlRoot = this.XamlRoot };
                     cashPaymentResult = await cashPaymentDialog.ShowAsync();
 
                     if (cashPaymentResult != ContentDialogResult.Primary) break;
@@ -184,7 +246,7 @@ namespace Sklad_2.Views
                     receivedAmount = cashPaymentDialog.ReceivedAmount;
                     changeAmount = cashPaymentDialog.ChangeAmount;
 
-                    var cashConfirmationDialog = new CashConfirmationDialog(grandTotal, receivedAmount, changeAmount) { XamlRoot = this.XamlRoot };
+                    var cashConfirmationDialog = new CashConfirmationDialog(amountToPay, receivedAmount, changeAmount) { XamlRoot = this.XamlRoot };
                     ContentDialogResult confirmationResult = await cashConfirmationDialog.ShowAsync();
 
                     if (confirmationResult != ContentDialogResult.Primary) break;
@@ -197,6 +259,27 @@ namespace Sklad_2.Views
                     break;
 
                 case PaymentMethod.Card:
+                    // Show warning about forfeiture if applicable (gift card loaded and covers more than total)
+                    if (ViewModel.ScannedGiftCard != null && ViewModel.WillHavePartialUsage)
+                    {
+                        ContentDialog forfeitureWarningDialog = new ContentDialog
+                        {
+                            Title = "Upozornění: Částečné využití",
+                            Content = $"Hodnota poukazu ({ViewModel.GiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
+                                     $"Zbývající částka {ViewModel.ForfeitedAmountFormatted} propadne a nelze ji použít v budoucnu.\n\n" +
+                                     $"Chcete pokračovat?",
+                            PrimaryButtonText = "Ano, pokračovat",
+                            CloseButtonText = "Ne, zrušit",
+                            DefaultButton = ContentDialogButton.Close,
+                            XamlRoot = this.XamlRoot
+                        };
+                        var forfeitureResult = await forfeitureWarningDialog.ShowAsync();
+                        if (forfeitureResult != ContentDialogResult.Primary)
+                        {
+                            return;
+                        }
+                    }
+
                     var cardConfirmationDialog = new CardPaymentConfirmationDialog() { XamlRoot = this.XamlRoot };
                     var cardConfirmationResult = await cardConfirmationDialog.ShowAsync();
 
@@ -205,6 +288,19 @@ namespace Sklad_2.Views
                     parameters.Add("paymentMethod", PaymentMethod.Card);
                     await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
                     break;
+
+                case PaymentMethod.GiftCard:
+                    // This should never happen now (button is hidden when gift card is loaded)
+                    // But keep for safety
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Chyba",
+                        Content = "Neplatná platební metoda. Načtěte dárkový poukaz v sekci výše.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
 
                 case PaymentMethod.None:
                     return;

@@ -17,6 +17,7 @@ namespace Sklad_2.Data
         public DbSet<VatConfig> VatConfigs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
+        public DbSet<GiftCard> GiftCards { get; set; }
 
         public DatabaseContext()
         {
@@ -46,6 +47,16 @@ namespace Sklad_2.Data
                 Debug.WriteLine($"Chyba při inicializaci databáze: {ex.Message}");
                 throw new InvalidOperationException("Nepodařilo se vytvořit nebo připojit k databázi. Zkontrolujte přístupová práva.", ex);
             }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Set unique index on GiftCard.Ean
+            modelBuilder.Entity<GiftCard>()
+                .HasIndex(gc => gc.Ean)
+                .IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

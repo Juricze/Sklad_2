@@ -39,10 +39,10 @@ namespace Sklad_2.ViewModels
         private DateFilterType selectedFilterType = DateFilterType.Daily;
 
         [ObservableProperty]
-        private DateTimeOffset filterStartDate = DateTimeOffset.Now;
+        private DateTimeOffset? filterStartDate = DateTimeOffset.Now;
 
         [ObservableProperty]
-        private DateTimeOffset filterEndDate = DateTimeOffset.Now;
+        private DateTimeOffset? filterEndDate = DateTimeOffset.Now;
 
         public bool IsCustomFilterVisible => SelectedFilterType == DateFilterType.Custom;
 
@@ -57,19 +57,19 @@ namespace Sklad_2.ViewModels
             LoadReturnsCommand.Execute(null);
         }
 
-        partial void OnFilterStartDateChanged(DateTimeOffset value)
+        partial void OnFilterStartDateChanged(DateTimeOffset? value)
         {
             if (IsLoading) return;
-            if (SelectedFilterType == DateFilterType.Custom)
+            if (SelectedFilterType == DateFilterType.Custom && value.HasValue)
             {
                 LoadReturnsCommand.Execute(null);
             }
         }
 
-        partial void OnFilterEndDateChanged(DateTimeOffset value)
+        partial void OnFilterEndDateChanged(DateTimeOffset? value)
         {
             if (IsLoading) return;
-            if (SelectedFilterType == DateFilterType.Custom)
+            if (SelectedFilterType == DateFilterType.Custom && value.HasValue)
             {
                 LoadReturnsCommand.Execute(null);
             }
@@ -103,8 +103,17 @@ namespace Sklad_2.ViewModels
                         endDate = startDate.AddMonths(1).AddTicks(-1);
                         break;
                     case DateFilterType.Custom:
-                        startDate = FilterStartDate.Date;
-                        endDate = FilterEndDate.Date.AddDays(1).AddTicks(-1);
+                        if (!FilterStartDate.HasValue || !FilterEndDate.HasValue)
+                        {
+                            // If dates are not set, use today as default
+                            startDate = DateTime.Today;
+                            endDate = DateTime.Today.AddDays(1).AddTicks(-1);
+                        }
+                        else
+                        {
+                            startDate = FilterStartDate.Value.Date;
+                            endDate = FilterEndDate.Value.Date.AddDays(1).AddTicks(-1);
+                        }
                         break;
                     default:
                         return;
