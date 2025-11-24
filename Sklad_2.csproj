@@ -29,4 +29,13 @@
     </Page>
   </ItemGroup>
 
+  <!-- Database Migration Safety Check -->
+  <Target Name="CheckDatabaseChanges" BeforeTargets="Build">
+    <Message Text="🔍 Checking for database changes..." Importance="high" />
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" 
+          ContinueOnError="false" 
+          IgnoreExitCode="false"
+          Condition="Exists('$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1')" />
+  </Target>
+
 </Project>

@@ -43,6 +43,30 @@ namespace Sklad_2
             var settingsService = Services.GetRequiredService<ISettingsService>();
             await settingsService.LoadSettingsAsync();
 
+            // Run database migrations BEFORE anything else
+            var migrationService = Services.GetRequiredService<IDatabaseMigrationService>();
+            var migrationSuccess = await migrationService.MigrateToLatestAsync();
+            
+            if (!migrationSuccess)
+            {
+                // Show error dialog and exit
+                var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog()
+                {
+                    Title = "Chyba databáze",
+                    Content = "Nepodařilo se aktualizovat databázi na nejnovější verzi. Aplikace se ukončí.",
+                    CloseButtonText = "OK"
+                };
+                
+                // Create a temporary window to show the dialog
+                var tempWindow = new Microsoft.UI.Xaml.Window();
+                tempWindow.Activate();
+                errorDialog.XamlRoot = tempWindow.Content.XamlRoot;
+                await errorDialog.ShowAsync();
+                
+                Environment.Exit(1);
+                return;
+            }
+
             // Restore from backup if newer version exists
             await RestoreFromBackupIfNewerAsync(settingsService);
 
@@ -109,6 +133,7 @@ namespace Sklad_2
 
             // Services
             services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<IDatabaseMigrationService, DatabaseMigrationService>();
             services.AddSingleton<IDataService, SqliteDataService>();
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, PrintService>();

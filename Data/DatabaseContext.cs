@@ -21,32 +21,12 @@ namespace Sklad_2.Data
 
         public DatabaseContext()
         {
-            try
-            {
-                Debug.WriteLine("DatabaseContext: Creating database...");
-                var created = Database.EnsureCreated();
-                Debug.WriteLine($"DatabaseContext: Database created = {created}");
+            // Default constructor for existing code
+        }
 
-                // Log all tables
-                var connection = Database.GetDbConnection();
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "SELECT name FROM sqlite_master WHERE type='table'";
-                using (var reader = command.ExecuteReader())
-                {
-                    Debug.WriteLine("DatabaseContext: Tables in database:");
-                    while (reader.Read())
-                    {
-                        Debug.WriteLine($"  - {reader.GetString(0)}");
-                    }
-                }
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Chyba při inicializaci databáze: {ex.Message}");
-                throw new InvalidOperationException("Nepodařilo se vytvořit nebo připojit k databázi. Zkontrolujte přístupová práva.", ex);
-            }
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+        {
+            // Constructor for dependency injection and design-time factory
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,23 +41,27 @@ namespace Sklad_2.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Použití LocalApplicationData místo BaseDirectory (EXE složky)
-            var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var dbFolderPath = Path.Combine(localAppDataPath, "Sklad_2_Data");
-
-            try
+            // Only configure if not already configured (for design-time vs runtime)
+            if (!optionsBuilder.IsConfigured)
             {
-                Directory.CreateDirectory(dbFolderPath);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Chyba při vytváření složky pro databázi: {ex.Message}");
-                throw;
-            }
+                // Použití LocalApplicationData místo BaseDirectory (EXE složky)
+                var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var dbFolderPath = Path.Combine(localAppDataPath, "Sklad_2_Data");
 
-            var dbPath = Path.Combine(dbFolderPath, "sklad.db");
-            Debug.WriteLine($"Cesta k databázi: {dbPath}");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+                try
+                {
+                    Directory.CreateDirectory(dbFolderPath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Chyba při vytváření složky pro databázi: {ex.Message}");
+                    throw;
+                }
+
+                var dbPath = Path.Combine(dbFolderPath, "sklad.db");
+                Debug.WriteLine($"Cesta k databázi: {dbPath}");
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            }
         }
     }
 }

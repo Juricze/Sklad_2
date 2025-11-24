@@ -383,7 +383,9 @@ namespace Sklad_2.ViewModels
                             TotalPrice = item.TotalPrice,  // Negative
                             VatRate = 0,  // No VAT on gift card sales
                             PriceWithoutVat = item.TotalPrice,  // Same as total (no VAT)
-                            VatAmount = 0
+                            VatAmount = 0,
+                            OriginalUnitPrice = 0,  // Gift cards don't have original price
+                            DiscountReason = string.Empty  // Gift cards don't have discounts
                         });
                         continue; // Skip regular product processing
                     }
@@ -412,7 +414,7 @@ namespace Sklad_2.ViewModels
                         VatAmount = item.VatAmount,
                         DiscountPercent = item.HasDiscount ? item.DiscountPercent : null,
                         OriginalUnitPrice = item.OriginalUnitPrice,
-                        DiscountReason = item.HasDiscount ? item.DiscountReason : null
+                        DiscountReason = item.HasDiscount ? item.DiscountReason : string.Empty
                     });
                 }
 
@@ -619,7 +621,7 @@ namespace Sklad_2.ViewModels
                         VatAmount = -item.VatAmount,  // NEGATIVE
                         DiscountPercent = item.HasDiscount ? item.DiscountPercent : null,
                         OriginalUnitPrice = item.OriginalUnitPrice,
-                        DiscountReason = item.HasDiscount ? item.DiscountReason : null
+                        DiscountReason = item.HasDiscount ? item.DiscountReason : string.Empty
                     });
                 }
 

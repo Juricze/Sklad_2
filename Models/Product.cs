@@ -44,6 +44,9 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private string discountReason = string.Empty;
 
+        [ObservableProperty]
+        private string testField = string.Empty;
+
         public string SalePriceFormatted => $"{SalePrice:C}";
 
         public string PurchasePriceFormatted => $"{PurchasePrice:C}";

@@ -170,6 +170,35 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 - **Chyby**: Vždy vyžadovat přesné chybové hlášky z Visual Studio před opravou
 - **Design**: Striktně dodržovat Mica design s černobílou paletou
 
+## ⚠️ KRITICKÉ: Database Schema Version Protocol
+
+**VŽDY při změnách databáze:**
+
+1. **Claude AUTOMATICKY NEUPRAVUJE schema version!**
+2. **Claude MUSÍ AKTIVNĚ UPOZORNIT** uživatele po každé DB změně s textem:
+   ```
+   ⚠️ DATABÁZOVÁ ZMĚNA DETEKOVÁNA!
+   Přidal jsem [popis změny]. Potřebuješ aktualizovat CURRENT_SCHEMA_VERSION 
+   a přidat migraci pro produkční nasazení!
+   ```
+3. **Bezpečnostní síť**: Pre-build script `Scripts/CheckDatabaseChanges.ps1` detekuje nové `ObservableProperty` bez migrace
+4. **Změny vyžadující schema version update**:
+   - Přidání/odebrání sloupce v modelu (`ObservableProperty`)
+   - Změna typu sloupce 
+   - Přidání nové entity/tabulky
+   - Změna primary key nebo indexů
+5. **Schema version update proces**:
+   - Zvýš `CURRENT_SCHEMA_VERSION` v `DatabaseMigrationService.cs`
+   - Přidej novou `ApplyMigration_VX_Description` metodu
+   - Přidej case do `ApplyMigrationAsync`
+   - Aktualizuj `GetMigrationDescription`
+
+**Terminologie**: "Migrace" = schema version update + SQL commands pro změnu struktury
+
+**Automatická detekce**: Build selže s chybou pokud najde nové DB properties bez schema version update!
+
+**Claude POVINNOST**: Vždy upozorni na potřebu schema version update po DB změnách!**
+
 ## Session Workflow
 - **"pokracuj" / "pokračujem" / "pokračujeme"** → Začátek session - načti `SESSION.md` a pokračuj v práci
 - **"konec" / "končíme" / "končit"** → Konec session - shrň provedenou práci a zapiš do `SESSION.md`, aktualizuj TODO list
