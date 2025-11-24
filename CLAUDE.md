@@ -254,23 +254,42 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
    - Role/oprávnění per uživatel
    - SellerName = skutečné jméno prodavače
 
+12. ✅ **Systém dárkových poukazů** (24.11.2025)
+   - Kompletní CRUD operace (přidat, smazat, zobrazit)
+   - Životní cyklus: NotIssued → Issued (prodej) → Used (uplatnění)
+   - Integrace s POS systémem (prodej i uplatnění poukazů na účtence)
+   - Profesionální UI správy poukazů:
+     - Statistiky (Celkem, Neprodané, Prodané, Využité, Expirované, Závazek)
+     - Kombinovatelné filtry (5 checkboxů s data binding)
+     - Řazení (7 možností: datum prodeje/využití ↑↓, hodnota ↑↓, EAN)
+     - Vyhledávání podle EAN/poznámek
+     - Kompaktní tabulka (7 sloupců, perfektně zarovnané hlavičky)
+   - Technické vylepšení:
+     - Data binding místo visual tree traversal (spolehlivější filtry)
+     - ItemContainerStyle pro zarovnání ListView hlaviček
+     - Statistiky nezávislé na filtrech (_allGiftCards vs GiftCards)
+
 ### ⏳ Zbývá udělat
 
-1. ⏳ **Export uzavírek do CSV/PDF**
+1. ⏳ **Tisk účtenek - rozlišení prodeje vs uplatnění poukazu**
+   - Upravit PrintService pro různé formáty tisku
+
+2. ⏳ **Export uzavírek do CSV/PDF**
    - Export denních uzavírek pokladny
    - Export přehledů prodejů
 
-2. ⏳ **Implementovat skutečný PrintService**
+3. ⏳ **Implementovat skutečný PrintService**
    - Zatím pouze placeholder (simuluje úspěch)
    - Respektovat "Plátce DPH" přepínač v tisku účtenek
    - Skutečná detekce připojení tiskárny
 
-3. ⏳ **Vylepšit error handling**
+4. ⏳ **Vylepšit error handling**
    - Lokalizované chybové hlášky (zatím anglické exception messages)
    - User-friendly error dialogy
 
 ### 💡 Možná budoucí vylepšení
 
+- Věrnostní kartičky - pole pro načtení jako u poukazů, zobrazení pod 'Poukaz načten pro platbu'
 - Grafy vývoje tržeb v čase (najít stabilní charting library)
 - Nejvyšší/nejnižší účtenka v dashboardu
 - Srovnání s předchozím obdobím (% růst/pokles)

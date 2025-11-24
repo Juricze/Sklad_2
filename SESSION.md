@@ -17,46 +17,113 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 19. listopad 2025**
+## 📅 **Poslední session: 24. listopad 2025**
 
 ### ✅ Hotovo:
-**Vlastní cesta pro zálohy a exporty + Dialog při zavření aplikace**
+**Dokončení systému správy dárkových poukazů - UI vylepšení**
 
-**Upraveno 6 souborů:**
-- Models (1): AppSettings.cs - přidán BackupPath
-- Services (2): ISettingsService.cs, SettingsService.cs - přidán GetBackupFolderPath()
-- ViewModels (1): NastaveniViewModel.cs - UI pro výběr cesty, ActiveBackupPath zobrazení
-- Views (1): NastaveniPage.xaml - UI pro nastavení cesty
-- Code-behind (2): NastaveniPage.xaml.cs (FolderPicker), MainWindow.xaml.cs (dialog při zavření)
-- DI (1): App.xaml.cs - CurrentWindow property, RestoreFromBackupIfNewerAsync()
+**Upraveno 3 soubory:**
+- ViewModels (1): PoukazyViewModel.cs - data binding pro filtry, statistiky nezávislé na filtrech
+- Views (1): PoukazyPage.xaml - x:Bind TwoWay pro checkboxy, ItemContainerStyle pro zarovnání
+- Code-behind (1): PoukazyPage.xaml.cs - odstranění visual tree traversal kódu
 
 **Klíčové změny:**
-- ✅ Vlastní konfigurovatelná cesta pro zálohy a exporty FÚ
-- ✅ Priorita: Vlastní cesta → OneDrive → Dokumenty (fallback)
-- ✅ UI zobrazení aktivní cesty (📁 ikona + modrý text)
-- ✅ Dialog "Záloha dokončena" při zavření aplikace
-- ✅ Čisté ukončení s exit code 0 (Environment.Exit)
-- ✅ Opraveny chyby: NullReferenceException, Invalid window handle, Access Violation
-- ✅ Opraveny build warningy (readonly fields, switch expression, object init)
+- ✅ **Filtrování poukazů** - přepracováno na data binding místo visual tree traversal
+- ✅ **Zarovnání hlaviček** - ItemContainerStyle odstraňuje default padding ListView
+- ✅ **Odstranění zbytečného sloupce** - sloupec s číslem účtenky (#x) odstraněn
+- ✅ **Statistiky nezávislé na filtrech** - počítadla ukazují vždy celkový přehled všech poukazů
 
 **Technické detaily:**
-- `GetBackupFolderPath()` v SettingsService - centralizovaná logika
-- Export FÚ používá STEJNOU cestu jako zálohy
-- Dialog při zavření: Task.Run() → dialog → Environment.Exit(0) přes DispatcherQueue
-- FolderPicker fix: `app.CurrentWindow` místo `Window.Current` (null v WinUI 3)
-- Flag `_isClosing` zabraňuje nekonečnému cyklu Window_Closed
 
-### 🧪 Zbývá otestovat:
-1. Výběr záložní složky v Nastavení → Systém
-2. Ověřit, že záloha se ukládá do vybrané složky
-3. Ověřit, že export FÚ se ukládá do stejné složky
-4. Zavření aplikace - dialog "Záloha dokončena" + exit code 0
+1. **Data Binding pro filtry** (správný WinUI 3 pattern):
+   ```csharp
+   // ViewModel - ObservableProperty místo manuálního hledání checkboxů
+   [ObservableProperty]
+   private bool filterNotIssued = true;
+
+   partial void OnFilterNotIssuedChanged(bool value)
+   {
+       UpdateFiltersAndReload();
+   }
+   ```
+
+   ```xaml
+   <!-- XAML - TwoWay binding -->
+   <CheckBox Content="Neprodané" IsChecked="{x:Bind ViewModel.FilterNotIssued, Mode=TwoWay}"/>
+   ```
+
+   **Proč to fungovalo špatně původně:**
+   - Visual tree traversal (`FindVisualChildren<CheckBox>`) má problém s načasováním
+   - `Page_Loaded` se volá dříve než jsou checkboxy plně inicializované
+   - Data binding je spolehlivější - funguje okamžitě
+
+2. **Zarovnání hlaviček ListView**:
+   ```xaml
+   <ListView.ItemContainerStyle>
+       <Style TargetType="ListViewItem">
+           <Setter Property="Padding" Value="0"/>
+           <Setter Property="Margin" Value="0"/>
+           <Setter Property="MinHeight" Value="0"/>
+           <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+       </Style>
+   </ListView.ItemContainerStyle>
+   ```
+
+   **Proč to bylo potřeba:**
+   - ListView automaticky přidává padding do ListViewItem kontejnerů
+   - Header Border měl jiný efektivní offset než data rows
+   - Odstranění default stylingu vyřešilo misalignment
+
+3. **Statistiky nezávislé na filtrech**:
+   ```csharp
+   // Ukládání všech poukazů
+   private List<GiftCard> _allGiftCards = new List<GiftCard>();
+
+   // Statistiky z _allGiftCards (nefiltrované)
+   public int TotalCount => _allGiftCards.Count;
+   public decimal LiabilityAmount => _allGiftCards
+       .Where(gc => gc.Status == GiftCardStatus.Issued)
+       .Sum(gc => gc.Value);
+
+   // GiftCards kolekce zůstává filtrovaná (zobrazeno v UI)
+   private async Task LoadGiftCardsAsync()
+   {
+       var allCards = await _giftCardService.GetAllGiftCardsAsync();
+       _allGiftCards = allCards; // Uložit pro statistiky
+
+       var filteredCards = allCards;
+       if (_activeFilters.Any())
+           filteredCards = filteredCards.Where(...).ToList();
+
+       // filteredCards → GiftCards (UI)
+   }
+   ```
+
+   **Proč to bylo potřeba:**
+   - Uživatel potřebuje vidět celkový přehled (Celkem, Závazek, atd.)
+   - Filtrování slouží k zúžení seznamu, ne k ovlivnění statistik
+   - Oddělená kolekce `_allGiftCards` řeší oba požadavky
+
+**Výsledný stav PoukazyPage:**
+- 📊 **Statistiky** - 6 počítadel (Celkem, Neprodané, Prodané, Využité, Expirované, Závazek)
+- 🔍 **Filtry** - 5 kombinovatelných checkboxů (defaultně: Neprodané + Prodané + Využité)
+- 📋 **Řazení** - 7 možností (datum prodeje/využití ↑↓, hodnota ↑↓, EAN)
+- 🔎 **Vyhledávání** - podle EAN nebo poznámek
+- 📋 **Kompaktní tabulka** - 7 sloupců, perfektně zarovnané hlavičky
+- 🗑️ **Smazání** - pouze neprodané poukazy (CanBeSold)
+
+### 🧪 Otestováno:
+- ✅ Filtrování - checkboxy fungují okamžitě
+- ✅ Kombinování filtrů - můžeš mít zaškrtnuté více checkboxů najednou
+- ✅ Statistiky - nemění se při změně filtrů
+- ✅ Zarovnání - hlavičky perfektně zarovnané s daty
 
 ### 🔧 Další úkoly:
-1. **PRIORITA:** Systém uživatelských účtů
-2. Export uzavírek do CSV/PDF
-3. Skutečný PrintService
-4. Scanner integrace (POZASTAVENO - HID scanners fungují automaticky)
+1. **Upravit tisk účtenek (prodej vs uplatnění)** - rozlišit formát tisku
+2. **Testovat veškeré scenáře** - kompletní testování systému poukazů
+3. **PRIORITA:** Systém uživatelských účtů
+4. Export uzavírek do CSV/PDF
+5. Skutečný PrintService
 
 ---
 
@@ -158,7 +225,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    </ItemsRepeater>
    ```
 
-12. **Window.Current je null v WinUI 3** ⚠️ NOVÉ!
+12. **Window.Current je null v WinUI 3** ⚠️
    - `Microsoft.UI.Xaml.Window.Current` vrací `null`
    - **Řešení pro FolderPicker:**
    ```csharp
@@ -173,7 +240,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
    ```
 
-13. **Window_Closed a async operace** ⚠️ NOVÉ!
+13. **Window_Closed a async operace** ⚠️
    - Přímé volání file operací v `Window_Closed` může způsobit Access Violation
    - **Řešení:**
    ```csharp
@@ -196,6 +263,45 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    - Flag `_isClosing` zabraňuje nekonečnému cyklu
    - `Environment.Exit(0)` vrací správný exit code (ne -1)
 
+14. **Visual Tree Traversal vs Data Binding** ⚠️ NOVÉ!
+   - `FindVisualChildren<T>()` má problémy s načasováním v `Page_Loaded`
+   - Checkboxy mohou ještě nebýt plně inicializované
+   - **VŽDY preferovat data binding:**
+   ```csharp
+   // ❌ ŠPATNĚ - visual tree traversal
+   foreach (var child in FindVisualChildren<CheckBox>(grid))
+   {
+       if (child.Tag?.ToString() == "NotIssued")
+           return child.IsChecked == true;
+   }
+
+   // ✅ SPRÁVNĚ - data binding
+   [ObservableProperty]
+   private bool filterNotIssued = true;
+
+   partial void OnFilterNotIssuedChanged(bool value)
+   {
+       UpdateFiltersAndReload();
+   }
+   ```
+   - x:Bind je compile-time bezpečné a spolehlivé
+
+15. **ListView ItemContainerStyle pro zarovnání** ⚠️ NOVÉ!
+   - ListView automaticky přidává padding do ListViewItem
+   - Hlavičky a data se nezarovnají bez úpravy
+   - **Řešení:**
+   ```xaml
+   <ListView.ItemContainerStyle>
+       <Style TargetType="ListViewItem">
+           <Setter Property="Padding" Value="0"/>
+           <Setter Property="Margin" Value="0"/>
+           <Setter Property="MinHeight" Value="0"/>
+           <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+       </Style>
+   </ListView.ItemContainerStyle>
+   ```
+   - Pak musí Header Border mít **stejný** BorderThickness a Padding jako data rows
+
 ### Databáze (EF Core + SQLite)
 
 1. **Žádné migrace!**
@@ -206,7 +312,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    - Registrace: `services.AddDbContextFactory<DatabaseContext>()`
    - Workaround pro WinUI TwoWay binding issues
 
-3. **Hybrid Backup Strategy** ⚠️ NOVÉ!
+3. **Hybrid Backup Strategy**
    - Aplikace běží 100% offline z LocalAppData
    - Záloha na OneDrive/vlastní složku při zavření
    - Restore při startu pokud backup je novější
@@ -269,6 +375,11 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 - WinUI build proces tyto warningy automaticky vyřeší
 - **Lze ignorovat** - zmizí po dokončení buildu
 
+### Problém: Visual Tree Traversal timing issues ⚠️ NOVÉ!
+- `FindVisualChildren<T>()` v `Page_Loaded` není spolehlivé
+- Kontroly mohou být volány dříve než je visual tree připraven
+- **Řešení:** VŽDY používat data binding místo visual tree hledání
+
 ---
 
 ## 📝 Důležité poznámky
@@ -305,12 +416,13 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ### 🔴 Prioritní úkoly (listopad 2025):
 
-1. **Vlastní cesta pro zálohy** ✅ HOTOVO!
-   - ✅ Konfigurovatelná cesta v Nastavení → Systém
-   - ✅ Priorita: Vlastní → OneDrive → Dokumenty
-   - ✅ Export FÚ používá stejnou cestu
-   - ✅ Dialog při zavření aplikace
-   - 🧪 Zbývá otestovat v produkci
+1. **Systém dárkových poukazů** ✅ HOTOVO!
+   - ✅ Kompletní CRUD operace
+   - ✅ Životní cyklus (naskladnění → prodej → využití)
+   - ✅ Integrace s POS systémem
+   - ✅ Profesionální UI s filtry a statistikami
+   - ✅ Data binding místo visual tree traversal
+   - ✅ Statistiky nezávislé na filtrech
 
 2. **Systém uživatelských účtů** ⏳ NEXT
    - Implementovat databázovou tabulku Users
@@ -320,6 +432,8 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    - SellerName bude skutečné jméno místo "Prodej"
 
 ### ⏳ Sekundární:
+- Upravit tisk účtenek (prodej poukazu vs uplatnění)
+- Testovat kompletně systém poukazů
 - Export uzavírek do CSV/PDF
 - Skutečný PrintService (tisk na běžnou tiskárnu)
 - Respektovat "Plátce DPH" v tisku
@@ -330,7 +444,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 11/14 hlavních funkcí (~79%)
+**Hotovo:** 12/15 hlavních funkcí (~80%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -343,13 +457,14 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 8. Dynamická správa kategorií
 9. PPD Compliance (profesionální účtenky, storno, export FÚ)
 10. UI optimalizace pro neplátce DPH
-11. **Vlastní cesta pro zálohy + Dialog při zavření** ✅ NOVÉ!
+11. Vlastní cesta pro zálohy + Dialog při zavření
+12. **Systém dárkových poukazů (kompletní)** ✅ NOVÉ!
 
 ### ⏳ Zbývá:
 1. Systém uživatelských účtů
-2. Export uzavírek (CSV/PDF)
-3. Tisk (PrintService je placeholder)
+2. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
+3. Export uzavírek (CSV/PDF)
 
 ---
 
-**Poslední aktualizace:** 19. listopad 2025
+**Poslední aktualizace:** 24. listopad 2025
