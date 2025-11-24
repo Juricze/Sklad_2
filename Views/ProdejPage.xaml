@@ -23,7 +23,22 @@
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
                     <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.Name, Mode=OneWay}"/></TextBlock>
-                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProductPriceFormatted, Mode=OneWay}"/></TextBlock>
+                    <StackPanel>
+                        <TextBlock>
+                            <Run Text="Cena:" FontWeight="Bold"/> 
+                            <Run Text="{x:Bind ViewModel.ScannedProduct.FinalPriceFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Visibility="{x:Bind ViewModel.ScannedProduct.IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                            <Run Text="Původní cena:"/>
+                            <Run Text="{x:Bind ViewModel.ScannedProduct.SalePriceFormatted, Mode=OneWay}"/>
+                            <Run Text=" • Sleva"/>
+                            <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountPercentFormatted, Mode=OneWay}"/>
+                            <Run Text=" ("/>
+                            <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountReason, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                    </StackPanel>
                     <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.StockQuantity, Mode=OneWay}"/> <Run Text="ks"/></TextBlock>
                 </StackPanel>
             </Border>
@@ -170,13 +185,49 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
+                                    <StackPanel Grid.Column="0" Spacing="2">
                                         <TextBlock Text="{x:Bind Product.Name}" FontWeight="Bold"/>
-                                        <TextBlock>
-                                            <Run Text="{x:Bind QuantityFormatted, Mode=OneWay}"/>
-                                            <Run Text=" x "/>
-                                            <Run Text="{x:Bind Product.SalePriceFormatted, Mode=OneWay}"/>
-                                        </TextBlock>
+                                        <StackPanel>
+                                            <TextBlock>
+                                                <Run Text="{x:Bind QuantityFormatted, Mode=OneWay}"/>
+                                                <Run Text=" x "/>
+                                                <Run Text="{x:Bind UnitPrice, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
+                                            </TextBlock>
+                                            <!-- Show discount info if product has discount -->
+                                            <StackPanel Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                        Spacing="2">
+                                                <TextBlock FontSize="12" 
+                                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                                                    <Run Text="Původně:" FontStyle="Italic"/>
+                                                    <Run Text="{x:Bind OriginalUnitPrice, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
+                                                </TextBlock>
+                                                
+                                                <!-- Product discount (automatic) -->
+                                                <TextBlock Visibility="{x:Bind HasProductDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                           FontSize="11" 
+                                                           Foreground="#4CAF50">
+                                                    <Run Text="📦 Sleva produktu: " FontWeight="SemiBold"/>
+                                                    <Run Text="{x:Bind ProductDiscountDisplay, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                
+                                                <!-- Manual discount (additional) -->
+                                                <TextBlock Visibility="{x:Bind HasManualDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                           FontSize="11" 
+                                                           Foreground="#FF9500">
+                                                    <Run Text="✋ Dodatečná sleva: " FontWeight="SemiBold"/>
+                                                    <Run Text="{x:Bind ManualDiscountDisplay, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                
+                                                <!-- Combined discount total -->
+                                                <TextBlock Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                           FontSize="11" 
+                                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                                           FontWeight="SemiBold">
+                                                    <Run Text="💰 "/>
+                                                    <Run Text="{x:Bind CombinedDiscountDisplay, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Grid>
@@ -191,6 +242,12 @@
                         </Button>
                         <Button Command="{x:Bind ViewModel.DecrementQuantityCommand}" ToolTipService.ToolTip="Snížit množství vybrané položky">
                             <FontIcon Glyph="&#xE738;"/>
+                        </Button>
+                        <Button Command="{x:Bind ViewModel.ApplyManualDiscountCommand}" ToolTipService.ToolTip="Aplikovat slevu na vybranou položku" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE7B8;" FontSize="14"/>
+                                <TextBlock Text="Sleva" FontSize="12"/>
+                            </StackPanel>
                         </Button>
                         <Button Command="{x:Bind ViewModel.RemoveItemCommand}" ToolTipService.ToolTip="Odebrat vybranou položku">
                             <FontIcon Glyph="&#xE74D;"/>

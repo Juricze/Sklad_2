@@ -87,9 +87,20 @@
                                                Visibility="{Binding Receipt.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     <TextBlock Grid.Column="2" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
-                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
-                                    <Run Text="{x:Bind Quantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
-                                </TextBlock>
+                                <StackPanel>
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
+                                        <Run Text="{x:Bind Quantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <!-- Show discount info if item has discount -->
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" 
+                                               Foreground="#666666"
+                                               Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Run Text="  Sleva "/><Run Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}"/>
+                                        <Run Text=" ("/>
+                                        <Run Text="{x:Bind DiscountReason, Mode=OneWay}"/>
+                                        <Run Text=") z "/><Run Text="{x:Bind OriginalUnitPriceFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>

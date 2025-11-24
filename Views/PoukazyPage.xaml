@@ -136,7 +136,10 @@
             <!-- Gift Cards List -->
             <ListView Grid.Row="3"
                       ItemsSource="{x:Bind ViewModel.GiftCards, Mode=OneWay}"
-                      SelectionMode="None">
+                      SelectionMode="None"
+                      MaxHeight="400"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0"/>

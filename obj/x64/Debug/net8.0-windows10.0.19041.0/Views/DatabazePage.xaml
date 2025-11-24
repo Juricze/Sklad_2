@@ -16,16 +16,16 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBox x:ConnectionId='16'
+            <TextBox x:ConnectionId='20'
                 PlaceholderText="Hledat podle názvu nebo EAN..."
                                                                                                       
                 MinWidth="300"/>
-            <ComboBox x:ConnectionId='17'
+            <ComboBox x:ConnectionId='21'
                 Header="Kategorie"
                                                            
                                                                                
                 MinWidth="150"/>
-            <Button x:ConnectionId='18'                                                  >
+            <Button x:ConnectionId='22'                                                  >
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE74D;"/>
                     <TextBlock Text="Smazat vybrané"/>
@@ -48,6 +48,7 @@
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.5*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button x:ConnectionId='3' Grid.Column="1" Content="Název ▲▼"                                            CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
@@ -56,6 +57,7 @@
                     <TextBlock x:ConnectionId='5' Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center"                                                                                                                 />
                     <TextBlock Grid.Column="5" Text="Nákupní cena" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button x:ConnectionId='6' Grid.Column="6" Content="Prodejní cena ▲▼"                                            CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="7" Text="Sleva" FontWeight="Bold" VerticalAlignment="Center"/>
                 </Grid>
             </ListView.Header>
             <ListView.ItemTemplate>
@@ -69,6 +71,7 @@
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.5*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock x:ConnectionId='9' Grid.Column="0"                     VerticalAlignment="Center"/>
                         <TextBlock x:ConnectionId='10' Grid.Column="1"                      VerticalAlignment="Center"/>
@@ -76,7 +79,34 @@
                         <TextBlock x:ConnectionId='12' Grid.Column="3"                               VerticalAlignment="Center"/>
                         <TextBlock x:ConnectionId='13' Grid.Column="4"                                               VerticalAlignment="Center" Visibility="{Binding ViewModel.IsVatPayer, ElementName=page, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <TextBlock x:ConnectionId='14' Grid.Column="5"                                                     VerticalAlignment="Center"/>
-                        <TextBlock x:ConnectionId='15' Grid.Column="6"                                                 VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="6" Orientation="Vertical" VerticalAlignment="Center">
+                            <StackPanel>
+                                <!-- Show original and discounted price -->
+                                <TextBlock x:ConnectionId='17'                                                                                                         
+                                           Foreground="Gray"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center">
+                                    <Run Text="~~"/><Run x:ConnectionId='19'                                                /><Run Text="~~"/>
+                                </TextBlock>
+                                <!-- Show final price (always visible) -->
+                                <TextBlock x:ConnectionId='18'                                                  
+                                           FontWeight="Bold"
+                                                                                                                                                      
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border x:ConnectionId='15' Grid.Column="7" 
+                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                CornerRadius="10"
+                                Padding="6,2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                                                                                                                        >
+                            <TextBlock x:ConnectionId='16'                                                       
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

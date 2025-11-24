@@ -47,8 +47,25 @@ namespace Sklad_2.Models
         [NotifyPropertyChangedFor(nameof(VatAmountFormatted))]
         private decimal vatAmount;
 
+        // Discount properties
+        [ObservableProperty]
+        private decimal? discountPercent;
+
+        [ObservableProperty]
+        private decimal originalUnitPrice = 0; // Original price before discount
+
+        [ObservableProperty]
+        private string discountReason = string.Empty;
+
+        // Computed properties
+        public bool HasDiscount => DiscountPercent.HasValue && DiscountPercent > 0;
+        public decimal DiscountAmount => HasDiscount ? (OriginalUnitPrice - UnitPrice) : 0;
+        public decimal TotalDiscountAmount => DiscountAmount * Quantity;
+        public string DiscountPercentFormatted => DiscountPercent.HasValue ? $"-{DiscountPercent:F0}%" : "";
+
         // Formatted properties
         public string UnitPriceFormatted => $"{UnitPrice:C}";
+        public string OriginalUnitPriceFormatted => $"{OriginalUnitPrice:C}";
         public string TotalPriceFormatted => $"{TotalPrice:C}";
         public string PriceWithoutVatFormatted => $"{PriceWithoutVat:C}";
         public string VatAmountFormatted => $"{VatAmount:C}";

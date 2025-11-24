@@ -4734,23 +4734,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Jura\\.nuget\\packages\\": {},
+    "C:\\Users\\WorkGroup\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\dev\\Sklad_2\\Sklad_2.csproj",
+      "projectUniqueName": "C:\\Dev\\Sklad_2\\Sklad_2.csproj",
       "projectName": "Sklad_2",
-      "projectPath": "C:\\dev\\Sklad_2\\Sklad_2.csproj",
-      "packagesPath": "C:\\Users\\Jura\\.nuget\\packages\\",
-      "outputPath": "C:\\dev\\Sklad_2\\obj\\",
+      "projectPath": "C:\\Dev\\Sklad_2\\Sklad_2.csproj",
+      "packagesPath": "C:\\Users\\WorkGroup\\.nuget\\packages\\",
+      "outputPath": "C:\\Dev\\Sklad_2\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Jura\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\WorkGroup\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4759,6 +4759,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

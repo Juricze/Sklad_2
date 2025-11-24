@@ -29,6 +29,7 @@
             <converters:BooleanToStornoBrushConverter x:Key="BooleanToStornoBrushConverter"/>
             <converters:RoleToIconConverter x:Key="RoleToIconConverter"/>
             <converters:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
+            <converters:BooleanToDiscountColorConverter x:Key="BooleanToDiscountColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

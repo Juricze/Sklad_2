@@ -48,6 +48,7 @@
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.5*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Content="Název ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
@@ -56,6 +57,7 @@
                     <TextBlock Grid.Column="4" Text="Sazba DPH" FontWeight="Bold" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBlock Grid.Column="5" Text="Nákupní cena" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="6" Content="Prodejní cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                    <TextBlock Grid.Column="7" Text="Sleva" FontWeight="Bold" VerticalAlignment="Center"/>
                 </Grid>
             </ListView.Header>
             <ListView.ItemTemplate>
@@ -69,6 +71,7 @@
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.5*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{x:Bind Ean}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center"/>
@@ -76,7 +79,34 @@
                         <TextBlock Grid.Column="3" Text="{x:Bind StockQuantity}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="4" Text="{x:Bind VatRateFormatted, Mode=OneWay}" VerticalAlignment="Center" Visibility="{Binding ViewModel.IsVatPayer, ElementName=page, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <TextBlock Grid.Column="5" Text="{x:Bind PurchasePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="6" Text="{x:Bind SalePriceFormatted, Mode=OneWay}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="6" Orientation="Vertical" VerticalAlignment="Center">
+                            <StackPanel>
+                                <!-- Show original and discounted price -->
+                                <TextBlock Visibility="{x:Bind IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Foreground="Gray"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center">
+                                    <Run Text="~~"/><Run Text="{x:Bind SalePriceFormatted, Mode=OneWay}"/><Run Text="~~"/>
+                                </TextBlock>
+                                <!-- Show final price (always visible) -->
+                                <TextBlock Text="{x:Bind FinalPriceFormatted, Mode=OneWay}" 
+                                           FontWeight="Bold"
+                                           Foreground="{x:Bind IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToDiscountColorConverter}}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="7" 
+                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                CornerRadius="10"
+                                Padding="6,2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}" 
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

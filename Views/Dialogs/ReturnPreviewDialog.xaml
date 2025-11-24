@@ -87,6 +87,18 @@
                             <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
                                 <Run Text="{x:Bind ReturnedQuantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
                             </TextBlock>
+                            
+                            <!-- Show discount info if item was discounted -->
+                            <!-- TODO: Add discount properties to ReturnItem model to show discount details -->
+                            <!--<TextBlock Style="{ThemeResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                       Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Run Text="  Původní cena: "/><Run Text="{x:Bind OriginalUnitPriceFormatted, Mode=OneWay}"/>
+                                <Run Text=" • Sleva "/><Run Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}"/>
+                                <Run Text=" ("/>
+                                <Run Text="{x:Bind DiscountReason, Mode=OneWay}"/>
+                                <Run Text=")"/>
+                            </TextBlock>-->
                         </StackPanel>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>

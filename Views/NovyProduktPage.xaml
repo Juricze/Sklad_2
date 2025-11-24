@@ -8,7 +8,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Padding="24">
-        <StackPanel Spacing="24" MaxWidth="500">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24" MaxWidth="500">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Spacing="12">
                     <TextBox Header="EAN kód" Text="{x:Bind ViewModel.Ean, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
@@ -23,10 +24,59 @@
                         <TextBlock Text="{x:Bind ViewModel.VatRateDisplay, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
                     </StackPanel>
 
+                    <!-- Discount Section -->
+                    <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,8,0,0">
+                        <StackPanel Spacing="8">
+                            <CheckBox Content="Zlevněný produkt" 
+                                      IsChecked="{x:Bind ViewModel.HasDiscount, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                            
+                            <StackPanel Visibility="{x:Bind ViewModel.HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                        Spacing="8">
+                                <NumberBox Header="Sleva (%)" 
+                                           Minimum="0" 
+                                           Maximum="100"
+                                           SpinButtonPlacementMode="Inline"
+                                           Value="{x:Bind ViewModel.DiscountPercent, Mode=TwoWay}"
+                                           IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                
+                                <ComboBox Header="Důvod slevy"
+                                          ItemsSource="{x:Bind ViewModel.DiscountReasons}"
+                                          SelectedItem="{x:Bind ViewModel.SelectedDiscountReason, Mode=TwoWay}"
+                                          IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                
+                                <CheckBox Content="Do vyprodání zásob (bez expirace)" 
+                                          IsChecked="{x:Bind ViewModel.IsStockClearance, Mode=TwoWay}"
+                                          IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                
+                                <DatePicker Header="Platnost od" 
+                                            Date="{x:Bind ViewModel.DiscountValidFrom, Mode=TwoWay}"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
+                                            Visibility="{x:Bind ViewModel.ShowDiscountDates, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                
+                                <DatePicker Header="Platnost do" 
+                                            Date="{x:Bind ViewModel.DiscountValidTo, Mode=TwoWay}"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
+                                            Visibility="{x:Bind ViewModel.ShowDiscountDates, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                
+                                <TextBlock Text="💡 Sleva 'Do vyprodání zásob' platí dokud není vše prodáno"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                           TextWrapping="Wrap"
+                                           Visibility="{x:Bind ViewModel.IsStockClearance, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                
+                                <TextBlock Text="{x:Bind ViewModel.FinalPriceDisplay, Mode=OneWay}" 
+                                           Style="{ThemeResource BodyStrongTextBlockStyle}" 
+                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
             </Border>
             <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
             <Button Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddNewProductCommand}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

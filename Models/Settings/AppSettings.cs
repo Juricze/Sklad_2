@@ -14,6 +14,7 @@ namespace Sklad_2.Models.Settings
         public string PrinterPath { get; set; }
         public string ScannerPath { get; set; }
         public string BackupPath { get; set; }
+        public bool AllowManualDiscounts { get; set; }
         public DateTime? LastSaleLoginDate { get; set; }
         public DateTime? LastDayCloseDate { get; set; }
 

@@ -1,7 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Models;
 using Sklad_2.Services;
+using Sklad_2.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,6 +33,7 @@ namespace Sklad_2.ViewModels
         [NotifyCanExecuteChangedFor(nameof(IncrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(DecrementQuantityCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveItemCommand))]
+        [NotifyCanExecuteChangedFor(nameof(ApplyManualDiscountCommand))]
         private CartItem selectedReceiptItem;
 
         partial void OnSelectedReceiptItemChanged(CartItem oldValue, CartItem newValue)
@@ -93,6 +97,7 @@ namespace Sklad_2.ViewModels
 
         public bool IsProductFound => ScannedProduct != null;
         private bool CanManipulateItem => SelectedReceiptItem != null;
+        private bool CanApplyManualDiscount => SelectedReceiptItem != null && _settingsService.CurrentSettings.AllowManualDiscounts;
 
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
 
@@ -132,6 +137,12 @@ namespace Sklad_2.ViewModels
                     OnPropertyChanged(nameof(ForfeitedAmountFormatted));
                 };
             }
+            
+            // Listen for settings changes to update manual discount availability
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<ProdejViewModel, Sklad_2.Messages.SettingsChangedMessage, string>(this, "SettingsUpdateToken", (r, m) =>
+            {
+                ApplyManualDiscountCommand.NotifyCanExecuteChanged();
+            });
         }
 
         public event EventHandler<Product> ProductOutOfStock;
@@ -204,6 +215,30 @@ namespace Sklad_2.ViewModels
             {
                 Receipt.RemoveItem(SelectedReceiptItem);
             }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanApplyManualDiscount))]
+        private async Task ApplyManualDiscountAsync()
+        {
+            if (SelectedReceiptItem == null) return;
+
+            var dialog = new ManualDiscountDialog();
+            dialog.XamlRoot = (Application.Current as App)?.CurrentWindow?.Content?.XamlRoot;
+            
+            var result = await dialog.ShowAsync();
+            
+            if (result == ContentDialogResult.Primary && dialog.DiscountPercent > 0)
+            {
+                // Apply manual discount to selected item
+                ApplyDiscountToCartItem(SelectedReceiptItem, dialog.DiscountPercent, dialog.DiscountReason);
+            }
+        }
+
+        private void ApplyDiscountToCartItem(CartItem item, decimal discountPercent, string reason)
+        {
+            // Apply manual discount to the cart item
+            item.ManualDiscountPercent = discountPercent;
+            item.ManualDiscountReason = reason;
         }
 
         [RelayCommand]
@@ -370,11 +405,14 @@ namespace Sklad_2.ViewModels
                         ProductEan = item.Product.Ean,
                         ProductName = item.Product.Name,
                         Quantity = item.Quantity,
-                        UnitPrice = item.Product.SalePrice,
+                        UnitPrice = item.UnitPrice, // Final price (with discount)
                         TotalPrice = item.TotalPrice,
                         VatRate = item.Product.VatRate,
                         PriceWithoutVat = item.PriceWithoutVat,
-                        VatAmount = item.VatAmount
+                        VatAmount = item.VatAmount,
+                        DiscountPercent = item.HasDiscount ? item.DiscountPercent : null,
+                        OriginalUnitPrice = item.OriginalUnitPrice,
+                        DiscountReason = item.HasDiscount ? item.DiscountReason : null
                     });
                 }
 
@@ -578,7 +616,10 @@ namespace Sklad_2.ViewModels
                         TotalPrice = -item.TotalPrice,  // NEGATIVE total
                         VatRate = item.VatRate,
                         PriceWithoutVat = -item.PriceWithoutVat,  // NEGATIVE
-                        VatAmount = -item.VatAmount  // NEGATIVE
+                        VatAmount = -item.VatAmount,  // NEGATIVE
+                        DiscountPercent = item.HasDiscount ? item.DiscountPercent : null,
+                        OriginalUnitPrice = item.OriginalUnitPrice,
+                        DiscountReason = item.HasDiscount ? item.DiscountReason : null
                     });
                 }
 

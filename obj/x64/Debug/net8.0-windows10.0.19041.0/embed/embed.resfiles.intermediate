@@ -11,6 +11,7 @@ Views\Dialogs\CardPaymentConfirmationDialog.xbf
 Views\Dialogs\CashConfirmationDialog.xbf
 Views\Dialogs\CashPaymentDialog.xbf
 Views\Dialogs\CreateFirstAdminDialog.xbf
+Views\Dialogs\ManualDiscountDialog.xbf
 Views\Dialogs\NewDayConfirmationDialog.xbf
 Views\Dialogs\OutOfStockDialog.xbf
 Views\Dialogs\PasswordPromptDialog.xbf

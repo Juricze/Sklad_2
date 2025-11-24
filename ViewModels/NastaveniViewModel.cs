@@ -82,6 +82,9 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string exportStatusMessage;
 
+        [ObservableProperty]
+        private string manualDiscountsStatusMessage;
+
         public ObservableCollection<VatConfig> VatConfigs { get; } = new();
 
         public NastaveniViewModel(ISettingsService settingsService, IPrintService printService, IDataService dataService, IMessenger messenger, IAuthService authService)
@@ -243,6 +246,24 @@ namespace Sklad_2.ViewModels
         {
             var path = _settingsService.GetBackupFolderPath();
             ActiveBackupPath = $"Aktivní cesta: {path}";
+        }
+
+        [RelayCommand]
+        private async Task SaveManualDiscountsAsync()
+        {
+            ManualDiscountsStatusMessage = string.Empty;
+            try
+            {
+                await _settingsService.SaveSettingsAsync();
+                _messenger.Send(new SettingsChangedMessage());
+                ManualDiscountsStatusMessage = "Nastavení ručních slev bylo úspěšně uloženo.";
+                await Task.Delay(3000);
+                ManualDiscountsStatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ManualDiscountsStatusMessage = $"Chyba při ukládání nastavení: {ex.Message}";
+            }
         }
 
         [RelayCommand]
@@ -458,11 +479,106 @@ namespace Sklad_2.ViewModels
             sb.AppendLine("</tbody>");
             sb.AppendLine("</table>");
 
+            // Detailed receipt items (for tax office purposes)
+            sb.AppendLine("<h2 style='margin-top: 40px;'>Detailní položky (pro FÚ)</h2>");
+            sb.AppendLine("<table>");
+            sb.AppendLine("<thead>");
+            sb.AppendLine("<tr>");
+            sb.AppendLine("<th>Účtenka</th>");
+            sb.AppendLine("<th>Datum</th>");
+            sb.AppendLine("<th>Produkt (EAN)</th>");
+            sb.AppendLine("<th>Název</th>");
+            sb.AppendLine("<th>Množství</th>");
+            sb.AppendLine("<th>Jednotková cena</th>");
+            sb.AppendLine("<th>Celkem za položku</th>");
+
+            // Show discount columns if any receipt has discounted items
+            bool hasAnyDiscount = receipts.Any(r => r.Items.Any(i => i.HasDiscount));
+            if (hasAnyDiscount)
+            {
+                sb.AppendLine("<th>Původní cena</th>");
+                sb.AppendLine("<th>Sleva %</th>");
+                sb.AppendLine("<th>Důvod slevy</th>");
+            }
+
+            // Only show VAT columns if company is VAT payer
+            if (settings.IsVatPayer)
+            {
+                sb.AppendLine("<th>DPH %</th>");
+                sb.AppendLine("<th>Základ</th>");
+                sb.AppendLine("<th>DPH</th>");
+            }
+
+            sb.AppendLine("</tr>");
+            sb.AppendLine("</thead>");
+            sb.AppendLine("<tbody>");
+
+            foreach (var receipt in receipts.OrderBy(r => r.SaleDate))
+            {
+                foreach (var item in receipt.Items)
+                {
+                    var rowClass = receipt.IsStorno ? " class='storno'" : "";
+                    
+                    sb.AppendLine($"<tr{rowClass}>");
+                    sb.AppendLine($"<td>{receipt.FormattedReceiptNumber}</td>");
+                    sb.AppendLine($"<td>{receipt.SaleDate:dd.MM.yyyy}</td>");
+                    sb.AppendLine($"<td>{item.ProductEan}</td>");
+                    sb.AppendLine($"<td>{item.ProductName}</td>");
+                    sb.AppendLine($"<td style='text-align: center;'>{item.Quantity}</td>");
+                    sb.AppendLine($"<td style='text-align: right;'>{item.UnitPrice:N2} Kč</td>");
+                    sb.AppendLine($"<td style='text-align: right;'>{item.TotalPrice:N2} Kč</td>");
+
+                    // Show discount columns if any receipt has discounted items
+                    if (hasAnyDiscount)
+                    {
+                        if (item.HasDiscount)
+                        {
+                            sb.AppendLine($"<td style='text-align: right;'>{item.OriginalUnitPrice:N2} Kč</td>");
+                            sb.AppendLine($"<td style='text-align: center;'>{item.DiscountPercent:F0}%</td>");
+                            sb.AppendLine($"<td>{item.DiscountReason ?? ""}</td>");
+                        }
+                        else
+                        {
+                            sb.AppendLine("<td style='text-align: center;'>-</td>");
+                            sb.AppendLine("<td style='text-align: center;'>-</td>");
+                            sb.AppendLine("<td style='text-align: center;'>-</td>");
+                        }
+                    }
+
+                    // Only show VAT columns if company is VAT payer
+                    if (settings.IsVatPayer)
+                    {
+                        sb.AppendLine($"<td style='text-align: center;'>{item.VatRate:F0}%</td>");
+                        sb.AppendLine($"<td style='text-align: right;'>{item.PriceWithoutVat:N2} Kč</td>");
+                        sb.AppendLine($"<td style='text-align: right;'>{item.VatAmount:N2} Kč</td>");
+                    }
+
+                    sb.AppendLine("</tr>");
+                }
+            }
+
+            sb.AppendLine("</tbody>");
+            sb.AppendLine("</table>");
+
             // Summary
             sb.AppendLine("<div class='summary'>");
             sb.AppendLine("<h2>Souhrn za období</h2>");
             sb.AppendLine($"<p><strong>Celkový počet účtenek:</strong> {receipts.Count}</p>");
             sb.AppendLine($"<p><strong>Celková částka:</strong> {totalAmount:N2} Kč</p>");
+
+            // Discount summary if there are any discounts
+            var discountedItems = receipts.SelectMany(r => r.Items).Where(i => i.HasDiscount);
+            if (discountedItems.Any())
+            {
+                var totalDiscountAmount = discountedItems.Sum(i => i.TotalDiscountAmount);
+                var totalOriginalAmount = discountedItems.Sum(i => i.OriginalUnitPrice * i.Quantity);
+                var avgDiscountPercent = discountedItems.Average(i => i.DiscountPercent ?? 0);
+                
+                sb.AppendLine($"<p><strong>Položky se slevou:</strong> {discountedItems.Count()}</p>");
+                sb.AppendLine($"<p><strong>Celková výše slev:</strong> {totalDiscountAmount:N2} Kč</p>");
+                sb.AppendLine($"<p><strong>Původní hodnota zlevněných položek:</strong> {totalOriginalAmount:N2} Kč</p>");
+                sb.AppendLine($"<p><strong>Průměrná sleva:</strong> {avgDiscountPercent:F1}%</p>");
+            }
 
             // Only show VAT summary if company is VAT payer
             if (settings.IsVatPayer)

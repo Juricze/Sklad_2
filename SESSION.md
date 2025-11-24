@@ -424,13 +424,6 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    - ✅ Data binding místo visual tree traversal
    - ✅ Statistiky nezávislé na filtrech
 
-2. **Systém uživatelských účtů** ⏳ NEXT
-   - Implementovat databázovou tabulku Users
-   - Nahradit fixed roles (Admin/Prodej) skutečnými uživateli
-   - Každý prodavač vlastní login + jméno
-   - Role/oprávnění per uživatel
-   - SellerName bude skutečné jméno místo "Prodej"
-
 ### ⏳ Sekundární:
 - Upravit tisk účtenek (prodej poukazu vs uplatnění)
 - Testovat kompletně systém poukazů
@@ -461,8 +454,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 12. **Systém dárkových poukazů (kompletní)** ✅ NOVÉ!
 
 ### ⏳ Zbývá:
-1. Systém uživatelských účtů
-2. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
+1. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
 3. Export uzavírek (CSV/PDF)
 
 ---

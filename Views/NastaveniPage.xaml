@@ -350,6 +350,39 @@
                                 </Border>
                             </StackPanel>
 
+                            <!-- Manual Discounts Section -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Ruční slevy" FontWeight="SemiBold"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    Povolte nebo zakažte možnost zadávání ručních slev při prodeji. Pokud je vypnuto, prodavači nebudou moci upravovat ceny produktů při prodeji.
+                                </TextBlock>
+                                <ToggleSwitch Header="Povolit ruční slevy"
+                                              OnContent="Povoleno"
+                                              OffContent="Zakázáno"
+                                              IsOn="{x:Bind ViewModel.Settings.AllowManualDiscounts, Mode=TwoWay}"
+                                              IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Button Content="Uložit nastavení"
+                                        Command="{x:Bind ViewModel.SaveManualDiscountsCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,8,0,0"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+
+                                <!-- Manual Discounts Status -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="8"
+                                        Margin="0,8,0,0"
+                                        Visibility="{x:Bind ViewModel.ManualDiscountsStatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <TextBlock Text="{x:Bind ViewModel.ManualDiscountsStatusMessage, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                </Border>
+                            </StackPanel>
+
                             <!-- Export to PDF Section (for Finanční úřad) -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Export pro Finanční úřad" FontWeight="SemiBold"/>

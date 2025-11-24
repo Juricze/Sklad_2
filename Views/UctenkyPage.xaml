@@ -172,18 +172,31 @@
                         </ListView.HeaderTemplate>
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:ReceiptItem">
-                                <Grid Padding="8" ColumnSpacing="12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{x:Bind ProductName}"/>
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Quantity}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind UnitPriceFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
-                                </Grid>
+                                <StackPanel Padding="8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind ProductName}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Quantity}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{x:Bind UnitPriceFormatted, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    
+                                    <!-- Show discount info if item has discount -->
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                               Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                               Margin="0,2,0,0">
+                                        <Run Text="  Sleva "/><Run Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}"/>
+                                        <Run Text=" ("/>
+                                        <Run Text="{x:Bind DiscountReason, Mode=OneWay}"/>
+                                        <Run Text=") z "/><Run Text="{x:Bind OriginalUnitPriceFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

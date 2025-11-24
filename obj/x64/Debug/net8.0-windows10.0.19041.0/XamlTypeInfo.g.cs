@@ -224,7 +224,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
 
         private void InitTypeTables()
         {
-            _typeNameTable = new string[124];
+            _typeNameTable = new string[126];
             _typeNameTable[0] = "Microsoft.UI.Xaml.Controls.XamlControlsResources";
             _typeNameTable[1] = "Microsoft.UI.Xaml.ResourceDictionary";
             _typeNameTable[2] = "Object";
@@ -245,112 +245,114 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             _typeNameTable[17] = "Sklad_2.Converters.BooleanToStornoBrushConverter";
             _typeNameTable[18] = "Sklad_2.Converters.RoleToIconConverter";
             _typeNameTable[19] = "Sklad_2.Converters.BooleanToOpacityConverter";
-            _typeNameTable[20] = "Microsoft.UI.Xaml.Controls.ProgressRing";
-            _typeNameTable[21] = "Microsoft.UI.Xaml.Controls.Control";
-            _typeNameTable[22] = "Double";
-            _typeNameTable[23] = "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings";
-            _typeNameTable[24] = "Microsoft.UI.Xaml.DependencyObject";
-            _typeNameTable[25] = "Microsoft.UI.Xaml.Controls.ItemsRepeater";
-            _typeNameTable[26] = "Microsoft.UI.Xaml.FrameworkElement";
-            _typeNameTable[27] = "Microsoft.UI.Xaml.Media.Brush";
-            _typeNameTable[28] = "Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider";
-            _typeNameTable[29] = "Microsoft.UI.Xaml.Controls.ItemsSourceView";
-            _typeNameTable[30] = "Microsoft.UI.Xaml.Controls.Layout";
-            _typeNameTable[31] = "Sklad_2.LoginWindow";
-            _typeNameTable[32] = "Microsoft.UI.Xaml.Window";
-            _typeNameTable[33] = "Sklad_2.ViewModels.LoginViewModel";
-            _typeNameTable[34] = "CommunityToolkit.Mvvm.ComponentModel.ObservableObject";
-            _typeNameTable[35] = "Microsoft.UI.Xaml.Controls.NavigationView";
-            _typeNameTable[36] = "Microsoft.UI.Xaml.Controls.ContentControl";
-            _typeNameTable[37] = "Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible";
-            _typeNameTable[38] = "System.Enum";
-            _typeNameTable[39] = "System.ValueType";
-            _typeNameTable[40] = "Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode";
-            _typeNameTable[41] = "String";
-            _typeNameTable[42] = "System.Collections.Generic.IList`1<Object>";
-            _typeNameTable[43] = "Microsoft.UI.Xaml.UIElement";
-            _typeNameTable[44] = "Microsoft.UI.Xaml.Controls.AutoSuggestBox";
-            _typeNameTable[45] = "Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode";
-            _typeNameTable[46] = "Microsoft.UI.Xaml.DataTemplate";
-            _typeNameTable[47] = "Microsoft.UI.Xaml.Style";
-            _typeNameTable[48] = "Microsoft.UI.Xaml.Controls.StyleSelector";
-            _typeNameTable[49] = "Microsoft.UI.Xaml.Controls.DataTemplateSelector";
-            _typeNameTable[50] = "Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode";
-            _typeNameTable[51] = "Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus";
-            _typeNameTable[52] = "Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled";
-            _typeNameTable[53] = "Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings";
-            _typeNameTable[54] = "Microsoft.UI.Xaml.Controls.NavigationViewItem";
-            _typeNameTable[55] = "Microsoft.UI.Xaml.Controls.NavigationViewItemBase";
-            _typeNameTable[56] = "Microsoft.UI.Xaml.Controls.IconElement";
-            _typeNameTable[57] = "Microsoft.UI.Xaml.Controls.InfoBadge";
-            _typeNameTable[58] = "Sklad_2.MainWindow";
-            _typeNameTable[59] = "Sklad_2.ViewModels.StatusBarViewModel";
-            _typeNameTable[60] = "Microsoft.UI.Xaml.Controls.RadioButton";
-            _typeNameTable[61] = "Sklad_2.Views.CashRegisterHistoryPage";
-            _typeNameTable[62] = "Microsoft.UI.Xaml.Controls.Page";
-            _typeNameTable[63] = "Microsoft.UI.Xaml.Controls.UserControl";
-            _typeNameTable[64] = "Sklad_2.ViewModels.CashRegisterHistoryViewModel";
-            _typeNameTable[65] = "Sklad_2.Views.CashRegisterPage";
-            _typeNameTable[66] = "Sklad_2.ViewModels.CashRegisterViewModel";
-            _typeNameTable[67] = "Sklad_2.Views.DatabazePage";
-            _typeNameTable[68] = "Sklad_2.ViewModels.DatabazeViewModel";
-            _typeNameTable[69] = "Sklad_2.Views.Dialogs.AddEditUserDialog";
-            _typeNameTable[70] = "Microsoft.UI.Xaml.Controls.ContentDialog";
-            _typeNameTable[71] = "Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog";
-            _typeNameTable[72] = "Sklad_2.Views.Dialogs.CashConfirmationDialog";
-            _typeNameTable[73] = "System.Decimal";
-            _typeNameTable[74] = "Sklad_2.Views.Dialogs.CashPaymentDialog";
-            _typeNameTable[75] = "Sklad_2.Views.Dialogs.CreateFirstAdminDialog";
-            _typeNameTable[76] = "Sklad_2.Views.Dialogs.NewDayConfirmationDialog";
-            _typeNameTable[77] = "Sklad_2.Views.Dialogs.OutOfStockDialog";
-            _typeNameTable[78] = "Sklad_2.Views.Dialogs.PasswordPromptDialog";
-            _typeNameTable[79] = "Sklad_2.Views.Dialogs.PaymentSelectionDialog";
-            _typeNameTable[80] = "Sklad_2.Models.PaymentMethod";
-            _typeNameTable[81] = "Sklad_2.Views.Dialogs.ReceiptPreviewDialog";
-            _typeNameTable[82] = "Sklad_2.Models.Receipt";
-            _typeNameTable[83] = "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>";
-            _typeNameTable[84] = "System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>";
-            _typeNameTable[85] = "Sklad_2.Models.VatSummary";
-            _typeNameTable[86] = "Sklad_2.Views.Dialogs.ReturnPreviewDialog";
-            _typeNameTable[87] = "Sklad_2.Models.Return";
-            _typeNameTable[88] = "Microsoft.UI.Xaml.Controls.NumberBox";
-            _typeNameTable[89] = "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode";
-            _typeNameTable[90] = "Windows.Globalization.NumberFormatting.INumberFormatter2";
-            _typeNameTable[91] = "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase";
-            _typeNameTable[92] = "Microsoft.UI.Xaml.Media.SolidColorBrush";
-            _typeNameTable[93] = "Microsoft.UI.Xaml.TextReadingOrder";
-            _typeNameTable[94] = "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode";
-            _typeNameTable[95] = "Sklad_2.Views.NastaveniPage";
-            _typeNameTable[96] = "Sklad_2.ViewModels.NastaveniViewModel";
-            _typeNameTable[97] = "Sklad_2.ViewModels.CategoryManagementViewModel";
-            _typeNameTable[98] = "Sklad_2.ViewModels.UserManagementViewModel";
-            _typeNameTable[99] = "Sklad_2.Views.NovyProduktPage";
-            _typeNameTable[100] = "Sklad_2.ViewModels.NovyProduktViewModel";
-            _typeNameTable[101] = "Sklad_2.Views.PoukazyPage";
-            _typeNameTable[102] = "Sklad_2.ViewModels.PoukazyViewModel";
-            _typeNameTable[103] = "Microsoft.UI.Xaml.Controls.ProgressBar";
-            _typeNameTable[104] = "Microsoft.UI.Xaml.Controls.Primitives.RangeBase";
-            _typeNameTable[105] = "Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings";
-            _typeNameTable[106] = "Sklad_2.Views.PrehledProdejuPage";
-            _typeNameTable[107] = "Sklad_2.ViewModels.PrehledProdejuViewModel";
-            _typeNameTable[108] = "Sklad_2.Views.PrijemZboziPage";
-            _typeNameTable[109] = "Sklad_2.ViewModels.PrijemZboziViewModel";
-            _typeNameTable[110] = "Sklad_2.Views.ProdejPage";
-            _typeNameTable[111] = "Sklad_2.ViewModels.ProdejViewModel";
-            _typeNameTable[112] = "Sklad_2.Views.SkladPrehledPage";
-            _typeNameTable[113] = "Sklad_2.ViewModels.SkladPrehledViewModel";
-            _typeNameTable[114] = "Sklad_2.Converters.AmountToBrushConverter";
-            _typeNameTable[115] = "Sklad_2.Views.UctenkyPage";
-            _typeNameTable[116] = "Sklad_2.ViewModels.UctenkyViewModel";
-            _typeNameTable[117] = "Sklad_2.Views.VratkyPage";
-            _typeNameTable[118] = "Sklad_2.ViewModels.VratkyViewModel";
-            _typeNameTable[119] = "Sklad_2.Views.VratkyPrehledPage";
-            _typeNameTable[120] = "Sklad_2.ViewModels.VratkyPrehledViewModel";
-            _typeNameTable[121] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
-            _typeNameTable[122] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
-            _typeNameTable[123] = "Int32";
+            _typeNameTable[20] = "Sklad_2.Converters.BooleanToDiscountColorConverter";
+            _typeNameTable[21] = "Microsoft.UI.Xaml.Controls.ProgressRing";
+            _typeNameTable[22] = "Microsoft.UI.Xaml.Controls.Control";
+            _typeNameTable[23] = "Double";
+            _typeNameTable[24] = "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings";
+            _typeNameTable[25] = "Microsoft.UI.Xaml.DependencyObject";
+            _typeNameTable[26] = "Microsoft.UI.Xaml.Controls.ItemsRepeater";
+            _typeNameTable[27] = "Microsoft.UI.Xaml.FrameworkElement";
+            _typeNameTable[28] = "Microsoft.UI.Xaml.Media.Brush";
+            _typeNameTable[29] = "Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider";
+            _typeNameTable[30] = "Microsoft.UI.Xaml.Controls.ItemsSourceView";
+            _typeNameTable[31] = "Microsoft.UI.Xaml.Controls.Layout";
+            _typeNameTable[32] = "Sklad_2.LoginWindow";
+            _typeNameTable[33] = "Microsoft.UI.Xaml.Window";
+            _typeNameTable[34] = "Sklad_2.ViewModels.LoginViewModel";
+            _typeNameTable[35] = "CommunityToolkit.Mvvm.ComponentModel.ObservableObject";
+            _typeNameTable[36] = "Microsoft.UI.Xaml.Controls.NavigationView";
+            _typeNameTable[37] = "Microsoft.UI.Xaml.Controls.ContentControl";
+            _typeNameTable[38] = "Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible";
+            _typeNameTable[39] = "System.Enum";
+            _typeNameTable[40] = "System.ValueType";
+            _typeNameTable[41] = "Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode";
+            _typeNameTable[42] = "String";
+            _typeNameTable[43] = "System.Collections.Generic.IList`1<Object>";
+            _typeNameTable[44] = "Microsoft.UI.Xaml.UIElement";
+            _typeNameTable[45] = "Microsoft.UI.Xaml.Controls.AutoSuggestBox";
+            _typeNameTable[46] = "Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode";
+            _typeNameTable[47] = "Microsoft.UI.Xaml.DataTemplate";
+            _typeNameTable[48] = "Microsoft.UI.Xaml.Style";
+            _typeNameTable[49] = "Microsoft.UI.Xaml.Controls.StyleSelector";
+            _typeNameTable[50] = "Microsoft.UI.Xaml.Controls.DataTemplateSelector";
+            _typeNameTable[51] = "Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode";
+            _typeNameTable[52] = "Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus";
+            _typeNameTable[53] = "Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled";
+            _typeNameTable[54] = "Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings";
+            _typeNameTable[55] = "Microsoft.UI.Xaml.Controls.NavigationViewItem";
+            _typeNameTable[56] = "Microsoft.UI.Xaml.Controls.NavigationViewItemBase";
+            _typeNameTable[57] = "Microsoft.UI.Xaml.Controls.IconElement";
+            _typeNameTable[58] = "Microsoft.UI.Xaml.Controls.InfoBadge";
+            _typeNameTable[59] = "Sklad_2.MainWindow";
+            _typeNameTable[60] = "Sklad_2.ViewModels.StatusBarViewModel";
+            _typeNameTable[61] = "Microsoft.UI.Xaml.Controls.RadioButton";
+            _typeNameTable[62] = "Sklad_2.Views.CashRegisterHistoryPage";
+            _typeNameTable[63] = "Microsoft.UI.Xaml.Controls.Page";
+            _typeNameTable[64] = "Microsoft.UI.Xaml.Controls.UserControl";
+            _typeNameTable[65] = "Sklad_2.ViewModels.CashRegisterHistoryViewModel";
+            _typeNameTable[66] = "Sklad_2.Views.CashRegisterPage";
+            _typeNameTable[67] = "Sklad_2.ViewModels.CashRegisterViewModel";
+            _typeNameTable[68] = "Sklad_2.Views.DatabazePage";
+            _typeNameTable[69] = "Sklad_2.ViewModels.DatabazeViewModel";
+            _typeNameTable[70] = "Sklad_2.Views.Dialogs.AddEditUserDialog";
+            _typeNameTable[71] = "Microsoft.UI.Xaml.Controls.ContentDialog";
+            _typeNameTable[72] = "Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog";
+            _typeNameTable[73] = "Sklad_2.Views.Dialogs.CashConfirmationDialog";
+            _typeNameTable[74] = "System.Decimal";
+            _typeNameTable[75] = "Sklad_2.Views.Dialogs.CashPaymentDialog";
+            _typeNameTable[76] = "Sklad_2.Views.Dialogs.CreateFirstAdminDialog";
+            _typeNameTable[77] = "Microsoft.UI.Xaml.Controls.NumberBox";
+            _typeNameTable[78] = "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode";
+            _typeNameTable[79] = "Windows.Globalization.NumberFormatting.INumberFormatter2";
+            _typeNameTable[80] = "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase";
+            _typeNameTable[81] = "Microsoft.UI.Xaml.Media.SolidColorBrush";
+            _typeNameTable[82] = "Microsoft.UI.Xaml.TextReadingOrder";
+            _typeNameTable[83] = "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode";
+            _typeNameTable[84] = "Sklad_2.Views.Dialogs.ManualDiscountDialog";
+            _typeNameTable[85] = "Sklad_2.Views.Dialogs.NewDayConfirmationDialog";
+            _typeNameTable[86] = "Sklad_2.Views.Dialogs.OutOfStockDialog";
+            _typeNameTable[87] = "Sklad_2.Views.Dialogs.PasswordPromptDialog";
+            _typeNameTable[88] = "Sklad_2.Views.Dialogs.PaymentSelectionDialog";
+            _typeNameTable[89] = "Sklad_2.Models.PaymentMethod";
+            _typeNameTable[90] = "Sklad_2.Views.Dialogs.ReceiptPreviewDialog";
+            _typeNameTable[91] = "Sklad_2.Models.Receipt";
+            _typeNameTable[92] = "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>";
+            _typeNameTable[93] = "System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>";
+            _typeNameTable[94] = "Sklad_2.Models.VatSummary";
+            _typeNameTable[95] = "Sklad_2.Views.Dialogs.ReturnPreviewDialog";
+            _typeNameTable[96] = "Sklad_2.Models.Return";
+            _typeNameTable[97] = "Sklad_2.Views.NastaveniPage";
+            _typeNameTable[98] = "Sklad_2.ViewModels.NastaveniViewModel";
+            _typeNameTable[99] = "Sklad_2.ViewModels.CategoryManagementViewModel";
+            _typeNameTable[100] = "Sklad_2.ViewModels.UserManagementViewModel";
+            _typeNameTable[101] = "Sklad_2.Views.NovyProduktPage";
+            _typeNameTable[102] = "Sklad_2.ViewModels.NovyProduktViewModel";
+            _typeNameTable[103] = "Sklad_2.Views.PoukazyPage";
+            _typeNameTable[104] = "Sklad_2.ViewModels.PoukazyViewModel";
+            _typeNameTable[105] = "Microsoft.UI.Xaml.Controls.ProgressBar";
+            _typeNameTable[106] = "Microsoft.UI.Xaml.Controls.Primitives.RangeBase";
+            _typeNameTable[107] = "Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings";
+            _typeNameTable[108] = "Sklad_2.Views.PrehledProdejuPage";
+            _typeNameTable[109] = "Sklad_2.ViewModels.PrehledProdejuViewModel";
+            _typeNameTable[110] = "Sklad_2.Views.PrijemZboziPage";
+            _typeNameTable[111] = "Sklad_2.ViewModels.PrijemZboziViewModel";
+            _typeNameTable[112] = "Sklad_2.Views.ProdejPage";
+            _typeNameTable[113] = "Sklad_2.ViewModels.ProdejViewModel";
+            _typeNameTable[114] = "Sklad_2.Views.SkladPrehledPage";
+            _typeNameTable[115] = "Sklad_2.ViewModels.SkladPrehledViewModel";
+            _typeNameTable[116] = "Sklad_2.Converters.AmountToBrushConverter";
+            _typeNameTable[117] = "Sklad_2.Views.UctenkyPage";
+            _typeNameTable[118] = "Sklad_2.ViewModels.UctenkyViewModel";
+            _typeNameTable[119] = "Sklad_2.Views.VratkyPage";
+            _typeNameTable[120] = "Sklad_2.ViewModels.VratkyViewModel";
+            _typeNameTable[121] = "Sklad_2.Views.VratkyPrehledPage";
+            _typeNameTable[122] = "Sklad_2.ViewModels.VratkyPrehledViewModel";
+            _typeNameTable[123] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
+            _typeNameTable[124] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
+            _typeNameTable[125] = "Int32";
 
-            _typeTable = new global::System.Type[124];
+            _typeTable = new global::System.Type[126];
             _typeTable[0] = typeof(global::Microsoft.UI.Xaml.Controls.XamlControlsResources);
             _typeTable[1] = typeof(global::Microsoft.UI.Xaml.ResourceDictionary);
             _typeTable[2] = typeof(global::System.Object);
@@ -371,110 +373,112 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             _typeTable[17] = typeof(global::Sklad_2.Converters.BooleanToStornoBrushConverter);
             _typeTable[18] = typeof(global::Sklad_2.Converters.RoleToIconConverter);
             _typeTable[19] = typeof(global::Sklad_2.Converters.BooleanToOpacityConverter);
-            _typeTable[20] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing);
-            _typeTable[21] = typeof(global::Microsoft.UI.Xaml.Controls.Control);
-            _typeTable[22] = typeof(global::System.Double);
-            _typeTable[23] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings);
-            _typeTable[24] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
-            _typeTable[25] = typeof(global::Microsoft.UI.Xaml.Controls.ItemsRepeater);
-            _typeTable[26] = typeof(global::Microsoft.UI.Xaml.FrameworkElement);
-            _typeTable[27] = typeof(global::Microsoft.UI.Xaml.Media.Brush);
-            _typeTable[28] = typeof(global::Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider);
-            _typeTable[29] = typeof(global::Microsoft.UI.Xaml.Controls.ItemsSourceView);
-            _typeTable[30] = typeof(global::Microsoft.UI.Xaml.Controls.Layout);
-            _typeTable[31] = typeof(global::Sklad_2.LoginWindow);
-            _typeTable[32] = typeof(global::Microsoft.UI.Xaml.Window);
-            _typeTable[33] = typeof(global::Sklad_2.ViewModels.LoginViewModel);
-            _typeTable[34] = typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject);
-            _typeTable[35] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationView);
-            _typeTable[36] = typeof(global::Microsoft.UI.Xaml.Controls.ContentControl);
-            _typeTable[37] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible);
-            _typeTable[38] = typeof(global::System.Enum);
-            _typeTable[39] = typeof(global::System.ValueType);
-            _typeTable[40] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode);
-            _typeTable[41] = typeof(global::System.String);
-            _typeTable[42] = typeof(global::System.Collections.Generic.IList<global::System.Object>);
-            _typeTable[43] = typeof(global::Microsoft.UI.Xaml.UIElement);
-            _typeTable[44] = typeof(global::Microsoft.UI.Xaml.Controls.AutoSuggestBox);
-            _typeTable[45] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode);
-            _typeTable[46] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
-            _typeTable[47] = typeof(global::Microsoft.UI.Xaml.Style);
-            _typeTable[48] = typeof(global::Microsoft.UI.Xaml.Controls.StyleSelector);
-            _typeTable[49] = typeof(global::Microsoft.UI.Xaml.Controls.DataTemplateSelector);
-            _typeTable[50] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode);
-            _typeTable[51] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus);
-            _typeTable[52] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled);
-            _typeTable[53] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings);
-            _typeTable[54] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewItem);
-            _typeTable[55] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewItemBase);
-            _typeTable[56] = typeof(global::Microsoft.UI.Xaml.Controls.IconElement);
-            _typeTable[57] = typeof(global::Microsoft.UI.Xaml.Controls.InfoBadge);
-            _typeTable[58] = typeof(global::Sklad_2.MainWindow);
-            _typeTable[59] = typeof(global::Sklad_2.ViewModels.StatusBarViewModel);
-            _typeTable[60] = typeof(global::Microsoft.UI.Xaml.Controls.RadioButton);
-            _typeTable[61] = typeof(global::Sklad_2.Views.CashRegisterHistoryPage);
-            _typeTable[62] = typeof(global::Microsoft.UI.Xaml.Controls.Page);
-            _typeTable[63] = typeof(global::Microsoft.UI.Xaml.Controls.UserControl);
-            _typeTable[64] = typeof(global::Sklad_2.ViewModels.CashRegisterHistoryViewModel);
-            _typeTable[65] = typeof(global::Sklad_2.Views.CashRegisterPage);
-            _typeTable[66] = typeof(global::Sklad_2.ViewModels.CashRegisterViewModel);
-            _typeTable[67] = typeof(global::Sklad_2.Views.DatabazePage);
-            _typeTable[68] = typeof(global::Sklad_2.ViewModels.DatabazeViewModel);
-            _typeTable[69] = typeof(global::Sklad_2.Views.Dialogs.AddEditUserDialog);
-            _typeTable[70] = typeof(global::Microsoft.UI.Xaml.Controls.ContentDialog);
-            _typeTable[71] = typeof(global::Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog);
-            _typeTable[72] = typeof(global::Sklad_2.Views.Dialogs.CashConfirmationDialog);
-            _typeTable[73] = typeof(global::System.Decimal);
-            _typeTable[74] = typeof(global::Sklad_2.Views.Dialogs.CashPaymentDialog);
-            _typeTable[75] = typeof(global::Sklad_2.Views.Dialogs.CreateFirstAdminDialog);
-            _typeTable[76] = typeof(global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog);
-            _typeTable[77] = typeof(global::Sklad_2.Views.Dialogs.OutOfStockDialog);
-            _typeTable[78] = typeof(global::Sklad_2.Views.Dialogs.PasswordPromptDialog);
-            _typeTable[79] = typeof(global::Sklad_2.Views.Dialogs.PaymentSelectionDialog);
-            _typeTable[80] = typeof(global::Sklad_2.Models.PaymentMethod);
-            _typeTable[81] = typeof(global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog);
-            _typeTable[82] = typeof(global::Sklad_2.Models.Receipt);
-            _typeTable[83] = typeof(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>);
-            _typeTable[84] = typeof(global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>);
-            _typeTable[85] = typeof(global::Sklad_2.Models.VatSummary);
-            _typeTable[86] = typeof(global::Sklad_2.Views.Dialogs.ReturnPreviewDialog);
-            _typeTable[87] = typeof(global::Sklad_2.Models.Return);
-            _typeTable[88] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBox);
-            _typeTable[89] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode);
-            _typeTable[90] = typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2);
-            _typeTable[91] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase);
-            _typeTable[92] = typeof(global::Microsoft.UI.Xaml.Media.SolidColorBrush);
-            _typeTable[93] = typeof(global::Microsoft.UI.Xaml.TextReadingOrder);
-            _typeTable[94] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode);
-            _typeTable[95] = typeof(global::Sklad_2.Views.NastaveniPage);
-            _typeTable[96] = typeof(global::Sklad_2.ViewModels.NastaveniViewModel);
-            _typeTable[97] = typeof(global::Sklad_2.ViewModels.CategoryManagementViewModel);
-            _typeTable[98] = typeof(global::Sklad_2.ViewModels.UserManagementViewModel);
-            _typeTable[99] = typeof(global::Sklad_2.Views.NovyProduktPage);
-            _typeTable[100] = typeof(global::Sklad_2.ViewModels.NovyProduktViewModel);
-            _typeTable[101] = typeof(global::Sklad_2.Views.PoukazyPage);
-            _typeTable[102] = typeof(global::Sklad_2.ViewModels.PoukazyViewModel);
-            _typeTable[103] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressBar);
-            _typeTable[104] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.RangeBase);
-            _typeTable[105] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings);
-            _typeTable[106] = typeof(global::Sklad_2.Views.PrehledProdejuPage);
-            _typeTable[107] = typeof(global::Sklad_2.ViewModels.PrehledProdejuViewModel);
-            _typeTable[108] = typeof(global::Sklad_2.Views.PrijemZboziPage);
-            _typeTable[109] = typeof(global::Sklad_2.ViewModels.PrijemZboziViewModel);
-            _typeTable[110] = typeof(global::Sklad_2.Views.ProdejPage);
-            _typeTable[111] = typeof(global::Sklad_2.ViewModels.ProdejViewModel);
-            _typeTable[112] = typeof(global::Sklad_2.Views.SkladPrehledPage);
-            _typeTable[113] = typeof(global::Sklad_2.ViewModels.SkladPrehledViewModel);
-            _typeTable[114] = typeof(global::Sklad_2.Converters.AmountToBrushConverter);
-            _typeTable[115] = typeof(global::Sklad_2.Views.UctenkyPage);
-            _typeTable[116] = typeof(global::Sklad_2.ViewModels.UctenkyViewModel);
-            _typeTable[117] = typeof(global::Sklad_2.Views.VratkyPage);
-            _typeTable[118] = typeof(global::Sklad_2.ViewModels.VratkyViewModel);
-            _typeTable[119] = typeof(global::Sklad_2.Views.VratkyPrehledPage);
-            _typeTable[120] = typeof(global::Sklad_2.ViewModels.VratkyPrehledViewModel);
-            _typeTable[121] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
-            _typeTable[122] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
-            _typeTable[123] = typeof(global::System.Int32);
+            _typeTable[20] = typeof(global::Sklad_2.Converters.BooleanToDiscountColorConverter);
+            _typeTable[21] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing);
+            _typeTable[22] = typeof(global::Microsoft.UI.Xaml.Controls.Control);
+            _typeTable[23] = typeof(global::System.Double);
+            _typeTable[24] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings);
+            _typeTable[25] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
+            _typeTable[26] = typeof(global::Microsoft.UI.Xaml.Controls.ItemsRepeater);
+            _typeTable[27] = typeof(global::Microsoft.UI.Xaml.FrameworkElement);
+            _typeTable[28] = typeof(global::Microsoft.UI.Xaml.Media.Brush);
+            _typeTable[29] = typeof(global::Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider);
+            _typeTable[30] = typeof(global::Microsoft.UI.Xaml.Controls.ItemsSourceView);
+            _typeTable[31] = typeof(global::Microsoft.UI.Xaml.Controls.Layout);
+            _typeTable[32] = typeof(global::Sklad_2.LoginWindow);
+            _typeTable[33] = typeof(global::Microsoft.UI.Xaml.Window);
+            _typeTable[34] = typeof(global::Sklad_2.ViewModels.LoginViewModel);
+            _typeTable[35] = typeof(global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject);
+            _typeTable[36] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationView);
+            _typeTable[37] = typeof(global::Microsoft.UI.Xaml.Controls.ContentControl);
+            _typeTable[38] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible);
+            _typeTable[39] = typeof(global::System.Enum);
+            _typeTable[40] = typeof(global::System.ValueType);
+            _typeTable[41] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode);
+            _typeTable[42] = typeof(global::System.String);
+            _typeTable[43] = typeof(global::System.Collections.Generic.IList<global::System.Object>);
+            _typeTable[44] = typeof(global::Microsoft.UI.Xaml.UIElement);
+            _typeTable[45] = typeof(global::Microsoft.UI.Xaml.Controls.AutoSuggestBox);
+            _typeTable[46] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode);
+            _typeTable[47] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
+            _typeTable[48] = typeof(global::Microsoft.UI.Xaml.Style);
+            _typeTable[49] = typeof(global::Microsoft.UI.Xaml.Controls.StyleSelector);
+            _typeTable[50] = typeof(global::Microsoft.UI.Xaml.Controls.DataTemplateSelector);
+            _typeTable[51] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode);
+            _typeTable[52] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus);
+            _typeTable[53] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled);
+            _typeTable[54] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings);
+            _typeTable[55] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewItem);
+            _typeTable[56] = typeof(global::Microsoft.UI.Xaml.Controls.NavigationViewItemBase);
+            _typeTable[57] = typeof(global::Microsoft.UI.Xaml.Controls.IconElement);
+            _typeTable[58] = typeof(global::Microsoft.UI.Xaml.Controls.InfoBadge);
+            _typeTable[59] = typeof(global::Sklad_2.MainWindow);
+            _typeTable[60] = typeof(global::Sklad_2.ViewModels.StatusBarViewModel);
+            _typeTable[61] = typeof(global::Microsoft.UI.Xaml.Controls.RadioButton);
+            _typeTable[62] = typeof(global::Sklad_2.Views.CashRegisterHistoryPage);
+            _typeTable[63] = typeof(global::Microsoft.UI.Xaml.Controls.Page);
+            _typeTable[64] = typeof(global::Microsoft.UI.Xaml.Controls.UserControl);
+            _typeTable[65] = typeof(global::Sklad_2.ViewModels.CashRegisterHistoryViewModel);
+            _typeTable[66] = typeof(global::Sklad_2.Views.CashRegisterPage);
+            _typeTable[67] = typeof(global::Sklad_2.ViewModels.CashRegisterViewModel);
+            _typeTable[68] = typeof(global::Sklad_2.Views.DatabazePage);
+            _typeTable[69] = typeof(global::Sklad_2.ViewModels.DatabazeViewModel);
+            _typeTable[70] = typeof(global::Sklad_2.Views.Dialogs.AddEditUserDialog);
+            _typeTable[71] = typeof(global::Microsoft.UI.Xaml.Controls.ContentDialog);
+            _typeTable[72] = typeof(global::Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog);
+            _typeTable[73] = typeof(global::Sklad_2.Views.Dialogs.CashConfirmationDialog);
+            _typeTable[74] = typeof(global::System.Decimal);
+            _typeTable[75] = typeof(global::Sklad_2.Views.Dialogs.CashPaymentDialog);
+            _typeTable[76] = typeof(global::Sklad_2.Views.Dialogs.CreateFirstAdminDialog);
+            _typeTable[77] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBox);
+            _typeTable[78] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode);
+            _typeTable[79] = typeof(global::Windows.Globalization.NumberFormatting.INumberFormatter2);
+            _typeTable[80] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase);
+            _typeTable[81] = typeof(global::Microsoft.UI.Xaml.Media.SolidColorBrush);
+            _typeTable[82] = typeof(global::Microsoft.UI.Xaml.TextReadingOrder);
+            _typeTable[83] = typeof(global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode);
+            _typeTable[84] = typeof(global::Sklad_2.Views.Dialogs.ManualDiscountDialog);
+            _typeTable[85] = typeof(global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog);
+            _typeTable[86] = typeof(global::Sklad_2.Views.Dialogs.OutOfStockDialog);
+            _typeTable[87] = typeof(global::Sklad_2.Views.Dialogs.PasswordPromptDialog);
+            _typeTable[88] = typeof(global::Sklad_2.Views.Dialogs.PaymentSelectionDialog);
+            _typeTable[89] = typeof(global::Sklad_2.Models.PaymentMethod);
+            _typeTable[90] = typeof(global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog);
+            _typeTable[91] = typeof(global::Sklad_2.Models.Receipt);
+            _typeTable[92] = typeof(global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>);
+            _typeTable[93] = typeof(global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>);
+            _typeTable[94] = typeof(global::Sklad_2.Models.VatSummary);
+            _typeTable[95] = typeof(global::Sklad_2.Views.Dialogs.ReturnPreviewDialog);
+            _typeTable[96] = typeof(global::Sklad_2.Models.Return);
+            _typeTable[97] = typeof(global::Sklad_2.Views.NastaveniPage);
+            _typeTable[98] = typeof(global::Sklad_2.ViewModels.NastaveniViewModel);
+            _typeTable[99] = typeof(global::Sklad_2.ViewModels.CategoryManagementViewModel);
+            _typeTable[100] = typeof(global::Sklad_2.ViewModels.UserManagementViewModel);
+            _typeTable[101] = typeof(global::Sklad_2.Views.NovyProduktPage);
+            _typeTable[102] = typeof(global::Sklad_2.ViewModels.NovyProduktViewModel);
+            _typeTable[103] = typeof(global::Sklad_2.Views.PoukazyPage);
+            _typeTable[104] = typeof(global::Sklad_2.ViewModels.PoukazyViewModel);
+            _typeTable[105] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressBar);
+            _typeTable[106] = typeof(global::Microsoft.UI.Xaml.Controls.Primitives.RangeBase);
+            _typeTable[107] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings);
+            _typeTable[108] = typeof(global::Sklad_2.Views.PrehledProdejuPage);
+            _typeTable[109] = typeof(global::Sklad_2.ViewModels.PrehledProdejuViewModel);
+            _typeTable[110] = typeof(global::Sklad_2.Views.PrijemZboziPage);
+            _typeTable[111] = typeof(global::Sklad_2.ViewModels.PrijemZboziViewModel);
+            _typeTable[112] = typeof(global::Sklad_2.Views.ProdejPage);
+            _typeTable[113] = typeof(global::Sklad_2.ViewModels.ProdejViewModel);
+            _typeTable[114] = typeof(global::Sklad_2.Views.SkladPrehledPage);
+            _typeTable[115] = typeof(global::Sklad_2.ViewModels.SkladPrehledViewModel);
+            _typeTable[116] = typeof(global::Sklad_2.Converters.AmountToBrushConverter);
+            _typeTable[117] = typeof(global::Sklad_2.Views.UctenkyPage);
+            _typeTable[118] = typeof(global::Sklad_2.ViewModels.UctenkyViewModel);
+            _typeTable[119] = typeof(global::Sklad_2.Views.VratkyPage);
+            _typeTable[120] = typeof(global::Sklad_2.ViewModels.VratkyViewModel);
+            _typeTable[121] = typeof(global::Sklad_2.Views.VratkyPrehledPage);
+            _typeTable[122] = typeof(global::Sklad_2.ViewModels.VratkyPrehledViewModel);
+            _typeTable[123] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
+            _typeTable[124] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
+            _typeTable[125] = typeof(global::System.Int32);
         }
 
         private int LookupTypeIndexByName(string typeName)
@@ -526,42 +530,44 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
         private object Activate_17_BooleanToStornoBrushConverter() { return new global::Sklad_2.Converters.BooleanToStornoBrushConverter(); }
         private object Activate_18_RoleToIconConverter() { return new global::Sklad_2.Converters.RoleToIconConverter(); }
         private object Activate_19_BooleanToOpacityConverter() { return new global::Sklad_2.Converters.BooleanToOpacityConverter(); }
-        private object Activate_20_ProgressRing() { return new global::Microsoft.UI.Xaml.Controls.ProgressRing(); }
-        private object Activate_25_ItemsRepeater() { return new global::Microsoft.UI.Xaml.Controls.ItemsRepeater(); }
-        private object Activate_28_ItemCollectionTransitionProvider() { return new global::Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider(); }
-        private object Activate_31_LoginWindow() { return new global::Sklad_2.LoginWindow(); }
-        private object Activate_35_NavigationView() { return new global::Microsoft.UI.Xaml.Controls.NavigationView(); }
-        private object Activate_53_NavigationViewTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings(); }
-        private object Activate_54_NavigationViewItem() { return new global::Microsoft.UI.Xaml.Controls.NavigationViewItem(); }
-        private object Activate_57_InfoBadge() { return new global::Microsoft.UI.Xaml.Controls.InfoBadge(); }
-        private object Activate_58_MainWindow() { return new global::Sklad_2.MainWindow(); }
-        private object Activate_61_CashRegisterHistoryPage() { return new global::Sklad_2.Views.CashRegisterHistoryPage(); }
-        private object Activate_65_CashRegisterPage() { return new global::Sklad_2.Views.CashRegisterPage(); }
-        private object Activate_67_DatabazePage() { return new global::Sklad_2.Views.DatabazePage(); }
-        private object Activate_69_AddEditUserDialog() { return new global::Sklad_2.Views.Dialogs.AddEditUserDialog(); }
-        private object Activate_71_CardPaymentConfirmationDialog() { return new global::Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog(); }
-        private object Activate_75_CreateFirstAdminDialog() { return new global::Sklad_2.Views.Dialogs.CreateFirstAdminDialog(); }
-        private object Activate_76_NewDayConfirmationDialog() { return new global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog(); }
-        private object Activate_78_PasswordPromptDialog() { return new global::Sklad_2.Views.Dialogs.PasswordPromptDialog(); }
-        private object Activate_82_Receipt() { return new global::Sklad_2.Models.Receipt(); }
-        private object Activate_83_ObservableCollection() { return new global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>(); }
-        private object Activate_84_Collection() { return new global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>(); }
-        private object Activate_85_VatSummary() { return new global::Sklad_2.Models.VatSummary(); }
-        private object Activate_87_Return() { return new global::Sklad_2.Models.Return(); }
-        private object Activate_88_NumberBox() { return new global::Microsoft.UI.Xaml.Controls.NumberBox(); }
-        private object Activate_95_NastaveniPage() { return new global::Sklad_2.Views.NastaveniPage(); }
-        private object Activate_99_NovyProduktPage() { return new global::Sklad_2.Views.NovyProduktPage(); }
-        private object Activate_101_PoukazyPage() { return new global::Sklad_2.Views.PoukazyPage(); }
-        private object Activate_103_ProgressBar() { return new global::Microsoft.UI.Xaml.Controls.ProgressBar(); }
-        private object Activate_106_PrehledProdejuPage() { return new global::Sklad_2.Views.PrehledProdejuPage(); }
-        private object Activate_108_PrijemZboziPage() { return new global::Sklad_2.Views.PrijemZboziPage(); }
-        private object Activate_110_ProdejPage() { return new global::Sklad_2.Views.ProdejPage(); }
-        private object Activate_112_SkladPrehledPage() { return new global::Sklad_2.Views.SkladPrehledPage(); }
-        private object Activate_114_AmountToBrushConverter() { return new global::Sklad_2.Converters.AmountToBrushConverter(); }
-        private object Activate_115_UctenkyPage() { return new global::Sklad_2.Views.UctenkyPage(); }
-        private object Activate_117_VratkyPage() { return new global::Sklad_2.Views.VratkyPage(); }
-        private object Activate_119_VratkyPrehledPage() { return new global::Sklad_2.Views.VratkyPrehledPage(); }
-        private object Activate_121_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
+        private object Activate_20_BooleanToDiscountColorConverter() { return new global::Sklad_2.Converters.BooleanToDiscountColorConverter(); }
+        private object Activate_21_ProgressRing() { return new global::Microsoft.UI.Xaml.Controls.ProgressRing(); }
+        private object Activate_26_ItemsRepeater() { return new global::Microsoft.UI.Xaml.Controls.ItemsRepeater(); }
+        private object Activate_29_ItemCollectionTransitionProvider() { return new global::Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider(); }
+        private object Activate_32_LoginWindow() { return new global::Sklad_2.LoginWindow(); }
+        private object Activate_36_NavigationView() { return new global::Microsoft.UI.Xaml.Controls.NavigationView(); }
+        private object Activate_54_NavigationViewTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings(); }
+        private object Activate_55_NavigationViewItem() { return new global::Microsoft.UI.Xaml.Controls.NavigationViewItem(); }
+        private object Activate_58_InfoBadge() { return new global::Microsoft.UI.Xaml.Controls.InfoBadge(); }
+        private object Activate_59_MainWindow() { return new global::Sklad_2.MainWindow(); }
+        private object Activate_62_CashRegisterHistoryPage() { return new global::Sklad_2.Views.CashRegisterHistoryPage(); }
+        private object Activate_66_CashRegisterPage() { return new global::Sklad_2.Views.CashRegisterPage(); }
+        private object Activate_68_DatabazePage() { return new global::Sklad_2.Views.DatabazePage(); }
+        private object Activate_70_AddEditUserDialog() { return new global::Sklad_2.Views.Dialogs.AddEditUserDialog(); }
+        private object Activate_72_CardPaymentConfirmationDialog() { return new global::Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog(); }
+        private object Activate_76_CreateFirstAdminDialog() { return new global::Sklad_2.Views.Dialogs.CreateFirstAdminDialog(); }
+        private object Activate_77_NumberBox() { return new global::Microsoft.UI.Xaml.Controls.NumberBox(); }
+        private object Activate_84_ManualDiscountDialog() { return new global::Sklad_2.Views.Dialogs.ManualDiscountDialog(); }
+        private object Activate_85_NewDayConfirmationDialog() { return new global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog(); }
+        private object Activate_87_PasswordPromptDialog() { return new global::Sklad_2.Views.Dialogs.PasswordPromptDialog(); }
+        private object Activate_91_Receipt() { return new global::Sklad_2.Models.Receipt(); }
+        private object Activate_92_ObservableCollection() { return new global::System.Collections.ObjectModel.ObservableCollection<global::Sklad_2.Models.VatSummary>(); }
+        private object Activate_93_Collection() { return new global::System.Collections.ObjectModel.Collection<global::Sklad_2.Models.VatSummary>(); }
+        private object Activate_94_VatSummary() { return new global::Sklad_2.Models.VatSummary(); }
+        private object Activate_96_Return() { return new global::Sklad_2.Models.Return(); }
+        private object Activate_97_NastaveniPage() { return new global::Sklad_2.Views.NastaveniPage(); }
+        private object Activate_101_NovyProduktPage() { return new global::Sklad_2.Views.NovyProduktPage(); }
+        private object Activate_103_PoukazyPage() { return new global::Sklad_2.Views.PoukazyPage(); }
+        private object Activate_105_ProgressBar() { return new global::Microsoft.UI.Xaml.Controls.ProgressBar(); }
+        private object Activate_108_PrehledProdejuPage() { return new global::Sklad_2.Views.PrehledProdejuPage(); }
+        private object Activate_110_PrijemZboziPage() { return new global::Sklad_2.Views.PrijemZboziPage(); }
+        private object Activate_112_ProdejPage() { return new global::Sklad_2.Views.ProdejPage(); }
+        private object Activate_114_SkladPrehledPage() { return new global::Sklad_2.Views.SkladPrehledPage(); }
+        private object Activate_116_AmountToBrushConverter() { return new global::Sklad_2.Converters.AmountToBrushConverter(); }
+        private object Activate_117_UctenkyPage() { return new global::Sklad_2.Views.UctenkyPage(); }
+        private object Activate_119_VratkyPage() { return new global::Sklad_2.Views.VratkyPage(); }
+        private object Activate_121_VratkyPrehledPage() { return new global::Sklad_2.Views.VratkyPrehledPage(); }
+        private object Activate_123_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
         private void MapAdd_0_XamlControlsResources(object instance, object key, object item)
         {
             var collection = (global::System.Collections.Generic.IDictionary<global::System.Object, global::System.Object>)instance;
@@ -569,25 +575,25 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             var newItem = (global::System.Object)item;
             collection.Add(newKey, newItem);
         }
-        private void VectorAdd_42_IList(object instance, object item)
+        private void VectorAdd_43_IList(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::System.Object>)instance;
             var newItem = (global::System.Object)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_83_ObservableCollection(object instance, object item)
+        private void VectorAdd_92_ObservableCollection(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Models.VatSummary>)instance;
             var newItem = (global::Sklad_2.Models.VatSummary)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_84_Collection(object instance, object item)
+        private void VectorAdd_93_Collection(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Sklad_2.Models.VatSummary>)instance;
             var newItem = (global::Sklad_2.Models.VatSummary)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_122_IList(object instance, object item)
+        private void VectorAdd_124_IList(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.Controls.TreeViewNode>)instance;
             var newItem = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)item;
@@ -736,9 +742,16 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 20:   //  Microsoft.UI.Xaml.Controls.ProgressRing
+            case 20:   //  Sklad_2.Converters.BooleanToDiscountColorConverter
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.Activator = Activate_20_BooleanToDiscountColorConverter;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 21:   //  Microsoft.UI.Xaml.Controls.ProgressRing
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_20_ProgressRing;
+                userType.Activator = Activate_21_ProgressRing;
                 userType.AddMemberName("IsActive");
                 userType.AddMemberName("IsIndeterminate");
                 userType.AddMemberName("Maximum");
@@ -748,27 +761,27 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 21:   //  Microsoft.UI.Xaml.Controls.Control
+            case 22:   //  Microsoft.UI.Xaml.Controls.Control
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 22:   //  Double
+            case 23:   //  Double
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 23:   //  Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings
+            case 24:   //  Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 24:   //  Microsoft.UI.Xaml.DependencyObject
+            case 25:   //  Microsoft.UI.Xaml.DependencyObject
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 25:   //  Microsoft.UI.Xaml.Controls.ItemsRepeater
+            case 26:   //  Microsoft.UI.Xaml.Controls.ItemsRepeater
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.FrameworkElement"));
-                userType.Activator = Activate_25_ItemsRepeater;
+                userType.Activator = Activate_26_ItemsRepeater;
                 userType.SetContentPropertyName("Microsoft.UI.Xaml.Controls.ItemsRepeater.ItemTemplate");
                 userType.AddMemberName("ItemTemplate");
                 userType.AddMemberName("ItemsSource");
@@ -781,59 +794,59 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 26:   //  Microsoft.UI.Xaml.FrameworkElement
+            case 27:   //  Microsoft.UI.Xaml.FrameworkElement
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 27:   //  Microsoft.UI.Xaml.Media.Brush
+            case 28:   //  Microsoft.UI.Xaml.Media.Brush
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 28:   //  Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider
+            case 29:   //  Microsoft.UI.Xaml.Controls.ItemCollectionTransitionProvider
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 29:   //  Microsoft.UI.Xaml.Controls.ItemsSourceView
+            case 30:   //  Microsoft.UI.Xaml.Controls.ItemsSourceView
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 30:   //  Microsoft.UI.Xaml.Controls.Layout
+            case 31:   //  Microsoft.UI.Xaml.Controls.Layout
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 31:   //  Sklad_2.LoginWindow
+            case 32:   //  Sklad_2.LoginWindow
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.Activator = Activate_31_LoginWindow;
+                userType.Activator = Activate_32_LoginWindow;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 32:   //  Microsoft.UI.Xaml.Window
+            case 33:   //  Microsoft.UI.Xaml.Window
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 33:   //  Sklad_2.ViewModels.LoginViewModel
+            case 34:   //  Sklad_2.ViewModels.LoginViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 34:   //  CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+            case 35:   //  CommunityToolkit.Mvvm.ComponentModel.ObservableObject
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 xamlType = userType;
                 break;
 
-            case 35:   //  Microsoft.UI.Xaml.Controls.NavigationView
+            case 36:   //  Microsoft.UI.Xaml.Controls.NavigationView
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentControl"));
-                userType.Activator = Activate_35_NavigationView;
+                userType.Activator = Activate_36_NavigationView;
                 userType.AddMemberName("IsBackButtonVisible");
                 userType.AddMemberName("IsSettingsVisible");
                 userType.AddMemberName("PaneDisplayMode");
@@ -874,11 +887,11 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 36:   //  Microsoft.UI.Xaml.Controls.ContentControl
+            case 37:   //  Microsoft.UI.Xaml.Controls.ContentControl
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 37:   //  Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible
+            case 38:   //  Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("Collapsed", global::Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed);
                 userType.AddEnumValue("Visible", global::Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Visible);
@@ -886,17 +899,17 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 38:   //  System.Enum
+            case 39:   //  System.Enum
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
                 xamlType = userType;
                 break;
 
-            case 39:   //  System.ValueType
+            case 40:   //  System.ValueType
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
                 xamlType = userType;
                 break;
 
-            case 40:   //  Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode
+            case 41:   //  Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("Auto", global::Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.Auto);
                 userType.AddEnumValue("Left", global::Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.Left);
@@ -906,26 +919,26 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 41:   //  String
+            case 42:   //  String
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 42:   //  System.Collections.Generic.IList`1<Object>
+            case 43:   //  System.Collections.Generic.IList`1<Object>
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.CollectionAdd = VectorAdd_42_IList;
+                userType.CollectionAdd = VectorAdd_43_IList;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 43:   //  Microsoft.UI.Xaml.UIElement
+            case 44:   //  Microsoft.UI.Xaml.UIElement
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 44:   //  Microsoft.UI.Xaml.Controls.AutoSuggestBox
+            case 45:   //  Microsoft.UI.Xaml.Controls.AutoSuggestBox
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 45:   //  Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode
+            case 46:   //  Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("Minimal", global::Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Minimal);
                 userType.AddEnumValue("Compact", global::Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Compact);
@@ -933,37 +946,37 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 46:   //  Microsoft.UI.Xaml.DataTemplate
+            case 47:   //  Microsoft.UI.Xaml.DataTemplate
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 47:   //  Microsoft.UI.Xaml.Style
+            case 48:   //  Microsoft.UI.Xaml.Style
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 48:   //  Microsoft.UI.Xaml.Controls.StyleSelector
+            case 49:   //  Microsoft.UI.Xaml.Controls.StyleSelector
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 49:   //  Microsoft.UI.Xaml.Controls.DataTemplateSelector
+            case 50:   //  Microsoft.UI.Xaml.Controls.DataTemplateSelector
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 50:   //  Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode
+            case 51:   //  Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("MoreLabel", global::Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode.MoreLabel);
                 userType.AddEnumValue("NoLabel", global::Microsoft.UI.Xaml.Controls.NavigationViewOverflowLabelMode.NoLabel);
                 xamlType = userType;
                 break;
 
-            case 51:   //  Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus
+            case 52:   //  Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("Disabled", global::Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus.Disabled);
                 userType.AddEnumValue("Enabled", global::Microsoft.UI.Xaml.Controls.NavigationViewSelectionFollowsFocus.Enabled);
                 xamlType = userType;
                 break;
 
-            case 52:   //  Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled
+            case 53:   //  Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("WhenSelectionFollowsFocus", global::Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled.WhenSelectionFollowsFocus);
                 userType.AddEnumValue("Always", global::Microsoft.UI.Xaml.Controls.NavigationViewShoulderNavigationEnabled.Always);
@@ -971,15 +984,15 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 53:   //  Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings
+            case 54:   //  Microsoft.UI.Xaml.Controls.NavigationViewTemplateSettings
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 54:   //  Microsoft.UI.Xaml.Controls.NavigationViewItem
+            case 55:   //  Microsoft.UI.Xaml.Controls.NavigationViewItem
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NavigationViewItemBase"));
-                userType.Activator = Activate_54_NavigationViewItem;
+                userType.Activator = Activate_55_NavigationViewItem;
                 userType.AddMemberName("Icon");
                 userType.AddMemberName("SelectsOnInvoked");
                 userType.AddMemberName("MenuItems");
@@ -992,97 +1005,97 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 55:   //  Microsoft.UI.Xaml.Controls.NavigationViewItemBase
+            case 56:   //  Microsoft.UI.Xaml.Controls.NavigationViewItemBase
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentControl"));
                 userType.AddMemberName("IsSelected");
                 xamlType = userType;
                 break;
 
-            case 56:   //  Microsoft.UI.Xaml.Controls.IconElement
+            case 57:   //  Microsoft.UI.Xaml.Controls.IconElement
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 57:   //  Microsoft.UI.Xaml.Controls.InfoBadge
+            case 58:   //  Microsoft.UI.Xaml.Controls.InfoBadge
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 58:   //  Sklad_2.MainWindow
+            case 59:   //  Sklad_2.MainWindow
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.Activator = Activate_58_MainWindow;
+                userType.Activator = Activate_59_MainWindow;
                 userType.AddMemberName("StatusBarVM");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 59:   //  Sklad_2.ViewModels.StatusBarViewModel
+            case 60:   //  Sklad_2.ViewModels.StatusBarViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 60:   //  Microsoft.UI.Xaml.Controls.RadioButton
+            case 61:   //  Microsoft.UI.Xaml.Controls.RadioButton
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 61:   //  Sklad_2.Views.CashRegisterHistoryPage
+            case 62:   //  Sklad_2.Views.CashRegisterHistoryPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_61_CashRegisterHistoryPage;
+                userType.Activator = Activate_62_CashRegisterHistoryPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 62:   //  Microsoft.UI.Xaml.Controls.Page
+            case 63:   //  Microsoft.UI.Xaml.Controls.Page
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 63:   //  Microsoft.UI.Xaml.Controls.UserControl
+            case 64:   //  Microsoft.UI.Xaml.Controls.UserControl
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 64:   //  Sklad_2.ViewModels.CashRegisterHistoryViewModel
+            case 65:   //  Sklad_2.ViewModels.CashRegisterHistoryViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 65:   //  Sklad_2.Views.CashRegisterPage
+            case 66:   //  Sklad_2.Views.CashRegisterPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_65_CashRegisterPage;
+                userType.Activator = Activate_66_CashRegisterPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 66:   //  Sklad_2.ViewModels.CashRegisterViewModel
+            case 67:   //  Sklad_2.ViewModels.CashRegisterViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 67:   //  Sklad_2.Views.DatabazePage
+            case 68:   //  Sklad_2.Views.DatabazePage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_67_DatabazePage;
+                userType.Activator = Activate_68_DatabazePage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 68:   //  Sklad_2.ViewModels.DatabazeViewModel
+            case 69:   //  Sklad_2.ViewModels.DatabazeViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 69:   //  Sklad_2.Views.Dialogs.AddEditUserDialog
+            case 70:   //  Sklad_2.Views.Dialogs.AddEditUserDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
-                userType.Activator = Activate_69_AddEditUserDialog;
+                userType.Activator = Activate_70_AddEditUserDialog;
                 userType.AddMemberName("Username");
                 userType.AddMemberName("DisplayName");
                 userType.AddMemberName("Password");
@@ -1091,18 +1104,18 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 70:   //  Microsoft.UI.Xaml.Controls.ContentDialog
+            case 71:   //  Microsoft.UI.Xaml.Controls.ContentDialog
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 71:   //  Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog
+            case 72:   //  Sklad_2.Views.Dialogs.CardPaymentConfirmationDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
-                userType.Activator = Activate_71_CardPaymentConfirmationDialog;
+                userType.Activator = Activate_72_CardPaymentConfirmationDialog;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 72:   //  Sklad_2.Views.Dialogs.CashConfirmationDialog
+            case 73:   //  Sklad_2.Views.Dialogs.CashConfirmationDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.AddMemberName("GrandTotal");
                 userType.AddMemberName("ReceivedAmount");
@@ -1111,13 +1124,13 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 73:   //  System.Decimal
+            case 74:   //  System.Decimal
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 74:   //  Sklad_2.Views.Dialogs.CashPaymentDialog
+            case 75:   //  Sklad_2.Views.Dialogs.CashPaymentDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.AddMemberName("GrandTotal");
                 userType.AddMemberName("ReceivedAmount");
@@ -1127,9 +1140,9 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 75:   //  Sklad_2.Views.Dialogs.CreateFirstAdminDialog
+            case 76:   //  Sklad_2.Views.Dialogs.CreateFirstAdminDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
-                userType.Activator = Activate_75_CreateFirstAdminDialog;
+                userType.Activator = Activate_76_CreateFirstAdminDialog;
                 userType.AddMemberName("Username");
                 userType.AddMemberName("DisplayName");
                 userType.AddMemberName("Password");
@@ -1137,29 +1150,96 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 76:   //  Sklad_2.Views.Dialogs.NewDayConfirmationDialog
+            case 77:   //  Microsoft.UI.Xaml.Controls.NumberBox
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
+                userType.Activator = Activate_77_NumberBox;
+                userType.AddMemberName("Header");
+                userType.AddMemberName("Minimum");
+                userType.AddMemberName("Maximum");
+                userType.AddMemberName("SpinButtonPlacementMode");
+                userType.AddMemberName("Value");
+                userType.AddMemberName("AcceptsExpression");
+                userType.AddMemberName("Description");
+                userType.AddMemberName("HeaderTemplate");
+                userType.AddMemberName("IsWrapEnabled");
+                userType.AddMemberName("LargeChange");
+                userType.AddMemberName("NumberFormatter");
+                userType.AddMemberName("PlaceholderText");
+                userType.AddMemberName("PreventKeyboardDisplayOnProgrammaticFocus");
+                userType.AddMemberName("SelectionFlyout");
+                userType.AddMemberName("SelectionHighlightColor");
+                userType.AddMemberName("SmallChange");
+                userType.AddMemberName("Text");
+                userType.AddMemberName("TextReadingOrder");
+                userType.AddMemberName("ValidationMode");
+                xamlType = userType;
+                break;
+
+            case 78:   //  Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
+                userType.AddEnumValue("Hidden", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Hidden);
+                userType.AddEnumValue("Compact", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Compact);
+                userType.AddEnumValue("Inline", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline);
+                xamlType = userType;
+                break;
+
+            case 79:   //  Windows.Globalization.NumberFormatting.INumberFormatter2
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 80:   //  Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
+                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 81:   //  Microsoft.UI.Xaml.Media.SolidColorBrush
+                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 82:   //  Microsoft.UI.Xaml.TextReadingOrder
+                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 83:   //  Microsoft.UI.Xaml.Controls.NumberBoxValidationMode
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
+                userType.AddEnumValue("InvalidInputOverwritten", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.InvalidInputOverwritten);
+                userType.AddEnumValue("Disabled", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.Disabled);
+                xamlType = userType;
+                break;
+
+            case 84:   //  Sklad_2.Views.Dialogs.ManualDiscountDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
-                userType.Activator = Activate_76_NewDayConfirmationDialog;
+                userType.Activator = Activate_84_ManualDiscountDialog;
+                userType.AddMemberName("DiscountPercent");
+                userType.AddMemberName("DiscountReason");
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 85:   //  Sklad_2.Views.Dialogs.NewDayConfirmationDialog
+                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
+                userType.Activator = Activate_85_NewDayConfirmationDialog;
                 userType.AddMemberName("InitialAmount");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 77:   //  Sklad_2.Views.Dialogs.OutOfStockDialog
+            case 86:   //  Sklad_2.Views.Dialogs.OutOfStockDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 78:   //  Sklad_2.Views.Dialogs.PasswordPromptDialog
+            case 87:   //  Sklad_2.Views.Dialogs.PasswordPromptDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
-                userType.Activator = Activate_78_PasswordPromptDialog;
+                userType.Activator = Activate_87_PasswordPromptDialog;
                 userType.AddMemberName("Password");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 79:   //  Sklad_2.Views.Dialogs.PaymentSelectionDialog
+            case 88:   //  Sklad_2.Views.Dialogs.PaymentSelectionDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.AddMemberName("GrandTotal");
                 userType.AddMemberName("HasGiftCardLoaded");
@@ -1168,7 +1248,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 80:   //  Sklad_2.Models.PaymentMethod
+            case 89:   //  Sklad_2.Models.PaymentMethod
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
                 userType.AddEnumValue("None", global::Sklad_2.Models.PaymentMethod.None);
                 userType.AddEnumValue("Cash", global::Sklad_2.Models.PaymentMethod.Cash);
@@ -1178,7 +1258,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 81:   //  Sklad_2.Views.Dialogs.ReceiptPreviewDialog
+            case 90:   //  Sklad_2.Views.Dialogs.ReceiptPreviewDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.AddMemberName("Receipt");
                 userType.AddMemberName("ReceivedAmount");
@@ -1189,30 +1269,30 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 82:   //  Sklad_2.Models.Receipt
+            case 91:   //  Sklad_2.Models.Receipt
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 83:   //  System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>
+            case 92:   //  System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>"));
-                userType.CollectionAdd = VectorAdd_83_ObservableCollection;
+                userType.CollectionAdd = VectorAdd_92_ObservableCollection;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 84:   //  System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>
+            case 93:   //  System.Collections.ObjectModel.Collection`1<Sklad_2.Models.VatSummary>
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.Activator = Activate_84_Collection;
-                userType.CollectionAdd = VectorAdd_84_Collection;
+                userType.Activator = Activate_93_Collection;
+                userType.CollectionAdd = VectorAdd_93_Collection;
                 xamlType = userType;
                 break;
 
-            case 85:   //  Sklad_2.Models.VatSummary
+            case 94:   //  Sklad_2.Models.VatSummary
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.Activator = Activate_85_VatSummary;
+                userType.Activator = Activate_94_VatSummary;
                 userType.AddMemberName("VatRate");
                 userType.AddMemberName("TotalAmountWithoutVat");
                 userType.AddMemberName("TotalVatAmount");
@@ -1223,7 +1303,7 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 86:   //  Sklad_2.Views.Dialogs.ReturnPreviewDialog
+            case 95:   //  Sklad_2.Views.Dialogs.ReturnPreviewDialog
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentDialog"));
                 userType.AddMemberName("ReturnDocument");
                 userType.AddMemberName("VatSummaries");
@@ -1232,74 +1312,16 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 87:   //  Sklad_2.Models.Return
+            case 96:   //  Sklad_2.Models.Return
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 88:   //  Microsoft.UI.Xaml.Controls.NumberBox
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_88_NumberBox;
-                userType.AddMemberName("Value");
-                userType.AddMemberName("SpinButtonPlacementMode");
-                userType.AddMemberName("SmallChange");
-                userType.AddMemberName("LargeChange");
-                userType.AddMemberName("Minimum");
-                userType.AddMemberName("Maximum");
-                userType.AddMemberName("AcceptsExpression");
-                userType.AddMemberName("Description");
-                userType.AddMemberName("Header");
-                userType.AddMemberName("HeaderTemplate");
-                userType.AddMemberName("IsWrapEnabled");
-                userType.AddMemberName("NumberFormatter");
-                userType.AddMemberName("PlaceholderText");
-                userType.AddMemberName("PreventKeyboardDisplayOnProgrammaticFocus");
-                userType.AddMemberName("SelectionFlyout");
-                userType.AddMemberName("SelectionHighlightColor");
-                userType.AddMemberName("Text");
-                userType.AddMemberName("TextReadingOrder");
-                userType.AddMemberName("ValidationMode");
-                xamlType = userType;
-                break;
-
-            case 89:   //  Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.AddEnumValue("Hidden", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Hidden);
-                userType.AddEnumValue("Compact", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Compact);
-                userType.AddEnumValue("Inline", global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode.Inline);
-                xamlType = userType;
-                break;
-
-            case 90:   //  Windows.Globalization.NumberFormatting.INumberFormatter2
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 91:   //  Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
-                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 92:   //  Microsoft.UI.Xaml.Media.SolidColorBrush
-                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 93:   //  Microsoft.UI.Xaml.TextReadingOrder
-                xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 94:   //  Microsoft.UI.Xaml.Controls.NumberBoxValidationMode
-                userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.AddEnumValue("InvalidInputOverwritten", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.InvalidInputOverwritten);
-                userType.AddEnumValue("Disabled", global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode.Disabled);
-                xamlType = userType;
-                break;
-
-            case 95:   //  Sklad_2.Views.NastaveniPage
+            case 97:   //  Sklad_2.Views.NastaveniPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_95_NastaveniPage;
+                userType.Activator = Activate_97_NastaveniPage;
                 userType.AddMemberName("ViewModel");
                 userType.AddMemberName("CategoryVM");
                 userType.AddMemberName("UserMgmtVM");
@@ -1307,60 +1329,60 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 96:   //  Sklad_2.ViewModels.NastaveniViewModel
+            case 98:   //  Sklad_2.ViewModels.NastaveniViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 97:   //  Sklad_2.ViewModels.CategoryManagementViewModel
+            case 99:   //  Sklad_2.ViewModels.CategoryManagementViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 98:   //  Sklad_2.ViewModels.UserManagementViewModel
+            case 100:   //  Sklad_2.ViewModels.UserManagementViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 99:   //  Sklad_2.Views.NovyProduktPage
+            case 101:   //  Sklad_2.Views.NovyProduktPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_99_NovyProduktPage;
+                userType.Activator = Activate_101_NovyProduktPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 100:   //  Sklad_2.ViewModels.NovyProduktViewModel
+            case 102:   //  Sklad_2.ViewModels.NovyProduktViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 101:   //  Sklad_2.Views.PoukazyPage
+            case 103:   //  Sklad_2.Views.PoukazyPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_101_PoukazyPage;
+                userType.Activator = Activate_103_PoukazyPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 102:   //  Sklad_2.ViewModels.PoukazyViewModel
+            case 104:   //  Sklad_2.ViewModels.PoukazyViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 103:   //  Microsoft.UI.Xaml.Controls.ProgressBar
+            case 105:   //  Microsoft.UI.Xaml.Controls.ProgressBar
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Primitives.RangeBase"));
-                userType.Activator = Activate_103_ProgressBar;
+                userType.Activator = Activate_105_ProgressBar;
                 userType.AddMemberName("IsIndeterminate");
                 userType.AddMemberName("ShowError");
                 userType.AddMemberName("ShowPaused");
@@ -1368,131 +1390,131 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 104:   //  Microsoft.UI.Xaml.Controls.Primitives.RangeBase
+            case 106:   //  Microsoft.UI.Xaml.Controls.Primitives.RangeBase
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 105:   //  Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings
+            case 107:   //  Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 106:   //  Sklad_2.Views.PrehledProdejuPage
+            case 108:   //  Sklad_2.Views.PrehledProdejuPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_106_PrehledProdejuPage;
+                userType.Activator = Activate_108_PrehledProdejuPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 107:   //  Sklad_2.ViewModels.PrehledProdejuViewModel
+            case 109:   //  Sklad_2.ViewModels.PrehledProdejuViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 108:   //  Sklad_2.Views.PrijemZboziPage
+            case 110:   //  Sklad_2.Views.PrijemZboziPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_108_PrijemZboziPage;
+                userType.Activator = Activate_110_PrijemZboziPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 109:   //  Sklad_2.ViewModels.PrijemZboziViewModel
+            case 111:   //  Sklad_2.ViewModels.PrijemZboziViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 110:   //  Sklad_2.Views.ProdejPage
+            case 112:   //  Sklad_2.Views.ProdejPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_110_ProdejPage;
+                userType.Activator = Activate_112_ProdejPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 111:   //  Sklad_2.ViewModels.ProdejViewModel
+            case 113:   //  Sklad_2.ViewModels.ProdejViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 112:   //  Sklad_2.Views.SkladPrehledPage
+            case 114:   //  Sklad_2.Views.SkladPrehledPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_112_SkladPrehledPage;
+                userType.Activator = Activate_114_SkladPrehledPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 113:   //  Sklad_2.ViewModels.SkladPrehledViewModel
+            case 115:   //  Sklad_2.ViewModels.SkladPrehledViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 114:   //  Sklad_2.Converters.AmountToBrushConverter
+            case 116:   //  Sklad_2.Converters.AmountToBrushConverter
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.Activator = Activate_114_AmountToBrushConverter;
+                userType.Activator = Activate_116_AmountToBrushConverter;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 115:   //  Sklad_2.Views.UctenkyPage
+            case 117:   //  Sklad_2.Views.UctenkyPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_115_UctenkyPage;
+                userType.Activator = Activate_117_UctenkyPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 116:   //  Sklad_2.ViewModels.UctenkyViewModel
+            case 118:   //  Sklad_2.ViewModels.UctenkyViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 117:   //  Sklad_2.Views.VratkyPage
+            case 119:   //  Sklad_2.Views.VratkyPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_117_VratkyPage;
+                userType.Activator = Activate_119_VratkyPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 118:   //  Sklad_2.ViewModels.VratkyViewModel
+            case 120:   //  Sklad_2.ViewModels.VratkyViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 119:   //  Sklad_2.Views.VratkyPrehledPage
+            case 121:   //  Sklad_2.Views.VratkyPrehledPage
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_119_VratkyPrehledPage;
+                userType.Activator = Activate_121_VratkyPrehledPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 120:   //  Sklad_2.ViewModels.VratkyPrehledViewModel
+            case 122:   //  Sklad_2.ViewModels.VratkyPrehledViewModel
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 121:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
+            case 123:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.Activator = Activate_121_TreeViewNode;
+                userType.Activator = Activate_123_TreeViewNode;
                 userType.AddMemberName("Children");
                 userType.AddMemberName("Content");
                 userType.AddMemberName("Depth");
@@ -1504,14 +1526,14 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 122:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
+            case 124:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
                 userType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.CollectionAdd = VectorAdd_122_IList;
+                userType.CollectionAdd = VectorAdd_124_IList;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 123:   //  Int32
+            case 125:   //  Int32
                 xamlType = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
             }
@@ -2260,467 +2282,477 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
             var that = (global::Sklad_2.Views.Dialogs.CreateFirstAdminDialog)instance;
             return that.Password;
         }
-        private object get_81_NewDayConfirmationDialog_InitialAmount(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog)instance;
-            return that.InitialAmount;
-        }
-        private object get_82_PasswordPromptDialog_Password(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PasswordPromptDialog)instance;
-            return that.Password;
-        }
-        private object get_83_PaymentSelectionDialog_GrandTotal(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
-            return that.GrandTotal;
-        }
-        private void set_83_PaymentSelectionDialog_GrandTotal(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
-            that.GrandTotal = (global::System.Decimal)Value;
-        }
-        private object get_84_PaymentSelectionDialog_HasGiftCardLoaded(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
-            return that.HasGiftCardLoaded;
-        }
-        private void set_84_PaymentSelectionDialog_HasGiftCardLoaded(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
-            that.HasGiftCardLoaded = (global::System.Boolean)Value;
-        }
-        private object get_85_PaymentSelectionDialog_SelectedPaymentMethod(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
-            return that.SelectedPaymentMethod;
-        }
-        private object get_86_ReceiptPreviewDialog_Receipt(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            return that.Receipt;
-        }
-        private object get_87_ReceiptPreviewDialog_ReceivedAmount(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            return that.ReceivedAmount;
-        }
-        private void set_87_ReceiptPreviewDialog_ReceivedAmount(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            that.ReceivedAmount = (global::System.Decimal)Value;
-        }
-        private object get_88_ReceiptPreviewDialog_ChangeAmount(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            return that.ChangeAmount;
-        }
-        private void set_88_ReceiptPreviewDialog_ChangeAmount(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            that.ChangeAmount = (global::System.Decimal)Value;
-        }
-        private object get_89_ReceiptPreviewDialog_VatSummaries(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            return that.VatSummaries;
-        }
-        private object get_90_VatSummary_VatRate(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.VatRate;
-        }
-        private void set_90_VatSummary_VatRate(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            that.VatRate = (global::System.Decimal)Value;
-        }
-        private object get_91_VatSummary_TotalAmountWithoutVat(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.TotalAmountWithoutVat;
-        }
-        private void set_91_VatSummary_TotalAmountWithoutVat(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            that.TotalAmountWithoutVat = (global::System.Decimal)Value;
-        }
-        private object get_92_VatSummary_TotalVatAmount(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.TotalVatAmount;
-        }
-        private void set_92_VatSummary_TotalVatAmount(object instance, object Value)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            that.TotalVatAmount = (global::System.Decimal)Value;
-        }
-        private object get_93_VatSummary_VatRateFormatted(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.VatRateFormatted;
-        }
-        private object get_94_VatSummary_TotalAmountWithoutVatFormatted(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.TotalAmountWithoutVatFormatted;
-        }
-        private object get_95_VatSummary_TotalVatAmountFormatted(object instance)
-        {
-            var that = (global::Sklad_2.Models.VatSummary)instance;
-            return that.TotalVatAmountFormatted;
-        }
-        private object get_96_ReceiptPreviewDialog_AmountToPay(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
-            return that.AmountToPay;
-        }
-        private object get_97_ReturnPreviewDialog_ReturnDocument(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
-            return that.ReturnDocument;
-        }
-        private object get_98_ReturnPreviewDialog_VatSummaries(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
-            return that.VatSummaries;
-        }
-        private object get_99_ReturnPreviewDialog_IsVatPayer(object instance)
-        {
-            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
-            return that.IsVatPayer;
-        }
-        private object get_100_NumberBox_Value(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.Value;
-        }
-        private void set_100_NumberBox_Value(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.Value = (global::System.Double)Value;
-        }
-        private object get_101_NumberBox_SpinButtonPlacementMode(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.SpinButtonPlacementMode;
-        }
-        private void set_101_NumberBox_SpinButtonPlacementMode(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.SpinButtonPlacementMode = (global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode)Value;
-        }
-        private object get_102_NumberBox_SmallChange(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.SmallChange;
-        }
-        private void set_102_NumberBox_SmallChange(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.SmallChange = (global::System.Double)Value;
-        }
-        private object get_103_NumberBox_LargeChange(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.LargeChange;
-        }
-        private void set_103_NumberBox_LargeChange(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.LargeChange = (global::System.Double)Value;
-        }
-        private object get_104_NumberBox_Minimum(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.Minimum;
-        }
-        private void set_104_NumberBox_Minimum(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.Minimum = (global::System.Double)Value;
-        }
-        private object get_105_NumberBox_Maximum(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.Maximum;
-        }
-        private void set_105_NumberBox_Maximum(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.Maximum = (global::System.Double)Value;
-        }
-        private object get_106_NumberBox_AcceptsExpression(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.AcceptsExpression;
-        }
-        private void set_106_NumberBox_AcceptsExpression(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.AcceptsExpression = (global::System.Boolean)Value;
-        }
-        private object get_107_NumberBox_Description(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            return that.Description;
-        }
-        private void set_107_NumberBox_Description(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
-            that.Description = (global::System.Object)Value;
-        }
-        private object get_108_NumberBox_Header(object instance)
+        private object get_81_NumberBox_Header(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Header;
         }
-        private void set_108_NumberBox_Header(object instance, object Value)
+        private void set_81_NumberBox_Header(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Header = (global::System.Object)Value;
         }
-        private object get_109_NumberBox_HeaderTemplate(object instance)
+        private object get_82_NumberBox_Minimum(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.Minimum;
+        }
+        private void set_82_NumberBox_Minimum(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.Minimum = (global::System.Double)Value;
+        }
+        private object get_83_NumberBox_Maximum(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.Maximum;
+        }
+        private void set_83_NumberBox_Maximum(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.Maximum = (global::System.Double)Value;
+        }
+        private object get_84_NumberBox_SpinButtonPlacementMode(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.SpinButtonPlacementMode;
+        }
+        private void set_84_NumberBox_SpinButtonPlacementMode(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.SpinButtonPlacementMode = (global::Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode)Value;
+        }
+        private object get_85_NumberBox_Value(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.Value;
+        }
+        private void set_85_NumberBox_Value(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.Value = (global::System.Double)Value;
+        }
+        private object get_86_NumberBox_AcceptsExpression(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.AcceptsExpression;
+        }
+        private void set_86_NumberBox_AcceptsExpression(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.AcceptsExpression = (global::System.Boolean)Value;
+        }
+        private object get_87_NumberBox_Description(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.Description;
+        }
+        private void set_87_NumberBox_Description(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.Description = (global::System.Object)Value;
+        }
+        private object get_88_NumberBox_HeaderTemplate(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.HeaderTemplate;
         }
-        private void set_109_NumberBox_HeaderTemplate(object instance, object Value)
+        private void set_88_NumberBox_HeaderTemplate(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
         }
-        private object get_110_NumberBox_IsWrapEnabled(object instance)
+        private object get_89_NumberBox_IsWrapEnabled(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.IsWrapEnabled;
         }
-        private void set_110_NumberBox_IsWrapEnabled(object instance, object Value)
+        private void set_89_NumberBox_IsWrapEnabled(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.IsWrapEnabled = (global::System.Boolean)Value;
         }
-        private object get_111_NumberBox_NumberFormatter(object instance)
+        private object get_90_NumberBox_LargeChange(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.LargeChange;
+        }
+        private void set_90_NumberBox_LargeChange(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.LargeChange = (global::System.Double)Value;
+        }
+        private object get_91_NumberBox_NumberFormatter(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.NumberFormatter;
         }
-        private void set_111_NumberBox_NumberFormatter(object instance, object Value)
+        private void set_91_NumberBox_NumberFormatter(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.NumberFormatter = (global::Windows.Globalization.NumberFormatting.INumberFormatter2)Value;
         }
-        private object get_112_NumberBox_PlaceholderText(object instance)
+        private object get_92_NumberBox_PlaceholderText(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.PlaceholderText;
         }
-        private void set_112_NumberBox_PlaceholderText(object instance, object Value)
+        private void set_92_NumberBox_PlaceholderText(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.PlaceholderText = (global::System.String)Value;
         }
-        private object get_113_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance)
+        private object get_93_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.PreventKeyboardDisplayOnProgrammaticFocus;
         }
-        private void set_113_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance, object Value)
+        private void set_93_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.PreventKeyboardDisplayOnProgrammaticFocus = (global::System.Boolean)Value;
         }
-        private object get_114_NumberBox_SelectionFlyout(object instance)
+        private object get_94_NumberBox_SelectionFlyout(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SelectionFlyout;
         }
-        private void set_114_NumberBox_SelectionFlyout(object instance, object Value)
+        private void set_94_NumberBox_SelectionFlyout(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SelectionFlyout = (global::Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase)Value;
         }
-        private object get_115_NumberBox_SelectionHighlightColor(object instance)
+        private object get_95_NumberBox_SelectionHighlightColor(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.SelectionHighlightColor;
         }
-        private void set_115_NumberBox_SelectionHighlightColor(object instance, object Value)
+        private void set_95_NumberBox_SelectionHighlightColor(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.SelectionHighlightColor = (global::Microsoft.UI.Xaml.Media.SolidColorBrush)Value;
         }
-        private object get_116_NumberBox_Text(object instance)
+        private object get_96_NumberBox_SmallChange(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            return that.SmallChange;
+        }
+        private void set_96_NumberBox_SmallChange(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
+            that.SmallChange = (global::System.Double)Value;
+        }
+        private object get_97_NumberBox_Text(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.Text;
         }
-        private void set_116_NumberBox_Text(object instance, object Value)
+        private void set_97_NumberBox_Text(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.Text = (global::System.String)Value;
         }
-        private object get_117_NumberBox_TextReadingOrder(object instance)
+        private object get_98_NumberBox_TextReadingOrder(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.TextReadingOrder;
         }
-        private void set_117_NumberBox_TextReadingOrder(object instance, object Value)
+        private void set_98_NumberBox_TextReadingOrder(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.TextReadingOrder = (global::Microsoft.UI.Xaml.TextReadingOrder)Value;
         }
-        private object get_118_NumberBox_ValidationMode(object instance)
+        private object get_99_NumberBox_ValidationMode(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             return that.ValidationMode;
         }
-        private void set_118_NumberBox_ValidationMode(object instance, object Value)
+        private void set_99_NumberBox_ValidationMode(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.NumberBox)instance;
             that.ValidationMode = (global::Microsoft.UI.Xaml.Controls.NumberBoxValidationMode)Value;
         }
-        private object get_119_NastaveniPage_ViewModel(object instance)
+        private object get_100_ManualDiscountDialog_DiscountPercent(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ManualDiscountDialog)instance;
+            return that.DiscountPercent;
+        }
+        private object get_101_ManualDiscountDialog_DiscountReason(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ManualDiscountDialog)instance;
+            return that.DiscountReason;
+        }
+        private object get_102_NewDayConfirmationDialog_InitialAmount(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.NewDayConfirmationDialog)instance;
+            return that.InitialAmount;
+        }
+        private object get_103_PasswordPromptDialog_Password(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PasswordPromptDialog)instance;
+            return that.Password;
+        }
+        private object get_104_PaymentSelectionDialog_GrandTotal(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            return that.GrandTotal;
+        }
+        private void set_104_PaymentSelectionDialog_GrandTotal(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            that.GrandTotal = (global::System.Decimal)Value;
+        }
+        private object get_105_PaymentSelectionDialog_HasGiftCardLoaded(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            return that.HasGiftCardLoaded;
+        }
+        private void set_105_PaymentSelectionDialog_HasGiftCardLoaded(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            that.HasGiftCardLoaded = (global::System.Boolean)Value;
+        }
+        private object get_106_PaymentSelectionDialog_SelectedPaymentMethod(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.PaymentSelectionDialog)instance;
+            return that.SelectedPaymentMethod;
+        }
+        private object get_107_ReceiptPreviewDialog_Receipt(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            return that.Receipt;
+        }
+        private object get_108_ReceiptPreviewDialog_ReceivedAmount(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            return that.ReceivedAmount;
+        }
+        private void set_108_ReceiptPreviewDialog_ReceivedAmount(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            that.ReceivedAmount = (global::System.Decimal)Value;
+        }
+        private object get_109_ReceiptPreviewDialog_ChangeAmount(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            return that.ChangeAmount;
+        }
+        private void set_109_ReceiptPreviewDialog_ChangeAmount(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            that.ChangeAmount = (global::System.Decimal)Value;
+        }
+        private object get_110_ReceiptPreviewDialog_VatSummaries(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            return that.VatSummaries;
+        }
+        private object get_111_VatSummary_VatRate(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.VatRate;
+        }
+        private void set_111_VatSummary_VatRate(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            that.VatRate = (global::System.Decimal)Value;
+        }
+        private object get_112_VatSummary_TotalAmountWithoutVat(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.TotalAmountWithoutVat;
+        }
+        private void set_112_VatSummary_TotalAmountWithoutVat(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            that.TotalAmountWithoutVat = (global::System.Decimal)Value;
+        }
+        private object get_113_VatSummary_TotalVatAmount(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.TotalVatAmount;
+        }
+        private void set_113_VatSummary_TotalVatAmount(object instance, object Value)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            that.TotalVatAmount = (global::System.Decimal)Value;
+        }
+        private object get_114_VatSummary_VatRateFormatted(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.VatRateFormatted;
+        }
+        private object get_115_VatSummary_TotalAmountWithoutVatFormatted(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.TotalAmountWithoutVatFormatted;
+        }
+        private object get_116_VatSummary_TotalVatAmountFormatted(object instance)
+        {
+            var that = (global::Sklad_2.Models.VatSummary)instance;
+            return that.TotalVatAmountFormatted;
+        }
+        private object get_117_ReceiptPreviewDialog_AmountToPay(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReceiptPreviewDialog)instance;
+            return that.AmountToPay;
+        }
+        private object get_118_ReturnPreviewDialog_ReturnDocument(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
+            return that.ReturnDocument;
+        }
+        private object get_119_ReturnPreviewDialog_VatSummaries(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
+            return that.VatSummaries;
+        }
+        private object get_120_ReturnPreviewDialog_IsVatPayer(object instance)
+        {
+            var that = (global::Sklad_2.Views.Dialogs.ReturnPreviewDialog)instance;
+            return that.IsVatPayer;
+        }
+        private object get_121_NastaveniPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.NastaveniPage)instance;
             return that.ViewModel;
         }
-        private object get_120_NastaveniPage_CategoryVM(object instance)
+        private object get_122_NastaveniPage_CategoryVM(object instance)
         {
             var that = (global::Sklad_2.Views.NastaveniPage)instance;
             return that.CategoryVM;
         }
-        private object get_121_NastaveniPage_UserMgmtVM(object instance)
+        private object get_123_NastaveniPage_UserMgmtVM(object instance)
         {
             var that = (global::Sklad_2.Views.NastaveniPage)instance;
             return that.UserMgmtVM;
         }
-        private object get_122_NovyProduktPage_ViewModel(object instance)
+        private object get_124_NovyProduktPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.NovyProduktPage)instance;
             return that.ViewModel;
         }
-        private object get_123_PoukazyPage_ViewModel(object instance)
+        private object get_125_PoukazyPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.PoukazyPage)instance;
             return that.ViewModel;
         }
-        private object get_124_ProgressBar_IsIndeterminate(object instance)
+        private object get_126_ProgressBar_IsIndeterminate(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             return that.IsIndeterminate;
         }
-        private void set_124_ProgressBar_IsIndeterminate(object instance, object Value)
+        private void set_126_ProgressBar_IsIndeterminate(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             that.IsIndeterminate = (global::System.Boolean)Value;
         }
-        private object get_125_ProgressBar_ShowError(object instance)
+        private object get_127_ProgressBar_ShowError(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             return that.ShowError;
         }
-        private void set_125_ProgressBar_ShowError(object instance, object Value)
+        private void set_127_ProgressBar_ShowError(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             that.ShowError = (global::System.Boolean)Value;
         }
-        private object get_126_ProgressBar_ShowPaused(object instance)
+        private object get_128_ProgressBar_ShowPaused(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             return that.ShowPaused;
         }
-        private void set_126_ProgressBar_ShowPaused(object instance, object Value)
+        private void set_128_ProgressBar_ShowPaused(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             that.ShowPaused = (global::System.Boolean)Value;
         }
-        private object get_127_ProgressBar_TemplateSettings(object instance)
+        private object get_129_ProgressBar_TemplateSettings(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.ProgressBar)instance;
             return that.TemplateSettings;
         }
-        private object get_128_PrehledProdejuPage_ViewModel(object instance)
+        private object get_130_PrehledProdejuPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.PrehledProdejuPage)instance;
             return that.ViewModel;
         }
-        private object get_129_PrijemZboziPage_ViewModel(object instance)
+        private object get_131_PrijemZboziPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.PrijemZboziPage)instance;
             return that.ViewModel;
         }
-        private object get_130_ProdejPage_ViewModel(object instance)
+        private object get_132_ProdejPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.ProdejPage)instance;
             return that.ViewModel;
         }
-        private object get_131_SkladPrehledPage_ViewModel(object instance)
+        private object get_133_SkladPrehledPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.SkladPrehledPage)instance;
             return that.ViewModel;
         }
-        private object get_132_UctenkyPage_ViewModel(object instance)
+        private object get_134_UctenkyPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.UctenkyPage)instance;
             return that.ViewModel;
         }
-        private object get_133_VratkyPage_ViewModel(object instance)
+        private object get_135_VratkyPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.VratkyPage)instance;
             return that.ViewModel;
         }
-        private object get_134_VratkyPrehledPage_ViewModel(object instance)
+        private object get_136_VratkyPrehledPage_ViewModel(object instance)
         {
             var that = (global::Sklad_2.Views.VratkyPrehledPage)instance;
             return that.ViewModel;
         }
-        private object get_135_TreeViewNode_Children(object instance)
+        private object get_137_TreeViewNode_Children(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Children;
         }
-        private object get_136_TreeViewNode_Content(object instance)
+        private object get_138_TreeViewNode_Content(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Content;
         }
-        private void set_136_TreeViewNode_Content(object instance, object Value)
+        private void set_138_TreeViewNode_Content(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.Content = (global::System.Object)Value;
         }
-        private object get_137_TreeViewNode_Depth(object instance)
+        private object get_139_TreeViewNode_Depth(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Depth;
         }
-        private object get_138_TreeViewNode_HasChildren(object instance)
+        private object get_140_TreeViewNode_HasChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasChildren;
         }
-        private object get_139_TreeViewNode_HasUnrealizedChildren(object instance)
+        private object get_141_TreeViewNode_HasUnrealizedChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasUnrealizedChildren;
         }
-        private void set_139_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
+        private void set_141_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.HasUnrealizedChildren = (global::System.Boolean)Value;
         }
-        private object get_140_TreeViewNode_IsExpanded(object instance)
+        private object get_142_TreeViewNode_IsExpanded(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.IsExpanded;
         }
-        private void set_140_TreeViewNode_IsExpanded(object instance, object Value)
+        private void set_142_TreeViewNode_IsExpanded(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.IsExpanded = (global::System.Boolean)Value;
         }
-        private object get_141_TreeViewNode_Parent(object instance)
+        private object get_143_TreeViewNode_Parent(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Parent;
@@ -3279,396 +3311,408 @@ namespace Sklad_2.Sklad_2_XamlTypeInfo
                 xamlMember.Getter = get_80_CreateFirstAdminDialog_Password;
                 xamlMember.SetIsReadOnly();
                 break;
-            case "Sklad_2.Views.Dialogs.NewDayConfirmationDialog.InitialAmount":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.NewDayConfirmationDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "InitialAmount", "System.Decimal");
-                xamlMember.Getter = get_81_NewDayConfirmationDialog_InitialAmount;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.PasswordPromptDialog.Password":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PasswordPromptDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Password", "String");
-                xamlMember.Getter = get_82_PasswordPromptDialog_Password;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.GrandTotal":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "GrandTotal", "System.Decimal");
-                xamlMember.Getter = get_83_PaymentSelectionDialog_GrandTotal;
-                xamlMember.Setter = set_83_PaymentSelectionDialog_GrandTotal;
-                break;
-            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.HasGiftCardLoaded":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "HasGiftCardLoaded", "Boolean");
-                xamlMember.Getter = get_84_PaymentSelectionDialog_HasGiftCardLoaded;
-                xamlMember.Setter = set_84_PaymentSelectionDialog_HasGiftCardLoaded;
-                break;
-            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.SelectedPaymentMethod":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SelectedPaymentMethod", "Sklad_2.Models.PaymentMethod");
-                xamlMember.Getter = get_85_PaymentSelectionDialog_SelectedPaymentMethod;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.Receipt":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Receipt", "Sklad_2.Models.Receipt");
-                xamlMember.Getter = get_86_ReceiptPreviewDialog_Receipt;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.ReceivedAmount":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ReceivedAmount", "System.Decimal");
-                xamlMember.Getter = get_87_ReceiptPreviewDialog_ReceivedAmount;
-                xamlMember.Setter = set_87_ReceiptPreviewDialog_ReceivedAmount;
-                break;
-            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.ChangeAmount":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ChangeAmount", "System.Decimal");
-                xamlMember.Getter = get_88_ReceiptPreviewDialog_ChangeAmount;
-                xamlMember.Setter = set_88_ReceiptPreviewDialog_ChangeAmount;
-                break;
-            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.VatSummaries":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
-                xamlMember.Getter = get_89_ReceiptPreviewDialog_VatSummaries;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Models.VatSummary.VatRate":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRate", "System.Decimal");
-                xamlMember.Getter = get_90_VatSummary_VatRate;
-                xamlMember.Setter = set_90_VatSummary_VatRate;
-                break;
-            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVat":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVat", "System.Decimal");
-                xamlMember.Getter = get_91_VatSummary_TotalAmountWithoutVat;
-                xamlMember.Setter = set_91_VatSummary_TotalAmountWithoutVat;
-                break;
-            case "Sklad_2.Models.VatSummary.TotalVatAmount":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmount", "System.Decimal");
-                xamlMember.Getter = get_92_VatSummary_TotalVatAmount;
-                xamlMember.Setter = set_92_VatSummary_TotalVatAmount;
-                break;
-            case "Sklad_2.Models.VatSummary.VatRateFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRateFormatted", "String");
-                xamlMember.Getter = get_93_VatSummary_VatRateFormatted;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVatFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVatFormatted", "String");
-                xamlMember.Getter = get_94_VatSummary_TotalAmountWithoutVatFormatted;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Models.VatSummary.TotalVatAmountFormatted":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmountFormatted", "String");
-                xamlMember.Getter = get_95_VatSummary_TotalVatAmountFormatted;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.AmountToPay":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "AmountToPay", "System.Decimal");
-                xamlMember.Getter = get_96_ReceiptPreviewDialog_AmountToPay;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.ReturnDocument":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ReturnDocument", "Sklad_2.Models.Return");
-                xamlMember.Getter = get_97_ReturnPreviewDialog_ReturnDocument;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.VatSummaries":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
-                xamlMember.Getter = get_98_ReturnPreviewDialog_VatSummaries;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.IsVatPayer":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "IsVatPayer", "Boolean");
-                xamlMember.Getter = get_99_ReturnPreviewDialog_IsVatPayer;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Microsoft.UI.Xaml.Controls.NumberBox.Value":
+            case "Microsoft.UI.Xaml.Controls.NumberBox.Header":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Value", "Double");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Header", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_100_NumberBox_Value;
-                xamlMember.Setter = set_100_NumberBox_Value;
-                break;
-            case "Microsoft.UI.Xaml.Controls.NumberBox.SpinButtonPlacementMode":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SpinButtonPlacementMode", "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_101_NumberBox_SpinButtonPlacementMode;
-                xamlMember.Setter = set_101_NumberBox_SpinButtonPlacementMode;
-                break;
-            case "Microsoft.UI.Xaml.Controls.NumberBox.SmallChange":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SmallChange", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_102_NumberBox_SmallChange;
-                xamlMember.Setter = set_102_NumberBox_SmallChange;
-                break;
-            case "Microsoft.UI.Xaml.Controls.NumberBox.LargeChange":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "LargeChange", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_103_NumberBox_LargeChange;
-                xamlMember.Setter = set_103_NumberBox_LargeChange;
+                xamlMember.Getter = get_81_NumberBox_Header;
+                xamlMember.Setter = set_81_NumberBox_Header;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Minimum":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Minimum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_104_NumberBox_Minimum;
-                xamlMember.Setter = set_104_NumberBox_Minimum;
+                xamlMember.Getter = get_82_NumberBox_Minimum;
+                xamlMember.Setter = set_82_NumberBox_Minimum;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Maximum":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Maximum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_105_NumberBox_Maximum;
-                xamlMember.Setter = set_105_NumberBox_Maximum;
+                xamlMember.Getter = get_83_NumberBox_Maximum;
+                xamlMember.Setter = set_83_NumberBox_Maximum;
+                break;
+            case "Microsoft.UI.Xaml.Controls.NumberBox.SpinButtonPlacementMode":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SpinButtonPlacementMode", "Microsoft.UI.Xaml.Controls.NumberBoxSpinButtonPlacementMode");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_84_NumberBox_SpinButtonPlacementMode;
+                xamlMember.Setter = set_84_NumberBox_SpinButtonPlacementMode;
+                break;
+            case "Microsoft.UI.Xaml.Controls.NumberBox.Value":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Value", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_85_NumberBox_Value;
+                xamlMember.Setter = set_85_NumberBox_Value;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.AcceptsExpression":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "AcceptsExpression", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_106_NumberBox_AcceptsExpression;
-                xamlMember.Setter = set_106_NumberBox_AcceptsExpression;
+                xamlMember.Getter = get_86_NumberBox_AcceptsExpression;
+                xamlMember.Setter = set_86_NumberBox_AcceptsExpression;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Description":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Description", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_107_NumberBox_Description;
-                xamlMember.Setter = set_107_NumberBox_Description;
-                break;
-            case "Microsoft.UI.Xaml.Controls.NumberBox.Header":
-                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
-                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Header", "Object");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_108_NumberBox_Header;
-                xamlMember.Setter = set_108_NumberBox_Header;
+                xamlMember.Getter = get_87_NumberBox_Description;
+                xamlMember.Setter = set_87_NumberBox_Description;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.HeaderTemplate":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_109_NumberBox_HeaderTemplate;
-                xamlMember.Setter = set_109_NumberBox_HeaderTemplate;
+                xamlMember.Getter = get_88_NumberBox_HeaderTemplate;
+                xamlMember.Setter = set_88_NumberBox_HeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.IsWrapEnabled":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "IsWrapEnabled", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_110_NumberBox_IsWrapEnabled;
-                xamlMember.Setter = set_110_NumberBox_IsWrapEnabled;
+                xamlMember.Getter = get_89_NumberBox_IsWrapEnabled;
+                xamlMember.Setter = set_89_NumberBox_IsWrapEnabled;
+                break;
+            case "Microsoft.UI.Xaml.Controls.NumberBox.LargeChange":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "LargeChange", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_90_NumberBox_LargeChange;
+                xamlMember.Setter = set_90_NumberBox_LargeChange;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.NumberFormatter":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "NumberFormatter", "Windows.Globalization.NumberFormatting.INumberFormatter2");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_111_NumberBox_NumberFormatter;
-                xamlMember.Setter = set_111_NumberBox_NumberFormatter;
+                xamlMember.Getter = get_91_NumberBox_NumberFormatter;
+                xamlMember.Setter = set_91_NumberBox_NumberFormatter;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.PlaceholderText":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "PlaceholderText", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_112_NumberBox_PlaceholderText;
-                xamlMember.Setter = set_112_NumberBox_PlaceholderText;
+                xamlMember.Getter = get_92_NumberBox_PlaceholderText;
+                xamlMember.Setter = set_92_NumberBox_PlaceholderText;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.PreventKeyboardDisplayOnProgrammaticFocus":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "PreventKeyboardDisplayOnProgrammaticFocus", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_113_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
-                xamlMember.Setter = set_113_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
+                xamlMember.Getter = get_93_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
+                xamlMember.Setter = set_93_NumberBox_PreventKeyboardDisplayOnProgrammaticFocus;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SelectionFlyout":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SelectionFlyout", "Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_114_NumberBox_SelectionFlyout;
-                xamlMember.Setter = set_114_NumberBox_SelectionFlyout;
+                xamlMember.Getter = get_94_NumberBox_SelectionFlyout;
+                xamlMember.Setter = set_94_NumberBox_SelectionFlyout;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.SelectionHighlightColor":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SelectionHighlightColor", "Microsoft.UI.Xaml.Media.SolidColorBrush");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_115_NumberBox_SelectionHighlightColor;
-                xamlMember.Setter = set_115_NumberBox_SelectionHighlightColor;
+                xamlMember.Getter = get_95_NumberBox_SelectionHighlightColor;
+                xamlMember.Setter = set_95_NumberBox_SelectionHighlightColor;
+                break;
+            case "Microsoft.UI.Xaml.Controls.NumberBox.SmallChange":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SmallChange", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_96_NumberBox_SmallChange;
+                xamlMember.Setter = set_96_NumberBox_SmallChange;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.Text":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Text", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_116_NumberBox_Text;
-                xamlMember.Setter = set_116_NumberBox_Text;
+                xamlMember.Getter = get_97_NumberBox_Text;
+                xamlMember.Setter = set_97_NumberBox_Text;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.TextReadingOrder":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TextReadingOrder", "Microsoft.UI.Xaml.TextReadingOrder");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_117_NumberBox_TextReadingOrder;
-                xamlMember.Setter = set_117_NumberBox_TextReadingOrder;
+                xamlMember.Getter = get_98_NumberBox_TextReadingOrder;
+                xamlMember.Setter = set_98_NumberBox_TextReadingOrder;
                 break;
             case "Microsoft.UI.Xaml.Controls.NumberBox.ValidationMode":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.NumberBox");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ValidationMode", "Microsoft.UI.Xaml.Controls.NumberBoxValidationMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_118_NumberBox_ValidationMode;
-                xamlMember.Setter = set_118_NumberBox_ValidationMode;
+                xamlMember.Getter = get_99_NumberBox_ValidationMode;
+                xamlMember.Setter = set_99_NumberBox_ValidationMode;
+                break;
+            case "Sklad_2.Views.Dialogs.ManualDiscountDialog.DiscountPercent":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ManualDiscountDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "DiscountPercent", "System.Decimal");
+                xamlMember.Getter = get_100_ManualDiscountDialog_DiscountPercent;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ManualDiscountDialog.DiscountReason":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ManualDiscountDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "DiscountReason", "String");
+                xamlMember.Getter = get_101_ManualDiscountDialog_DiscountReason;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.NewDayConfirmationDialog.InitialAmount":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.NewDayConfirmationDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "InitialAmount", "System.Decimal");
+                xamlMember.Getter = get_102_NewDayConfirmationDialog_InitialAmount;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.PasswordPromptDialog.Password":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PasswordPromptDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Password", "String");
+                xamlMember.Getter = get_103_PasswordPromptDialog_Password;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.GrandTotal":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "GrandTotal", "System.Decimal");
+                xamlMember.Getter = get_104_PaymentSelectionDialog_GrandTotal;
+                xamlMember.Setter = set_104_PaymentSelectionDialog_GrandTotal;
+                break;
+            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.HasGiftCardLoaded":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "HasGiftCardLoaded", "Boolean");
+                xamlMember.Getter = get_105_PaymentSelectionDialog_HasGiftCardLoaded;
+                xamlMember.Setter = set_105_PaymentSelectionDialog_HasGiftCardLoaded;
+                break;
+            case "Sklad_2.Views.Dialogs.PaymentSelectionDialog.SelectedPaymentMethod":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.PaymentSelectionDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "SelectedPaymentMethod", "Sklad_2.Models.PaymentMethod");
+                xamlMember.Getter = get_106_PaymentSelectionDialog_SelectedPaymentMethod;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.Receipt":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Receipt", "Sklad_2.Models.Receipt");
+                xamlMember.Getter = get_107_ReceiptPreviewDialog_Receipt;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.ReceivedAmount":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ReceivedAmount", "System.Decimal");
+                xamlMember.Getter = get_108_ReceiptPreviewDialog_ReceivedAmount;
+                xamlMember.Setter = set_108_ReceiptPreviewDialog_ReceivedAmount;
+                break;
+            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.ChangeAmount":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ChangeAmount", "System.Decimal");
+                xamlMember.Getter = get_109_ReceiptPreviewDialog_ChangeAmount;
+                xamlMember.Setter = set_109_ReceiptPreviewDialog_ChangeAmount;
+                break;
+            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.VatSummaries":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
+                xamlMember.Getter = get_110_ReceiptPreviewDialog_VatSummaries;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Models.VatSummary.VatRate":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRate", "System.Decimal");
+                xamlMember.Getter = get_111_VatSummary_VatRate;
+                xamlMember.Setter = set_111_VatSummary_VatRate;
+                break;
+            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVat":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVat", "System.Decimal");
+                xamlMember.Getter = get_112_VatSummary_TotalAmountWithoutVat;
+                xamlMember.Setter = set_112_VatSummary_TotalAmountWithoutVat;
+                break;
+            case "Sklad_2.Models.VatSummary.TotalVatAmount":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmount", "System.Decimal");
+                xamlMember.Getter = get_113_VatSummary_TotalVatAmount;
+                xamlMember.Setter = set_113_VatSummary_TotalVatAmount;
+                break;
+            case "Sklad_2.Models.VatSummary.VatRateFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatRateFormatted", "String");
+                xamlMember.Getter = get_114_VatSummary_VatRateFormatted;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Models.VatSummary.TotalAmountWithoutVatFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalAmountWithoutVatFormatted", "String");
+                xamlMember.Getter = get_115_VatSummary_TotalAmountWithoutVatFormatted;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Models.VatSummary.TotalVatAmountFormatted":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Models.VatSummary");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TotalVatAmountFormatted", "String");
+                xamlMember.Getter = get_116_VatSummary_TotalVatAmountFormatted;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReceiptPreviewDialog.AmountToPay":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReceiptPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "AmountToPay", "System.Decimal");
+                xamlMember.Getter = get_117_ReceiptPreviewDialog_AmountToPay;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.ReturnDocument":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ReturnDocument", "Sklad_2.Models.Return");
+                xamlMember.Getter = get_118_ReturnPreviewDialog_ReturnDocument;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.VatSummaries":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "VatSummaries", "System.Collections.ObjectModel.ObservableCollection`1<Sklad_2.Models.VatSummary>");
+                xamlMember.Getter = get_119_ReturnPreviewDialog_VatSummaries;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Sklad_2.Views.Dialogs.ReturnPreviewDialog.IsVatPayer":
+                userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.Dialogs.ReturnPreviewDialog");
+                xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "IsVatPayer", "Boolean");
+                xamlMember.Getter = get_120_ReturnPreviewDialog_IsVatPayer;
+                xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.NastaveniPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NastaveniPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.NastaveniViewModel");
-                xamlMember.Getter = get_119_NastaveniPage_ViewModel;
+                xamlMember.Getter = get_121_NastaveniPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.NastaveniPage.CategoryVM":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NastaveniPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "CategoryVM", "Sklad_2.ViewModels.CategoryManagementViewModel");
-                xamlMember.Getter = get_120_NastaveniPage_CategoryVM;
+                xamlMember.Getter = get_122_NastaveniPage_CategoryVM;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.NastaveniPage.UserMgmtVM":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NastaveniPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "UserMgmtVM", "Sklad_2.ViewModels.UserManagementViewModel");
-                xamlMember.Getter = get_121_NastaveniPage_UserMgmtVM;
+                xamlMember.Getter = get_123_NastaveniPage_UserMgmtVM;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.NovyProduktPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.NovyProduktPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.NovyProduktViewModel");
-                xamlMember.Getter = get_122_NovyProduktPage_ViewModel;
+                xamlMember.Getter = get_124_NovyProduktPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.PoukazyPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.PoukazyPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.PoukazyViewModel");
-                xamlMember.Getter = get_123_PoukazyPage_ViewModel;
+                xamlMember.Getter = get_125_PoukazyPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressBar.IsIndeterminate":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressBar");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "IsIndeterminate", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_124_ProgressBar_IsIndeterminate;
-                xamlMember.Setter = set_124_ProgressBar_IsIndeterminate;
+                xamlMember.Getter = get_126_ProgressBar_IsIndeterminate;
+                xamlMember.Setter = set_126_ProgressBar_IsIndeterminate;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressBar.ShowError":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressBar");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ShowError", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_125_ProgressBar_ShowError;
-                xamlMember.Setter = set_125_ProgressBar_ShowError;
+                xamlMember.Getter = get_127_ProgressBar_ShowError;
+                xamlMember.Setter = set_127_ProgressBar_ShowError;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressBar.ShowPaused":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressBar");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ShowPaused", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_126_ProgressBar_ShowPaused;
-                xamlMember.Setter = set_126_ProgressBar_ShowPaused;
+                xamlMember.Getter = get_128_ProgressBar_ShowPaused;
+                xamlMember.Setter = set_128_ProgressBar_ShowPaused;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressBar.TemplateSettings":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressBar");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "TemplateSettings", "Microsoft.UI.Xaml.Controls.ProgressBarTemplateSettings");
-                xamlMember.Getter = get_127_ProgressBar_TemplateSettings;
+                xamlMember.Getter = get_129_ProgressBar_TemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.PrehledProdejuPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.PrehledProdejuPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.PrehledProdejuViewModel");
-                xamlMember.Getter = get_128_PrehledProdejuPage_ViewModel;
+                xamlMember.Getter = get_130_PrehledProdejuPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.PrijemZboziPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.PrijemZboziPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.PrijemZboziViewModel");
-                xamlMember.Getter = get_129_PrijemZboziPage_ViewModel;
+                xamlMember.Getter = get_131_PrijemZboziPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.ProdejPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.ProdejPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.ProdejViewModel");
-                xamlMember.Getter = get_130_ProdejPage_ViewModel;
+                xamlMember.Getter = get_132_ProdejPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.SkladPrehledPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.SkladPrehledPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.SkladPrehledViewModel");
-                xamlMember.Getter = get_131_SkladPrehledPage_ViewModel;
+                xamlMember.Getter = get_133_SkladPrehledPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.UctenkyPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.UctenkyPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.UctenkyViewModel");
-                xamlMember.Getter = get_132_UctenkyPage_ViewModel;
+                xamlMember.Getter = get_134_UctenkyPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.VratkyPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.VratkyPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.VratkyViewModel");
-                xamlMember.Getter = get_133_VratkyPage_ViewModel;
+                xamlMember.Getter = get_135_VratkyPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Sklad_2.Views.VratkyPrehledPage.ViewModel":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Sklad_2.Views.VratkyPrehledPage");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "ViewModel", "Sklad_2.ViewModels.VratkyPrehledViewModel");
-                xamlMember.Getter = get_134_VratkyPrehledPage_ViewModel;
+                xamlMember.Getter = get_136_VratkyPrehledPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Children":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Children", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_135_TreeViewNode_Children;
+                xamlMember.Getter = get_137_TreeViewNode_Children;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Content":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Content", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_136_TreeViewNode_Content;
-                xamlMember.Setter = set_136_TreeViewNode_Content;
+                xamlMember.Getter = get_138_TreeViewNode_Content;
+                xamlMember.Setter = set_138_TreeViewNode_Content;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Depth":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Depth", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_137_TreeViewNode_Depth;
+                xamlMember.Getter = get_139_TreeViewNode_Depth;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasChildren":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "HasChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_138_TreeViewNode_HasChildren;
+                xamlMember.Getter = get_140_TreeViewNode_HasChildren;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasUnrealizedChildren":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
-                xamlMember.Getter = get_139_TreeViewNode_HasUnrealizedChildren;
-                xamlMember.Setter = set_139_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Getter = get_141_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Setter = set_141_TreeViewNode_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.IsExpanded":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_140_TreeViewNode_IsExpanded;
-                xamlMember.Setter = set_140_TreeViewNode_IsExpanded;
+                xamlMember.Getter = get_142_TreeViewNode_IsExpanded;
+                xamlMember.Setter = set_142_TreeViewNode_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Parent":
                 userType = (global::Sklad_2.Sklad_2_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::Sklad_2.Sklad_2_XamlTypeInfo.XamlMember(this, "Parent", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_141_TreeViewNode_Parent;
+                xamlMember.Getter = get_143_TreeViewNode_Parent;
                 xamlMember.SetIsReadOnly();
                 break;
             }

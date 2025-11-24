@@ -1,0 +1,46 @@
+<ContentDialog
+    x:Class="Sklad_2.Views.Dialogs.ManualDiscountDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Aplikovat slevu"
+    PrimaryButtonText="Aplikovat"
+    CloseButtonText="Zrušit"
+    DefaultButton="Primary">
+
+    <StackPanel Spacing="16" MinWidth="350">
+        <TextBlock Text="Zadejte slevu pro vybranou položku:" 
+                   Style="{ThemeResource BodyTextBlockStyle}"/>
+
+        <NumberBox Header="Sleva (%)"
+                   x:Name="DiscountPercentBox"
+                   Minimum="0"
+                   Maximum="100"
+                   SpinButtonPlacementMode="Inline"
+                   Value="10"/>
+
+        <ComboBox Header="Důvod slevy"
+                  x:Name="DiscountReasonCombo"
+                  HorizontalAlignment="Stretch">
+            <ComboBoxItem Content="Poškozené zboží" IsSelected="True"/>
+            <ComboBoxItem Content="Věrnostní sleva"/>
+            <ComboBoxItem Content="Propagační akce"/>
+            <ComboBoxItem Content="Manažerská sleva"/>
+            <ComboBoxItem Content="Kompenzace"/>
+            <ComboBoxItem Content="Ostatní"/>
+        </ComboBox>
+
+        <Border Background="#FFF3E0" 
+                BorderBrush="#FF9500" 
+                BorderThickness="1" 
+                CornerRadius="4" 
+                Padding="12">
+            <StackPanel Spacing="4">
+                <TextBlock Text="⚠️ Upozornění" FontWeight="SemiBold" Foreground="#FF9500"/>
+                <TextBlock Text="Manuální sleva se aplikuje pouze na tuto konkrétní položku v košíku a nezasahuje do databáze produktů." 
+                           TextWrapping="Wrap" 
+                           FontSize="12" 
+                           Foreground="#666666"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</ContentDialog>

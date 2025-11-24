@@ -18,13 +18,13 @@
         <!-- Search Section -->
         <StackPanel Grid.Row="0" Spacing="12" MaxWidth="400">
             <TextBlock Text="Vytvoření vratky" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <TextBox x:ConnectionId='15' Header="Zadejte číslo původní účtenky" 
+            <TextBox x:ConnectionId='20' Header="Zadejte číslo původní účtenky" 
                                                                                                                   
                                                        />
-            <Button x:ConnectionId='16' Content="Najít účtenku" 
+            <Button x:ConnectionId='21' Content="Najít účtenku" 
                                                                     
                     Style="{StaticResource PrimaryButtonStyle}"/>
-            <TextBlock x:ConnectionId='17'                                                      Foreground="Red"/>
+            <TextBlock x:ConnectionId='22'                                                      Foreground="Red"/>
         </StackPanel>
 
         <!-- Return Processing Section (Visible when receipt is found) -->
@@ -39,7 +39,7 @@
 
             <TextBlock Grid.Row="0" Style="{ThemeResource SubtitleTextBlockStyle}">
                 <Run Text="Položky na účtence č."/>
-                <Run x:ConnectionId='14'                                                              />
+                <Run x:ConnectionId='19'                                                              />
             </TextBlock>
 
             <ListView x:ConnectionId='3' Grid.Row="1"                                                             SelectionMode="None">
@@ -65,9 +65,30 @@
                                 <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:ConnectionId='11' Grid.Column="0"                                          VerticalAlignment="Center"/>
-                            <TextBlock x:ConnectionId='12' Grid.Column="1"                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            <NumberBox x:ConnectionId='13' Grid.Column="2"
+                            
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                                <TextBlock x:ConnectionId='13'                                          FontWeight="SemiBold"/>
+                                <TextBlock FontSize="12">
+                                    <Run Text="Cena: " Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <Run x:ConnectionId='18'                                                />
+                                </TextBlock>
+                                
+                                <!-- Show discount info if item was discounted -->
+                                <TextBlock x:ConnectionId='14'                                                                                                        
+                                           FontSize="11" 
+                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                                    <Run Text="Původně: "/>
+                                    <Run x:ConnectionId='15'                                                        />
+                                    <Run Text=" • Sleva "/>
+                                    <Run x:ConnectionId='16'                                                      />
+                                    <Run Text=" ("/>
+                                    <Run x:ConnectionId='17'                                            />
+                                    <Run Text=")"/>
+                                </TextBlock>
+                            </StackPanel>
+                            
+                            <TextBlock x:ConnectionId='11' Grid.Column="1"                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <NumberBox x:ConnectionId='12' Grid.Column="2"
                                                                                                                         
                                        Minimum="0"
                                                                            

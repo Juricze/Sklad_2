@@ -17,14 +17,29 @@
         <!-- Main content area -->
         <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
-                <TextBox x:ConnectionId='34' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
+                <TextBox x:ConnectionId='47' x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..."                             />
             </Border>
-            <Border x:ConnectionId='17' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
+            <Border x:ConnectionId='26' Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}"                                                            >
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='33'                                                           /></TextBlock>
-                    <TextBlock><Run Text="Cena:" FontWeight="Bold"/> <Run x:ConnectionId='32'                                                                    /></TextBlock>
-                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='31'                                                                    /> <Run Text="ks"/></TextBlock>
+                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run x:ConnectionId='46'                                                           /></TextBlock>
+                    <StackPanel>
+                        <TextBlock>
+                            <Run Text="Cena:" FontWeight="Bold"/> 
+                            <Run x:ConnectionId='45'                                                                          />
+                        </TextBlock>
+                        <TextBlock x:ConnectionId='41'                                                                                                                                  
+                                   Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                            <Run Text="Původní cena:"/>
+                            <Run x:ConnectionId='42'                                                                         />
+                            <Run Text=" • Sleva"/>
+                            <Run x:ConnectionId='43'                                                                               />
+                            <Run Text=" ("/>
+                            <Run x:ConnectionId='44'                                                                     />
+                            <Run Text=")"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run x:ConnectionId='40'                                                                    /> <Run Text="ks"/></TextBlock>
                 </StackPanel>
             </Border>
 
@@ -41,18 +56,18 @@
 
                     <!-- Input for Gift Card EAN -->
                     <StackPanel Spacing="8">
-                        <TextBox x:ConnectionId='29' x:Name="GiftCardEanTextBox"
+                        <TextBox x:ConnectionId='38' x:Name="GiftCardEanTextBox"
                                  Header="EAN kód poukazu k uplatnění"
                                  PlaceholderText="Naskenujte nebo zadejte EAN poukazu..."
                                                                                                                              
                                                                      />
-                        <Button x:ConnectionId='30' Content="Načíst poukaz"
+                        <Button x:ConnectionId='39' Content="Načíst poukaz"
                                                                 
                                 HorizontalAlignment="Stretch"/>
                     </StackPanel>
 
                     <!-- Loaded Gift Card Info -->
-                    <Border x:ConnectionId='23' Background="#E8F5E9"
+                    <Border x:ConnectionId='32' Background="#E8F5E9"
                             BorderBrush="#4CAF50"
                             BorderThickness="2"
                             CornerRadius="8"
@@ -65,13 +80,13 @@
                             </StackPanel>
                             <TextBlock>
                                 <Run Text="Hodnota:"/>
-                                <Run x:ConnectionId='28'                                                               FontWeight="Bold"/>
+                                <Run x:ConnectionId='37'                                                               FontWeight="Bold"/>
                             </TextBlock>
                             <TextBlock>
                                 <Run Text="EAN:"/>
-                                <Run x:ConnectionId='27'                                                            FontSize="11"/>
+                                <Run x:ConnectionId='36'                                                            FontSize="11"/>
                             </TextBlock>
-                            <Button x:ConnectionId='26' Content="Zrušit načtený poukaz"
+                            <Button x:ConnectionId='35' Content="Zrušit načtený poukaz"
                                                                                      
                                     HorizontalAlignment="Stretch"
                                     Margin="0,6,0,0"/>
@@ -79,7 +94,7 @@
                     </Border>
 
                     <!-- Warning: Partial Usage (Forfeiture) -->
-                    <Border x:ConnectionId='24' Background="#FFF3CD"
+                    <Border x:ConnectionId='33' Background="#FFF3CD"
                             BorderBrush="#FF9500"
                             BorderThickness="2"
                             CornerRadius="8"
@@ -95,7 +110,7 @@
                             </TextBlock>
                             <TextBlock TextWrapping="Wrap">
                                 <Run Text="Zbývající částka"/>
-                                <Run x:ConnectionId='25'                                                                 FontWeight="Bold"/>
+                                <Run x:ConnectionId='34'                                                                 FontWeight="Bold"/>
                                 <Run Text=" propadne a nelze ji použít v budoucnu."/>
                             </TextBlock>
                         </StackPanel>
@@ -104,7 +119,7 @@
             </Border>
 
             <!-- Cancel Last Receipt Warning -->
-            <Border x:ConnectionId='18' Background="#FFF3CD"
+            <Border x:ConnectionId='27' Background="#FFF3CD"
                     BorderBrush="#FF9500"
                     BorderThickness="2"
                     CornerRadius="8"
@@ -123,11 +138,11 @@
                     <StackPanel Spacing="4">
                         <TextBlock TextWrapping="Wrap">
                             <Run Text="Účtenka č."/>
-                            <Run x:ConnectionId='20'                                                                     FontWeight="Bold"/>
+                            <Run x:ConnectionId='29'                                                                     FontWeight="Bold"/>
                             <Run Text=" • "/>
-                            <Run x:ConnectionId='21'                                                                                FontWeight="Bold"/>
+                            <Run x:ConnectionId='30'                                                                                FontWeight="Bold"/>
                             <Run Text=" • "/>
-                            <Run x:ConnectionId='22'                                                                        />
+                            <Run x:ConnectionId='31'                                                                        />
                         </TextBlock>
                         <TextBlock Text="Produkty budou vráceny do skladu a částka odečtena z pokladny."
                                    FontSize="12"
@@ -135,7 +150,7 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
-                    <Button x:ConnectionId='19' Content="Zrušit poslední prodej"
+                    <Button x:ConnectionId='28' Content="Zrušit poslední prodej"
                                                                  
                             Background="#FF3B30"
                             Foreground="White"
@@ -165,20 +180,56 @@
                               SelectionMode="Single">
                         <ListView.ItemTemplate>
                             <DataTemplate                               >
-                                <Grid x:ConnectionId='12' ColumnSpacing="12">
+                                <Grid x:ConnectionId='13' ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock x:ConnectionId='14'                              FontWeight="Bold"/>
-                                        <TextBlock>
-                                            <Run x:ConnectionId='15'                                               />
-                                            <Run Text=" x "/>
-                                            <Run x:ConnectionId='16'                                                        />
-                                        </TextBlock>
+                                    <StackPanel Grid.Column="0" Spacing="2">
+                                        <TextBlock x:ConnectionId='15'                              FontWeight="Bold"/>
+                                        <StackPanel>
+                                            <TextBlock>
+                                                <Run x:ConnectionId='24'                                               />
+                                                <Run Text=" x "/>
+                                                <Run x:ConnectionId='25'                                                                                     />
+                                            </TextBlock>
+                                            <!-- Show discount info if product has discount -->
+                                            <StackPanel x:ConnectionId='16'                                                                                                         
+                                                        Spacing="2">
+                                                <TextBlock FontSize="12" 
+                                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                                                    <Run Text="Původně:" FontStyle="Italic"/>
+                                                    <Run x:ConnectionId='23'                                                                                             />
+                                                </TextBlock>
+                                                
+                                                <!-- Product discount (automatic) -->
+                                                <TextBlock x:ConnectionId='17'                                                                                                               
+                                                           FontSize="11" 
+                                                           Foreground="#4CAF50">
+                                                    <Run Text="📦 Sleva produktu: " FontWeight="SemiBold"/>
+                                                    <Run x:ConnectionId='22'                                                    />
+                                                </TextBlock>
+                                                
+                                                <!-- Manual discount (additional) -->
+                                                <TextBlock x:ConnectionId='18'                                                                                                              
+                                                           FontSize="11" 
+                                                           Foreground="#FF9500">
+                                                    <Run Text="✋ Dodatečná sleva: " FontWeight="SemiBold"/>
+                                                    <Run x:ConnectionId='21'                                                   />
+                                                </TextBlock>
+                                                
+                                                <!-- Combined discount total -->
+                                                <TextBlock x:ConnectionId='19'                                                                                                        
+                                                           FontSize="11" 
+                                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                                           FontWeight="SemiBold">
+                                                    <Run Text="💰 "/>
+                                                    <Run x:ConnectionId='20'                                                     />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </StackPanel>
-                                    <TextBlock x:ConnectionId='13' Grid.Column="1"                                                  FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock x:ConnectionId='14' Grid.Column="1"                                                  FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -192,7 +243,13 @@
                         <Button x:ConnectionId='9'                                                       ToolTipService.ToolTip="Snížit množství vybrané položky">
                             <FontIcon Glyph="&#xE738;"/>
                         </Button>
-                        <Button x:ConnectionId='10'                                                ToolTipService.ToolTip="Odebrat vybranou položku">
+                        <Button x:ConnectionId='10'                                                         ToolTipService.ToolTip="Aplikovat slevu na vybranou položku" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE7B8;" FontSize="14"/>
+                                <TextBlock Text="Sleva" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:ConnectionId='11'                                                ToolTipService.ToolTip="Odebrat vybranou položku">
                             <FontIcon Glyph="&#xE74D;"/>
                         </Button>
                     </StackPanel>

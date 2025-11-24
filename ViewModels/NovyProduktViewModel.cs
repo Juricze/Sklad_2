@@ -24,6 +24,7 @@ namespace Sklad_2.ViewModels
         private bool isSalesRole;
 
         public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
+        public bool IsAdmin => _authService.CurrentRole == "Admin";
 
         [ObservableProperty]
         private string ean = string.Empty;
@@ -32,6 +33,7 @@ namespace Sklad_2.ViewModels
         private string name = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FinalPriceDisplay))]
         private string salePrice = string.Empty;
 
         [ObservableProperty]
@@ -49,6 +51,54 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string statusMessage = string.Empty;
 
+        // Discount properties
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FinalPriceDisplay))]
+        private bool hasDiscount;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FinalPriceDisplay))]
+        private double discountPercent;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowDiscountDates))]
+        private string selectedDiscountReason;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowDiscountDates))]
+        private bool isStockClearance;
+
+        [ObservableProperty]
+        private DateTimeOffset discountValidFrom = DateTimeOffset.Now;
+
+        [ObservableProperty]
+        private DateTimeOffset discountValidTo = DateTimeOffset.Now.AddDays(30);
+
+        public ObservableCollection<string> DiscountReasons { get; } = new ObservableCollection<string>
+        {
+            "Akce",
+            "Výprodej", 
+            "Poškozené",
+            "Krátká expirace"
+        };
+
+        public bool ShowDiscountDates => !IsStockClearance;
+
+        public string FinalPriceDisplay
+        {
+            get
+            {
+                if (!decimal.TryParse(SalePrice, out decimal price) || price <= 0)
+                    return "";
+
+                if (!HasDiscount || DiscountPercent <= 0)
+                    return "";
+
+                decimal finalPrice = price * (1 - (decimal)DiscountPercent / 100);
+                return $"Konečná cena po slevě: {finalPrice:C}";
+            }
+        }
+
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
         public NovyProduktViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger)
@@ -58,6 +108,7 @@ namespace Sklad_2.ViewModels
             _settingsService = settingsService;
             _messenger = messenger;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
+            SelectedDiscountReason = DiscountReasons.FirstOrDefault();
 
             // Initial check
             IsSalesRole = _authService.CurrentRole == "Prodej";
@@ -82,6 +133,7 @@ namespace Sklad_2.ViewModels
         public void Receive(RoleChangedMessage message)
         {
             IsSalesRole = message.Value == "Prodej";
+            OnPropertyChanged(nameof(IsAdmin));
         }
 
         private async void LoadVatConfigsAsync()
@@ -172,7 +224,11 @@ namespace Sklad_2.ViewModels
                 SalePrice = salePriceValue,
                 PurchasePrice = purchasePriceValue,
                 StockQuantity = 0, // New products start with 0 stock
-                VatRate = vatRateToUse
+                VatRate = vatRateToUse,
+                DiscountPercent = HasDiscount && DiscountPercent > 0 ? (decimal?)DiscountPercent : null,
+                DiscountReason = HasDiscount ? (IsStockClearance ? "Do vyprodání zásob" : SelectedDiscountReason) : string.Empty,
+                DiscountValidFrom = HasDiscount && !IsStockClearance ? DiscountValidFrom.DateTime : (DateTime?)null,
+                DiscountValidTo = HasDiscount && !IsStockClearance ? DiscountValidTo.DateTime : (DateTime?)null
             };
 
             try
@@ -221,6 +277,11 @@ namespace Sklad_2.ViewModels
             PurchasePrice = string.Empty;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
             // VatRate will be updated automatically by OnSelectedCategoryChanged
+            HasDiscount = false;
+            DiscountPercent = 0;
+            SelectedDiscountReason = DiscountReasons.FirstOrDefault();
+            DiscountValidFrom = DateTimeOffset.Now;
+            DiscountValidTo = DateTimeOffset.Now.AddDays(30);
         }
     }
 }
