@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="ESCPOS_NET" Version="3.0.0" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
@@ -32,10 +33,7 @@
   <!-- Database Migration Safety Check -->
   <Target Name="CheckDatabaseChanges" BeforeTargets="Build">
     <Message Text="🔍 Checking for database changes..." Importance="high" />
-    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" 
-          ContinueOnError="false" 
-          IgnoreExitCode="false"
-          Condition="Exists('$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1')" />
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" ContinueOnError="false" IgnoreExitCode="false" Condition="Exists('$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1')" />
   </Target>
 
 </Project>

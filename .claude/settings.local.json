@@ -17,7 +17,10 @@
       "Bash(msbuild:*)",
       "Bash(dotnet tool install:*)",
       "Bash(dotnet ef:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(Select-String -Pattern \"DirectPrinter\" -Context 2)",
+      "WebFetch(domain:epson.com)"
     ],
     "deny": [],
     "ask": []

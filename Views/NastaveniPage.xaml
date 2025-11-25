@@ -242,10 +242,14 @@
                             <!-- Printer Section -->
                             <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
                                 <TextBlock Text="Nastavení tiskárny" FontWeight="SemiBold"/>
-                                <TextBox Header="Cesta k tiskárně"
+                                <TextBox Header="COM port tiskárny"
                                          Text="{x:Bind ViewModel.Settings.PrinterPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         PlaceholderText="Např. \\server\tiskarna nebo COM1"
+                                         PlaceholderText="Např. COM1, COM3, COM5"
                                          IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <TextBlock Text="Poznámka: Nainstalujte Epson Virtual COM Port driver, pokud tiskárna není viditelná jako COM port."
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           TextWrapping="Wrap"/>
                                 <Button Content="Test tisku"
                                         Command="{x:Bind ViewModel.TestPrintCommand}"
                                         Style="{StaticResource AccentButtonStyle}"

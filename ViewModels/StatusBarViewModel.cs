@@ -83,9 +83,10 @@ namespace Sklad_2.ViewModels
 
         public async Task RefreshStatusAsync()
         {
-            // Check printer status
+            // Check printer status (actual connection test)
+            IsPrinterConnected = _printService.IsPrinterConnected();
+
             var settings = _settingsService.CurrentSettings;
-            IsPrinterConnected = !string.IsNullOrWhiteSpace(settings.PrinterPath);
 
             // Check if day was closed today
             var lastDayCloseDate = settings.LastDayCloseDate;

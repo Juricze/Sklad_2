@@ -141,7 +141,7 @@ namespace Sklad_2
             services.AddSingleton<IDatabaseMigrationService, DatabaseMigrationService>();
             services.AddSingleton<IDataService, SqliteDataService>();
             services.AddSingleton<IReceiptService, ReceiptService>();
-            services.AddSingleton<IPrintService, PrintService>();
+            services.AddSingleton<IPrintService, EscPosPrintService>(); // Epson TM-T20III (ESC/POS)
             services.AddSingleton<ICashRegisterService, CashRegisterService>();
             services.AddSingleton<IGiftCardService, GiftCardService>();
             services.AddSingleton<IAuthService>(sp => new AuthService(
