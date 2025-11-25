@@ -20,7 +20,8 @@
       "Bash(mkdir:*)",
       "WebFetch(domain:github.com)",
       "Bash(Select-String -Pattern \"DirectPrinter\" -Context 2)",
-      "WebFetch(domain:epson.com)"
+      "WebFetch(domain:epson.com)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

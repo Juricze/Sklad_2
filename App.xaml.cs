@@ -158,7 +158,8 @@ namespace Sklad_2
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<ICashRegisterService>(),
                 sp.GetRequiredService<IAuthService>(),
-                sp.GetRequiredService<IGiftCardService>()));
+                sp.GetRequiredService<IGiftCardService>(),
+                sp.GetRequiredService<IPrintService>()));
             services.AddSingleton<PrijemZboziViewModel>(sp => new PrijemZboziViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>()));

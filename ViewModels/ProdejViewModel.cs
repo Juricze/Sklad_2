@@ -22,6 +22,7 @@ namespace Sklad_2.ViewModels
         private readonly ICashRegisterService _cashRegisterService;
         private readonly IAuthService _authService;
         private readonly IGiftCardService _giftCardService;
+        private readonly IPrintService _printService;
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
@@ -114,13 +115,14 @@ namespace Sklad_2.ViewModels
         public string GrandTotalWithoutVatFormatted => $"Základ: {Receipt.GrandTotalWithoutVat:C}";
         public string GrandTotalVatAmountFormatted => $"DPH: {Receipt.GrandTotalVatAmount:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IAuthService authService, IGiftCardService giftCardService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IAuthService authService, IGiftCardService giftCardService, IPrintService printService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _cashRegisterService = cashRegisterService;
             _authService = authService;
             _giftCardService = giftCardService;
+            _printService = printService;
             Receipt = receiptService;
 
             // Listen for changes in the service to update UI
@@ -498,6 +500,20 @@ namespace Sklad_2.ViewModels
                             await _cashRegisterService.RecordEntryAsync(EntryType.Sale, cashAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
                             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
                         }
+                    }
+
+                    // Print receipt
+                    try
+                    {
+                        var printSuccess = await _printService.PrintReceiptAsync(newReceipt);
+                        if (!printSuccess)
+                        {
+                            Debug.WriteLine("Warning: Failed to print receipt - printer may not be connected");
+                        }
+                    }
+                    catch (Exception printEx)
+                    {
+                        Debug.WriteLine($"Warning: Exception during receipt printing: {printEx.Message}");
                     }
 
                     // Clear state

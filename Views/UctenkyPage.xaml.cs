@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Models;
+using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using System;
@@ -40,7 +41,8 @@ namespace Sklad_2.Views
         {
             if (ViewModel.SelectedReceipt != null)
             {
-                var previewDialog = new ReceiptPreviewDialog(ViewModel.SelectedReceipt)
+                var printService = (Application.Current as App).Services.GetRequiredService<IPrintService>();
+                var previewDialog = new ReceiptPreviewDialog(ViewModel.SelectedReceipt, printService)
                 {
                     XamlRoot = this.XamlRoot,
                 };

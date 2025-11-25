@@ -17,12 +17,65 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 25. listopad 2025 (odpoledne)**
+## 📅 **Poslední session: 25. listopad 2025 (večer)**
+
+### ✅ Hotovo:
+**Kompletní implementace tisku účtenek s českými znaky**
+
+**Klíčové změny této session:**
+
+1. **Automatický tisk při prodeji**
+   - `ProdejViewModel.cs` - přidán `IPrintService` do DI
+   - Po úspěšném prodeji se automaticky volá `PrintReceiptAsync()`
+   - Tisk běží asynchronně, neblokuje UI
+   - Při selhání tisku se vypíše warning, ale prodej proběhne
+
+2. **Oprava tisku - přímý SerialPort místo ESCPOS_NET**
+   - `PrintReceiptAsync()` přepsán na přímý `System.IO.Ports.SerialPort`
+   - Problém: ESCPOS_NET `SerialPrinter` nepodporoval CP852 encoding
+   - Řešení: Raw ESC/POS příkazy s `Cp852.GetBytes()`
+
+3. **Nastavení CP852 code page na tiskárne**
+   - Přidán příkaz `ESC t 18` (0x1B 0x74 0x12) na začátek tisku
+   - Tiskárna měla výchozí PC437, který nepodporuje české znaky
+   - Nyní tiskne správně: ěščřžýáíéůúďťň
+
+4. **Tlačítko "Tisk" v náhledu účtenky**
+   - `ReceiptPreviewDialog.xaml.cs` - implementace `PrintButton_Click`
+   - Přidán `IPrintService` parametr do konstruktoru
+   - Při selhání tisku se zobrazí chybový dialog
+   - Dialog zůstane otevřený pro opakovaný tisk
+   - Funguje po prodeji i v historii účtenek
+
+5. **Nová metoda `BuildReceiptCommands()`**
+   - Generuje raw ESC/POS příkazy s CP852 encodingem
+   - Podporuje: DPH rozpad, slevy, dárkové poukazy, storno
+   - Formátování: bold, double height, zarovnání
+   - Řez papíru: `GS V 66 3`
+
+**Upravené soubory:**
+- `Services/EscPosPrintService.cs` - přepis na SerialPort + CP852
+- `ViewModels/ProdejViewModel.cs` - automatický tisk po prodeji
+- `Views/Dialogs/ReceiptPreviewDialog.xaml.cs` - tlačítko tisk
+- `Views/ProdejPage.xaml.cs` - předání PrintService do dialogu
+- `Views/UctenkyPage.xaml.cs` - předání PrintService do dialogu
+- `App.xaml.cs` - DI registrace ProdejViewModel
+
+**Testováno:**
+- ✅ Tisk při prodeji funguje automaticky
+- ✅ České znaky se tisknou správně (CP852)
+- ✅ Tlačítko "Tisk" v náhledu funguje
+- ✅ Opakovaný tisk při nedostatku papíru
+- ✅ Test tisku v nastavení funguje
+
+---
+
+## 📅 **Předchozí session: 25. listopad 2025 (odpoledne)**
 
 ### ✅ Hotovo:
 **Funkční tisk na Epson TM-T20III přes COM port**
 
-**Klíčové změny této session:**
+**Klíčové změny:**
 
 1. **EscPosPrintService.cs - přepis na přímý SerialPort**
    - ESCPOS_NET SerialPrinter nefungoval s Epson Virtual COM Port

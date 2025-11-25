@@ -38,20 +38,41 @@ namespace Sklad_2.Services
         {
             try
             {
-                using var printer = CreatePrinter();
-                if (printer == null)
+                var printerPath = _settingsService.CurrentSettings.PrinterPath;
+
+                // Validate COM port format
+                if (!IsComPort(printerPath))
                 {
-                    Debug.WriteLine("EscPosPrintService: Failed to create printer connection");
+                    Debug.WriteLine($"EscPosPrintService: Invalid COM port format: {printerPath}");
                     return false;
                 }
 
-                var e = new EPSON();
+                Debug.WriteLine($"EscPosPrintService: Printing receipt {receipt.FormattedReceiptNumber} on {printerPath}");
 
-                // Build receipt data
-                var receiptData = BuildReceiptData(e, receipt);
+                // Use direct SerialPort for reliable printing with CP852 encoding
+                await Task.Run(() =>
+                {
+                    using var port = new SerialPort(printerPath)
+                    {
+                        BaudRate = 38400,
+                        Parity = Parity.None,
+                        DataBits = 8,
+                        StopBits = StopBits.One,
+                        Handshake = Handshake.None,
+                        WriteTimeout = 5000
+                    };
 
-                // Print (run in background thread to avoid UI blocking)
-                await Task.Run(() => printer.Write(receiptData));
+                    port.Open();
+                    Debug.WriteLine($"EscPosPrintService: Port opened successfully");
+
+                    // Build receipt data using raw ESC/POS commands
+                    var commands = BuildReceiptCommands(receipt);
+
+                    port.Write(commands.ToArray(), 0, commands.Count);
+                    Debug.WriteLine($"EscPosPrintService: Wrote {commands.Count} bytes");
+
+                    port.Close();
+                });
 
                 Debug.WriteLine($"EscPosPrintService: Receipt {receipt.FormattedReceiptNumber} printed successfully");
                 return true;
@@ -98,6 +119,9 @@ namespace Sklad_2.Services
                     // Initialize printer: ESC @
                     commands.AddRange(new byte[] { 0x1B, 0x40 });
 
+                    // Set character code page to CP852 (Central Europe): ESC t 18
+                    commands.AddRange(new byte[] { 0x1B, 0x74, 0x12 });
+
                     // Center align: ESC a 1
                     commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
 
@@ -107,6 +131,13 @@ namespace Sklad_2.Services
 
                     // Print "TEST TISKU"
                     commands.AddRange(Cp852.GetBytes("TEST TISKU\n"));
+
+                    // Test Czech characters
+                    commands.AddRange(new byte[] { 0x0A });
+                    commands.AddRange(Cp852.GetBytes("Ceske znaky:\n"));
+                    commands.AddRange(Cp852.GetBytes("escrzzyaieuu = ěščřžýáíéůú\n"));
+                    commands.AddRange(Cp852.GetBytes("ESCRZZYAIEUU = ĚŠČŘŽÝÁÍÉŮÚ\n"));
+                    commands.AddRange(Cp852.GetBytes("dtn = ďťň\n"));
 
                     // Reset styles: ESC E 0, GS ! 0
                     commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
@@ -221,102 +252,145 @@ namespace Sklad_2.Services
             return path.StartsWith("COM", StringComparison.OrdinalIgnoreCase);
         }
 
-        private byte[] BuildReceiptData(EPSON e, Receipt receipt)
+        /// <summary>
+        /// Builds raw ESC/POS commands for receipt printing with CP852 encoding
+        /// </summary>
+        private List<byte> BuildReceiptCommands(Receipt receipt)
         {
-            var commands = new List<byte[]>
-            {
-                // Header - Shop name and address
-                e.CenterAlign(),
-                e.SetStyles(PrintStyle.Bold | PrintStyle.FontB),
-                e.PrintLine(receipt.ShopName ?? ""),
-                e.SetStyles(PrintStyle.None),
-                e.PrintLine(receipt.ShopAddress ?? ""),
-            };
+            var commands = new List<byte>();
+
+            // Initialize printer: ESC @
+            commands.AddRange(new byte[] { 0x1B, 0x40 });
+
+            // Set character code page to CP852 (Central Europe): ESC t 18
+            commands.AddRange(new byte[] { 0x1B, 0x74, 0x12 });
+
+            // === HEADER ===
+            // Center align: ESC a 1
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
+
+            // Bold ON: ESC E 1
+            commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+            commands.AddRange(Cp852.GetBytes(receipt.ShopName ?? ""));
+            commands.AddRange(new byte[] { 0x0A }); // Line feed
+
+            // Bold OFF: ESC E 0
+            commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+            commands.AddRange(Cp852.GetBytes(receipt.ShopAddress ?? ""));
+            commands.AddRange(new byte[] { 0x0A });
 
             // Company ID and VAT ID
             if (!string.IsNullOrWhiteSpace(receipt.CompanyId))
             {
-                commands.Add(e.PrintLine($"IČ: {receipt.CompanyId}"));
+                commands.AddRange(Cp852.GetBytes($"IČ: {receipt.CompanyId}"));
+                commands.AddRange(new byte[] { 0x0A });
             }
 
             if (receipt.IsVatPayer && !string.IsNullOrWhiteSpace(receipt.VatId))
             {
-                commands.Add(e.PrintLine($"DIČ: {receipt.VatId}"));
+                commands.AddRange(Cp852.GetBytes($"DIČ: {receipt.VatId}"));
+                commands.AddRange(new byte[] { 0x0A });
             }
 
-            commands.Add(e.PrintLine(""));
+            commands.AddRange(new byte[] { 0x0A });
 
-            // Receipt type header
+            // === RECEIPT TYPE HEADER ===
             if (receipt.IsStorno)
             {
-                commands.Add(e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight));
-                commands.Add(e.PrintLine("❌ STORNO ❌"));
-                commands.Add(e.SetStyles(PrintStyle.None));
+                // Bold ON + Double height: ESC E 1, GS ! 0x10
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                commands.AddRange(new byte[] { 0x1D, 0x21, 0x10 });
+                commands.AddRange(Cp852.GetBytes("STORNO"));
+                commands.AddRange(new byte[] { 0x0A });
+                // Reset styles: ESC E 0, GS ! 0
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+                commands.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
+
                 if (receipt.OriginalReceiptId.HasValue)
                 {
-                    commands.Add(e.PrintLine($"Storno účtenky #{receipt.OriginalReceiptId}"));
+                    commands.AddRange(Cp852.GetBytes($"Storno účtenky #{receipt.OriginalReceiptId}"));
+                    commands.AddRange(new byte[] { 0x0A });
                 }
-                commands.Add(e.PrintLine(""));
+                commands.AddRange(new byte[] { 0x0A });
             }
             else if (receipt.ContainsGiftCardSale && receipt.GiftCardSaleAmount > 0)
             {
-                commands.Add(e.SetStyles(PrintStyle.Bold));
-                commands.Add(e.PrintLine("🎁 DÁRKOVÝ POUKAZ 🎁"));
-                commands.Add(e.SetStyles(PrintStyle.None));
-                commands.Add(e.PrintLine(""));
+                // Bold ON: ESC E 1
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                commands.AddRange(Cp852.GetBytes("DÁRKOVÝ POUKAZ"));
+                commands.AddRange(new byte[] { 0x0A });
+                // Bold OFF: ESC E 0
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+                commands.AddRange(new byte[] { 0x0A });
             }
 
-            // Receipt number and date
-            commands.Add(e.LeftAlign());
-            commands.Add(e.PrintLine($"Účtenka: {receipt.FormattedReceiptNumber}"));
-            commands.Add(e.PrintLine($"Datum: {receipt.SaleDate:dd.MM.yyyy HH:mm}"));
-            commands.Add(e.PrintLine($"Prodejce: {receipt.SellerName}"));
-            commands.Add(e.PrintLine("================================"));
+            // === RECEIPT NUMBER AND DATE ===
+            // Left align: ESC a 0
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x00 });
 
-            // Items
+            commands.AddRange(Cp852.GetBytes($"Účtenka: {receipt.FormattedReceiptNumber}"));
+            commands.AddRange(new byte[] { 0x0A });
+            commands.AddRange(Cp852.GetBytes($"Datum: {receipt.SaleDate:dd.MM.yyyy HH:mm}"));
+            commands.AddRange(new byte[] { 0x0A });
+            commands.AddRange(Cp852.GetBytes($"Prodejce: {receipt.SellerName}"));
+            commands.AddRange(new byte[] { 0x0A });
+            commands.AddRange(Cp852.GetBytes("================================"));
+            commands.AddRange(new byte[] { 0x0A });
+
+            // === ITEMS ===
             if (receipt.Items != null && receipt.Items.Count > 0)
             {
                 foreach (var item in receipt.Items)
                 {
-                    commands.Add(e.PrintLine(item.ProductName ?? ""));
+                    commands.AddRange(Cp852.GetBytes(item.ProductName ?? ""));
+                    commands.AddRange(new byte[] { 0x0A });
 
                     // Show discount if applicable
                     if (item.HasDiscount)
                     {
-                        commands.Add(e.PrintLine(
+                        commands.AddRange(Cp852.GetBytes(
                             $"  {item.Quantity}x {item.OriginalUnitPrice:N2} Kč " +
                             $"{item.DiscountPercentFormatted}"
                         ));
-                        commands.Add(e.PrintLine(
+                        commands.AddRange(new byte[] { 0x0A });
+                        commands.AddRange(Cp852.GetBytes(
                             $"  Po slevě: {item.UnitPrice:N2} Kč ... {item.TotalPrice:N2} Kč"
                         ));
+                        commands.AddRange(new byte[] { 0x0A });
                     }
                     else
                     {
-                        commands.Add(e.PrintLine(
+                        commands.AddRange(Cp852.GetBytes(
                             $"  {item.Quantity}x {item.UnitPrice:N2} Kč ... {item.TotalPrice:N2} Kč"
                         ));
+                        commands.AddRange(new byte[] { 0x0A });
                     }
                 }
             }
 
-            commands.Add(e.PrintLine("================================"));
+            commands.AddRange(Cp852.GetBytes("================================"));
+            commands.AddRange(new byte[] { 0x0A });
 
-            // Gift card redemption (used as payment)
+            // === GIFT CARD REDEMPTION ===
             if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
             {
-                commands.Add(e.PrintLine(""));
-                commands.Add(e.PrintLine($"Mezisoučet: {receipt.TotalAmount:N2} Kč"));
-                commands.Add(e.SetStyles(PrintStyle.Bold));
-                commands.Add(e.PrintLine($"Použitý poukaz: -{receipt.GiftCardRedemptionAmount:N2} Kč"));
-                commands.Add(e.SetStyles(PrintStyle.None));
+                commands.AddRange(new byte[] { 0x0A });
+                commands.AddRange(Cp852.GetBytes($"Mezisoučet: {receipt.TotalAmount:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
+                // Bold ON: ESC E 1
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                commands.AddRange(Cp852.GetBytes($"Použitý poukaz: -{receipt.GiftCardRedemptionAmount:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
+                // Bold OFF: ESC E 0
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
             }
 
-            // VAT breakdown (only for VAT payers)
+            // === VAT BREAKDOWN (only for VAT payers) ===
             if (receipt.IsVatPayer && receipt.Items != null && receipt.Items.Count > 0)
             {
-                commands.Add(e.PrintLine(""));
-                commands.Add(e.PrintLine("DPH:"));
+                commands.AddRange(new byte[] { 0x0A });
+                commands.AddRange(Cp852.GetBytes("DPH:"));
+                commands.AddRange(new byte[] { 0x0A });
 
                 // Group items by VAT rate
                 var vatGroups = receipt.Items
@@ -329,65 +403,80 @@ namespace Sklad_2.Services
                     var totalVatAmount = group.Sum(item => item.VatAmount);
                     var totalWithoutVat = group.Sum(item => item.PriceWithoutVat);
 
-                    commands.Add(e.PrintLine($"  Základ {vatRate}%: {totalWithoutVat:N2} Kč"));
-                    commands.Add(e.PrintLine($"  DPH {vatRate}%: {totalVatAmount:N2} Kč"));
+                    commands.AddRange(Cp852.GetBytes($"  Základ {vatRate}%: {totalWithoutVat:N2} Kč"));
+                    commands.AddRange(new byte[] { 0x0A });
+                    commands.AddRange(Cp852.GetBytes($"  DPH {vatRate}%: {totalVatAmount:N2} Kč"));
+                    commands.AddRange(new byte[] { 0x0A });
                 }
 
-                commands.Add(e.PrintLine(""));
-                commands.Add(e.PrintLine($"Celkem bez DPH: {receipt.TotalAmountWithoutVat:N2} Kč"));
-                commands.Add(e.PrintLine($"Celkem DPH: {receipt.TotalVatAmount:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
+                commands.AddRange(Cp852.GetBytes($"Celkem bez DPH: {receipt.TotalAmountWithoutVat:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
+                commands.AddRange(Cp852.GetBytes($"Celkem DPH: {receipt.TotalVatAmount:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
             }
 
-            // Total amount
-            commands.Add(e.PrintLine(""));
-            commands.Add(e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight));
+            // === TOTAL AMOUNT ===
+            commands.AddRange(new byte[] { 0x0A });
+            // Bold ON + Double height: ESC E 1, GS ! 0x10
+            commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+            commands.AddRange(new byte[] { 0x1D, 0x21, 0x10 });
 
             if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
             {
-                commands.Add(e.PrintLine($"K ÚHRADĚ: {receipt.AmountToPay:N2} Kč"));
+                commands.AddRange(Cp852.GetBytes($"K ÚHRADĚ: {receipt.AmountToPay:N2} Kč"));
             }
             else
             {
-                commands.Add(e.PrintLine($"CELKEM: {receipt.TotalAmount:N2} Kč"));
+                commands.AddRange(Cp852.GetBytes($"CELKEM: {receipt.TotalAmount:N2} Kč"));
             }
+            commands.AddRange(new byte[] { 0x0A });
 
-            commands.Add(e.SetStyles(PrintStyle.None));
+            // Reset styles: ESC E 0, GS ! 0
+            commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+            commands.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
 
-            // Payment method
-            commands.Add(e.PrintLine(""));
-            commands.Add(e.PrintLine($"Platba: {receipt.PaymentMethod}"));
+            // === PAYMENT METHOD ===
+            commands.AddRange(new byte[] { 0x0A });
+            commands.AddRange(Cp852.GetBytes($"Platba: {receipt.PaymentMethod}"));
+            commands.AddRange(new byte[] { 0x0A });
 
             // Received amount and change (for cash payments)
             if (receipt.ReceivedAmount > 0)
             {
-                commands.Add(e.PrintLine($"Přijato: {receipt.ReceivedAmount:N2} Kč"));
+                commands.AddRange(Cp852.GetBytes($"Přijato: {receipt.ReceivedAmount:N2} Kč"));
+                commands.AddRange(new byte[] { 0x0A });
                 if (receipt.ChangeAmount > 0)
                 {
-                    commands.Add(e.PrintLine($"Vráceno: {receipt.ChangeAmount:N2} Kč"));
+                    commands.AddRange(Cp852.GetBytes($"Vráceno: {receipt.ChangeAmount:N2} Kč"));
+                    commands.AddRange(new byte[] { 0x0A });
                 }
             }
 
-            // Footer
-            commands.Add(e.PrintLine(""));
-            commands.Add(e.CenterAlign());
+            // === FOOTER ===
+            commands.AddRange(new byte[] { 0x0A });
+            // Center align: ESC a 1
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
 
             if (receipt.IsVatPayer)
             {
-                commands.Add(e.SetStyles(PrintStyle.Bold));
-                commands.Add(e.PrintLine("DAŇOVÝ DOKLAD"));
-                commands.Add(e.SetStyles(PrintStyle.None));
-                commands.Add(e.PrintLine(""));
+                // Bold ON: ESC E 1
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                commands.AddRange(Cp852.GetBytes("DAŇOVÝ DOKLAD"));
+                commands.AddRange(new byte[] { 0x0A });
+                // Bold OFF: ESC E 0
+                commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+                commands.AddRange(new byte[] { 0x0A });
             }
 
-            commands.Add(e.PrintLine("Děkujeme za nákup!"));
-            commands.Add(e.PrintLine(""));
+            commands.AddRange(Cp852.GetBytes("Děkujeme za nákup!"));
+            commands.AddRange(new byte[] { 0x0A });
 
-            // Cut paper
-            commands.Add(e.PrintLine(""));
-            commands.Add(e.PrintLine(""));
-            commands.Add(e.FullCutAfterFeed(3));
+            // Feed and cut: GS V 66 3
+            commands.AddRange(new byte[] { 0x0A, 0x0A, 0x0A });
+            commands.AddRange(new byte[] { 0x1D, 0x56, 0x42, 0x03 });
 
-            return ByteSplicer.Combine(commands.ToArray());
+            return commands;
         }
     }
 }

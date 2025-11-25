@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using Sklad_2.Models;
+using Sklad_2.Services;
 using System;
 
 namespace Sklad_2.Views
@@ -309,7 +310,8 @@ namespace Sklad_2.Views
             if (ViewModel.IsCheckoutSuccessful)
             {
                 var createdReceipt = ViewModel.LastCreatedReceipt;
-                var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt)
+                var printService = (Application.Current as App).Services.GetRequiredService<IPrintService>();
+                var finalReceiptPreviewDialog = new ReceiptPreviewDialog(createdReceipt, printService)
                 {
                     XamlRoot = this.XamlRoot,
                 };
