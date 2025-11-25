@@ -21,3 +21,4 @@ Bundle/
 
 # Ignore Rider files
 .idea/
+publish/

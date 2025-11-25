@@ -144,6 +144,7 @@ namespace Sklad_2
             services.AddSingleton<IPrintService, EscPosPrintService>(); // Epson TM-T20III (ESC/POS)
             services.AddSingleton<ICashRegisterService, CashRegisterService>();
             services.AddSingleton<IGiftCardService, GiftCardService>();
+            services.AddSingleton<IUpdateService, UpdateService>();
             services.AddSingleton<IAuthService>(sp => new AuthService(
                 sp.GetRequiredService<IMessenger>(),
                 sp.GetRequiredService<IDataService>()));
