@@ -6,7 +6,9 @@ using Sklad_2.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Ports;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Sklad_2.Services
@@ -18,6 +20,14 @@ namespace Sklad_2.Services
     public class EscPosPrintService : IPrintService
     {
         private readonly ISettingsService _settingsService;
+        private static readonly Encoding Cp852;
+
+        static EscPosPrintService()
+        {
+            // Register CodePages provider for CP852 (Central European DOS encoding)
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Cp852 = Encoding.GetEncoding(852);
+        }
 
         public EscPosPrintService(ISettingsService settingsService)
         {
@@ -57,46 +67,76 @@ namespace Sklad_2.Services
         {
             try
             {
-                // Save current path temporarily
-                var originalPath = _settingsService.CurrentSettings.PrinterPath;
-                _settingsService.CurrentSettings.PrinterPath = printerPath;
-
-                using var printer = CreatePrinter();
-
-                // Restore original path
-                _settingsService.CurrentSettings.PrinterPath = originalPath;
-
-                if (printer == null)
+                // Validate COM port format
+                if (!IsComPort(printerPath))
                 {
-                    Debug.WriteLine("EscPosPrintService: Failed to create printer for test");
+                    Debug.WriteLine($"EscPosPrintService: Invalid COM port format: {printerPath}");
                     return false;
                 }
 
-                var e = new EPSON();
+                Debug.WriteLine($"EscPosPrintService: Opening SerialPort on {printerPath}");
 
-                var connectionType = IsComPort(printerPath) ? $"Serial ({printerPath})" : "USB Direct";
+                // Use direct SerialPort instead of ESCPOS_NET SerialPrinter
+                await Task.Run(() =>
+                {
+                    using var port = new SerialPort(printerPath)
+                    {
+                        BaudRate = 38400,
+                        Parity = Parity.None,
+                        DataBits = 8,
+                        StopBits = StopBits.One,
+                        Handshake = Handshake.None,
+                        WriteTimeout = 5000
+                    };
 
-                var testData = ByteSplicer.Combine(
-                    e.CenterAlign(),
-                    e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight),
-                    e.PrintLine("TEST TISKU"),
-                    e.SetStyles(PrintStyle.None),
-                    e.PrintLine(""),
-                    e.LeftAlign(),
-                    e.PrintLine("Tiskarna je pripojena"),
-                    e.PrintLine($"Typ: {connectionType}"),
-                    e.PrintLine($"Cas: {DateTime.Now:dd.MM.yyyy HH:mm:ss}"),
-                    e.PrintLine(""),
-                    e.PrintLine("Ceske znaky: escrzyaie"),
-                    e.PrintLine(""),
-                    e.CenterAlign(),
-                    e.PrintLine("Test uspesny"),
-                    e.PrintLine(""),
-                    e.PrintLine(""),
-                    e.FullCutAfterFeed(3)
-                );
+                    port.Open();
+                    Debug.WriteLine($"EscPosPrintService: Port opened successfully");
 
-                await Task.Run(() => printer.Write(testData));
+                    // ESC/POS commands
+                    var commands = new List<byte>();
+
+                    // Initialize printer: ESC @
+                    commands.AddRange(new byte[] { 0x1B, 0x40 });
+
+                    // Center align: ESC a 1
+                    commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
+
+                    // Bold ON + Double height: ESC E 1, GS ! 0x10
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                    commands.AddRange(new byte[] { 0x1D, 0x21, 0x10 });
+
+                    // Print "TEST TISKU"
+                    commands.AddRange(Cp852.GetBytes("TEST TISKU\n"));
+
+                    // Reset styles: ESC E 0, GS ! 0
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+                    commands.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
+
+                    // Left align: ESC a 0
+                    commands.AddRange(new byte[] { 0x1B, 0x61, 0x00 });
+
+                    // Print info
+                    commands.AddRange(Cp852.GetBytes("\n"));
+                    commands.AddRange(Cp852.GetBytes("Tiskarna je pripojena\n"));
+                    commands.AddRange(Cp852.GetBytes($"Port: {printerPath}\n"));
+                    commands.AddRange(Cp852.GetBytes($"Cas: {DateTime.Now:dd.MM.yyyy HH:mm:ss}\n"));
+                    commands.AddRange(Cp852.GetBytes("\n"));
+                    commands.AddRange(Cp852.GetBytes("Ceske znaky: ěščřžýáíé\n"));
+                    commands.AddRange(Cp852.GetBytes("\n"));
+
+                    // Center align
+                    commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
+                    commands.AddRange(Cp852.GetBytes("Test uspesny!\n"));
+
+                    // Feed and cut: GS V 66 3
+                    commands.AddRange(new byte[] { 0x0A, 0x0A, 0x0A });
+                    commands.AddRange(new byte[] { 0x1D, 0x56, 0x42, 0x03 });
+
+                    port.Write(commands.ToArray(), 0, commands.Count);
+                    Debug.WriteLine($"EscPosPrintService: Wrote {commands.Count} bytes");
+
+                    port.Close();
+                });
 
                 Debug.WriteLine($"EscPosPrintService: Test print successful on {printerPath}");
                 return true;
@@ -112,9 +152,23 @@ namespace Sklad_2.Services
         {
             try
             {
-                // Try to create printer connection - if successful, printer is connected
-                using var printer = CreatePrinter();
-                return printer != null;
+                var printerPath = _settingsService.CurrentSettings.PrinterPath;
+
+                if (string.IsNullOrWhiteSpace(printerPath) || !IsComPort(printerPath))
+                {
+                    return false;
+                }
+
+                // Try to open and immediately close the COM port to verify it exists
+                using var port = new SerialPort(printerPath)
+                {
+                    BaudRate = 38400,
+                    ReadTimeout = 500,
+                    WriteTimeout = 500
+                };
+                port.Open();
+                port.Close();
+                return true;
             }
             catch
             {
@@ -142,7 +196,7 @@ namespace Sklad_2.Services
                 if (IsComPort(printerPath))
                 {
                     Debug.WriteLine($"EscPosPrintService: Using Serial connection on {printerPath}");
-                    return new SerialPrinter(portName: printerPath, baudRate: 115200);
+                    return new SerialPrinter(portName: printerPath, baudRate: 38400);
                 }
 
                 // Invalid path

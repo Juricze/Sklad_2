@@ -17,7 +17,37 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 25. listopad 2025**
+## 📅 **Poslední session: 25. listopad 2025 (odpoledne)**
+
+### ✅ Hotovo:
+**Funkční tisk na Epson TM-T20III přes COM port**
+
+**Klíčové změny této session:**
+
+1. **EscPosPrintService.cs - přepis na přímý SerialPort**
+   - ESCPOS_NET SerialPrinter nefungoval s Epson Virtual COM Port
+   - Přepsáno na přímý `System.IO.Ports.SerialPort`
+   - Přidán `CodePagesEncodingProvider` pro CP852 (české znaky)
+   - Raw ESC/POS příkazy (inicializace, styly, řez papíru)
+   - Baud rate: 38400 (výchozí pro TM-T20III)
+
+2. **Ukládání nastavení tiskárny**
+   - Přidáno tlačítko "Uložit" vedle "Test tisku"
+   - Nový command `SavePrinterSettingsCommand`
+   - Posílá `SettingsChangedMessage` pro refresh StatusBaru
+
+3. **IsPrinterConnected() - skutečná kontrola**
+   - Nyní skutečně testuje otevření COM portu
+   - StatusBar zobrazí "Připojena" po uložení platného COM portu
+
+**Testováno:**
+- ✅ Test tisku funguje (COM1)
+- ✅ Nastavení se ukládá
+- ✅ StatusBar se aktualizuje
+
+---
+
+## 📅 **Předchozí session: 25. listopad 2025 (ráno)**
 
 ### ✅ Hotovo:
 **Implementace PrintService pro Epson TM-T20III + Opravy**

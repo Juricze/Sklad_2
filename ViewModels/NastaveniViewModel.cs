@@ -370,6 +370,21 @@ namespace Sklad_2.ViewModels
         }
 
         [RelayCommand]
+        private async Task SavePrinterSettingsAsync()
+        {
+            try
+            {
+                await _settingsService.SaveSettingsAsync();
+                _messenger.Send(new SettingsChangedMessage());
+                TestPrintStatusMessage = "Nastavení tiskárny uloženo.";
+            }
+            catch (Exception ex)
+            {
+                TestPrintStatusMessage = $"Chyba při ukládání: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
         private async Task ExportReceiptsToHtmlAsync()
         {
             ExportStatusMessage = string.Empty;

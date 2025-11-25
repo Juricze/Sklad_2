@@ -250,11 +250,18 @@
                                            FontSize="12"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            TextWrapping="Wrap"/>
-                                <Button Content="Test tisku"
-                                        Command="{x:Bind ViewModel.TestPrintCommand}"
-                                        Style="{StaticResource AccentButtonStyle}"
-                                        HorizontalAlignment="Stretch"
-                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Grid ColumnDefinitions="*,8,*">
+                                    <Button Content="Uložit"
+                                            Command="{x:Bind ViewModel.SavePrinterSettingsCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                    <Button Grid.Column="2"
+                                            Content="Test tisku"
+                                            Command="{x:Bind ViewModel.TestPrintCommand}"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            HorizontalAlignment="Stretch"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                </Grid>
 
                                 <!-- Printer Status -->
                                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
