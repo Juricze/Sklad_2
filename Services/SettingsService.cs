@@ -69,7 +69,9 @@ namespace Sklad_2.Services
 
         public bool IsBackupPathConfigured()
         {
-            return !string.IsNullOrWhiteSpace(CurrentSettings.BackupPath) && Directory.Exists(CurrentSettings.BackupPath);
+            // Check if path is configured (not empty), don't require it to exist yet
+            // The directory will be created during backup if needed
+            return !string.IsNullOrWhiteSpace(CurrentSettings.BackupPath);
         }
 
         public string GetBackupFolderPath()

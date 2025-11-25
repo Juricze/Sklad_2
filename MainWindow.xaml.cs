@@ -423,7 +423,7 @@ namespace Sklad_2
                 }
 
                 // Only backup if custom backup path is configured
-                if (!string.IsNullOrWhiteSpace(customBackupPath) && System.IO.Directory.Exists(customBackupPath))
+                if (!string.IsNullOrWhiteSpace(customBackupPath))
                 {
                     backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
                 }
