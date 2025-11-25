@@ -6,6 +6,7 @@ using Sklad_2.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,9 @@ namespace Sklad_2.Services
     {
         private readonly ISettingsService _settingsService;
         private static readonly Encoding Cp852;
+
+        // Receipt width in characters (Epson TM-T20III 80mm = 42 chars)
+        private const int RECEIPT_WIDTH = 42;
 
         static EscPosPrintService()
         {
@@ -40,11 +44,12 @@ namespace Sklad_2.Services
             {
                 var printerPath = _settingsService.CurrentSettings.PrinterPath;
 
-                // Validate COM port format
-                if (!IsComPort(printerPath))
+                // Check if printer is connected - if not, show preview instead
+                if (!IsPrinterConnected())
                 {
-                    Debug.WriteLine($"EscPosPrintService: Invalid COM port format: {printerPath}");
-                    return false;
+                    Debug.WriteLine($"EscPosPrintService: Printer not connected, showing preview instead");
+                    await GenerateTextPreviewAsync(receipt);
+                    return true; // Return true so the sale completes
                 }
 
                 Debug.WriteLine($"EscPosPrintService: Printing receipt {receipt.FormattedReceiptNumber} on {printerPath}");
@@ -80,7 +85,16 @@ namespace Sklad_2.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"EscPosPrintService: Print failed: {ex.Message}");
-                return false;
+                // On error, try to show preview as fallback
+                try
+                {
+                    await GenerateTextPreviewAsync(receipt);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -88,11 +102,29 @@ namespace Sklad_2.Services
         {
             try
             {
-                // Validate COM port format
-                if (!IsComPort(printerPath))
+                // Check if we can connect to the printer
+                bool canConnect = false;
+                if (IsComPort(printerPath))
                 {
-                    Debug.WriteLine($"EscPosPrintService: Invalid COM port format: {printerPath}");
-                    return false;
+                    try
+                    {
+                        using var testPort = new SerialPort(printerPath) { ReadTimeout = 500, WriteTimeout = 500 };
+                        testPort.Open();
+                        testPort.Close();
+                        canConnect = true;
+                    }
+                    catch
+                    {
+                        canConnect = false;
+                    }
+                }
+
+                // If printer not available, show preview
+                if (!canConnect)
+                {
+                    Debug.WriteLine($"EscPosPrintService: Printer not available, showing test preview");
+                    await GenerateTestPreviewAsync(printerPath);
+                    return true;
                 }
 
                 Debug.WriteLine($"EscPosPrintService: Opening SerialPort on {printerPath}");
@@ -175,7 +207,16 @@ namespace Sklad_2.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"EscPosPrintService: Test print failed: {ex.Message}");
-                return false;
+                // Fallback to preview on error
+                try
+                {
+                    await GenerateTestPreviewAsync(printerPath);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -478,5 +519,294 @@ namespace Sklad_2.Services
 
             return commands;
         }
+
+        #region Text Preview (Debug Mode)
+
+        /// <summary>
+        /// Generates a text preview of the receipt for debugging without a physical printer.
+        /// Opens the preview in Notepad automatically.
+        /// </summary>
+        public async Task<string> GenerateTextPreviewAsync(Receipt receipt)
+        {
+            var sb = new StringBuilder();
+            var separator = new string('-', RECEIPT_WIDTH);
+            var doubleSeparator = new string('=', RECEIPT_WIDTH);
+
+            // Top border
+            sb.AppendLine($"|{separator}|");
+
+            // === HEADER ===
+            sb.AppendLine(FormatLine(receipt.ShopName ?? "", TextAlign.Center, bold: true));
+            sb.AppendLine(FormatLine(receipt.ShopAddress ?? "", TextAlign.Center));
+
+            if (!string.IsNullOrWhiteSpace(receipt.CompanyId))
+            {
+                sb.AppendLine(FormatLine($"IČ: {receipt.CompanyId}", TextAlign.Center));
+            }
+
+            if (receipt.IsVatPayer && !string.IsNullOrWhiteSpace(receipt.VatId))
+            {
+                sb.AppendLine(FormatLine($"DIČ: {receipt.VatId}", TextAlign.Center));
+            }
+
+            sb.AppendLine($"|{separator}|");
+
+            // === RECEIPT TYPE HEADER ===
+            if (receipt.IsStorno)
+            {
+                sb.AppendLine(FormatLine("*** STORNO ***", TextAlign.Center, bold: true));
+                if (receipt.OriginalReceiptId.HasValue)
+                {
+                    sb.AppendLine(FormatLine($"Storno účtenky #{receipt.OriginalReceiptId}", TextAlign.Center));
+                }
+                sb.AppendLine($"|{separator}|");
+            }
+            else if (receipt.ContainsGiftCardSale && receipt.GiftCardSaleAmount > 0)
+            {
+                sb.AppendLine(FormatLine("DÁRKOVÝ POUKAZ", TextAlign.Center, bold: true));
+                sb.AppendLine($"|{separator}|");
+            }
+
+            // === RECEIPT INFO ===
+            sb.AppendLine(FormatLine($"Účtenka: {receipt.FormattedReceiptNumber}", TextAlign.Left));
+            sb.AppendLine(FormatLine($"Datum: {receipt.SaleDate:dd.MM.yyyy HH:mm}", TextAlign.Left));
+            sb.AppendLine(FormatLine($"Prodejce: {receipt.SellerName}", TextAlign.Left));
+            sb.AppendLine($"|{doubleSeparator}|");
+
+            // === ITEMS ===
+            if (receipt.Items != null && receipt.Items.Count > 0)
+            {
+                foreach (var item in receipt.Items)
+                {
+                    sb.AppendLine(FormatLine(item.ProductName ?? "", TextAlign.Left));
+
+                    if (item.HasDiscount)
+                    {
+                        sb.AppendLine(FormatLine(
+                            $"  {item.Quantity}x {item.OriginalUnitPrice:N2} Kč {item.DiscountPercentFormatted}",
+                            TextAlign.Left));
+                        sb.AppendLine(FormatLineWithPrice(
+                            $"  Po slevě: {item.UnitPrice:N2} Kč",
+                            $"{item.TotalPrice:N2} Kč"));
+                    }
+                    else
+                    {
+                        sb.AppendLine(FormatLineWithPrice(
+                            $"  {item.Quantity}x {item.UnitPrice:N2} Kč",
+                            $"{item.TotalPrice:N2} Kč"));
+                    }
+                }
+            }
+
+            sb.AppendLine($"|{doubleSeparator}|");
+
+            // === GIFT CARD REDEMPTION ===
+            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            {
+                sb.AppendLine(FormatLineWithPrice("Mezisoučet:", $"{receipt.TotalAmount:N2} Kč"));
+                sb.AppendLine(FormatLineWithPrice("Použitý poukaz:", $"-{receipt.GiftCardRedemptionAmount:N2} Kč", bold: true));
+                sb.AppendLine($"|{separator}|");
+            }
+
+            // === VAT BREAKDOWN ===
+            if (receipt.IsVatPayer && receipt.Items != null && receipt.Items.Count > 0)
+            {
+                sb.AppendLine(FormatLine("DPH:", TextAlign.Left));
+
+                var vatGroups = receipt.Items
+                    .GroupBy(item => item.VatRate)
+                    .OrderBy(g => g.Key);
+
+                foreach (var group in vatGroups)
+                {
+                    var vatRate = group.Key;
+                    var totalVatAmount = group.Sum(item => item.VatAmount);
+                    var totalWithoutVat = group.Sum(item => item.PriceWithoutVat);
+
+                    sb.AppendLine(FormatLineWithPrice($"  Základ {vatRate}%:", $"{totalWithoutVat:N2} Kč"));
+                    sb.AppendLine(FormatLineWithPrice($"  DPH {vatRate}%:", $"{totalVatAmount:N2} Kč"));
+                }
+
+                sb.AppendLine($"|{separator}|");
+                sb.AppendLine(FormatLineWithPrice("Celkem bez DPH:", $"{receipt.TotalAmountWithoutVat:N2} Kč"));
+                sb.AppendLine(FormatLineWithPrice("Celkem DPH:", $"{receipt.TotalVatAmount:N2} Kč"));
+                sb.AppendLine($"|{separator}|");
+            }
+
+            // === TOTAL ===
+            sb.AppendLine(FormatLine("", TextAlign.Left)); // Empty line
+
+            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            {
+                sb.AppendLine(FormatLine($"*** K ÚHRADĚ: {receipt.AmountToPay:N2} Kč ***", TextAlign.Center, bold: true));
+            }
+            else
+            {
+                sb.AppendLine(FormatLine($"*** CELKEM: {receipt.TotalAmount:N2} Kč ***", TextAlign.Center, bold: true));
+            }
+
+            sb.AppendLine(FormatLine("", TextAlign.Left)); // Empty line
+
+            // === PAYMENT ===
+            sb.AppendLine(FormatLine($"Platba: {receipt.PaymentMethod}", TextAlign.Left));
+
+            if (receipt.ReceivedAmount > 0)
+            {
+                sb.AppendLine(FormatLineWithPrice("Přijato:", $"{receipt.ReceivedAmount:N2} Kč"));
+                if (receipt.ChangeAmount > 0)
+                {
+                    sb.AppendLine(FormatLineWithPrice("Vráceno:", $"{receipt.ChangeAmount:N2} Kč"));
+                }
+            }
+
+            sb.AppendLine($"|{separator}|");
+
+            // === FOOTER ===
+            if (receipt.IsVatPayer)
+            {
+                sb.AppendLine(FormatLine("DAŇOVÝ DOKLAD", TextAlign.Center, bold: true));
+            }
+
+            sb.AppendLine(FormatLine("Děkujeme za nákup!", TextAlign.Center));
+            sb.AppendLine($"|{separator}|");
+
+            // Save and open
+            var previewText = sb.ToString();
+            var previewFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Sklad_2_Data", "receipts");
+            Directory.CreateDirectory(previewFolder);
+            var tempPath = Path.Combine(previewFolder, $"receipt_preview_{receipt.FormattedReceiptNumber?.Replace("/", "_") ?? "temp"}.txt");
+
+            await File.WriteAllTextAsync(tempPath, previewText, Encoding.UTF8);
+
+            // Open in Notepad
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "notepad.exe",
+                Arguments = tempPath,
+                UseShellExecute = true
+            });
+
+            Debug.WriteLine($"EscPosPrintService: Preview saved to {tempPath}");
+            return previewText;
+        }
+
+        /// <summary>
+        /// Generates a test print preview for debugging.
+        /// </summary>
+        public async Task<string> GenerateTestPreviewAsync(string printerPath)
+        {
+            var sb = new StringBuilder();
+            var separator = new string('-', RECEIPT_WIDTH);
+
+            sb.AppendLine($"|{separator}|");
+            sb.AppendLine(FormatLine("TEST TISKU", TextAlign.Center, bold: true));
+            sb.AppendLine($"|{separator}|");
+            sb.AppendLine(FormatLine("", TextAlign.Left));
+            sb.AppendLine(FormatLine("České znaky:", TextAlign.Center));
+            sb.AppendLine(FormatLine("ěščřžýáíéůú ĚŠČŘŽÝÁÍÉŮÚ", TextAlign.Center));
+            sb.AppendLine(FormatLine("ďťň ĎŤŇ", TextAlign.Center));
+            sb.AppendLine(FormatLine("", TextAlign.Left));
+            sb.AppendLine($"|{separator}|");
+            sb.AppendLine(FormatLine("Tiskárna NENÍ připojena", TextAlign.Left));
+            sb.AppendLine(FormatLine($"Port: {printerPath ?? "(nenastaveno)"}", TextAlign.Left));
+            sb.AppendLine(FormatLine($"Čas: {DateTime.Now:dd.MM.yyyy HH:mm:ss}", TextAlign.Left));
+            sb.AppendLine($"|{separator}|");
+            sb.AppendLine(FormatLine("", TextAlign.Left));
+            sb.AppendLine(FormatLine("Toto je NÁHLED tisku", TextAlign.Center, bold: true));
+            sb.AppendLine(FormatLine("(bez fyzické tiskárny)", TextAlign.Center));
+            sb.AppendLine($"|{separator}|");
+
+            var previewText = sb.ToString();
+            var previewFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Sklad_2_Data", "receipts");
+            Directory.CreateDirectory(previewFolder);
+            var tempPath = Path.Combine(previewFolder, "receipt_test_preview.txt");
+
+            await File.WriteAllTextAsync(tempPath, previewText, Encoding.UTF8);
+
+            // Open in Notepad
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "notepad.exe",
+                Arguments = tempPath,
+                UseShellExecute = true
+            });
+
+            Debug.WriteLine($"EscPosPrintService: Test preview saved to {tempPath}");
+            return previewText;
+        }
+
+        #region Formatting Helpers
+
+        private enum TextAlign { Left, Center, Right }
+
+        /// <summary>
+        /// Formats a line with alignment within the receipt width.
+        /// </summary>
+        private string FormatLine(string text, TextAlign align, bool bold = false)
+        {
+            // Truncate if too long
+            if (text.Length > RECEIPT_WIDTH)
+            {
+                text = text.Substring(0, RECEIPT_WIDTH);
+            }
+
+            string content;
+            switch (align)
+            {
+                case TextAlign.Center:
+                    var leftPad = (RECEIPT_WIDTH - text.Length) / 2;
+                    var rightPad = RECEIPT_WIDTH - text.Length - leftPad;
+                    content = new string(' ', leftPad) + text + new string(' ', rightPad);
+                    break;
+                case TextAlign.Right:
+                    content = text.PadLeft(RECEIPT_WIDTH);
+                    break;
+                case TextAlign.Left:
+                default:
+                    content = text.PadRight(RECEIPT_WIDTH);
+                    break;
+            }
+
+            // Add bold markers for visual indication
+            if (bold)
+            {
+                return $"|{content}|";
+            }
+
+            return $"|{content}|";
+        }
+
+        /// <summary>
+        /// Formats a line with left text and right-aligned price.
+        /// </summary>
+        private string FormatLineWithPrice(string leftText, string rightText, bool bold = false)
+        {
+            var totalLen = leftText.Length + rightText.Length;
+
+            if (totalLen > RECEIPT_WIDTH)
+            {
+                // Truncate left text if needed
+                var maxLeftLen = RECEIPT_WIDTH - rightText.Length - 1;
+                if (maxLeftLen > 0)
+                {
+                    leftText = leftText.Substring(0, Math.Min(leftText.Length, maxLeftLen));
+                }
+            }
+
+            var spaces = RECEIPT_WIDTH - leftText.Length - rightText.Length;
+            if (spaces < 1) spaces = 1;
+
+            var content = leftText + new string(' ', spaces) + rightText;
+
+            return $"|{content}|";
+        }
+
+        #endregion
+
+        #endregion
     }
 }

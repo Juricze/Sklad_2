@@ -408,7 +408,7 @@ namespace Sklad_2
                 string backupFolderPath;
 
                 // Try to read custom path from settings file directly
-                var settingsPath = System.IO.Path.Combine(sourceFolderPath, "AppSettings.json");
+                var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                 string customBackupPath = null;
 
                 if (System.IO.File.Exists(settingsPath))
@@ -441,8 +441,8 @@ namespace Sklad_2
                 {
                     System.IO.File.Copy(sourceDbPath, backupFilePath, true);
 
-                    var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "AppSettings.json");
-                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "AppSettings.json");
+                    var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
+                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
                     if (System.IO.File.Exists(sourceSettingsPath))
                     {
                         System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
