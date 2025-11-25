@@ -9,10 +9,20 @@ namespace Sklad_2.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is bool isError)
+            if (value is bool boolValue)
             {
-                // Error = Red, Success = Green
-                return new SolidColorBrush(isError ? Colors.Red : Colors.Green);
+                string parameterString = parameter?.ToString();
+                
+                if (parameterString == "BackupPath")
+                {
+                    // For backup path: true = blue (configured), false = red (not configured)
+                    return new SolidColorBrush(boolValue ? Microsoft.UI.ColorHelper.FromArgb(255, 0, 122, 255) : Colors.Red);
+                }
+                else
+                {
+                    // Default behavior: Error = Red, Success = Green
+                    return new SolidColorBrush(boolValue ? Colors.Red : Colors.Green);
+                }
             }
             return new SolidColorBrush(Colors.Gray);
         }

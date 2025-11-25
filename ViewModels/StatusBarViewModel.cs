@@ -39,6 +39,10 @@ namespace Sklad_2.ViewModels
         [NotifyPropertyChangedFor(nameof(DatabaseStatusText), nameof(DatabaseStatusColor))]
         private bool isDatabaseOk;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(BackupPathStatusText), nameof(BackupPathStatusColor))]
+        private bool isBackupPathConfigured;
+
         // Status texts
         public string PrinterStatusText => IsPrinterConnected ? "Připojena" : "Odpojena";
         public string DayCloseStatusText => IsDayClosedToday ? "Provedena" : "Neprovedena";
@@ -46,10 +50,12 @@ namespace Sklad_2.ViewModels
         public string CompanyInfoStatusText => IsCompanyInfoComplete ? "Vyplněno" : "Nevyplněno";
         public string VatConfigStatusText => IsVatConfigComplete ? "Nastaveno" : "Nenastaveno";
         public string DatabaseStatusText => IsDatabaseOk ? "OK" : "Chyba";
+        public string BackupPathStatusText => IsBackupPathConfigured ? "Nastavena" : "CHYBA";
 
         // Status colors
         public string PrinterStatusColor => IsPrinterConnected ? "#34C759" : "#FF3B30";
         public string DayCloseStatusColor => IsDayClosedToday ? "#34C759" : "#FF9500";
+        public string BackupPathStatusColor => IsBackupPathConfigured ? "#34C759" : "#FF3B30";
         public string VatPayerStatusColor => "#007AFF";
         public string CompanyInfoStatusColor => IsCompanyInfoComplete ? "#34C759" : "#FF9500";
         public string VatConfigStatusColor => IsVatConfigComplete ? "#34C759" : "#FF9500";
@@ -95,6 +101,9 @@ namespace Sklad_2.ViewModels
             // Check VAT config
             var vatConfigs = await _dataService.GetVatConfigsAsync();
             IsVatConfigComplete = vatConfigs.Any();
+
+            // Check backup path status
+            IsBackupPathConfigured = _settingsService.IsBackupPathConfigured();
 
             // Check database status
             try

@@ -14,7 +14,10 @@
       "Bash(Select-Object -First 20)",
       "Bash(rm:*)",
       "Bash(dotnet clean:*)",
-      "Bash(msbuild:*)"
+      "Bash(msbuild:*)",
+      "Bash(dotnet tool install:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

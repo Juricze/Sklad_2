@@ -52,7 +52,12 @@ namespace Sklad_2.ViewModels
         private string backupStatusMessage;
 
         [ObservableProperty]
+        private string backupStatusColor = "#000000";
+
+        [ObservableProperty]
         private string activeBackupPath;
+
+        public bool IsBackupPathConfigured => _settingsService.IsBackupPathConfigured();
 
         [ObservableProperty]
         private string testPrintStatusMessage;
@@ -232,7 +237,16 @@ namespace Sklad_2.ViewModels
             {
                 await _settingsService.SaveSettingsAsync();
                 UpdateActiveBackupPath();
+                
+                // Notify status bar changes
+                _messenger.Send(new SettingsChangedMessage());
+                
                 BackupStatusMessage = "Cesta pro zálohy byla úspěšně uložena.";
+                
+                // Small delay to allow UI to update, then refresh animation state
+                await Task.Delay(100);
+                OnPropertyChanged(nameof(IsBackupPathConfigured));
+                
                 await Task.Delay(3000);
                 BackupStatusMessage = string.Empty;
             }
@@ -244,8 +258,16 @@ namespace Sklad_2.ViewModels
 
         private void UpdateActiveBackupPath()
         {
-            var path = _settingsService.GetBackupFolderPath();
-            ActiveBackupPath = $"Aktivní cesta: {path}";
+            if (_settingsService.IsBackupPathConfigured())
+            {
+                var path = _settingsService.GetBackupFolderPath();
+                ActiveBackupPath = $"Aktivní cesta: {path}";
+            }
+            else
+            {
+                ActiveBackupPath = "Aktivní cesta: NENÍ NASTAVENA - nastavte cestu pro zálohy";
+            }
+            OnPropertyChanged(nameof(IsBackupPathConfigured));
         }
 
         [RelayCommand]
@@ -276,7 +298,14 @@ namespace Sklad_2.ViewModels
                 var sourceFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = Path.Combine(sourceFolderPath, "sklad.db");
 
-                // Priority: BackupPath → OneDrive → Documents
+                // Check if backup path is configured
+                if (!_settingsService.IsBackupPathConfigured())
+                {
+                    BackupStatusMessage = "Chyba: Cesta pro zálohy není nastavena. Přejděte do Nastavení → Systém a nastavte cestu.";
+                    BackupStatusColor = "#FF3B30";
+                    return;
+                }
+
                 string backupFolderPath = _settingsService.GetBackupFolderPath();
 
                 Directory.CreateDirectory(backupFolderPath);
@@ -296,15 +325,18 @@ namespace Sklad_2.ViewModels
                     }
 
                     BackupStatusMessage = $"Databáze úspěšně synchronizována do: {backupFilePath}";
+                    BackupStatusColor = "#34C759"; // Green for success
                 }
                 else
                 {
                     BackupStatusMessage = "Chyba: Soubor databáze nebyl nalezen.";
+                    BackupStatusColor = "#FF3B30"; // Red for error
                 }
             }
             catch (Exception ex)
             {
                 BackupStatusMessage = $"Chyba při synchronizaci databáze: {ex.Message}";
+                BackupStatusColor = "#FF3B30"; // Red for error
             }
             await Task.CompletedTask;
         }
@@ -363,6 +395,13 @@ namespace Sklad_2.ViewModels
 
                 // Generate HTML
                 var html = GenerateReceiptsHtml(receipts, startDate, endDate);
+
+                // Check if backup path is configured
+                if (!_settingsService.IsBackupPathConfigured())
+                {
+                    ExportStatusMessage = "Chyba: Cesta pro zálohy není nastavena. Export není možný.";
+                    return;
+                }
 
                 // Save to backup folder (same as database backups)
                 var exportFolderPath = _settingsService.GetBackupFolderPath();

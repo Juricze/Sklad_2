@@ -86,7 +86,12 @@ namespace Sklad_2
                 var localFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
                 var localDbPath = System.IO.Path.Combine(localFolderPath, "sklad.db");
 
-                // Priority: BackupPath → OneDrive → Documents
+                // Only check backup if backup path is configured
+                if (!settingsService.IsBackupPathConfigured())
+                {
+                    return; // No backup path configured
+                }
+
                 var backupFolderPath = settingsService.GetBackupFolderPath();
                 var backupDbPath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
 

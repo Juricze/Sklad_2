@@ -67,23 +67,21 @@ namespace Sklad_2.Services
             Debug.WriteLine($"Settings saved. LastSaleLoginDate: {CurrentSettings.LastSaleLoginDate}");
         }
 
+        public bool IsBackupPathConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(CurrentSettings.BackupPath) && Directory.Exists(CurrentSettings.BackupPath);
+        }
+
         public string GetBackupFolderPath()
         {
-            // Priority 1: Custom BackupPath from settings
-            if (!string.IsNullOrWhiteSpace(CurrentSettings.BackupPath) && Directory.Exists(CurrentSettings.BackupPath))
+            // Only return path if explicitly configured by user
+            if (IsBackupPathConfigured())
             {
                 return Path.Combine(CurrentSettings.BackupPath, "Sklad_2_Data");
             }
 
-            // Priority 2: OneDrive
-            string oneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
-            if (!string.IsNullOrEmpty(oneDrivePath) && Directory.Exists(oneDrivePath))
-            {
-                return Path.Combine(oneDrivePath, "Sklad_2_Data");
-            }
-
-            // Priority 3: Documents (fallback)
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
+            // No fallback - force user to configure backup path
+            throw new InvalidOperationException("Backup path is not configured. Please set backup path in Settings.");
         }
     }
 }

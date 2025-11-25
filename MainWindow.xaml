@@ -7,7 +7,7 @@
     xmlns:views="using:Sklad_2.Views"
     mc:Ignorable="d">
 
-    <Grid Background="Transparent">
+    <Grid Background="Transparent" x:Name="RootGrid">
         <NavigationView x:Name="NavView" IsBackButtonVisible="Collapsed" IsSettingsVisible="true" PaneDisplayMode="Left" IsPaneOpen="True" PaneTitle="Sklad App" ItemInvoked="NavView_ItemInvoked">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Prodej" Tag="Prodej" Icon="Shop"/>
@@ -77,6 +77,15 @@
                                     <TextBlock FontSize="11" Foreground="#666666">
                                         <Run Text="DPH:"/>
                                         <Run Text="{x:Bind StatusBarVM.VatPayerStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.VatPayerStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Backup Path -->
+                                <StackPanel x:Name="BackupPathStatusPanel" Orientation="Horizontal" Spacing="6" Loaded="BackupPathStatusPanel_Loaded">
+                                    <FontIcon Glyph="&#xE8B5;" FontSize="12" Foreground="{x:Bind StatusBarVM.BackupPathStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="Zálohy:"/>
+                                        <Run Text="{x:Bind StatusBarVM.BackupPathStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.BackupPathStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
 
