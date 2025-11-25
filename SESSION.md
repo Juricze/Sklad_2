@@ -20,81 +20,99 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 ## 📅 **Poslední session: 25. listopad 2025**
 
 ### ✅ Hotovo:
-**Dokončení systému backup cesty - navigace do System panelu**
+**Implementace PrintService pro Epson TM-T20III + Opravy**
 
-**Upraveno 2 soubory:**
-- Views (1): NastaveniPage.xaml.cs - přidána NavigateToSystemPanel() metoda
-- Main (1): MainWindow.xaml.cs - integrace navigace do ShowBackupPathRequiredDialog()
+**Upraveno/vytvořeno 8 souborů:**
+1. **Services/EscPosPrintService.cs** (NOVÝ) - kompletní implementace ESC/POS tisku
+2. Services/IPrintService.cs - oprava interface (Receipt místo IReceiptService)
+3. Services/PrintService.cs - placeholder aktualizace
+4. Services/SettingsService.cs - oprava backup path validace
+5. MainWindow.xaml.cs - oprava backup path kontroly
+6. Services/DatabaseMigrationService.cs - oprava migračního systému pro nové DB
+7. App.xaml.cs - registrace EscPosPrintService
+8. Views/NastaveniPage.xaml - UI pro COM port + poznámka o driveru
+9. ViewModels/StatusBarViewModel.cs - skutečná kontrola připojení tiskárny
 
 **Klíčové změny:**
-- ✅ **Navigace z backup dialogu** - tlačítko "Jít do Nastavení" nyní otevře přímo System panel
-- ✅ **Automatické nastavení NavigationView** - správně označí System jako vybranou položku
-- ✅ **Dokončení backup path systému** - kompletní workflow od dialogu k nastavení cesty
+
+**1. Oprava migračního systému (DatabaseMigrationService.cs):**
+- Problém: Nová DB vytvořená přes EnsureCreated() měla verzi 0 a snažila se aplikovat všechny migrace → "duplicate column" chyby
+- Řešení: Detekce nově vytvořené DB → nastavení verze rovnou na CURRENT_SCHEMA_VERSION
+- Metoda EnsureDatabaseExistsAsync() kontroluje existenci před EnsureCreated()
+
+**2. Oprava backup path validace (SettingsService.cs + MainWindow.xaml.cs):**
+- Problém: IsBackupPathConfigured() kontroloval Directory.Exists() → pokud složka neexistovala, backup se přeskočil
+- Řešení: Odstranění Directory.Exists() z validace - složka se vytvoří automaticky při backupu
+- Nyní stačí nastavit cestu (neprázdný string) a backup funguje
+
+**3. Implementace EscPosPrintService:**
+- NuGet balíček: ESCPOS_NET 3.0.0
+- Podpora SerialPrinter (COM port) - ESCPOS_NET 3.0 odstranil UsbPrinter!
+- Formátování účtenek: tučné texty, dvojitá výška, zarovnání, řez papíru
+- Podpora všech typů účtenek:
+  - Běžné prodeje
+  - Storno (negativní hodnoty, označení ❌)
+  - Dárkové poukazy (prodej + uplatnění)
+- DPH rozpad pro plátce DPH (seskupený podle sazeb)
+- Podpora slev na položkách (zobrazení původní ceny)
+- Platební metody (hotovost s vrácením, karta)
+- Test tisku s info o připojení
 
 **Technické detaily:**
 
-1. **NavigateToSystemPanel() metoda v NastaveniPage.xaml.cs**:
-   ```csharp
-   public void NavigateToSystemPanel()
-   {
-       // Skrýt všechny panely
-       CompanySettingsPanel.Visibility = Visibility.Collapsed;
-       VatSettingsPanel.Visibility = Visibility.Collapsed;
-       CategoriesPanel.Visibility = Visibility.Collapsed;
-       UsersPanel.Visibility = Visibility.Collapsed;
-       SystemSettingsPanel.Visibility = Visibility.Visible;
-       AboutPanel.Visibility = Visibility.Collapsed;
+1. **EscPosPrintService.cs - hlavní metody**:
+   - `PrintReceiptAsync(Receipt)` - kompletní tisk účtenky
+   - `TestPrintAsync(string)` - test tisku s info o připojení
+   - `IsPrinterConnected()` - kontrola připojení tiskárny
+   - `CreatePrinter()` - vytvoření SerialPrinter instance
+   - `BuildReceiptData()` - sestavení ESC/POS příkazů
 
-       // Nastavit vybranou položku v NavigationView
-       foreach (var item in NavView.MenuItems)
-       {
-           if (item is NavigationViewItem navItem && navItem.Tag?.ToString() == "System")
-           {
-               NavView.SelectedItem = navItem;
-               break;
-           }
-       }
-   }
+2. **ESCPOS_NET 3.0.0 API**:
+   ```csharp
+   var printer = new SerialPrinter(portName: "COM5", baudRate: 115200);
+   var e = new EPSON();
+
+   var commands = new List<byte[]> {
+       e.CenterAlign(),
+       e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight),
+       e.PrintLine("TEXT"),
+       e.FullCutAfterFeed(3)  // Řez papíru
+   };
+
+   var data = ByteSplicer.Combine(commands.ToArray());
+   printer.Write(data);
    ```
 
-2. **Integrace v ShowBackupPathRequiredDialog() - MainWindow.xaml.cs**:
-   ```csharp
-   if (result == ContentDialogResult.Primary)
-   {
-       // Navigate to Settings
-       NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
-           .FirstOrDefault(item => item.Tag?.ToString() == "Nastaveni");
-       var settingsPage = new Views.NastaveniPage();
-       ContentFrame.Content = settingsPage;
-       
-       // Navigate directly to System panel
-       settingsPage.NavigateToSystemPanel();
-   }
-   ```
+3. **Proč SerialPrinter (COM port)?**
+   - ESCPOS_NET 3.0.0 ODSTRANIL třídu `UsbPrinter`
+   - `DirectPrinter` má jinou signaturu - není wrapper pro Windows tiskárny
+   - Řešení: **TMS Virtual Port Driver** vytvoří COM port pro USB tiskárnu
+   - Průmyslový standard pro POS tiskárny - nejspolehlivější
 
-   **Proč to bylo potřeba:**
-   - Uživatel po kliknutí na "Jít do Nastavení" v backup dialogu je automaticky přesunut přímo do System panelu
-   - Nemusí ručně hledat správnou kartu - UX je plynulé
-   - Navigace je přesná a deterministic
-
-**Výsledný stav Backup Path systému:**
-- 🛡️ **Povinné nastavení** - aplikace se nespustí bez nastavené backup cesty
-- ⚠️ **Warning v Status Bar** - blikající "CHYBA" pokud není nastavena cesta
-- 🚫 **Blokování funkcionalita** - prodeje a operace nejsou možné bez backup cesty
-- 📂 **Dialog s instrukcemi** - jasné pokyny pro uživatele
-- 🎯 **Přímá navigace** - tlačítko "Jít do Nastavení" otevře přímo System panel
+**⏸️ AKTUÁLNÍ STAV (čeká se na restart PC):**
+- ✅ Kód implementován a zkompilován
+- ✅ Git commity vytvořeny (3 commity)
+- ⏳ **Čeká se**: Instalace TMS Virtual Port Driver v8.70a
+- ⏳ **Čeká se**: Restart PC
+- ⏳ **Čeká se**: Zjištění COM portu (Device Manager)
+- ⏳ **Čeká se**: Test tisku v aplikaci
 
 ### 🧪 Otestováno:
-- ✅ Dialog při spuštění - zobrazí se když cesta není nastavena
-- ✅ Status Bar blinking - bliká červenou dokud není nastavena
-- ✅ Navigace do System panelu - přímý přesun na správnou kartu
-- ✅ Build bez chyb - kompilace proběhla úspěšně
+- ✅ Build bez chyb - všechny 3 commity zkompilované úspěšně
+- ✅ Database migration fix - nové DB se vytvoří s správnou verzí
+- ✅ Backup path fix - backup funguje i když složka neexistuje
+- ⏳ **Zbývá otestovat**: Skutečný tisk na tiskárně (čeká se na driver + restart)
 
-### 🔧 Další úkoly:
-1. **Upravit tisk účtenek (prodej vs uplatnění)** - rozlišit formát tisku
-2. **Export uzavírek do CSV/PDF**
-3. **Skutečný PrintService** - implementovat skutečný tisk
-4. **Vylepšit error handling** - lokalizované chybové hlášky
+### 🔧 Další kroky PO RESTARTU:
+1. **Zjistit COM port** - Device Manager → Ports (COM & LPT)
+2. **Nastavit COM port v aplikaci** - Nastavení → Systém
+3. **Test tisku** - tlačítko "Test tisku" v aplikaci
+4. **Test prodeje** - vytvořit účtenku a vytisknout
+5. **Commitnout** - pokud vše funguje
+
+### 📚 Zdroje pro driver:
+- TMS Virtual Port Driver v8.70a (stažený uživatelem)
+- [Epson TM-T20III Support](https://epson.com/Support/Point-of-Sale/Thermal-Printers/Epson-TM-T20III-Series/s/SPT_C31CH51001)
 
 ---
 
