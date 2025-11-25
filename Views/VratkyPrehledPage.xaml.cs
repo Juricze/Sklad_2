@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Sklad_2.Models;
+using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using System;
@@ -40,7 +41,9 @@ namespace Sklad_2.Views
         {
             if (ViewModel.SelectedReturn != null)
             {
-                var previewDialog = new ReturnPreviewDialog(ViewModel.SelectedReturn)
+                var printService = (Application.Current as App).Services.GetRequiredService<IPrintService>();
+                var dataService = (Application.Current as App).Services.GetRequiredService<IDataService>();
+                var previewDialog = new ReturnPreviewDialog(ViewModel.SelectedReturn, printService, dataService)
                 {
                     XamlRoot = this.XamlRoot,
                 };

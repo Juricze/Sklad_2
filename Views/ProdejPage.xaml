@@ -15,7 +15,8 @@
         </Grid.ColumnDefinitions>
 
         <!-- Main content area -->
-        <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="24">
+        <ScrollViewer Grid.Column="0" Margin="0,0,24,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24">
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}">
                 <TextBox x:Name="EanTextBox" Header="EAN kód produktu" PlaceholderText="Naskenujte nebo zadejte kód..." KeyDown="EanTextBox_KeyDown"/>
             </Border>
@@ -157,7 +158,8 @@
                             HorizontalAlignment="Stretch"/>
                 </StackPanel>
             </Border>
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
 
         <!-- Receipt area -->
         <Grid Grid.Column="1">

@@ -18,6 +18,7 @@ namespace Sklad_2.Services
         Task<Receipt> GetReceiptByIdAsync(int receiptId);
         Task DeleteReceiptAsync(int receiptId);
         Task<int> GetNextReceiptSequenceAsync(int year);
+        Task<int> GetNextReturnSequenceAsync(int year);
         Task SaveReturnAsync(Return returnDocument);
         Task<List<Return>> GetReturnsAsync();
         Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate);

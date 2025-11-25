@@ -6,6 +6,7 @@ namespace Sklad_2.Services
     public interface IPrintService
     {
         Task<bool> PrintReceiptAsync(Receipt receipt); // Returns true for success, false for failure
+        Task<bool> PrintReturnAsync(Return returnDocument); // Print return/credit note
         Task<bool> TestPrintAsync(string printerPath); // Test print functionality
         bool IsPrinterConnected(); // Check if printer is connected
     }

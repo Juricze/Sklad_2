@@ -19,7 +19,7 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private int receiptSequence;  // Sequential number within the year (1, 2, 3...)
 
-        public string FormattedReceiptNumber => $"{ReceiptYear}/{ReceiptSequence:D4}";  // Format: 2025/0001
+        public string FormattedReceiptNumber => $"U{ReceiptSequence:D4}/{ReceiptYear}";  // Format: U0001/2025
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(SaleDateFormatted))]
@@ -108,6 +108,9 @@ namespace Sklad_2.Models
         [NotifyPropertyChangedFor(nameof(AmountToPay))]
         [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
         private decimal giftCardRedemptionAmount; // Total value of gift cards redeemed on this receipt
+
+        [ObservableProperty]
+        private string redeemedGiftCardEan = string.Empty; // EAN of the gift card used for payment
 
         public string GiftCardRedemptionAmountFormatted => $"{GiftCardRedemptionAmount:C}";
 

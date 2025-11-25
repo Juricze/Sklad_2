@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 5; // Version 5: Add testField to Products
+        private const int CURRENT_SCHEMA_VERSION = 9; // Version 9: Add ReturnYear and ReturnSequence to Returns
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -172,6 +172,14 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V4_FixReceiptItemsConstraints(context);
                     case 5:
                         return await ApplyMigration_V5_AddTestField(context);
+                    case 6:
+                        return await ApplyMigration_V6_AddRedeemedGiftCardEan(context);
+                    case 7:
+                        return await ApplyMigration_V7_FixNullRedeemedGiftCardEan(context);
+                    case 8:
+                        return await ApplyMigration_V8_EnsureRedeemedGiftCardEanNotNull(context);
+                    case 9:
+                        return await ApplyMigration_V9_AddReturnNumbering(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -351,15 +359,15 @@ namespace Sklad_2.Services
         private async Task<bool> ApplyMigration_V5_AddTestField(DatabaseContext context)
         {
             Debug.WriteLine("DatabaseMigrationService: Applying V5 - Add TestField to Products");
-            
+
             var connection = context.Database.GetDbConnection();
             await connection.OpenAsync();
-            
+
             var migrations = new List<string>
             {
                 "ALTER TABLE Products ADD COLUMN TestField TEXT NULL DEFAULT ''"
             };
-            
+
             foreach (var sql in migrations)
             {
                 try
@@ -377,12 +385,196 @@ namespace Sklad_2.Services
                         Debug.WriteLine($"DatabaseMigrationService: Column already exists, skipping: {sql}");
                         continue;
                     }
-                    
+
                     Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
                     throw;
                 }
             }
-            
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V6_AddRedeemedGiftCardEan(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V6 - Add RedeemedGiftCardEan to Receipts");
+
+            var connection = context.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            var migrations = new List<string>
+            {
+                "ALTER TABLE Receipts ADD COLUMN RedeemedGiftCardEan TEXT NULL DEFAULT ''"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql}");
+                }
+                catch (Exception ex)
+                {
+                    // Column might already exist
+                    if (ex.Message.Contains("duplicate column name"))
+                    {
+                        Debug.WriteLine($"DatabaseMigrationService: Column already exists, skipping: {sql}");
+                        continue;
+                    }
+
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V7_FixNullRedeemedGiftCardEan(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V7 - Fix NULL values in RedeemedGiftCardEan");
+
+            var connection = context.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            var migrations = new List<string>
+            {
+                "UPDATE Receipts SET RedeemedGiftCardEan = '' WHERE RedeemedGiftCardEan IS NULL"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    var rowsAffected = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql} (affected {rowsAffected} rows)");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V8_EnsureRedeemedGiftCardEanNotNull(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V8 - Ensure RedeemedGiftCardEan is never NULL (re-run fix)");
+
+            var connection = context.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            // Re-run the fix - some records may have been created between V6 and V7
+            var migrations = new List<string>
+            {
+                "UPDATE Receipts SET RedeemedGiftCardEan = '' WHERE RedeemedGiftCardEan IS NULL"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    var rowsAffected = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql} (affected {rowsAffected} rows)");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V9_AddReturnNumbering(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V9 - Add ReturnYear and ReturnSequence to Returns");
+
+            var connection = context.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            var migrations = new List<string>
+            {
+                // Add new columns for return document numbering
+                "ALTER TABLE Returns ADD COLUMN ReturnYear INTEGER NOT NULL DEFAULT 0",
+                "ALTER TABLE Returns ADD COLUMN ReturnSequence INTEGER NOT NULL DEFAULT 0"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql}");
+                }
+                catch (Exception ex)
+                {
+                    // Column might already exist
+                    if (ex.Message.Contains("duplicate column name"))
+                    {
+                        Debug.WriteLine($"DatabaseMigrationService: Column already exists, skipping: {sql}");
+                        continue;
+                    }
+
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            // Update existing returns with proper numbering based on their ReturnDate
+            try
+            {
+                using var updateCommand = connection.CreateCommand();
+                // Get all returns ordered by date
+                updateCommand.CommandText = "SELECT ReturnId, ReturnDate FROM Returns ORDER BY ReturnDate";
+                var yearSequences = new Dictionary<int, int>();
+
+                using var reader = await updateCommand.ExecuteReaderAsync();
+                var updates = new List<(int returnId, int year, int sequence)>();
+
+                while (await reader.ReadAsync())
+                {
+                    var returnId = reader.GetInt32(0);
+                    var returnDateStr = reader.GetString(1);
+                    if (DateTime.TryParse(returnDateStr, out var returnDate))
+                    {
+                        var year = returnDate.Year;
+                        if (!yearSequences.ContainsKey(year))
+                        {
+                            yearSequences[year] = 0;
+                        }
+                        yearSequences[year]++;
+                        updates.Add((returnId, year, yearSequences[year]));
+                    }
+                }
+                reader.Close();
+
+                // Apply updates
+                foreach (var (returnId, year, sequence) in updates)
+                {
+                    using var upd = connection.CreateCommand();
+                    upd.CommandText = $"UPDATE Returns SET ReturnYear = {year}, ReturnSequence = {sequence} WHERE ReturnId = {returnId}";
+                    await upd.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Updated Return {returnId} -> D{year}/{sequence:D4}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error updating existing returns: {ex.Message}");
+                // Don't fail migration, columns are added, just numbering didn't update
+            }
+
             return true;
         }
 
@@ -422,10 +614,14 @@ namespace Sklad_2.Services
             return version switch
             {
                 1 => "Initial schema with all tables",
-                2 => "Add discount fields to Products and ReceiptItems tables", 
+                2 => "Add discount fields to Products and ReceiptItems tables",
                 3 => "Add missing fields to GiftCards, Users and StockMovements tables",
                 4 => "Fix ReceiptItems NULL constraints for OriginalUnitPrice and DiscountReason",
                 5 => "Add TestField to Products table",
+                6 => "Add RedeemedGiftCardEan to Receipts table",
+                7 => "Fix NULL values in RedeemedGiftCardEan column",
+                8 => "Ensure RedeemedGiftCardEan is never NULL (re-run fix)",
+                9 => "Add ReturnYear and ReturnSequence for return document numbering (D2025/0001)",
                 _ => $"Unknown migration version {version}"
             };
         }

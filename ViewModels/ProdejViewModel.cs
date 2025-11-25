@@ -461,7 +461,8 @@ namespace Sklad_2.ViewModels
                     GiftCardSaleAmount = giftCardSaleAmount,
                     // Gift card fields - redemption
                     ContainsGiftCardRedemption = ScannedGiftCard != null,
-                    GiftCardRedemptionAmount = giftCardRedemptionAmount
+                    GiftCardRedemptionAmount = giftCardRedemptionAmount,
+                    RedeemedGiftCardEan = ScannedGiftCard?.Ean
                 };
 
                 var userName = _authService.CurrentUser?.DisplayName ?? "Neznámý";

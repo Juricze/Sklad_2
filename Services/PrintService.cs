@@ -19,6 +19,14 @@ namespace Sklad_2.Services
             return true; // Simulate print success
         }
 
+        public async Task<bool> PrintReturnAsync(Return returnDocument)
+        {
+            // Placeholder for printing return/credit note logic
+            await Task.Delay(1000); // Simulate print time
+
+            return true; // Simulate print success
+        }
+
         public async Task<bool> TestPrintAsync(string printerPath)
         {
             // Placeholder for actual test print logic

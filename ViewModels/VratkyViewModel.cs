@@ -208,9 +208,14 @@ namespace Sklad_2.ViewModels
                     totalRefundVatAmount += vatAmountForItem;
                 }
 
-                // Create return document
+                // Create return document with proper numbering
+                int returnYear = DateTime.Now.Year;
+                int returnSequence = await _dataService.GetNextReturnSequenceAsync(returnYear);
+
                 var returnDocument = new Return
                 {
+                    ReturnYear = returnYear,
+                    ReturnSequence = returnSequence,
                     ReturnDate = DateTime.Now,
                     OriginalReceiptId = FoundReceipt.ReceiptId,
                     ShopName = settings.ShopName,

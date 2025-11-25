@@ -6,7 +6,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Sklad_2.Models"
     xmlns:converters="using:Sklad_2.Converters"
-    xmlns:dialogs="using:Sklad_2.Views.Dialogs"
     mc:Ignorable="d"
     Title="Náhled účtenky"
     CloseButtonText="Zavřít"
@@ -17,163 +16,223 @@
     <ContentDialog.Resources>
         <converters:PaymentMethodToVisibilityConverter x:Key="PaymentMethodToVisibilityConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     </ContentDialog.Resources>
 
-    <StackPanel Spacing="16" MinWidth="400">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
-            <StackPanel Spacing="16">
-                <!-- Hlavička -->
-                <StackPanel HorizontalAlignment="Center" Spacing="4">
-                    <TextBlock Text="{x:Bind Receipt.ShopName, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="{x:Bind Receipt.ShopAddress, Mode=OneWay}" HorizontalAlignment="Center"/>
-                    <TextBlock HorizontalAlignment="Center">
-                        <Run Text="IČ: "/><Run Text="{x:Bind Receipt.CompanyId, Mode=OneWay}"/>
-                    </TextBlock>
-                    <TextBlock HorizontalAlignment="Center" Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Run Text="DIČ: "/><Run Text="{x:Bind Receipt.VatId, Mode=OneWay}"/>
-                    </TextBlock>
-                </StackPanel>
+    <!-- Receipt-like styling: narrow, monospace feel -->
+    <Border Background="White" Padding="16" CornerRadius="4" BorderBrush="#CCCCCC" BorderThickness="1">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="550">
+            <StackPanel Width="320" Spacing="0">
 
-                <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                <!-- === HEADER === -->
+                <TextBlock Text="{x:Bind Receipt.ShopName, Mode=OneWay}"
+                           FontWeight="Bold" FontSize="16"
+                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                <TextBlock Text="{x:Bind Receipt.ShopAddress, Mode=OneWay}"
+                           FontSize="12" Foreground="#666666"
+                           HorizontalAlignment="Center" TextAlignment="Center"
+                           TextWrapping="Wrap" Margin="0,2,0,0"/>
+                <TextBlock FontSize="12" HorizontalAlignment="Center" Margin="0,4,0,0">
+                    <Run Text="IČ: "/><Run Text="{x:Bind Receipt.CompanyId, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock FontSize="12" HorizontalAlignment="Center"
+                           Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Run Text="DIČ: "/><Run Text="{x:Bind Receipt.VatId, Mode=OneWay}"/>
+                </TextBlock>
 
-                <!-- Informace o dokladu -->
-                <StackPanel HorizontalAlignment="Center" Spacing="0">
-                    <TextBlock Text="ÚČTENKA" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="DAŇOVÝ DOKLAD" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Center"
-                               Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                </StackPanel>
-                <Grid>
+                <!-- Separator -->
+                <TextBlock Text="════════════════════════════════════"
+                           FontFamily="Consolas" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,8,0,8"
+                           Foreground="#999999"/>
+
+                <!-- === STORNO WARNING === -->
+                <Border Background="#FFEBEE" CornerRadius="4" Padding="8" Margin="0,0,0,8"
+                        Visibility="{x:Bind Receipt.IsStorno, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="*** STORNO ***" FontWeight="Bold" Foreground="#D32F2F" HorizontalAlignment="Center"/>
+                        <TextBlock FontSize="11" Foreground="#D32F2F" HorizontalAlignment="Center">
+                            <Run Text="Storno účtenky č. "/><Run Text="{x:Bind Receipt.OriginalReceiptId, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- === DOCUMENT TYPE === -->
+                <TextBlock Text="ÚČTENKA" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+                <TextBlock Text="DAŇOVÝ DOKLAD" FontSize="11" HorizontalAlignment="Center" Foreground="#666666"
+                           Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <!-- === RECEIPT INFO === -->
+                <Grid Margin="0,8,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0">
-                        <Run Text="Číslo dokladu: "/><Run Text="{x:Bind Receipt.FormattedReceiptNumber, Mode=OneWay}"/>
+                    <TextBlock Grid.Column="0" FontSize="11">
+                        <Run Text="Č. "/><Run Text="{x:Bind Receipt.FormattedReceiptNumber, Mode=OneWay}" FontWeight="SemiBold"/>
                     </TextBlock>
-                    <TextBlock Grid.Column="1" HorizontalAlignment="Right">
-                        <Run Text="Datum: "/><Run Text="{x:Bind Receipt.SaleDateFormatted, Mode=OneWay}"/>
-                    </TextBlock>
+                    <TextBlock Grid.Column="1" FontSize="11" Text="{x:Bind Receipt.SaleDateFormatted, Mode=OneWay}"/>
                 </Grid>
-                <TextBlock HorizontalAlignment="Left">
+                <TextBlock FontSize="11" Margin="0,2,0,0">
                     <Run Text="Prodavač: "/><Run Text="{x:Bind Receipt.SellerName, Mode=OneWay}"/>
                 </TextBlock>
 
-                <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                <!-- Separator -->
+                <TextBlock Text="────────────────────────────────────"
+                           FontFamily="Consolas" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,8,0,8"
+                           Foreground="#999999"/>
 
-                <!-- Položky -->
-                <Grid Padding="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Položka" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Text="Sazba DPH" FontWeight="Bold" Margin="12,0"
-                               Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    <TextBlock Grid.Column="2" Text="Celkem" FontWeight="Bold" HorizontalAlignment="Right"/>
-                </Grid>
+                <!-- === ITEMS === -->
                 <ItemsRepeater ItemsSource="{x:Bind Receipt.Items, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="models:ReceiptItem">
-                            <StackPanel Padding="8">
-                                <Grid ColumnSpacing="12">
+                            <StackPanel Margin="0,0,0,6">
+                                <!-- Product name -->
+                                <TextBlock Text="{x:Bind ProductName}" FontSize="12" TextWrapping="Wrap"/>
+                                <!-- Quantity x Price = Total -->
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{x:Bind ProductName}"/>
-                                    <TextBlock Grid.Column="1" Text="{x:Bind VatRateFormatted, Mode=OneWay}"
-                                               Visibility="{Binding Receipt.IsVatPayer, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="0" FontSize="11" Foreground="#666666">
+                                        <Run Text="  "/><Run Text="{x:Bind Quantity}"/><Run Text=" x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind TotalPriceFormatted, Mode=OneWay}"
+                                               FontSize="12" FontWeight="SemiBold"/>
                                 </Grid>
-                                <StackPanel>
-                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
-                                        <Run Text="{x:Bind Quantity}"/><Run Text=" ks x "/><Run Text="{x:Bind UnitPriceFormatted, Mode=OneWay}"/>
-                                    </TextBlock>
-                                    <!-- Show discount info if item has discount -->
-                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" 
-                                               Foreground="#666666"
-                                               Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <Run Text="  Sleva "/><Run Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}"/>
-                                        <Run Text=" ("/>
-                                        <Run Text="{x:Bind DiscountReason, Mode=OneWay}"/>
-                                        <Run Text=") z "/><Run Text="{x:Bind OriginalUnitPriceFormatted, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
+                                <!-- Discount info -->
+                                <TextBlock FontSize="10" Foreground="#FF9800" Margin="8,0,0,0"
+                                           Visibility="{x:Bind HasDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Run Text="Sleva "/><Run Text="{x:Bind DiscountPercentFormatted, Mode=OneWay}"/>
+                                    <Run Text=" z "/><Run Text="{x:Bind OriginalUnitPriceFormatted, Mode=OneWay}"/>
+                                </TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
 
-                <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                <!-- Double separator -->
+                <TextBlock Text="════════════════════════════════════"
+                           FontFamily="Consolas" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,8,0,8"
+                           Foreground="#999999"/>
 
-                <!-- Souhrn DPH -->
+                <!-- === GIFT CARD REDEMPTION === -->
+                <StackPanel Visibility="{x:Bind Receipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Mezisoučet:" FontSize="12"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" FontSize="12"/>
+                    </Grid>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Použitý poukaz:" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                        <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50">
+                            <Run Text="-"/><Run Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                    <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0">
+                        <Run Text="EAN: "/><Run Text="{x:Bind Receipt.RedeemedGiftCardEan, Mode=OneWay}"/>
+                    </TextBlock>
+                    <!-- Separator -->
+                    <TextBlock Text="────────────────────────────────────"
+                               FontFamily="Consolas" FontSize="10"
+                               HorizontalAlignment="Center" Margin="0,8,0,8"
+                               Foreground="#999999"/>
+                </StackPanel>
+
+                <!-- === VAT SUMMARY (only for VAT payers) === -->
+                <StackPanel Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Margin="0,0,0,8">
+                    <TextBlock Text="DPH:" FontSize="11" FontWeight="SemiBold"/>
+                    <ItemsRepeater ItemsSource="{x:Bind VatSummaries, Mode=OneWay}" Margin="8,4,0,0">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="models:VatSummary">
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind VatRateFormatted, Mode=OneWay}" FontSize="10"/>
+                                    <TextBlock Grid.Column="1" FontSize="10">
+                                        <Run Text="Základ: "/><Run Text="{x:Bind TotalAmountWithoutVatFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="2" FontSize="10">
+                                        <Run Text="DPH: "/><Run Text="{x:Bind TotalVatAmountFormatted, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                    <!-- Separator -->
+                    <TextBlock Text="────────────────────────────────────"
+                               FontFamily="Consolas" FontSize="10"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"
+                               Foreground="#999999"/>
+                </StackPanel>
+
+                <!-- === TOTAL === -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Spacing="4"
-                                Visibility="{x:Bind Receipt.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="Souhrn DPH" FontWeight="Bold"/>
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Sazba"/>
-                            <TextBlock Grid.Column="1" Text="Základ" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="2" Text="DPH" HorizontalAlignment="Right"/>
-                        </Grid>
-                        <ItemsRepeater ItemsSource="{x:Bind VatSummaries, Mode=OneWay}">
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="models:VatSummary">
-                                    <Grid ColumnSpacing="12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{x:Bind VatRateFormatted, Mode=OneWay}"/>
-                                        <TextBlock Grid.Column="1" Text="{x:Bind TotalAmountWithoutVatFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
-                                        <TextBlock Grid.Column="2" Text="{x:Bind TotalVatAmountFormatted, Mode=OneWay}" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-
-                    <!-- Celkem -->
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <TextBlock Text="CELKEM POLOŽKY" Style="{ThemeResource CaptionTextBlockStyle}"/>
-                        <TextBlock Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
-
-                        <!-- Dárkový poukaz (pokud byl použit) -->
-                        <StackPanel Visibility="{x:Bind Receipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,8,0,0">
-                            <TextBlock Text="Dárkový poukaz:" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right" Foreground="#34C759"/>
-                        </StackPanel>
-
-                        <!-- K úhradě -->
-                        <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,12"/>
-                        <TextBlock Text="K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <TextBlock Text="{x:Bind AmountToPay, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
-
-                        <TextBlock Text="HRAZENO KARTOU" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,12,0,0"
-                                   Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Kartou'}"/>
-
-                        <StackPanel Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Hotově'}">
-                            <TextBlock Text="Obdržená hotovost:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,12,0,0" HorizontalAlignment="Right"/>
-                            <TextBlock Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
-
-                            <TextBlock Text="Vráceno:" Style="{ThemeResource CaptionTextBlockStyle}" Margin="0,4,0,0" HorizontalAlignment="Right"/>
-                            <TextBlock Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
-                        </StackPanel>
-                    </StackPanel>
+                    <TextBlock Grid.Column="0" Text="CELKEM:" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1" Text="{x:Bind AmountToPay, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                               FontSize="16" FontWeight="Bold"/>
                 </Grid>
+
+                <!-- === PAYMENT === -->
+                <TextBlock Text="────────────────────────────────────"
+                           FontFamily="Consolas" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,8,0,8"
+                           Foreground="#999999"/>
+
+                <TextBlock FontSize="12" Margin="0,0,0,4">
+                    <Run Text="Platba: "/><Run Text="{x:Bind Receipt.PaymentMethod, Mode=OneWay}" FontWeight="SemiBold"/>
+                </TextBlock>
+
+                <!-- Cash payment details -->
+                <StackPanel Visibility="{x:Bind Receipt.PaymentMethod, Mode=OneWay, Converter={StaticResource PaymentMethodToVisibilityConverter}, ConverterParameter='Hotově'}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Přijato:" FontSize="11"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ReceivedAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" FontSize="11"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Vráceno:" FontSize="11"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ChangeAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" FontSize="11"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Separator -->
+                <TextBlock Text="════════════════════════════════════"
+                           FontFamily="Consolas" FontSize="10"
+                           HorizontalAlignment="Center" Margin="0,12,0,8"
+                           Foreground="#999999"/>
+
+                <!-- === FOOTER === -->
+                <TextBlock Text="Děkujeme za nákup!"
+                           FontSize="12" HorizontalAlignment="Center"
+                           FontStyle="Italic" Foreground="#666666"/>
+
             </StackPanel>
         </ScrollViewer>
-    </StackPanel>
+    </Border>
 </ContentDialog>

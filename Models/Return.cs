@@ -13,6 +13,16 @@ namespace Sklad_2.Models
         private int returnId;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FormattedReturnNumber))]
+        private int returnYear;  // Year of return (e.g., 2025)
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FormattedReturnNumber))]
+        private int returnSequence;  // Sequential number within the year (1, 2, 3...)
+
+        public string FormattedReturnNumber => $"D{ReturnSequence:D4}/{ReturnYear}";  // Format: D0001/2025
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ReturnDateFormatted))]
         private DateTime returnDate;
 

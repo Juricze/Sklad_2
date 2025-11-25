@@ -168,6 +168,15 @@ namespace Sklad_2.Services
             return (maxSequence ?? 0) + 1;
         }
 
+        public async Task<int> GetNextReturnSequenceAsync(int year)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var maxSequence = await context.Returns
+                                           .Where(r => r.ReturnYear == year)
+                                           .MaxAsync(r => (int?)r.ReturnSequence);
+            return (maxSequence ?? 0) + 1;
+        }
+
         public async Task SaveReturnAsync(Return returnDocument)
         {
             using var context = _contextFactory.CreateDbContext();

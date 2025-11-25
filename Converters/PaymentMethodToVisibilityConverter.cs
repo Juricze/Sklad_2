@@ -10,7 +10,8 @@ namespace Sklad_2.Converters
         {
             if (value is string paymentMethod && parameter is string targetPaymentMethod)
             {
-                return paymentMethod == targetPaymentMethod ? Visibility.Visible : Visibility.Collapsed;
+                // Use Contains to match "Hotově" in "Hotově + Dárkový poukaz"
+                return paymentMethod.Contains(targetPaymentMethod) ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
         }
