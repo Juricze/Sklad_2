@@ -1,13 +1,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using Sklad_2.Views;
+using Sklad_2.Messages;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using WinRT; // Required for Window.As<ICompositionSupportsSystemBackdrop>()
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Sklad_2
 {
@@ -21,6 +26,7 @@ namespace Sklad_2
         private readonly bool IsSalesRole;
         private readonly bool IsAdmin;
         private bool _isClosing;
+        private Storyboard _statusBarBlinkAnimation;
 
         public StatusBarViewModel StatusBarVM { get; }
 
@@ -35,7 +41,7 @@ namespace Sklad_2
             IsAdmin = _authService.CurrentUser?.Role == "Admin";
 
             this.InitializeComponent();
-            StatusBarBorder.DataContext = this;
+            RootGrid.DataContext = this;
 
             // Update app's current window reference for pickers/dialogs in pages
             app.CurrentWindow = this;
@@ -44,6 +50,10 @@ namespace Sklad_2
 
             // Refresh status bar
             _ = StatusBarVM.RefreshStatusAsync();
+
+            // Listen for settings changes to refresh blinking animations
+            var messenger = serviceProvider.GetRequiredService<IMessenger>();
+            messenger.Register<SettingsChangedMessage>(this, (r, m) => RefreshStatusBarBlink());
 
             // Load initial page when ContentFrame is ready
             ContentFrame.Loaded += OnContentFrameLoaded;
@@ -145,6 +155,13 @@ namespace Sklad_2
             _hasHandledNewDay = true;
             this.Activated -= OnFirstActivated; // Unsubscribe
 
+            // Check if backup path is configured - mandatory for all users
+            if (!_settingsService.IsBackupPathConfigured())
+            {
+                await ShowBackupPathRequiredDialog();
+                return;
+            }
+
             // Check for new day if user is in Sales role
             if (IsSalesRole)
             {
@@ -217,6 +234,103 @@ namespace Sklad_2
         private void Window_Activated(object sender, WindowActivatedEventArgs args)
         {
             m_configurationSource.IsInputActive = args.WindowActivationState != WindowActivationState.Deactivated;
+        }
+
+        private void BackupPathStatusPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Start or stop blinking animation based on backup path configuration
+            var panel = sender as StackPanel;
+            if (panel != null)
+            {
+                if (!StatusBarVM.IsBackupPathConfigured)
+                {
+                    // Start blinking for error state
+                    var storyboard = new Storyboard();
+                    var animation = new DoubleAnimationUsingKeyFrames
+                    {
+                        Duration = new Duration(TimeSpan.FromSeconds(1)),
+                        RepeatBehavior = RepeatBehavior.Forever
+                    };
+                    animation.KeyFrames.Add(new DiscreteDoubleKeyFrame { KeyTime = TimeSpan.Zero, Value = 1.0 });
+                    animation.KeyFrames.Add(new DiscreteDoubleKeyFrame { KeyTime = TimeSpan.FromSeconds(0.5), Value = 0.3 });
+                    
+                    Storyboard.SetTarget(animation, panel);
+                    Storyboard.SetTargetProperty(animation, "Opacity");
+                    storyboard.Children.Add(animation);
+                    _statusBarBlinkAnimation = storyboard;
+                    storyboard.Begin();
+                }
+                else
+                {
+                    // Stop blinking for normal state
+                    if (_statusBarBlinkAnimation != null)
+                    {
+                        _statusBarBlinkAnimation.Stop();
+                        _statusBarBlinkAnimation = null;
+                        panel.Opacity = 1.0; // Reset opacity
+                    }
+                }
+            }
+        }
+
+        public void RefreshStatusBarBlink()
+        {
+            // Method to refresh blinking state - called when backup path changes
+            if (BackupPathStatusPanel != null)
+            {
+                BackupPathStatusPanel_Loaded(BackupPathStatusPanel, null);
+            }
+        }
+
+
+        private async Task ShowBackupPathRequiredDialog()
+        {
+            // Wait for XamlRoot to be available (same as new day dialog)
+            int attempts = 0;
+            while (this.Content?.XamlRoot == null && attempts < 20)
+            {
+                await Task.Delay(50);
+                attempts++;
+            }
+
+            if (this.Content?.XamlRoot == null)
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to get XamlRoot for backup path dialog");
+                return;
+            }
+
+            var dialog = new ContentDialog()
+            {
+                Title = "Nastavení cesty pro zálohy",
+                Content = "Pro používání aplikace je nutné nastavit cestu pro zálohy databáze.\n\n" +
+                         "Bez této cesty není možné:\n" +
+                         "• Provádět prodeje\n" +
+                         "• Zálohovat data\n" +
+                         "• Exportovat účtenky\n\n" +
+                         "Přejděte do Nastavení → Systém a nastavte cestu pro zálohy.",
+                PrimaryButtonText = "Jít do Nastavení",
+                SecondaryButtonText = "Zavřít aplikaci",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                // Navigate to Settings
+                NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
+                    .FirstOrDefault(item => item.Tag?.ToString() == "Nastaveni");
+                var settingsPage = new Views.NastaveniPage();
+                ContentFrame.Content = settingsPage;
+                
+                // Navigate directly to System panel
+                settingsPage.NavigateToSystemPanel();
+            }
+            else
+            {
+                // Close application
+                Application.Current.Exit();
+            }
         }
 
         private async void Window_Closed(object sender, WindowEventArgs args)
@@ -308,24 +422,16 @@ namespace Sklad_2
                     catch { /* Ignore parsing errors */ }
                 }
 
-                // Priority 1: Custom BackupPath from settings
+                // Only backup if custom backup path is configured
                 if (!string.IsNullOrWhiteSpace(customBackupPath) && System.IO.Directory.Exists(customBackupPath))
                 {
                     backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
                 }
-                // Priority 2: OneDrive
                 else
                 {
-                    string oneDrivePath = System.Environment.GetEnvironmentVariable("OneDrive");
-                    if (!string.IsNullOrEmpty(oneDrivePath) && System.IO.Directory.Exists(oneDrivePath))
-                    {
-                        backupFolderPath = System.IO.Path.Combine(oneDrivePath, "Sklad_2_Data");
-                    }
-                    // Priority 3: Documents (fallback)
-                    else
-                    {
-                        backupFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "Sklad_2_Backups");
-                    }
+                    // No backup path configured - skip backup
+                    System.Diagnostics.Debug.WriteLine("Backup path not configured - skipping backup on close");
+                    return;
                 }
 
                 System.IO.Directory.CreateDirectory(backupFolderPath);

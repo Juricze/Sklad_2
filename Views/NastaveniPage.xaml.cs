@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Sklad_2.Models;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
@@ -14,6 +15,7 @@ namespace Sklad_2.Views
         public NastaveniViewModel ViewModel { get; }
         public CategoryManagementViewModel CategoryVM { get; }
         public UserManagementViewModel UserMgmtVM { get; }
+        private Storyboard _blinkAnimation;
 
         public NastaveniPage()
         {
@@ -27,6 +29,9 @@ namespace Sklad_2.Views
             // Connect UserMgmtVM dialog handlers
             UserMgmtVM.RequestAddUserAsync += HandleRequestAddUserAsync;
             UserMgmtVM.RequestEditUserAsync += HandleRequestEditUserAsync;
+            
+            // Listen for property changes on ViewModel
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
         private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -78,6 +83,84 @@ namespace Sklad_2.Views
             }
 
             return (false, null, null, null, null);
+        }
+
+        private void ActiveBackupPathText_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Start or stop blinking animation based on backup path configuration
+            var textBlock = sender as TextBlock;
+            if (textBlock != null)
+            {
+                StartOrStopBlinkingAnimation(textBlock);
+            }
+        }
+
+        private void StartOrStopBlinkingAnimation(TextBlock textBlock)
+        {
+            // Stop any existing animation first
+            if (_blinkAnimation != null)
+            {
+                _blinkAnimation.Stop();
+                _blinkAnimation = null;
+                textBlock.Opacity = 1.0; // Reset opacity
+            }
+
+            if (!ViewModel.IsBackupPathConfigured)
+            {
+                // Start blinking for error state
+                if (textBlock.Resources.TryGetValue("BlinkErrorAnimation", out var resource))
+                {
+                    if (resource is Storyboard storyboard)
+                    {
+                        // Set the target for the animation
+                        foreach (var timeline in storyboard.Children)
+                        {
+                            Storyboard.SetTarget(timeline, textBlock);
+                        }
+                        _blinkAnimation = storyboard;
+                        storyboard.Begin();
+                    }
+                }
+            }
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.IsBackupPathConfigured))
+            {
+                RefreshBackupPathAnimation();
+            }
+        }
+
+        private void RefreshBackupPathAnimation()
+        {
+            // Find the ActiveBackupPathText element and refresh its animation state
+            var textBlock = ActiveBackupPathText;
+            if (textBlock != null)
+            {
+                StartOrStopBlinkingAnimation(textBlock);
+            }
+        }
+
+        public void NavigateToSystemPanel()
+        {
+            // Programmatically navigate to System panel
+            CompanySettingsPanel.Visibility = Visibility.Collapsed;
+            VatSettingsPanel.Visibility = Visibility.Collapsed;
+            CategoriesPanel.Visibility = Visibility.Collapsed;
+            UsersPanel.Visibility = Visibility.Collapsed;
+            SystemSettingsPanel.Visibility = Visibility.Visible;
+            AboutPanel.Visibility = Visibility.Collapsed;
+
+            // Set the selected item in NavigationView to System
+            foreach (var item in NavView.MenuItems)
+            {
+                if (item is NavigationViewItem navItem && navItem.Tag?.ToString() == "System")
+                {
+                    NavView.SelectedItem = navItem;
+                    break;
+                }
+            }
         }
 
         private async void BrowseBackupFolderButton_Click(object sender, RoutedEventArgs e)

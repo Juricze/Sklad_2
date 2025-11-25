@@ -17,113 +17,84 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 24. listopad 2025**
+## 📅 **Poslední session: 25. listopad 2025**
 
 ### ✅ Hotovo:
-**Dokončení systému správy dárkových poukazů - UI vylepšení**
+**Dokončení systému backup cesty - navigace do System panelu**
 
-**Upraveno 3 soubory:**
-- ViewModels (1): PoukazyViewModel.cs - data binding pro filtry, statistiky nezávislé na filtrech
-- Views (1): PoukazyPage.xaml - x:Bind TwoWay pro checkboxy, ItemContainerStyle pro zarovnání
-- Code-behind (1): PoukazyPage.xaml.cs - odstranění visual tree traversal kódu
+**Upraveno 2 soubory:**
+- Views (1): NastaveniPage.xaml.cs - přidána NavigateToSystemPanel() metoda
+- Main (1): MainWindow.xaml.cs - integrace navigace do ShowBackupPathRequiredDialog()
 
 **Klíčové změny:**
-- ✅ **Filtrování poukazů** - přepracováno na data binding místo visual tree traversal
-- ✅ **Zarovnání hlaviček** - ItemContainerStyle odstraňuje default padding ListView
-- ✅ **Odstranění zbytečného sloupce** - sloupec s číslem účtenky (#x) odstraněn
-- ✅ **Statistiky nezávislé na filtrech** - počítadla ukazují vždy celkový přehled všech poukazů
+- ✅ **Navigace z backup dialogu** - tlačítko "Jít do Nastavení" nyní otevře přímo System panel
+- ✅ **Automatické nastavení NavigationView** - správně označí System jako vybranou položku
+- ✅ **Dokončení backup path systému** - kompletní workflow od dialogu k nastavení cesty
 
 **Technické detaily:**
 
-1. **Data Binding pro filtry** (správný WinUI 3 pattern):
+1. **NavigateToSystemPanel() metoda v NastaveniPage.xaml.cs**:
    ```csharp
-   // ViewModel - ObservableProperty místo manuálního hledání checkboxů
-   [ObservableProperty]
-   private bool filterNotIssued = true;
-
-   partial void OnFilterNotIssuedChanged(bool value)
+   public void NavigateToSystemPanel()
    {
-       UpdateFiltersAndReload();
+       // Skrýt všechny panely
+       CompanySettingsPanel.Visibility = Visibility.Collapsed;
+       VatSettingsPanel.Visibility = Visibility.Collapsed;
+       CategoriesPanel.Visibility = Visibility.Collapsed;
+       UsersPanel.Visibility = Visibility.Collapsed;
+       SystemSettingsPanel.Visibility = Visibility.Visible;
+       AboutPanel.Visibility = Visibility.Collapsed;
+
+       // Nastavit vybranou položku v NavigationView
+       foreach (var item in NavView.MenuItems)
+       {
+           if (item is NavigationViewItem navItem && navItem.Tag?.ToString() == "System")
+           {
+               NavView.SelectedItem = navItem;
+               break;
+           }
+       }
    }
    ```
 
-   ```xaml
-   <!-- XAML - TwoWay binding -->
-   <CheckBox Content="Neprodané" IsChecked="{x:Bind ViewModel.FilterNotIssued, Mode=TwoWay}"/>
-   ```
-
-   **Proč to fungovalo špatně původně:**
-   - Visual tree traversal (`FindVisualChildren<CheckBox>`) má problém s načasováním
-   - `Page_Loaded` se volá dříve než jsou checkboxy plně inicializované
-   - Data binding je spolehlivější - funguje okamžitě
-
-2. **Zarovnání hlaviček ListView**:
-   ```xaml
-   <ListView.ItemContainerStyle>
-       <Style TargetType="ListViewItem">
-           <Setter Property="Padding" Value="0"/>
-           <Setter Property="Margin" Value="0"/>
-           <Setter Property="MinHeight" Value="0"/>
-           <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-       </Style>
-   </ListView.ItemContainerStyle>
-   ```
-
-   **Proč to bylo potřeba:**
-   - ListView automaticky přidává padding do ListViewItem kontejnerů
-   - Header Border měl jiný efektivní offset než data rows
-   - Odstranění default stylingu vyřešilo misalignment
-
-3. **Statistiky nezávislé na filtrech**:
+2. **Integrace v ShowBackupPathRequiredDialog() - MainWindow.xaml.cs**:
    ```csharp
-   // Ukládání všech poukazů
-   private List<GiftCard> _allGiftCards = new List<GiftCard>();
-
-   // Statistiky z _allGiftCards (nefiltrované)
-   public int TotalCount => _allGiftCards.Count;
-   public decimal LiabilityAmount => _allGiftCards
-       .Where(gc => gc.Status == GiftCardStatus.Issued)
-       .Sum(gc => gc.Value);
-
-   // GiftCards kolekce zůstává filtrovaná (zobrazeno v UI)
-   private async Task LoadGiftCardsAsync()
+   if (result == ContentDialogResult.Primary)
    {
-       var allCards = await _giftCardService.GetAllGiftCardsAsync();
-       _allGiftCards = allCards; // Uložit pro statistiky
-
-       var filteredCards = allCards;
-       if (_activeFilters.Any())
-           filteredCards = filteredCards.Where(...).ToList();
-
-       // filteredCards → GiftCards (UI)
+       // Navigate to Settings
+       NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
+           .FirstOrDefault(item => item.Tag?.ToString() == "Nastaveni");
+       var settingsPage = new Views.NastaveniPage();
+       ContentFrame.Content = settingsPage;
+       
+       // Navigate directly to System panel
+       settingsPage.NavigateToSystemPanel();
    }
    ```
 
    **Proč to bylo potřeba:**
-   - Uživatel potřebuje vidět celkový přehled (Celkem, Závazek, atd.)
-   - Filtrování slouží k zúžení seznamu, ne k ovlivnění statistik
-   - Oddělená kolekce `_allGiftCards` řeší oba požadavky
+   - Uživatel po kliknutí na "Jít do Nastavení" v backup dialogu je automaticky přesunut přímo do System panelu
+   - Nemusí ručně hledat správnou kartu - UX je plynulé
+   - Navigace je přesná a deterministic
 
-**Výsledný stav PoukazyPage:**
-- 📊 **Statistiky** - 6 počítadel (Celkem, Neprodané, Prodané, Využité, Expirované, Závazek)
-- 🔍 **Filtry** - 5 kombinovatelných checkboxů (defaultně: Neprodané + Prodané + Využité)
-- 📋 **Řazení** - 7 možností (datum prodeje/využití ↑↓, hodnota ↑↓, EAN)
-- 🔎 **Vyhledávání** - podle EAN nebo poznámek
-- 📋 **Kompaktní tabulka** - 7 sloupců, perfektně zarovnané hlavičky
-- 🗑️ **Smazání** - pouze neprodané poukazy (CanBeSold)
+**Výsledný stav Backup Path systému:**
+- 🛡️ **Povinné nastavení** - aplikace se nespustí bez nastavené backup cesty
+- ⚠️ **Warning v Status Bar** - blikající "CHYBA" pokud není nastavena cesta
+- 🚫 **Blokování funkcionalita** - prodeje a operace nejsou možné bez backup cesty
+- 📂 **Dialog s instrukcemi** - jasné pokyny pro uživatele
+- 🎯 **Přímá navigace** - tlačítko "Jít do Nastavení" otevře přímo System panel
 
 ### 🧪 Otestováno:
-- ✅ Filtrování - checkboxy fungují okamžitě
-- ✅ Kombinování filtrů - můžeš mít zaškrtnuté více checkboxů najednou
-- ✅ Statistiky - nemění se při změně filtrů
-- ✅ Zarovnání - hlavičky perfektně zarovnané s daty
+- ✅ Dialog při spuštění - zobrazí se když cesta není nastavena
+- ✅ Status Bar blinking - bliká červenou dokud není nastavena
+- ✅ Navigace do System panelu - přímý přesun na správnou kartu
+- ✅ Build bez chyb - kompilace proběhla úspěšně
 
 ### 🔧 Další úkoly:
 1. **Upravit tisk účtenek (prodej vs uplatnění)** - rozlišit formát tisku
-2. **Testovat veškeré scenáře** - kompletní testování systému poukazů
-3. **PRIORITA:** Systém uživatelských účtů
-4. Export uzavírek do CSV/PDF
-5. Skutečný PrintService
+2. **Export uzavírek do CSV/PDF**
+3. **Skutečný PrintService** - implementovat skutečný tisk
+4. **Vylepšit error handling** - lokalizované chybové hlášky
 
 ---
 
@@ -459,4 +430,4 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-**Poslední aktualizace:** 24. listopad 2025
+**Poslední aktualizace:** 25. listopad 2025
