@@ -25,34 +25,44 @@ namespace Sklad_2.Services
             try
             {
                 using var context = _contextFactory.CreateDbContext();
-                
+
                 // Ensure database exists
-                await context.Database.EnsureCreatedAsync();
-                
+                var wasCreated = await EnsureDatabaseExistsAsync(context);
+
                 // Create schema_versions table if not exists
                 await EnsureSchemaVersionTableExistsAsync(context);
-                
+
                 var currentVersion = await GetCurrentSchemaVersionAsync();
                 Debug.WriteLine($"DatabaseMigrationService: Current schema version: {currentVersion}");
-                
+
+                // If database was just created with EnsureCreated, it has the latest schema
+                // Set version to CURRENT_SCHEMA_VERSION to skip all migrations
+                if (wasCreated && currentVersion == 0)
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: New database created, setting version to {CURRENT_SCHEMA_VERSION}");
+                    await UpdateSchemaVersionAsync(context, CURRENT_SCHEMA_VERSION);
+                    Debug.WriteLine($"DatabaseMigrationService: Database is up to date (version {CURRENT_SCHEMA_VERSION})");
+                    return true;
+                }
+
                 // Apply migrations step by step
                 while (currentVersion < CURRENT_SCHEMA_VERSION)
                 {
                     var nextVersion = currentVersion + 1;
                     Debug.WriteLine($"DatabaseMigrationService: Migrating to version {nextVersion}");
-                    
+
                     var success = await ApplyMigrationAsync(context, nextVersion);
                     if (!success)
                     {
                         Debug.WriteLine($"DatabaseMigrationService: Migration to version {nextVersion} FAILED");
                         return false;
                     }
-                    
+
                     await UpdateSchemaVersionAsync(context, nextVersion);
                     currentVersion = nextVersion;
                     Debug.WriteLine($"DatabaseMigrationService: Successfully migrated to version {nextVersion}");
                 }
-                
+
                 Debug.WriteLine($"DatabaseMigrationService: Database is up to date (version {CURRENT_SCHEMA_VERSION})");
                 return true;
             }
@@ -107,11 +117,33 @@ namespace Sklad_2.Services
             return currentVersion >= CURRENT_SCHEMA_VERSION;
         }
 
-        private async Task EnsureSchemaVersionTableExistsAsync(DatabaseContext context)
+        private async Task<bool> EnsureDatabaseExistsAsync(DatabaseContext context)
         {
             var connection = context.Database.GetDbConnection();
             await connection.OpenAsync();
-            
+
+            // Check if Products table exists before EnsureCreated
+            using var checkCommand = connection.CreateCommand();
+            checkCommand.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Products'";
+            var tableCount = (long)await checkCommand.ExecuteScalarAsync();
+
+            bool databaseExisted = tableCount > 0;
+
+            // Create database if it doesn't exist
+            await context.Database.EnsureCreatedAsync();
+
+            // Return true if database was just created (didn't exist before)
+            return !databaseExisted;
+        }
+
+        private async Task EnsureSchemaVersionTableExistsAsync(DatabaseContext context)
+        {
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
             using var command = connection.CreateCommand();
             command.CommandText = @"
                 CREATE TABLE IF NOT EXISTS schema_versions (
@@ -120,7 +152,7 @@ namespace Sklad_2.Services
                     applied_at TEXT NOT NULL,
                     description TEXT NOT NULL
                 )";
-            
+
             await command.ExecuteNonQueryAsync();
         }
 
