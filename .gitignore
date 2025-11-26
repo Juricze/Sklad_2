@@ -18,6 +18,7 @@ settings.json
 # Ignore packaging output
 AppPackages/
 Bundle/
+*.zip
 
 # Ignore Rider files
 .idea/
