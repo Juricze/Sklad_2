@@ -23,7 +23,8 @@
       "WebFetch(domain:epson.com)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(dotnet publish:*)"
+      "Bash(dotnet publish:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

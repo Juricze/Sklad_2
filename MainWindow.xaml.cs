@@ -13,6 +13,7 @@ using WinRT; // Required for Window.As<ICompositionSupportsSystemBackdrop>()
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Windowing;
 
 namespace Sklad_2
 {
@@ -47,6 +48,13 @@ namespace Sklad_2
 
             // Update app's current window reference for pickers/dialogs in pages
             app.CurrentWindow = this;
+
+            // Use AppWindow.Closing event for reliable close handling on Win10/Win11
+            var appWindow = GetAppWindowForCurrentWindow();
+            if (appWindow != null)
+            {
+                appWindow.Closing += AppWindow_Closing;
+            }
 
             TrySetSystemBackdrop();
 
@@ -440,7 +448,14 @@ namespace Sklad_2
             }
         }
 
-        private async void Window_Closed(object sender, WindowEventArgs args)
+        private AppWindow GetAppWindowForCurrentWindow()
+        {
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var winId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            return AppWindow.GetFromWindowId(winId);
+        }
+
+        private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
         {
             // Log to file for debugging
             var logPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Sklad_2_Data", "backup_log.txt");
@@ -449,21 +464,19 @@ namespace Sklad_2
                 try { System.IO.File.AppendAllText(logPath, $"{DateTime.Now:HH:mm:ss} - {msg}\n"); } catch { }
             }
 
-            Log("Window_Closed: Event triggered");
+            Log("AppWindow_Closing: Event triggered");
 
             // Prevent multiple executions
             if (_isClosing)
             {
-                Log("Window_Closed: Already closing, returning");
+                Log("AppWindow_Closing: Already closing, returning");
                 return;
             }
 
+            // Cancel close to show dialogs
+            args.Cancel = true;
             _isClosing = true;
-            Log("Window_Closed: Set _isClosing = true");
-
-            // Always cancel initial close to show backup dialog
-            args.Handled = true;
-            Log("Window_Closed: args.Handled = true");
+            Log("AppWindow_Closing: Set _isClosing = true, args.Cancel = true");
 
             // Check if day close was performed (only for Sales role)
             if (IsSalesRole)
@@ -473,6 +486,7 @@ namespace Sklad_2
 
                 if (!isDayClosedToday)
                 {
+                    Log("AppWindow_Closing: Day not closed, showing warning dialog");
                     // Show warning dialog
                     var dialog = new ContentDialog
                     {
@@ -490,14 +504,17 @@ namespace Sklad_2
                     {
                         // User cancelled - window stays open, reset flag
                         _isClosing = false;
+                        Log("AppWindow_Closing: User cancelled, resetting _isClosing");
                         return;
                     }
                 }
             }
 
+            Log("AppWindow_Closing: Performing backup...");
             // Perform backup in background
             await System.Threading.Tasks.Task.Run(() => PerformDatabaseSync());
 
+            Log("AppWindow_Closing: Showing completion dialog...");
             // Show completion dialog
             var completionDialog = new ContentDialog
             {
@@ -510,11 +527,16 @@ namespace Sklad_2
 
             await completionDialog.ShowAsync();
 
-            // Unsubscribe from Closed event
-            this.Closed -= Window_Closed;
-
+            Log("AppWindow_Closing: Exiting application...");
             // Exit application with success code
-            this.DispatcherQueue.TryEnqueue(() => System.Environment.Exit(0));
+            System.Environment.Exit(0);
+        }
+
+        // Keep old handler for backwards compatibility but it shouldn't be called
+        private async void Window_Closed(object sender, WindowEventArgs args)
+        {
+            // This is now handled by AppWindow_Closing
+            // Keep this as fallback
         }
 
         private void PerformDatabaseSync()
