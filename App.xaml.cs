@@ -5,6 +5,7 @@ using Sklad_2.Data;
 using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
@@ -13,6 +14,13 @@ namespace Sklad_2
 {
     public partial class App : Application
     {
+        // Win32 MessageBox for single-instance warning (before WinUI is initialized)
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+
+        private const uint MB_OK = 0x00000000;
+        private const uint MB_ICONWARNING = 0x00000030;
+
         public IServiceProvider Services { get; }
         private Window m_window;
         private static Mutex _singleInstanceMutex;
@@ -51,19 +59,13 @@ namespace Sklad_2
                 // Another instance is already running
                 System.Diagnostics.Debug.WriteLine("[App] Another instance is already running. Exiting.");
 
-                // Show warning dialog
-                var warningWindow = new Microsoft.UI.Xaml.Window();
-                warningWindow.Activate();
-
-                var warningDialog = new Microsoft.UI.Xaml.Controls.ContentDialog()
-                {
-                    Title = "Aplikace již běží",
-                    Content = "Sklad 2 je již spuštěn. Může běžet pouze jedna instance aplikace.",
-                    CloseButtonText = "OK",
-                    XamlRoot = warningWindow.Content.XamlRoot
-                };
-
-                await warningDialog.ShowAsync();
+                // Show Win32 MessageBox (works before WinUI is fully initialized)
+                MessageBox(
+                    IntPtr.Zero,
+                    "Sklad 2 je již spuštěn.\n\nMůže běžet pouze jedna instance aplikace.",
+                    "Aplikace již běží",
+                    MB_OK | MB_ICONWARNING
+                );
 
                 // Release mutex and exit
                 _singleInstanceMutex?.Close();
