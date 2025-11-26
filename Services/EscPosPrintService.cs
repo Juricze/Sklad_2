@@ -310,13 +310,15 @@ namespace Sklad_2.Services
             // Center align: ESC a 1
             commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
 
-            // Bold ON: ESC E 1
+            // Bold ON + Double size (height+width): ESC E 1, GS ! 0x30
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+            commands.AddRange(new byte[] { 0x1D, 0x21, 0x30 }); // Double height + width (2× size)
             commands.AddRange(Cp852.GetBytes(receipt.ShopName ?? ""));
             commands.AddRange(new byte[] { 0x0A }); // Line feed
 
-            // Bold OFF: ESC E 0
+            // Reset styles: Bold OFF, Normal size: ESC E 0, GS ! 0
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+            commands.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
             commands.AddRange(Cp852.GetBytes(receipt.ShopAddress ?? ""));
             commands.AddRange(new byte[] { 0x0A });
 
@@ -599,14 +601,14 @@ namespace Sklad_2.Services
             // Center align: ESC a 1
             commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
 
-            // Bold ON + Double height: ESC E 1, GS ! 0x10
+            // Bold ON + Double size (height+width): ESC E 1, GS ! 0x30
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
-            commands.AddRange(new byte[] { 0x1D, 0x21, 0x10 });
+            commands.AddRange(new byte[] { 0x1D, 0x21, 0x30 }); // Double height + width (2× size)
 
             commands.AddRange(Cp852.GetBytes(returnDocument.ShopName ?? ""));
             commands.AddRange(new byte[] { 0x0A });
 
-            // Reset styles: ESC E 0, GS ! 0
+            // Reset styles: Bold OFF, Normal size: ESC E 0, GS ! 0
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
             commands.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
 
