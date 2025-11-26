@@ -17,12 +17,61 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 25. listopad 2025 (večer)**
+## 📅 **Poslední session: 26. listopad 2025**
+
+### ✅ Hotovo:
+**Auto-update systém + Oprava backup pro Win10**
+
+**Klíčové změny této session:**
+
+1. **Oprava backup systému**
+   - `App.xaml.cs` - oprava názvu `AppSettings.json` → `settings.json`
+   - Win10 nevolal `Window.Closed` event správně
+   - Přidán `AppWindow.Closing` handler pro spolehlivé zachycení zavření okna
+   - File logging do `backup_log.txt` pro troubleshooting
+
+2. **Auto-update systém**
+   - `UpdateService.cs` - kontrola nových verzí z GitHub Releases API
+   - Automatická kontrola při startu (pouze Admin)
+   - Dialog s nabídkou aktualizace
+   - Download a instalace přes batch script
+
+3. **GitHub Actions workflow**
+   - `.github/workflows/release.yml` - automatický build při push tagu
+   - Problém s permissions - nutné nastavit "Read and write permissions" v repo settings
+   - Alternativa: ruční upload přes `gh release create`
+
+4. **Verzování**
+   - `Sklad_2.csproj` - přidány Version, AssemblyVersion, FileVersion
+   - Aktuální verze: **v1.0.1**
+
+**Technické detaily:**
+
+- `AppWindow.Closing` je spolehlivější než `Window.Closed` pro WinUI 3
+- `GetAppWindowForCurrentWindow()` helper pro získání AppWindow instance
+- FolderPicker nefunguje na Win10 bez správného HWND
+
+**Upravené soubory:**
+- `App.xaml.cs` - oprava settings.json, registrace UpdateService
+- `MainWindow.xaml.cs` - AppWindow.Closing, file logging
+- `Services/UpdateService.cs` - NOVÝ
+- `.github/workflows/release.yml` - NOVÝ
+- `Sklad_2.csproj` - verzování
+
+**Testováno:**
+- ✅ Backup funguje na Win10 i Win11
+- ✅ Dialog "Záloha dokončena" se zobrazí
+- ✅ File logging funguje
+- ✅ Release v1.0.1 na GitHub
+
+---
+
+## 📅 **Předchozí session: 25. listopad 2025 (večer)**
 
 ### ✅ Hotovo:
 **Kompletní implementace tisku účtenek s českými znaky**
 
-**Klíčové změny této session:**
+**Klíčové změny:**
 
 1. **Automatický tisk při prodeji**
    - `ProdejViewModel.cs` - přidán `IPrintService` do DI
@@ -312,28 +361,40 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
    ```
 
-13. **Window_Closed a async operace** ⚠️
-   - Přímé volání file operací v `Window_Closed` může způsobit Access Violation
-   - **Řešení:**
+13. **Window_Closed vs AppWindow.Closing** ⚠️ AKTUALIZOVÁNO!
+   - `Window.Closed` event **NEFUNGUJE SPOLEHLIVĚ na Win10!**
+   - **Řešení: Použít `AppWindow.Closing`:**
    ```csharp
-   private async void Window_Closed(object sender, WindowEventArgs args)
+   // V konstruktoru
+   var appWindow = GetAppWindowForCurrentWindow();
+   appWindow.Closing += AppWindow_Closing;
+
+   // Helper metoda
+   private AppWindow GetAppWindowForCurrentWindow()
    {
-       // Prevent multiple executions
+       var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+       var winId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+       return AppWindow.GetFromWindowId(winId);
+   }
+
+   // Event handler
+   private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+   {
        if (_isClosing) return;
+       args.Cancel = true;  // Cancel initial close
        _isClosing = true;
-       args.Handled = true;  // Cancel initial close
 
        // Perform operations
        await Task.Run(() => PerformBackup());
        await completionDialog.ShowAsync();
 
-       // Unsubscribe and exit
-       this.Closed -= Window_Closed;
-       this.DispatcherQueue.TryEnqueue(() => Environment.Exit(0));
+       // Exit
+       Environment.Exit(0);
    }
    ```
+   - `using Microsoft.UI.Windowing;` pro AppWindow
    - Flag `_isClosing` zabraňuje nekonečnému cyklu
-   - `Environment.Exit(0)` vrací správný exit code (ne -1)
+   - `Environment.Exit(0)` vrací správný exit code
 
 14. **Visual Tree Traversal vs Data Binding** ⚠️ NOVÉ!
    - `FindVisualChildren<T>()` má problémy s načasováním v `Page_Loaded`
@@ -531,4 +592,5 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-**Poslední aktualizace:** 25. listopad 2025
+**Poslední aktualizace:** 26. listopad 2025
+**Aktuální verze:** v1.0.1
