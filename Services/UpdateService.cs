@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -39,15 +40,21 @@ namespace Sklad_2.Services
             // Get current version from assembly
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             CurrentVersion = version != null ? $"v{version.Major}.{version.Minor}.{version.Build}" : "v1.0.0";
+
+            Debug.WriteLine($"[UpdateService] Initialized. Current version: {CurrentVersion}");
         }
 
         public async Task<UpdateInfo> CheckForUpdatesAsync()
         {
             try
             {
-                Debug.WriteLine($"UpdateService: Checking for updates. Current version: {CurrentVersion}");
+                Debug.WriteLine($"[UpdateService] Starting update check...");
+                Debug.WriteLine($"[UpdateService] Current version: {CurrentVersion}");
+                Debug.WriteLine($"[UpdateService] Calling GitHub API: {GITHUB_API_URL}");
 
                 var response = await _httpClient.GetStringAsync(GITHUB_API_URL);
+                Debug.WriteLine($"[UpdateService] GitHub API response received ({response.Length} chars)");
+
                 var json = JsonDocument.Parse(response);
                 var root = json.RootElement;
 
@@ -55,22 +62,36 @@ namespace Sklad_2.Services
                 var releaseNotes = root.GetProperty("body").GetString() ?? "";
                 var publishedAt = root.GetProperty("published_at").GetDateTime();
 
-                // Find the exe download URL
+                Debug.WriteLine($"[UpdateService] Latest GitHub version: {latestVersion}");
+                Debug.WriteLine($"[UpdateService] Published at: {publishedAt:yyyy-MM-dd HH:mm:ss}");
+
+                // Find the ZIP download URL (multi-file deployment)
                 string downloadUrl = null;
                 var assets = root.GetProperty("assets");
+                Debug.WriteLine($"[UpdateService] Scanning {assets.GetArrayLength()} release assets...");
+
                 foreach (var asset in assets.EnumerateArray())
                 {
                     var name = asset.GetProperty("name").GetString();
-                    if (name != null && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    Debug.WriteLine($"[UpdateService]   - Asset: {name}");
+
+                    if (name != null && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
                     {
                         downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                        var sizeBytes = asset.GetProperty("size").GetInt64();
+                        Debug.WriteLine($"[UpdateService] ✓ Found ZIP asset: {name} ({sizeBytes / 1024 / 1024} MB)");
+                        Debug.WriteLine($"[UpdateService] Download URL: {downloadUrl}");
                         break;
                     }
                 }
 
-                var isNewer = IsNewerVersion(latestVersion, CurrentVersion);
+                if (downloadUrl == null)
+                {
+                    Debug.WriteLine($"[UpdateService] ⚠ WARNING: No ZIP file found in release assets!");
+                }
 
-                Debug.WriteLine($"UpdateService: Latest version: {latestVersion}, Is newer: {isNewer}");
+                var isNewer = IsNewerVersion(latestVersion, CurrentVersion);
+                Debug.WriteLine($"[UpdateService] Version comparison: {CurrentVersion} -> {latestVersion} = {(isNewer ? "NEWER" : "SAME/OLDER")}");
 
                 return new UpdateInfo
                 {
@@ -81,9 +102,22 @@ namespace Sklad_2.Services
                     IsNewerVersion = isNewer
                 };
             }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ HTTP ERROR: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                return null;
+            }
+            catch (JsonException ex)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ JSON PARSE ERROR: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                return null;
+            }
             catch (Exception ex)
             {
-                Debug.WriteLine($"UpdateService: Error checking for updates: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] ❌ UNEXPECTED ERROR: {ex.GetType().Name}: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
                 return null;
             }
         }
@@ -91,76 +125,311 @@ namespace Sklad_2.Services
         public async Task<bool> DownloadAndInstallUpdateAsync(UpdateInfo updateInfo, IProgress<int> progress = null)
         {
             if (updateInfo?.DownloadUrl == null)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ ERROR: No download URL provided!");
                 return false;
+            }
+
+            string tempUpdateFolder = null;
+            string zipPath = null;
+            string extractPath = null;
 
             try
             {
-                Debug.WriteLine($"UpdateService: Downloading update from {updateInfo.DownloadUrl}");
+                Debug.WriteLine($"[UpdateService] ========== STARTING UPDATE PROCESS ==========");
+                Debug.WriteLine($"[UpdateService] Version: {updateInfo.Version}");
+                Debug.WriteLine($"[UpdateService] Download URL: {updateInfo.DownloadUrl}");
 
-                // Download to temp folder
-                var tempPath = Path.Combine(Path.GetTempPath(), "Sklad_2_Update");
-                Directory.CreateDirectory(tempPath);
-                var downloadPath = Path.Combine(tempPath, "Sklad_2_new.exe");
+                // Step 1: Create temp folders
+                Debug.WriteLine($"[UpdateService] Step 1: Creating temporary folders...");
+                tempUpdateFolder = Path.Combine(Path.GetTempPath(), $"Sklad_2_Update_{Guid.NewGuid():N}");
+                Directory.CreateDirectory(tempUpdateFolder);
+                Debug.WriteLine($"[UpdateService] ✓ Temp folder created: {tempUpdateFolder}");
 
-                using var response = await _httpClient.GetAsync(updateInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
+                zipPath = Path.Combine(tempUpdateFolder, "Sklad_2_Update.zip");
+                extractPath = Path.Combine(tempUpdateFolder, "extracted");
 
-                var totalBytes = response.Content.Headers.ContentLength ?? -1;
-                var downloadedBytes = 0L;
+                // Step 2: Download ZIP file
+                Debug.WriteLine($"[UpdateService] Step 2: Downloading ZIP file...");
+                Debug.WriteLine($"[UpdateService] Target file: {zipPath}");
 
-                using var contentStream = await response.Content.ReadAsStreamAsync();
-                using var fileStream = new FileStream(downloadPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
-
-                var buffer = new byte[8192];
-                int bytesRead;
-
-                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                using (var response = await _httpClient.GetAsync(updateInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    await fileStream.WriteAsync(buffer, 0, bytesRead);
-                    downloadedBytes += bytesRead;
+                    response.EnsureSuccessStatusCode();
 
-                    if (totalBytes > 0 && progress != null)
+                    var totalBytes = response.Content.Headers.ContentLength ?? -1;
+                    var downloadedBytes = 0L;
+
+                    Debug.WriteLine($"[UpdateService] Download size: {(totalBytes > 0 ? $"{totalBytes / 1024 / 1024} MB" : "Unknown")}");
+
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+                    using var fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+                    var buffer = new byte[8192];
+                    int bytesRead;
+
+                    while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                     {
-                        var percentComplete = (int)((downloadedBytes * 100) / totalBytes);
-                        progress.Report(percentComplete);
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                        downloadedBytes += bytesRead;
+
+                        if (totalBytes > 0 && progress != null)
+                        {
+                            var percentComplete = (int)((downloadedBytes * 100) / totalBytes);
+                            progress.Report(percentComplete);
+
+                            if (downloadedBytes % (1024 * 1024 * 10) < 8192) // Log every ~10MB
+                            {
+                                Debug.WriteLine($"[UpdateService] Downloaded: {downloadedBytes / 1024 / 1024} MB / {totalBytes / 1024 / 1024} MB ({percentComplete}%)");
+                            }
+                        }
+                    }
+
+                    Debug.WriteLine($"[UpdateService] ✓ Download complete: {downloadedBytes / 1024 / 1024} MB");
+                }
+
+                // Step 3: Verify ZIP file
+                Debug.WriteLine($"[UpdateService] Step 3: Verifying ZIP file...");
+                var zipFileInfo = new FileInfo(zipPath);
+                if (!zipFileInfo.Exists)
+                {
+                    Debug.WriteLine($"[UpdateService] ❌ ERROR: ZIP file does not exist after download!");
+                    return false;
+                }
+                Debug.WriteLine($"[UpdateService] ✓ ZIP file verified: {zipFileInfo.Length / 1024 / 1024} MB");
+
+                // Step 4: Extract ZIP file
+                Debug.WriteLine($"[UpdateService] Step 4: Extracting ZIP file...");
+                Directory.CreateDirectory(extractPath);
+
+                try
+                {
+                    ZipFile.ExtractToDirectory(zipPath, extractPath);
+                    Debug.WriteLine($"[UpdateService] ✓ ZIP extracted successfully");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[UpdateService] ❌ EXTRACTION ERROR: {ex.Message}");
+                    throw new Exception($"Failed to extract ZIP file: {ex.Message}", ex);
+                }
+
+                // Step 5: Verify extracted files
+                Debug.WriteLine($"[UpdateService] Step 5: Verifying extracted files...");
+                var extractedFiles = Directory.GetFiles(extractPath, "*.*", SearchOption.AllDirectories);
+                Debug.WriteLine($"[UpdateService] ✓ Extracted {extractedFiles.Length} files");
+
+                bool foundExe = false;
+                foreach (var file in extractedFiles)
+                {
+                    var fileName = Path.GetFileName(file);
+                    if (fileName == "Sklad_2.exe")
+                    {
+                        foundExe = true;
+                        Debug.WriteLine($"[UpdateService] ✓ Found main executable: {fileName}");
+                        break;
                     }
                 }
 
-                Debug.WriteLine($"UpdateService: Download complete. Starting installer...");
+                if (!foundExe)
+                {
+                    Debug.WriteLine($"[UpdateService] ❌ ERROR: Sklad_2.exe not found in extracted files!");
+                    return false;
+                }
 
-                // Create a batch script to replace the exe after the app closes
+                // Step 6: Get current exe location
+                Debug.WriteLine($"[UpdateService] Step 6: Determining installation folder...");
                 var currentExePath = Process.GetCurrentProcess().MainModule?.FileName;
                 if (currentExePath == null)
-                    return false;
-
-                var batchPath = Path.Combine(tempPath, "update.bat");
-                var batchContent = $@"@echo off
-echo Cekam na ukonceni aplikace...
-timeout /t 2 /nobreak > nul
-echo Instaluji aktualizaci...
-copy /Y ""{downloadPath}"" ""{currentExePath}""
-echo Spoustim novou verzi...
-start """" ""{currentExePath}""
-del ""{downloadPath}""
-del ""%~f0""
-";
-                await File.WriteAllTextAsync(batchPath, batchContent, System.Text.Encoding.GetEncoding(852));
-
-                // Start the batch script
-                Process.Start(new ProcessStartInfo
                 {
-                    FileName = batchPath,
-                    UseShellExecute = true,
+                    Debug.WriteLine($"[UpdateService] ❌ ERROR: Cannot determine current exe path!");
+                    return false;
+                }
+
+                var installFolder = Path.GetDirectoryName(currentExePath);
+                Debug.WriteLine($"[UpdateService] ✓ Current exe: {currentExePath}");
+                Debug.WriteLine($"[UpdateService] ✓ Installation folder: {installFolder}");
+
+                // Step 7: Create PowerShell update script
+                Debug.WriteLine($"[UpdateService] Step 7: Creating PowerShell update script...");
+                var scriptPath = Path.Combine(tempUpdateFolder, "update.ps1");
+
+                // PowerShell script with detailed logging and error handling
+                var scriptContent = $@"
+# Sklad_2 Update Script v1.0.2
+# Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
+
+$ErrorActionPreference = ""Stop""
+$LogFile = ""{Path.Combine(tempUpdateFolder, "update.log")}""
+
+function Write-Log {{
+    param([string]$Message)
+    $timestamp = Get-Date -Format ""yyyy-MM-dd HH:mm:ss""
+    $logMessage = ""[$timestamp] $Message""
+    Write-Host $logMessage
+    Add-Content -Path $LogFile -Value $logMessage
+}}
+
+try {{
+    Write-Log ""========== SKLAD_2 UPDATE SCRIPT =========""
+    Write-Log ""Version: {updateInfo.Version}""
+    Write-Log ""Installation folder: {installFolder}""
+    Write-Log ""Source folder: {extractPath}""
+    Write-Log """"
+
+    # Step 1: Wait for application to close
+    Write-Log ""Step 1: Waiting for application to close (3 seconds)...""
+    Start-Sleep -Seconds 3
+    Write-Log ""OK: Wait complete""
+
+    # Step 2: Create backup
+    Write-Log ""Step 2: Creating backup...""
+    $backupFolder = ""{Path.Combine(tempUpdateFolder, "backup")}""
+    New-Item -ItemType Directory -Path $backupFolder -Force | Out-Null
+    Copy-Item -Path ""{installFolder}\*"" -Destination $backupFolder -Recurse -Force
+    Write-Log ""OK: Backup created at: $backupFolder""
+
+    # Step 3: Copy new files (excluding user data)
+    Write-Log ""Step 3: Copying new files...""
+    $sourceFiles = Get-ChildItem -Path ""{extractPath}"" -Recurse -File
+    $copiedCount = 0
+    $skippedCount = 0
+
+    foreach ($file in $sourceFiles) {{
+        $relativePath = $file.FullName.Substring(""{extractPath}"".Length + 1)
+        $targetPath = Join-Path ""{installFolder}"" $relativePath
+
+        # Skip user data folders
+        if ($relativePath -like ""*AppData*"" -or $relativePath -like ""*settings.json*"") {{
+            Write-Log ""  SKIP: $relativePath (user data)""
+            $skippedCount++
+            continue
+        }}
+
+        $targetDir = Split-Path $targetPath -Parent
+        if (-not (Test-Path $targetDir)) {{
+            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        }}
+
+        Copy-Item -Path $file.FullName -Destination $targetPath -Force
+        $copiedCount++
+    }}
+
+    Write-Log ""OK: Copied $copiedCount files, skipped $skippedCount files""
+
+    # Step 4: Restart application
+    Write-Log ""Step 4: Restarting application...""
+    Start-Process -FilePath ""{currentExePath}""
+    Write-Log ""OK: Application restarted""
+
+    # Step 5: Cleanup temp files (after delay)
+    Write-Log ""Step 5: Scheduling cleanup...""
+    Start-Sleep -Seconds 2
+
+    Remove-Item -Path ""{tempUpdateFolder}"" -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Log ""OK: Cleanup complete""
+
+    Write-Log ""========== UPDATE SUCCESSFUL =========""
+    exit 0
+}}
+catch {{
+    Write-Log ""ERROR: $($_.Exception.Message)""
+    Write-Log ""Stack Trace: $($_.ScriptStackTrace)""
+
+    # Restore backup on error
+    Write-Log ""Attempting to restore backup...""
+    try {{
+        Copy-Item -Path ""{Path.Combine(tempUpdateFolder, "backup")}\*"" -Destination ""{installFolder}"" -Recurse -Force
+        Write-Log ""OK: Backup restored successfully""
+    }}
+    catch {{
+        Write-Log ""CRITICAL ERROR: Failed to restore backup: $($_.Exception.Message)""
+    }}
+
+    Write-Log ""========== UPDATE FAILED =========""
+    exit 1
+}}
+";
+
+                await File.WriteAllTextAsync(scriptPath, scriptContent);
+                Debug.WriteLine($"[UpdateService] ✓ PowerShell script created: {scriptPath}");
+                Debug.WriteLine($"[UpdateService] Script size: {new FileInfo(scriptPath).Length} bytes");
+
+                // Step 8: Start PowerShell update script
+                Debug.WriteLine($"[UpdateService] Step 8: Launching PowerShell update script...");
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-ExecutionPolicy Bypass -WindowStyle Hidden -File \"{scriptPath}\"",
+                    UseShellExecute = false,
                     CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                });
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                };
+
+                var process = Process.Start(psi);
+                if (process == null)
+                {
+                    Debug.WriteLine($"[UpdateService] ❌ ERROR: Failed to start PowerShell process!");
+                    return false;
+                }
+
+                Debug.WriteLine($"[UpdateService] ✓ PowerShell script launched (PID: {process.Id})");
+                Debug.WriteLine($"[UpdateService] ✓ Log file will be at: {Path.Combine(tempUpdateFolder, "update.log")}");
+                Debug.WriteLine($"[UpdateService] ========== UPDATE PROCESS COMPLETE ==========");
+                Debug.WriteLine($"[UpdateService] Application will now close and restart with new version.");
 
                 return true;
             }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ DOWNLOAD ERROR: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] StatusCode: {ex.StatusCode}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                CleanupTempFolder(tempUpdateFolder);
+                return false;
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ FILE I/O ERROR: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                CleanupTempFolder(tempUpdateFolder);
+                return false;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Debug.WriteLine($"[UpdateService] ❌ ACCESS DENIED: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] This may require administrator privileges!");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                CleanupTempFolder(tempUpdateFolder);
+                return false;
+            }
             catch (Exception ex)
             {
-                Debug.WriteLine($"UpdateService: Error downloading update: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] ❌ UNEXPECTED ERROR: {ex.GetType().Name}: {ex.Message}");
+                Debug.WriteLine($"[UpdateService] Stack trace: {ex.StackTrace}");
+                CleanupTempFolder(tempUpdateFolder);
                 return false;
+            }
+        }
+
+        private void CleanupTempFolder(string folderPath)
+        {
+            if (folderPath == null)
+                return;
+
+            try
+            {
+                if (Directory.Exists(folderPath))
+                {
+                    Debug.WriteLine($"[UpdateService] Cleaning up temp folder: {folderPath}");
+                    Directory.Delete(folderPath, true);
+                    Debug.WriteLine($"[UpdateService] ✓ Cleanup successful");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[UpdateService] ⚠ Cleanup warning: {ex.Message}");
             }
         }
 
@@ -168,6 +437,8 @@ del ""%~f0""
         {
             try
             {
+                Debug.WriteLine($"[UpdateService] Comparing versions: current='{current}' vs latest='{latest}'");
+
                 // Remove 'v' prefix if present
                 latest = latest?.TrimStart('v') ?? "0.0.0";
                 current = current?.TrimStart('v') ?? "0.0.0";
@@ -181,15 +452,23 @@ del ""%~f0""
                     var currentNum = i < currentParts.Length && int.TryParse(currentParts[i], out var cn) ? cn : 0;
 
                     if (latestNum > currentNum)
+                    {
+                        Debug.WriteLine($"[UpdateService] Version comparison result: NEWER (part {i}: {latestNum} > {currentNum})");
                         return true;
+                    }
                     if (latestNum < currentNum)
+                    {
+                        Debug.WriteLine($"[UpdateService] Version comparison result: OLDER (part {i}: {latestNum} < {currentNum})");
                         return false;
+                    }
                 }
 
+                Debug.WriteLine($"[UpdateService] Version comparison result: SAME");
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"[UpdateService] ❌ Version comparison error: {ex.Message}");
                 return false;
             }
         }

@@ -15,6 +15,8 @@
     <Version>1.0.2</Version>
     <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <FileVersion>1.0.2.0</FileVersion>
+    <!-- Only include en-US and cs-CZ language resources (removes 100+ unused language folders) -->
+    <SatelliteResourceLanguages>en-US;cs-CZ</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +40,12 @@
   <Target Name="CheckDatabaseChanges" BeforeTargets="Build">
     <Message Text="🔍 Checking for database changes..." Importance="high" />
     <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" ContinueOnError="false" IgnoreExitCode="false" Condition="Exists('$(MSBuildProjectDirectory)\Scripts\CheckDatabaseChanges.ps1')" />
+  </Target>
+
+  <!-- Remove unused language folders after publish (keep only en-US and cs-CZ) -->
+  <Target Name="RemoveUnusedLanguages" AfterTargets="Publish">
+    <Message Text="🧹 Removing unused language folders..." Importance="high" />
+    <Exec Command="powershell -Command &quot;Get-ChildItem '$(PublishDir)' -Directory | Where-Object { $_.Name -match '^[a-z]{2}-' -and $_.Name -notin @('en-US', 'cs-CZ') } | Remove-Item -Recurse -Force&quot;" />
   </Target>
 
 </Project>
