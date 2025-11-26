@@ -5,6 +5,7 @@ using Sklad_2.Data;
 using Sklad_2.Services;
 using Sklad_2.ViewModels;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 
@@ -14,6 +15,7 @@ namespace Sklad_2
     {
         public IServiceProvider Services { get; }
         private Window m_window;
+        private static Mutex _singleInstanceMutex;
 
         // Public accessor for current window (needed for dialogs/pickers in pages)
         public Window CurrentWindow
@@ -40,6 +42,38 @@ namespace Sklad_2
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
+            // Single instance protection - only one instance of the app can run at a time
+            bool createdNew;
+            _singleInstanceMutex = new Mutex(true, "Sklad_2_SingleInstance_Mutex", out createdNew);
+
+            if (!createdNew)
+            {
+                // Another instance is already running
+                System.Diagnostics.Debug.WriteLine("[App] Another instance is already running. Exiting.");
+
+                // Show warning dialog
+                var warningWindow = new Microsoft.UI.Xaml.Window();
+                warningWindow.Activate();
+
+                var warningDialog = new Microsoft.UI.Xaml.Controls.ContentDialog()
+                {
+                    Title = "Aplikace již běží",
+                    Content = "Sklad 2 je již spuštěn. Může běžet pouze jedna instance aplikace.",
+                    CloseButtonText = "OK",
+                    XamlRoot = warningWindow.Content.XamlRoot
+                };
+
+                await warningDialog.ShowAsync();
+
+                // Release mutex and exit
+                _singleInstanceMutex?.Close();
+                _singleInstanceMutex = null;
+                Environment.Exit(0);
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine("[App] Single instance mutex acquired successfully.");
+
             var settingsService = Services.GetRequiredService<ISettingsService>();
             await settingsService.LoadSettingsAsync();
 
@@ -216,6 +250,13 @@ namespace Sklad_2
                 sp.GetRequiredService<IAuthService>()));
 
             return services.BuildServiceProvider();
+        }
+
+        // Cleanup: Release mutex when app exits
+        ~App()
+        {
+            _singleInstanceMutex?.ReleaseMutex();
+            _singleInstanceMutex?.Dispose();
         }
     }
 }
