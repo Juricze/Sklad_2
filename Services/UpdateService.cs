@@ -255,7 +255,7 @@ namespace Sklad_2.Services
 
                 // PowerShell script with detailed logging and error handling
                 var scriptContent = $@"
-# Sklad_2 Update Script v1.0.2
+# Sklad_2 Update Script v1.0.4
 # Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
 
 $ErrorActionPreference = ""Stop""
@@ -274,59 +274,95 @@ try {{
     Write-Log ""Version: {updateInfo.Version}""
     Write-Log ""Installation folder: {installFolder}""
     Write-Log ""Source folder: {extractPath}""
+    Write-Log ""Current exe: {currentExePath}""
+    Write-Log ""Log file: $LogFile""
     Write-Log """"
 
     # Step 1: Wait for application to close
-    Write-Log ""Step 1: Waiting for application to close (3 seconds)...""
-    Start-Sleep -Seconds 3
-    Write-Log ""OK: Wait complete""
+    Write-Log ""Step 1: Waiting for application to close...""
+    Start-Sleep -Seconds 2
+
+    # Wait for Sklad_2 process to exit (max 10 seconds)
+    $waitCount = 0
+    while ((Get-Process -Name ""Sklad_2"" -ErrorAction SilentlyContinue) -and $waitCount -lt 10) {{
+        Write-Log ""  Waiting for Sklad_2.exe to exit... ($waitCount/10)""
+        Start-Sleep -Seconds 1
+        $waitCount++
+    }}
+
+    if (Get-Process -Name ""Sklad_2"" -ErrorAction SilentlyContinue) {{
+        Write-Log ""  WARNING: Sklad_2.exe still running, trying to kill...""
+        Stop-Process -Name ""Sklad_2"" -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 1
+    }}
+    Write-Log ""OK: Application closed""
 
     # Step 2: Create backup
     Write-Log ""Step 2: Creating backup...""
     $backupFolder = ""{Path.Combine(tempUpdateFolder, "backup")}""
     New-Item -ItemType Directory -Path $backupFolder -Force | Out-Null
-    Copy-Item -Path ""{installFolder}\*"" -Destination $backupFolder -Recurse -Force
+    Copy-Item -Path ""{installFolder}\*"" -Destination $backupFolder -Recurse -Force -ErrorAction SilentlyContinue
     Write-Log ""OK: Backup created at: $backupFolder""
 
     # Step 3: Copy new files (excluding user data)
     Write-Log ""Step 3: Copying new files...""
+    $sourceRoot = ""{extractPath}""
+    if (-not $sourceRoot.EndsWith('\')) {{ $sourceRoot += '\' }}
+    Write-Log ""  Source root: $sourceRoot""
+
     $sourceFiles = Get-ChildItem -Path ""{extractPath}"" -Recurse -File
+    Write-Log ""  Found $($sourceFiles.Count) files to process""
     $copiedCount = 0
     $skippedCount = 0
 
     foreach ($file in $sourceFiles) {{
-        $relativePath = $file.FullName.Substring(""{extractPath}"".Length + 1)
-        $targetPath = Join-Path ""{installFolder}"" $relativePath
+        try {{
+            # Calculate relative path safely
+            $relativePath = $file.FullName.Substring($sourceRoot.Length)
+            $targetPath = Join-Path ""{installFolder}"" $relativePath
 
-        # Skip user data folders
-        if ($relativePath -like ""*AppData*"" -or $relativePath -like ""*settings.json*"") {{
-            Write-Log ""  SKIP: $relativePath (user data)""
-            $skippedCount++
-            continue
+            # Skip user data folders
+            if ($relativePath -like ""*AppData*"" -or $relativePath -like ""*settings.json*"" -or $relativePath -like ""*sklad.db*"") {{
+                Write-Log ""  SKIP: $relativePath (user data)""
+                $skippedCount++
+                continue
+            }}
+
+            $targetDir = Split-Path $targetPath -Parent
+            if (-not (Test-Path $targetDir)) {{
+                New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+            }}
+
+            Copy-Item -Path $file.FullName -Destination $targetPath -Force
+            $copiedCount++
+
+            # Log every 50 files
+            if ($copiedCount % 50 -eq 0) {{
+                Write-Log ""  Progress: $copiedCount files copied...""
+            }}
         }}
-
-        $targetDir = Split-Path $targetPath -Parent
-        if (-not (Test-Path $targetDir)) {{
-            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        catch {{
+            Write-Log ""  ERROR copying file: $($file.FullName) - $($_.Exception.Message)""
         }}
-
-        Copy-Item -Path $file.FullName -Destination $targetPath -Force
-        $copiedCount++
     }}
 
     Write-Log ""OK: Copied $copiedCount files, skipped $skippedCount files""
 
     # Step 4: Restart application
     Write-Log ""Step 4: Restarting application...""
-    Start-Process -FilePath ""{currentExePath}""
-    Write-Log ""OK: Application restarted""
+    if (Test-Path ""{currentExePath}"") {{
+        Start-Process -FilePath ""{currentExePath}""
+        Write-Log ""OK: Application started""
+    }}
+    else {{
+        Write-Log ""ERROR: Executable not found at {currentExePath}""
+    }}
 
-    # Step 5: Cleanup temp files (after delay)
-    Write-Log ""Step 5: Scheduling cleanup...""
-    Start-Sleep -Seconds 2
-
-    Remove-Item -Path ""{tempUpdateFolder}"" -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Log ""OK: Cleanup complete""
+    # Step 5: Keep temp folder for debugging (do NOT delete update.log)
+    Write-Log ""Step 5: Update complete, keeping log for debugging""
+    Write-Log ""  Log file location: $LogFile""
+    Write-Log ""  Temp folder: {tempUpdateFolder}""
+    Write-Log ""  (Manual cleanup required)""
 
     Write-Log ""========== UPDATE SUCCESSFUL =========""
     exit 0
@@ -334,6 +370,7 @@ try {{
 catch {{
     Write-Log ""ERROR: $($_.Exception.Message)""
     Write-Log ""Stack Trace: $($_.ScriptStackTrace)""
+    Write-Log ""Error Line: $($_.InvocationInfo.ScriptLineNumber)""
 
     # Restore backup on error
     Write-Log ""Attempting to restore backup...""
@@ -346,6 +383,7 @@ catch {{
     }}
 
     Write-Log ""========== UPDATE FAILED =========""
+    Write-Log ""Log file saved at: $LogFile""
     exit 1
 }}
 ";
