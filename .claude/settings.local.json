@@ -22,7 +22,8 @@
       "Bash(Select-String -Pattern \"DirectPrinter\" -Context 2)",
       "WebFetch(domain:epson.com)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dotnet publish:*)"
     ],
     "deny": [],
     "ask": []

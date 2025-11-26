@@ -442,14 +442,28 @@ namespace Sklad_2
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
+            // Log to file for debugging
+            var logPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Sklad_2_Data", "backup_log.txt");
+            void Log(string msg)
+            {
+                try { System.IO.File.AppendAllText(logPath, $"{DateTime.Now:HH:mm:ss} - {msg}\n"); } catch { }
+            }
+
+            Log("Window_Closed: Event triggered");
+
             // Prevent multiple executions
             if (_isClosing)
+            {
+                Log("Window_Closed: Already closing, returning");
                 return;
+            }
 
             _isClosing = true;
+            Log("Window_Closed: Set _isClosing = true");
 
             // Always cancel initial close to show backup dialog
             args.Handled = true;
+            Log("Window_Closed: args.Handled = true");
 
             // Check if day close was performed (only for Sales role)
             if (IsSalesRole)
@@ -505,15 +519,22 @@ namespace Sklad_2
 
         private void PerformDatabaseSync()
         {
+            var logPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Sklad_2_Data", "backup_log.txt");
+            void Log(string msg)
+            {
+                try { System.IO.File.AppendAllText(logPath, $"{DateTime.Now:HH:mm:ss} - {msg}\n"); } catch { }
+                System.Diagnostics.Debug.WriteLine(msg);
+            }
+
             try
             {
                 var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
                 var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
 
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Starting backup...");
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source folder: {sourceFolderPath}");
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source DB exists: {System.IO.File.Exists(sourceDbPath)}");
+                Log("PerformDatabaseSync: Starting backup...");
+                Log($"PerformDatabaseSync: Source folder: {sourceFolderPath}");
+                Log($"PerformDatabaseSync: Source DB exists: {System.IO.File.Exists(sourceDbPath)}");
 
                 // Determine backup path with inline logic (avoid service calls during disposal)
                 string backupFolderPath;
@@ -522,22 +543,22 @@ namespace Sklad_2
                 var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                 string customBackupPath = null;
 
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings file path: {settingsPath}");
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings file exists: {System.IO.File.Exists(settingsPath)}");
+                Log($"PerformDatabaseSync: Settings file path: {settingsPath}");
+                Log($"PerformDatabaseSync: Settings file exists: {System.IO.File.Exists(settingsPath)}");
 
                 if (System.IO.File.Exists(settingsPath))
                 {
                     try
                     {
                         var json = System.IO.File.ReadAllText(settingsPath);
-                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings JSON loaded, length: {json.Length}");
+                        Log($"PerformDatabaseSync: Settings JSON loaded, length: {json.Length}");
                         var settings = System.Text.Json.JsonSerializer.Deserialize<Models.Settings.AppSettings>(json);
                         customBackupPath = settings?.BackupPath;
-                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: BackupPath from settings: '{customBackupPath}'");
+                        Log($"PerformDatabaseSync: BackupPath from settings: '{customBackupPath}'");
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Error parsing settings: {ex.Message}");
+                        Log($"PerformDatabaseSync: Error parsing settings: {ex.Message}");
                     }
                 }
 
@@ -545,12 +566,12 @@ namespace Sklad_2
                 if (!string.IsNullOrWhiteSpace(customBackupPath))
                 {
                     backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
-                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Backup folder path: {backupFolderPath}");
+                    Log($"PerformDatabaseSync: Backup folder path: {backupFolderPath}");
                 }
                 else
                 {
                     // No backup path configured - skip backup
-                    System.Diagnostics.Debug.WriteLine("PerformDatabaseSync: Backup path not configured - skipping backup on close");
+                    Log("PerformDatabaseSync: Backup path not configured - skipping backup on close");
                     return;
                 }
 
@@ -560,27 +581,27 @@ namespace Sklad_2
                 if (System.IO.File.Exists(sourceDbPath))
                 {
                     System.IO.File.Copy(sourceDbPath, backupFilePath, true);
-                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Database copied to {backupFilePath}");
+                    Log($"PerformDatabaseSync: Database copied to {backupFilePath}");
 
                     var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                     var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
                     if (System.IO.File.Exists(sourceSettingsPath))
                     {
                         System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
-                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings copied to {backupSettingsPath}");
+                        Log($"PerformDatabaseSync: Settings copied to {backupSettingsPath}");
                     }
 
-                    System.Diagnostics.Debug.WriteLine("PerformDatabaseSync: Backup completed successfully!");
+                    Log("PerformDatabaseSync: Backup completed successfully!");
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source database not found at {sourceDbPath}");
+                    Log($"PerformDatabaseSync: Source database not found at {sourceDbPath}");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: ERROR - {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Stack trace - {ex.StackTrace}");
+                Log($"PerformDatabaseSync: ERROR - {ex.Message}");
+                Log($"PerformDatabaseSync: Stack trace - {ex.StackTrace}");
             }
         }
 
