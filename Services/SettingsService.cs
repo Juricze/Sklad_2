@@ -63,7 +63,8 @@ namespace Sklad_2.Services
         {
             var settingsFilePath = GetSettingsFilePath();
             var json = JsonSerializer.Serialize(CurrentSettings, _jsonSerializerOptions);
-            await File.WriteAllTextAsync(settingsFilePath, json);
+            // Use UTF-8 with BOM for proper encoding of Czech characters
+            await File.WriteAllTextAsync(settingsFilePath, json, new System.Text.UTF8Encoding(true));
 
             // Force flush to disk (important for Win10 compatibility)
             using (var fs = new FileStream(settingsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))

@@ -1,4 +1,4 @@
-## 🔧 PowerShell Update Script - Robustní Opravy
+## 🔧 PowerShell Update Script - Robustní Opravy + Temp Cleanup
 
 **Fix pro selhávající auto-update z v1.0.4**
 
@@ -12,16 +12,30 @@
 6. **Progress Logging** - každých 50 souborů
 7. **Detailní Error Info** - line number, stack trace, cesty
 
+### 🧹 Nová funkce - Auto Cleanup:
+
+- **Step 0** při každém update: Automatické mazání starých update složek
+- Smaže složky `Sklad_2_Update_*` starší než 1 hodina
+- Loguje počet smazaných složek a uvolněné místo (MB)
+- Řeší problém hromadění 250MB složek v %TEMP%
+
 ### 🐛 Původní Problém:
+- **KRITICKÝ**: Encoding chyba při diakritice (Peťa → PeĹĄa) - script nemohl vytvořit log
 - PowerShell script selhal při kopírování souborů
 - Aplikace se nerestartovala správně
 - Update.log byl smazán před přečtením
 
 ### ✅ Řešení:
+- **UTF-8 s BOM encoding** pro VŠECHNY text soubory:
+  - PowerShell update script (fix Peťa → PeĹĄa)
+  - AppSettings.json (název firmy, kategorie)
+  - Receipt/Return preview soubory
+  - HTML export účtenek pro FÚ
 - Proces Sklad_2.exe nyní spolehlivě ukončen před kopírováním
 - Substring path calculation opravena (trailing backslash)
 - Update.log zůstává pro debugging
 - Better error handling s restore backup
+- Auto cleanup starých update složek (uvolní místo v %TEMP%)
 
 ---
 

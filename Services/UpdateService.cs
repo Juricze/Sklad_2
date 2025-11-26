@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -139,6 +140,52 @@ namespace Sklad_2.Services
                 Debug.WriteLine($"[UpdateService] ========== STARTING UPDATE PROCESS ==========");
                 Debug.WriteLine($"[UpdateService] Version: {updateInfo.Version}");
                 Debug.WriteLine($"[UpdateService] Download URL: {updateInfo.DownloadUrl}");
+
+                // Step 0: Cleanup old update folders
+                Debug.WriteLine($"[UpdateService] Step 0: Cleaning up old update folders...");
+                try
+                {
+                    var tempPath = Path.GetTempPath();
+                    var oldFolders = Directory.GetDirectories(tempPath, "Sklad_2_Update_*");
+                    var deletedCount = 0;
+                    var deletedSize = 0L;
+
+                    foreach (var folder in oldFolders)
+                    {
+                        try
+                        {
+                            var dirInfo = new DirectoryInfo(folder);
+                            // Delete folders older than 1 hour (safe window)
+                            if (DateTime.Now - dirInfo.CreationTime > TimeSpan.FromHours(1))
+                            {
+                                // Calculate folder size before deletion
+                                var folderSize = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).Sum(f => f.Length);
+                                deletedSize += folderSize;
+
+                                Directory.Delete(folder, true);
+                                deletedCount++;
+                                Debug.WriteLine($"[UpdateService] ✓ Deleted old folder: {dirInfo.Name} ({folderSize / 1024 / 1024} MB)");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"[UpdateService] ⚠ Failed to delete folder {Path.GetFileName(folder)}: {ex.Message}");
+                        }
+                    }
+
+                    if (deletedCount > 0)
+                    {
+                        Debug.WriteLine($"[UpdateService] ✓ Cleanup complete: Deleted {deletedCount} folder(s), freed {deletedSize / 1024 / 1024} MB");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"[UpdateService] ✓ No old folders to clean");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[UpdateService] ⚠ Cleanup warning (non-critical): {ex.Message}");
+                }
 
                 // Step 1: Create temp folders
                 Debug.WriteLine($"[UpdateService] Step 1: Creating temporary folders...");
@@ -388,7 +435,8 @@ catch {{
 }}
 ";
 
-                await File.WriteAllTextAsync(scriptPath, scriptContent);
+                // Use UTF-8 with BOM for proper encoding (fixes Czech characters like Peťa → PeĹĄa)
+                await File.WriteAllTextAsync(scriptPath, scriptContent, new System.Text.UTF8Encoding(true));
                 Debug.WriteLine($"[UpdateService] ✓ PowerShell script created: {scriptPath}");
                 Debug.WriteLine($"[UpdateService] Script size: {new FileInfo(scriptPath).Length} bytes");
 

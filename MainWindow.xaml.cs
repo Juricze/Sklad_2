@@ -426,7 +426,7 @@ namespace Sklad_2
         }
 
         // Keep old handler for backwards compatibility but it shouldn't be called
-        private async void Window_Closed(object sender, WindowEventArgs args)
+        private void Window_Closed(object sender, WindowEventArgs args)
         {
             // This is now handled by AppWindow_Closing
             // Keep this as fallback

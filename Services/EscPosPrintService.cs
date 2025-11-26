@@ -843,7 +843,8 @@ namespace Sklad_2.Services
             Directory.CreateDirectory(previewFolder);
             var tempPath = Path.Combine(previewFolder, $"return_preview_{returnDocument.FormattedReturnNumber?.Replace("/", "_") ?? "temp"}.txt");
 
-            await File.WriteAllTextAsync(tempPath, previewText, Encoding.UTF8);
+            // Use UTF-8 with BOM for proper encoding of Czech characters in Notepad
+            await File.WriteAllTextAsync(tempPath, previewText, new System.Text.UTF8Encoding(true));
 
             // Open in Notepad
             Process.Start(new ProcessStartInfo
@@ -1021,7 +1022,8 @@ namespace Sklad_2.Services
             Directory.CreateDirectory(previewFolder);
             var tempPath = Path.Combine(previewFolder, $"receipt_preview_{receipt.FormattedReceiptNumber?.Replace("/", "_") ?? "temp"}.txt");
 
-            await File.WriteAllTextAsync(tempPath, previewText, Encoding.UTF8);
+            // Use UTF-8 with BOM for proper encoding of Czech characters in Notepad
+            await File.WriteAllTextAsync(tempPath, previewText, new System.Text.UTF8Encoding(true));
 
             // Open in Notepad
             Process.Start(new ProcessStartInfo
@@ -1068,7 +1070,8 @@ namespace Sklad_2.Services
             Directory.CreateDirectory(previewFolder);
             var tempPath = Path.Combine(previewFolder, "receipt_test_preview.txt");
 
-            await File.WriteAllTextAsync(tempPath, previewText, Encoding.UTF8);
+            // Use UTF-8 with BOM for proper encoding of Czech characters in Notepad
+            await File.WriteAllTextAsync(tempPath, previewText, new System.Text.UTF8Encoding(true));
 
             // Open in Notepad
             Process.Start(new ProcessStartInfo

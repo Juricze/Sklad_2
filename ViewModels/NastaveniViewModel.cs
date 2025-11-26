@@ -434,7 +434,8 @@ namespace Sklad_2.ViewModels
                 var fileName = $"Uctenky_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.html";
                 var filePath = Path.Combine(exportFolderPath, fileName);
 
-                File.WriteAllText(filePath, html);
+                // Use UTF-8 with BOM for proper encoding of Czech characters in HTML
+                File.WriteAllText(filePath, html, new System.Text.UTF8Encoding(true));
 
                 // Open the file in default browser
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
