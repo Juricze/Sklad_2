@@ -28,10 +28,6 @@ jobs:
       run: dotnet publish Sklad_2.csproj -c Release -r win-x64 -p:Platform=x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/win-x64
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          ./publish/win-x64/Sklad_2.exe
-        generate_release_notes: true
+      run: gh release create ${{ github.ref_name }} ./publish/win-x64/Sklad_2.exe --generate-notes --title "Release ${{ github.ref_name }}"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
