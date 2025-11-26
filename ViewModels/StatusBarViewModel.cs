@@ -95,9 +95,10 @@ namespace Sklad_2.ViewModels
             // Check VAT payer status
             IsVatPayer = settings.IsVatPayer;
 
-            // Check company info
+            // Check company info (ShopName, ShopAddress, CompanyId always required)
             IsCompanyInfoComplete = !string.IsNullOrWhiteSpace(settings.ShopName) &&
-                                   !string.IsNullOrWhiteSpace(settings.ShopAddress);
+                                   !string.IsNullOrWhiteSpace(settings.ShopAddress) &&
+                                   !string.IsNullOrWhiteSpace(settings.CompanyId);
 
             // Check VAT config
             var vatConfigs = await _dataService.GetVatConfigsAsync();
