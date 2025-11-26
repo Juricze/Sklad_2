@@ -343,12 +343,20 @@ namespace Sklad_2.ViewModels
             }
 
             var settings = _settingsService.CurrentSettings;
+
+            // Base validation: ShopName, ShopAddress, CompanyId always required
             if (string.IsNullOrWhiteSpace(settings.ShopName) ||
                 string.IsNullOrWhiteSpace(settings.ShopAddress) ||
-                string.IsNullOrWhiteSpace(settings.CompanyId) ||
-                string.IsNullOrWhiteSpace(settings.VatId))
+                string.IsNullOrWhiteSpace(settings.CompanyId))
             {
                 CheckoutFailed?.Invoke(this, "Chybí údaje o firmě. Prosím, doplňte je v sekci Nastavení před dokončením prodeje.");
+                return;
+            }
+
+            // VatId only required if company is VAT payer
+            if (settings.IsVatPayer && string.IsNullOrWhiteSpace(settings.VatId))
+            {
+                CheckoutFailed?.Invoke(this, "Chybí DIČ. Pro plátce DPH je DIČ povinné. Doplňte jej v sekci Nastavení.");
                 return;
             }
 
