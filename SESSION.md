@@ -17,7 +17,59 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 26. listopad 2025 (odpoledne)**
+## 📅 **Poslední session: 26. listopad 2025 (odpoledne) - ČÁST 2**
+
+### ✅ Hotovo:
+**Auto-update přesunut na login screen + Release v1.0.2 připraven**
+
+**Klíčové změny:**
+
+1. **LoginWindow.xaml - Footer s verzí a update UI**
+   - Přidán footer s verzí aplikace (vlevo)
+   - Update status panel (uprostřed): status text, progress bar, tlačítka
+   - Grid layout pro čistý design
+
+2. **LoginWindow.xaml.cs - Kompletní auto-update management**
+   - Metody: CheckForUpdatesAsync, ShowUpdateStatus, ShowUpdateAvailable, HideUpdateStatus
+   - Update flow: kontrola → dostupný update → download s progress → restart
+   - Možnost "Pokračovat" bez update
+   - Verze načtena z UpdateService.CurrentVersion
+
+3. **MainWindow.xaml.cs - Odstraněn UpdateService**
+   - Odstraněn field _updateService
+   - Odstraněny metody CheckForUpdatesAsync() a ShowUpdateDialogAsync()
+   - Update se nyní kontroluje jen na login screen
+
+4. **Sklad_2.csproj - Verze 1.0.2**
+   - Zvýšena verze na 1.0.2
+
+5. **Git commit vytvořen**
+   - Commit: "v1.0.2 - Windows 10 Compatibility Fixes + Auto-update na login screen"
+   - 13 souborů změněno
+   - Commit hash: 13ba849
+
+**Build status:**
+✅ Release x64 build úspěšný
+✅ Velikost celé složky: ~98MB (správně - self-contained WinUI 3)
+⚠️ Sklad_2.exe samotný: 265KB (jen launcher stub)
+
+**Co zbývá:**
+⏳ Vytvořit ZIP archiv celé release složky
+⏳ Vytvořit git tag v1.0.2
+⏳ Pushnout na GitHub
+⏳ Nahrát ZIP na GitHub Releases (ručně, gh CLI není nainstalováno)
+
+**Upravené soubory:**
+- LoginWindow.xaml - footer UI
+- LoginWindow.xaml.cs - auto-update logika
+- MainWindow.xaml.cs - odstranění UpdateService
+- Sklad_2.csproj - verze 1.0.2
+- RELEASE_NOTES_v1.0.2.md - NOVÝ (release notes)
+- SESSION.md - dokumentace
+
+---
+
+## 📅 **Předchozí session: 26. listopad 2025 (odpoledne) - ČÁST 1**
 
 ### ✅ Hotovo:
 **Win10 Compatibility Fixes - 6 kritických oprav**
