@@ -458,7 +458,7 @@ namespace Sklad_2.ViewModels
                     ShopAddress = settings.ShopAddress,
                     SellerName = _authService.CurrentUser?.DisplayName ?? "Neznámý",  // Store who performed the sale
                     CompanyId = settings.CompanyId,
-                    VatId = settings.VatId,
+                    VatId = settings.VatId ?? string.Empty,  // Empty string for non-VAT payers (NOT NULL constraint)
                     IsVatPayer = settings.IsVatPayer,
                     TotalAmountWithoutVat = Receipt.GrandTotalWithoutVat,
                     TotalVatAmount = Receipt.GrandTotalVatAmount,
@@ -470,7 +470,7 @@ namespace Sklad_2.ViewModels
                     // Gift card fields - redemption
                     ContainsGiftCardRedemption = ScannedGiftCard != null,
                     GiftCardRedemptionAmount = giftCardRedemptionAmount,
-                    RedeemedGiftCardEan = ScannedGiftCard?.Ean
+                    RedeemedGiftCardEan = ScannedGiftCard?.Ean ?? string.Empty  // Empty string if no gift card (NOT NULL constraint)
                 };
 
                 var userName = _authService.CurrentUser?.DisplayName ?? "Neznámý";
@@ -666,7 +666,7 @@ namespace Sklad_2.ViewModels
                     ShopAddress = originalReceipt.ShopAddress,
                     SellerName = _authService.CurrentUser?.DisplayName ?? "Neznámý",  // Who performed the cancellation
                     CompanyId = originalReceipt.CompanyId,
-                    VatId = originalReceipt.VatId,
+                    VatId = originalReceipt.VatId ?? string.Empty,  // NOT NULL constraint
                     IsVatPayer = originalReceipt.IsVatPayer,
                     TotalAmountWithoutVat = -originalReceipt.TotalAmountWithoutVat,  // NEGATIVE
                     TotalVatAmount = -originalReceipt.TotalVatAmount,  // NEGATIVE
@@ -678,7 +678,8 @@ namespace Sklad_2.ViewModels
                     ContainsGiftCardSale = originalReceipt.ContainsGiftCardSale,
                     GiftCardSaleAmount = -originalReceipt.GiftCardSaleAmount,  // NEGATIVE for storno
                     ContainsGiftCardRedemption = originalReceipt.ContainsGiftCardRedemption,
-                    GiftCardRedemptionAmount = -originalReceipt.GiftCardRedemptionAmount  // NEGATIVE for storno
+                    GiftCardRedemptionAmount = -originalReceipt.GiftCardRedemptionAmount,  // NEGATIVE for storno
+                    RedeemedGiftCardEan = originalReceipt.RedeemedGiftCardEan ?? string.Empty  // NOT NULL constraint
                 };
 
                 // 5. Save storno receipt to DB
