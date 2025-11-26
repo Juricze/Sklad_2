@@ -566,6 +566,14 @@
                                         <Run Text="{x:Bind ViewModel.ContactEmail, Mode=OneWay}"/>
                                     </TextBlock>
 
+                                    <TextBlock>
+                                        <Run Text="Web:" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <HyperlinkButton Content="aplikarna.cz"
+                                                     NavigateUri="{x:Bind ViewModel.Website, Mode=OneWay}"
+                                                     Margin="-12,0,0,0"
+                                                     Padding="12,4"/>
+
                                     <TextBlock Text="{x:Bind ViewModel.Copyright, Mode=OneWay}"
                                                FontSize="12"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -608,31 +616,51 @@
                                 <StackPanel Spacing="4">
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Správa produktů a skladu"/>
+                                        <Run Text=" Správa produktů a skladu s kategoriemi"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Prodejní systém s pokladnou"/>
+                                        <Run Text=" POS systém s pokladnou (hotovost/karta)"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Tisk účtenek"/>
+                                        <Run Text=" Tisk účtenek na ESC/POS tiskárnách"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Evidence DPH"/>
+                                        <Run Text=" Kompletní evidence DPH (plátce/neplátce)"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Správa vratek"/>
+                                        <Run Text=" Správa vratek a dobropisů"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Denní uzavírky"/>
+                                        <Run Text=" Dárkové poukazy (prodej a uplatnění)"/>
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
-                                        <Run Text=" Záloha databáze"/>
+                                        <Run Text=" Multi-user systém s rolemi"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
+                                        <Run Text=" Denní otevírky a uzavírky pokladny"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
+                                        <Run Text=" Dashboard prodejů s KPI a statistikami"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
+                                        <Run Text=" Automatické zálohy databáze"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
+                                        <Run Text=" Export účtenek pro Finanční úřad (HTML)"/>
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="✓" FontWeight="Bold" Foreground="#34C759"/>
+                                        <Run Text=" Automatické aktualizace z GitHubu"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>

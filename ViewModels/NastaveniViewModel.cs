@@ -31,22 +31,25 @@ namespace Sklad_2.ViewModels
         private AppSettings settings;
 
         [ObservableProperty]
-        private string appVersion = "0.5.0";
+        private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.5";
 
         [ObservableProperty]
         private string appName = "Sklad 2 - Skladový a prodejní systém";
 
         [ObservableProperty]
-        private string author = "Jiří Hejda";
+        private string author = "Jiří Hejda - Aplikárna®";
 
         [ObservableProperty]
-        private string contactEmail = "ji.hejda@gmail.com";
+        private string contactEmail = "info@aplikarna.cz";
+
+        [ObservableProperty]
+        private string website = "https://www.aplikarna.cz";
 
         [ObservableProperty]
         private string copyright = "Copyright © 2025 Jiří Hejda";
 
         [ObservableProperty]
-        private string description = "Moderní aplikace pro správu skladu, prodeje a pokladny postavená na WinUI 3";
+        private string description = "Moderní POS systém pro Windows s kompletní správou skladu, prodeje, DPH a pokladny. Podpora dárkových poukazů, vratek, automatických záloh a multi-user přístupu.";
 
         [ObservableProperty]
         private string backupStatusMessage;
