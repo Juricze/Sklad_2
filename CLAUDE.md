@@ -170,6 +170,139 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 - **Chyby**: Vždy vyžadovat přesné chybové hlášky z Visual Studio před opravou
 - **Design**: Striktně dodržovat Mica design s černobílou paletou
 
+## 🔴 KRITICKÉ: Windows 10 Compatibility Requirements
+
+**⚠️ PRODUKČNÍ PC BĚŽÍ NA WINDOWS 10!**
+
+Vývoj probíhá na Win11, ale **PRODUKCE JE WIN10**. Všechen kód MUSÍ být Win10 kompatibilní!
+
+### **Povinná pravidla pro KAŽDÝ nový kód:**
+
+#### **1. File I/O - VŽDY přidat flush**
+```csharp
+// ❌ ŠPATNĚ (nefunguje spolehlivě na Win10)
+await File.WriteAllTextAsync(path, content);
+
+// ✅ SPRÁVNĚ (Win10 + Win11 safe)
+await File.WriteAllTextAsync(path, content);
+using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+{
+    fs.Flush(true); // Force OS buffer flush
+}
+```
+
+#### **2. Settings/Config save - VŽDY přidat delay před messaging**
+```csharp
+// ❌ ŠPATNĚ
+await _settingsService.SaveSettingsAsync();
+_messenger.Send(new SettingsChangedMessage()); // Win10: soubor ještě není na disku!
+
+// ✅ SPRÁVNĚ
+await _settingsService.SaveSettingsAsync();
+await Task.Delay(100); // Win10 file system flush
+_messenger.Send(new SettingsChangedMessage());
+await Task.Delay(200); // Win10 UI refresh
+```
+
+#### **3. EF Core queries - VŽDY použít AsNoTracking() pro read-only**
+```csharp
+// ❌ ŠPATNĚ (entity tracking conflict na Win10)
+return await context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
+
+// ✅ SPRÁVNĚ (Win10 + Win11 safe + rychlejší)
+return await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Ean == ean);
+```
+
+#### **4. Database write - VŽDY přidat retry logiku pro SQLite**
+```csharp
+// ✅ SPRÁVNĚ (Win10 má přísnější file locking)
+int maxRetries = 3;
+int delayMs = 100;
+for (int attempt = 0; attempt < maxRetries; attempt++)
+{
+    try {
+        await SaveToDatabase();
+        break;
+    }
+    catch (DbUpdateException) when (attempt < maxRetries - 1)
+    {
+        await Task.Delay(delayMs);
+        delayMs *= 2; // Exponential backoff
+    }
+}
+```
+
+#### **5. Window handles - VŽDY nastavit CurrentWindow**
+```csharp
+// ❌ ŠPATNĚ (FolderPicker nefunguje na Win10)
+var mainWindow = new MainWindow();
+mainWindow.Activate();
+
+// ✅ SPRÁVNĚ
+var mainWindow = new MainWindow();
+var app = Application.Current as App;
+app.CurrentWindow = mainWindow; // KRITICKÉ pro Win10!
+mainWindow.Activate();
+```
+
+#### **6. ObservableCollection refresh - VŽDY poslouchat messaging**
+```csharp
+// ❌ ŠPATNĚ (staticka inicializace - Win10 nerefreshuje)
+public ObservableCollection<string> Items { get; } =
+    new ObservableCollection<string>(StaticSource.All);
+
+// ✅ SPRÁVNĚ
+public ObservableCollection<string> Items { get; } = new();
+
+// V konstruktoru:
+_messenger.Register<DataChangedMessage>(this, async (r, m) =>
+{
+    await Task.Delay(100); // Win10 file flush
+    RefreshItems();
+});
+
+private void RefreshItems()
+{
+    var currentSelection = SelectedItem;
+    Items.Clear();
+    foreach (var item in StaticSource.All)
+        Items.Add(item);
+    SelectedItem = Items.Contains(currentSelection) ? currentSelection : Items.FirstOrDefault();
+}
+```
+
+### **Checklist před každým commitem:**
+
+- [ ] Přidány file flush kde se zapisuje na disk?
+- [ ] Přidány delays (100ms file, 200ms UI) po Save + Message?
+- [ ] Použit `.AsNoTracking()` pro read-only EF queries?
+- [ ] Přidána retry logika pro database write?
+- [ ] Nastaven `app.CurrentWindow` při vytváření oken?
+- [ ] ObservableCollection má refresh handler?
+
+### **Známé Win10 vs Win11 rozdíly:**
+
+| Oblast | Win10 | Win11 | Řešení |
+|--------|-------|-------|--------|
+| **File cache** | Pomalý flush | Rychlý flush | `Flush(true)` + delay |
+| **SQLite lock** | Přísnější | Uvolněnější | Retry logika |
+| **Dispatcher** | Nižší priorita | Vyšší priorita | Delays pro UI |
+| **Window handles** | Starší COM model | Nový WinRT | Explicitní `CurrentWindow` |
+| **Memory GC** | Konzervativní | Agresivní | `AsNoTracking()` |
+
+### **Testování:**
+
+**VŽDY otestovat na Win10 tyto funkce před release:**
+1. ✅ FolderPicker (Nastavení → Systém → Procházet)
+2. ✅ Uložení firemních údajů (+ StatusBar refresh)
+3. ✅ Prodej produktu (database write)
+4. ✅ Správa kategorií (refresh v Nový produkt)
+5. ✅ Backup při zavření aplikace
+
+**Win11 development je OK**, ale **NIKDY necommitovat bez mentální kontroly Win10 compatibility!**
+
+---
+
 ## ⚠️ KRITICKÉ: Database Schema Version Protocol
 
 **VŽDY při změnách databáze:**

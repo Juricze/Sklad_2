@@ -115,8 +115,11 @@ namespace Sklad_2.ViewModels
 
             // Register for messages
             _messenger.Register<RoleChangedMessage>(this);
-            _messenger.Register<VatConfigsChangedMessage>(this, (r, m) =>
+            _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
             {
+                // Reload categories from AppSettings (Win10 compatibility)
+                await Task.Delay(100); // Small delay for file system flush
+                RefreshCategories();
                 LoadVatConfigsAsync();
             });
 
@@ -140,6 +143,28 @@ namespace Sklad_2.ViewModels
         {
             _vatConfigs = await _dataService.GetVatConfigsAsync();
             UpdateVatRateForSelectedCategory();
+        }
+
+        private void RefreshCategories()
+        {
+            // Win10 fix: Reload categories from ProductCategories.All
+            var currentSelection = SelectedCategory;
+            Categories.Clear();
+
+            foreach (var category in ProductCategories.All)
+            {
+                Categories.Add(category);
+            }
+
+            // Restore selection if it still exists, otherwise select first
+            if (Categories.Contains(currentSelection))
+            {
+                SelectedCategory = currentSelection;
+            }
+            else
+            {
+                SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní") ?? Categories.FirstOrDefault();
+            }
         }
 
         partial void OnSelectedCategoryChanged(string value)

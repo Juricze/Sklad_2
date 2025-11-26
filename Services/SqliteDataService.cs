@@ -28,7 +28,8 @@ namespace Sklad_2.Services
         public async Task<Product> GetProductAsync(string ean)
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Products.FirstOrDefaultAsync(p => p.Ean == ean);
+            // Use AsNoTracking to prevent entity tracking issues when used across contexts
+            return await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Ean == ean);
         }
 
         public async Task<List<Product>> GetProductsAsync()
@@ -45,6 +46,30 @@ namespace Sklad_2.Services
         }
 
         public async Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate, string userName)
+        {
+            // Retry logic for Win10 SQLite file locking issues
+            int maxRetries = 3;
+            int retryDelayMs = 100;
+
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                try
+                {
+                    return await CompleteSaleInternalAsync(receipt, productsToUpdate, userName);
+                }
+                catch (DbUpdateException) when (attempt < maxRetries - 1)
+                {
+                    // Wait before retry (SQLite may be temporarily locked)
+                    await Task.Delay(retryDelayMs);
+                    retryDelayMs *= 2; // Exponential backoff
+                }
+            }
+
+            // Final attempt without catch
+            return await CompleteSaleInternalAsync(receipt, productsToUpdate, userName);
+        }
+
+        private async Task<(bool Success, string ErrorMessage)> CompleteSaleInternalAsync(Receipt receipt, List<Product> productsToUpdate, string userName)
         {
             using var context = _contextFactory.CreateDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();

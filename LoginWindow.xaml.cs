@@ -16,7 +16,9 @@ namespace Sklad_2
         public LoginViewModel ViewModel { get; }
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
+        private readonly IUpdateService _updateService;
         private DispatcherTimer _timer;
+        private UpdateInfo _pendingUpdate;
 
         public LoginWindow()
         {
@@ -24,10 +26,14 @@ namespace Sklad_2
             ViewModel = serviceProvider.GetRequiredService<LoginViewModel>();
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+            _updateService = serviceProvider.GetRequiredService<IUpdateService>();
 
             this.InitializeComponent();
             LoginGrid.DataContext = this;
             ExtendsContentIntoTitleBar = true;
+
+            // Set version text
+            VersionText.Text = $"Verze: {_updateService.CurrentVersion}";
 
             // Initialize timer
             _timer = new DispatcherTimer();
@@ -52,6 +58,9 @@ namespace Sklad_2
                 await ViewModel.LoadUsersAsync();
                 _timer.Start();
                 UpdateDateTime(); // Initial update
+
+                // Check for updates in background
+                _ = CheckForUpdatesAsync();
             });
         }
 
@@ -118,6 +127,11 @@ namespace Sklad_2
 
             // Create and show MainWindow (it will handle new day logic itself)
             var mainWindow = new MainWindow();
+
+            // CRITICAL: Set CurrentWindow for FolderPicker and other dialogs to work on Win10
+            var app = Application.Current as App;
+            app.CurrentWindow = mainWindow;
+
             mainWindow.Activate();
             this.Close();
         }
@@ -134,6 +148,144 @@ namespace Sklad_2
             {
                 await ViewModel.SelectUserCommand.ExecuteAsync(user);
             }
+        }
+
+        // ========== UPDATE MANAGEMENT ==========
+
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                // Show checking status
+                ShowUpdateStatus("Kontroluji aktualizace...", showProgress: false);
+
+                // Small delay for UI to render
+                await Task.Delay(500);
+
+                var updateInfo = await _updateService.CheckForUpdatesAsync();
+
+                if (updateInfo == null)
+                {
+                    // Failed to check - hide status
+                    HideUpdateStatus();
+                    return;
+                }
+
+                if (updateInfo.IsNewerVersion && !string.IsNullOrEmpty(updateInfo.DownloadUrl))
+                {
+                    // New version available
+                    _pendingUpdate = updateInfo;
+                    ShowUpdateAvailable(updateInfo);
+                }
+                else
+                {
+                    // No update available - hide after delay
+                    ShowUpdateStatus("✓ Aplikace je aktuální", showProgress: false);
+                    await Task.Delay(2000);
+                    HideUpdateStatus();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Update check failed: {ex.Message}");
+                HideUpdateStatus();
+            }
+        }
+
+        private void ShowUpdateStatus(string message, bool showProgress)
+        {
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdateStatusPanel.Visibility = Visibility.Visible;
+                UpdateStatusText.Text = message;
+                UpdateProgressBar.Visibility = showProgress ? Visibility.Visible : Visibility.Collapsed;
+                UpdateNowButton.Visibility = Visibility.Collapsed;
+                ContinueWithoutUpdateButton.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void ShowUpdateAvailable(UpdateInfo updateInfo)
+        {
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdateStatusPanel.Visibility = Visibility.Visible;
+                UpdateStatusText.Text = $"📦 Dostupná nová verze: {updateInfo.Version}";
+                UpdateProgressBar.Visibility = Visibility.Collapsed;
+                UpdateProgressBar.IsIndeterminate = false;
+                UpdateProgressBar.Value = 0;
+                UpdateNowButton.Visibility = Visibility.Visible;
+                ContinueWithoutUpdateButton.Visibility = Visibility.Visible;
+            });
+        }
+
+        private void HideUpdateStatus()
+        {
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdateStatusPanel.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private async void UpdateNowButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pendingUpdate == null)
+                return;
+
+            try
+            {
+                // Show downloading status
+                UpdateStatusText.Text = "Stahuji aktualizaci...";
+                UpdateProgressBar.Visibility = Visibility.Visible;
+                UpdateProgressBar.IsIndeterminate = true;
+                UpdateNowButton.Visibility = Visibility.Collapsed;
+                ContinueWithoutUpdateButton.Visibility = Visibility.Collapsed;
+
+                var progress = new Progress<int>(percent =>
+                {
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        UpdateProgressBar.IsIndeterminate = false;
+                        UpdateProgressBar.Value = percent;
+                        UpdateStatusText.Text = $"Stahuji aktualizaci... {percent}%";
+                    });
+                });
+
+                bool success = await _updateService.DownloadAndInstallUpdateAsync(_pendingUpdate, progress);
+
+                if (success)
+                {
+                    // Update successful - app will restart
+                    UpdateStatusText.Text = "✓ Aktualizace připravena. Aplikace se nyní restartuje...";
+                    UpdateProgressBar.Visibility = Visibility.Collapsed;
+
+                    // Wait a moment for user to see the message
+                    await Task.Delay(2000);
+
+                    // Close app - batch script will restart it
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    // Download failed
+                    UpdateStatusText.Text = "❌ Chyba při stahování aktualizace";
+                    UpdateProgressBar.Visibility = Visibility.Collapsed;
+                    ContinueWithoutUpdateButton.Visibility = Visibility.Visible;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Update download failed: {ex.Message}");
+                UpdateStatusText.Text = "❌ Chyba při stahování aktualizace";
+                UpdateProgressBar.Visibility = Visibility.Collapsed;
+                ContinueWithoutUpdateButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ContinueWithoutUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            // User chose to continue without updating
+            HideUpdateStatus();
+            _pendingUpdate = null;
         }
     }
 }

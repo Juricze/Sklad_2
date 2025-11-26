@@ -77,6 +77,37 @@ namespace Sklad_2.ViewModels
             {
                 OnPropertyChanged(nameof(IsVatPayer));
             });
+
+            // Listen for category changes (Win10 fix)
+            _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
+            {
+                // Small delay for file system flush
+                await Task.Delay(100);
+                RefreshCategories();
+            });
+        }
+
+        private void RefreshCategories()
+        {
+            // Win10 fix: Reload categories from ProductCategories.All
+            var currentSelection = SelectedCategory;
+            Categories.Clear();
+            Categories.Add("Vše");
+
+            foreach (var category in ProductCategories.All)
+            {
+                Categories.Add(category);
+            }
+
+            // Restore selection if it still exists, otherwise select "Vše"
+            if (Categories.Contains(currentSelection))
+            {
+                SelectedCategory = currentSelection;
+            }
+            else
+            {
+                SelectedCategory = "Vše";
+            }
         }
 
         [RelayCommand]

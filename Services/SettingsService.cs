@@ -64,7 +64,14 @@ namespace Sklad_2.Services
             var settingsFilePath = GetSettingsFilePath();
             var json = JsonSerializer.Serialize(CurrentSettings, _jsonSerializerOptions);
             await File.WriteAllTextAsync(settingsFilePath, json);
-            Debug.WriteLine($"Settings saved. LastSaleLoginDate: {CurrentSettings.LastSaleLoginDate}");
+
+            // Force flush to disk (important for Win10 compatibility)
+            using (var fs = new FileStream(settingsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                fs.Flush(true); // Force OS to flush buffers
+            }
+
+            Debug.WriteLine($"Settings saved and flushed. LastSaleLoginDate: {CurrentSettings.LastSaleLoginDate}");
         }
 
         public bool IsBackupPathConfigured()

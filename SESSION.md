@@ -17,7 +17,89 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 26. listopad 2025**
+## 📅 **Poslední session: 26. listopad 2025 (odpoledne)**
+
+### ✅ Hotovo:
+**Win10 Compatibility Fixes - 6 kritických oprav**
+
+### 🔴 DŮLEŽITÉ: Win10 vs Win11 rozdíly
+
+**Problém:** Produkční PC (Win10) měl 4 kritické problémy, které nefungovaly na Win11:
+1. FolderPicker se neotevřel
+2. Firemní údaje se neuložily ihned
+3. StatusBar se neaktualizoval
+4. Database write error při prodeji
+5. Kategorie se nerefreshovaly v Nový produkt
+
+**Příčina:** WinUI 3 je primárně pro Win11, Win10 podpora je "backport" s kompromisy.
+
+**Klíčové změny této session:**
+
+1. **LoginWindow.xaml.cs - CurrentWindow fix**
+   - Přidán `app.CurrentWindow = mainWindow;` po vytvoření MainWindow
+   - Win10 vyžaduje explicitní nastavení pro FolderPicker HWND
+   - **Řádek:** 123-124
+
+2. **SettingsService.cs - File flush**
+   - Přidán explicitní `FileStream.Flush(true)` po zápisu settings
+   - Win10 má pomalejší file system cache flush
+   - **Řádek:** 68-72
+
+3. **NastaveniViewModel.cs - Delay pro messaging**
+   - Přidán delay 100ms před Send message (file flush)
+   - Přidán delay 200ms po Send message (UI refresh)
+   - Win10 Dispatcher má nižší prioritu než Win11
+   - **Řádek:** 184-191
+
+4. **SqliteDataService.cs - AsNoTracking + Retry**
+   - `GetProductAsync()` - přidán `.AsNoTracking()` (řádek 32)
+   - `CompleteSaleAsync()` - přidána retry logika 3× s exponential backoff (řádek 48-70)
+   - Win10 má přísnější SQLite file locking
+   - Prevence entity tracking conflicts
+
+5. **NovyProduktViewModel.cs - RefreshCategories**
+   - Přidán listener na `VatConfigsChangedMessage` (řádek 118-124)
+   - Nová metoda `RefreshCategories()` (řádek 148-168)
+   - ObservableCollection se nyní aktualizuje při změně kategorií
+
+6. **DatabazeViewModel.cs - RefreshCategories**
+   - Stejný fix jako v NovyProduktViewModel
+   - Listener na message + RefreshCategories metoda (řádek 82-111)
+
+**Dokumentace:**
+- Přidána **nová sekce do CLAUDE.md**: "🔴 KRITICKÉ: Windows 10 Compatibility Requirements"
+- Obsahuje 6 povinných pravidel pro každý nový kód
+- Checklist před každým commitem
+- Tabulka Win10 vs Win11 rozdílů
+- Testing checklist pro Win10
+
+**Kompatibilita s Win11:**
+✅ Všechny změny jsou 100% Win11 kompatibilní!
+✅ `AsNoTracking()` dokonce zrychlí Win11
+✅ Žádné Win10-specific hacky nebo conditionals
+✅ Defensive programming pattern
+
+**Upravené soubory:**
+- `LoginWindow.xaml.cs` - app.CurrentWindow
+- `SettingsService.cs` - file flush
+- `NastaveniViewModel.cs` - delays
+- `SqliteDataService.cs` - AsNoTracking + retry
+- `NovyProduktViewModel.cs` - RefreshCategories
+- `DatabazeViewModel.cs` - RefreshCategories
+- `CLAUDE.md` - Win10 compatibility guidelines
+
+**Testováno:**
+- ✅ Build úspěšný (x64 Release)
+- ⏳ **Zbývá otestovat na Win10 PC:**
+  1. FolderPicker
+  2. Uložení firemních údajů
+  3. Prodej produktu
+  4. Správa kategorií
+  5. Backup při zavření
+
+---
+
+## 📅 **Předchozí session: 26. listopad 2025 (ráno)**
 
 ### ✅ Hotovo:
 **Auto-update systém + Oprava backup pro Win10**

@@ -8,8 +8,14 @@
     mc:Ignorable="d"
     Title="Přihlášení">
 
-    <Grid x:Name="LoginGrid" Padding="24" Loaded="LoginWindow_Loaded">
-        <StackPanel Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="400">
+    <Grid x:Name="LoginGrid" Loaded="LoginWindow_Loaded">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main content -->
+        <StackPanel Grid.Row="0" Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="400" Padding="24">
             <TextBlock x:Name="DateTextBlock" FontSize="18" HorizontalAlignment="Center"/>
             <TextBlock x:Name="TimeTextBlock" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
             <TextBlock x:Name="DayOfWeekTextBlock" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
@@ -45,5 +51,29 @@
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"/>
         </StackPanel>
+
+        <!-- Footer: Version + Update Status -->
+        <Border Grid.Row="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Version info -->
+                <TextBlock x:Name="VersionText" Grid.Column="0" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12"/>
+
+                <!-- Update status center -->
+                <StackPanel x:Name="UpdateStatusPanel" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" Spacing="4" Visibility="Collapsed">
+                    <TextBlock x:Name="UpdateStatusText" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap"/>
+                    <ProgressBar x:Name="UpdateProgressBar" Width="200" Height="4" Visibility="Collapsed"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                        <Button x:Name="UpdateNowButton" Content="Aktualizovat" Style="{StaticResource AccentButtonStyle}" FontSize="12" Padding="12,4" Visibility="Collapsed" Click="UpdateNowButton_Click"/>
+                        <Button x:Name="ContinueWithoutUpdateButton" Content="Pokračovat" FontSize="12" Padding="12,4" Visibility="Collapsed" Click="ContinueWithoutUpdateButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

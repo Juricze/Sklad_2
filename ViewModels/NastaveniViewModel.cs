@@ -180,7 +180,16 @@ namespace Sklad_2.ViewModels
             try
             {
                 await _settingsService.SaveSettingsAsync();
+
+                // Small delay for Win10 file system flush (100ms)
+                await Task.Delay(100);
+
+                // Send message to refresh StatusBar and other components
                 _messenger.Send(new SettingsChangedMessage());
+
+                // Additional delay for UI to update (200ms)
+                await Task.Delay(200);
+
                 ShowCompanySuccess("Firemní údaje byly úspěšně uloženy.");
             }
             catch (Exception ex)

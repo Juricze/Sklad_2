@@ -24,7 +24,6 @@ namespace Sklad_2
         SystemBackdropConfiguration m_configurationSource;
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
-        private readonly IUpdateService _updateService;
         private readonly bool IsSalesRole;
         private readonly bool IsAdmin;
         private bool _isClosing;
@@ -38,7 +37,6 @@ namespace Sklad_2
             var serviceProvider = app.Services;
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
-            _updateService = serviceProvider.GetRequiredService<IUpdateService>();
             StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
             IsSalesRole = _authService.CurrentUser?.Role == "Cashier";
             IsAdmin = _authService.CurrentUser?.Role == "Admin";
@@ -70,12 +68,6 @@ namespace Sklad_2
 
             // Handle new day dialog after window is activated
             this.Activated += OnFirstActivated;
-
-            // Check for updates in background (only for Admin)
-            if (IsAdmin)
-            {
-                _ = CheckForUpdatesAsync();
-            }
 
             // Hide menu items based on role
             if (IsSalesRole || !IsAdmin)
@@ -346,105 +338,6 @@ namespace Sklad_2
             {
                 // Close application
                 Application.Current.Exit();
-            }
-        }
-
-        private async Task CheckForUpdatesAsync()
-        {
-            try
-            {
-                // Wait for window to be ready
-                await Task.Delay(3000);
-
-                var updateInfo = await _updateService.CheckForUpdatesAsync();
-                if (updateInfo?.IsNewerVersion == true && !string.IsNullOrEmpty(updateInfo.DownloadUrl))
-                {
-                    // Show update dialog on UI thread
-                    this.DispatcherQueue.TryEnqueue(async () =>
-                    {
-                        await ShowUpdateDialogAsync(updateInfo);
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
-            }
-        }
-
-        private async Task ShowUpdateDialogAsync(UpdateInfo updateInfo)
-        {
-            // Wait for XamlRoot
-            int attempts = 0;
-            while (this.Content?.XamlRoot == null && attempts < 20)
-            {
-                await Task.Delay(100);
-                attempts++;
-            }
-
-            if (this.Content?.XamlRoot == null)
-                return;
-
-            var dialog = new ContentDialog
-            {
-                Title = "Dostupná aktualizace",
-                Content = $"Je dostupná nová verze aplikace!\n\n" +
-                         $"Aktuální verze: {_updateService.CurrentVersion}\n" +
-                         $"Nová verze: {updateInfo.Version}\n\n" +
-                         $"Chcete aktualizovat nyní?",
-                PrimaryButtonText = "Aktualizovat",
-                CloseButtonText = "Později",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.Content.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-                // Show progress dialog
-                var progressDialog = new ContentDialog
-                {
-                    Title = "Stahování aktualizace...",
-                    Content = new ProgressBar { IsIndeterminate = true, Width = 300 },
-                    XamlRoot = this.Content.XamlRoot
-                };
-
-                // Start download without awaiting dialog
-                var downloadTask = _updateService.DownloadAndInstallUpdateAsync(updateInfo);
-
-                // Show dialog (will be dismissed when download completes)
-                _ = progressDialog.ShowAsync();
-
-                var success = await downloadTask;
-
-                progressDialog.Hide();
-
-                if (success)
-                {
-                    var closeDialog = new ContentDialog
-                    {
-                        Title = "Aktualizace připravena",
-                        Content = "Aktualizace byla stažena.\n\nAplikace se nyní zavře a restartuje s novou verzí.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    await closeDialog.ShowAsync();
-
-                    // Close the app - the update script will restart it
-                    Application.Current.Exit();
-                }
-                else
-                {
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = "Chyba",
-                        Content = "Nepodařilo se stáhnout aktualizaci. Zkuste to prosím později.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
-                }
             }
         }
 
