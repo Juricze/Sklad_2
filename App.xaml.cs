@@ -113,8 +113,8 @@ namespace Sklad_2
                     System.IO.File.Copy(backupDbPath, localDbPath, true);
 
                     // Also restore settings if they exist
-                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "AppSettings.json");
-                    var localSettingsPath = System.IO.Path.Combine(localFolderPath, "AppSettings.json");
+                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
+                    var localSettingsPath = System.IO.Path.Combine(localFolderPath, "settings.json");
                     if (System.IO.File.Exists(backupSettingsPath))
                     {
                         System.IO.File.Copy(backupSettingsPath, localSettingsPath, true);

@@ -511,6 +511,10 @@ namespace Sklad_2
                 var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
 
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Starting backup...");
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source folder: {sourceFolderPath}");
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source DB exists: {System.IO.File.Exists(sourceDbPath)}");
+
                 // Determine backup path with inline logic (avoid service calls during disposal)
                 string backupFolderPath;
 
@@ -518,26 +522,35 @@ namespace Sklad_2
                 var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                 string customBackupPath = null;
 
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings file path: {settingsPath}");
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings file exists: {System.IO.File.Exists(settingsPath)}");
+
                 if (System.IO.File.Exists(settingsPath))
                 {
                     try
                     {
                         var json = System.IO.File.ReadAllText(settingsPath);
+                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings JSON loaded, length: {json.Length}");
                         var settings = System.Text.Json.JsonSerializer.Deserialize<Models.Settings.AppSettings>(json);
                         customBackupPath = settings?.BackupPath;
+                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: BackupPath from settings: '{customBackupPath}'");
                     }
-                    catch { /* Ignore parsing errors */ }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Error parsing settings: {ex.Message}");
+                    }
                 }
 
                 // Only backup if custom backup path is configured
                 if (!string.IsNullOrWhiteSpace(customBackupPath))
                 {
                     backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
+                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Backup folder path: {backupFolderPath}");
                 }
                 else
                 {
                     // No backup path configured - skip backup
-                    System.Diagnostics.Debug.WriteLine("Backup path not configured - skipping backup on close");
+                    System.Diagnostics.Debug.WriteLine("PerformDatabaseSync: Backup path not configured - skipping backup on close");
                     return;
                 }
 
@@ -547,18 +560,27 @@ namespace Sklad_2
                 if (System.IO.File.Exists(sourceDbPath))
                 {
                     System.IO.File.Copy(sourceDbPath, backupFilePath, true);
+                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Database copied to {backupFilePath}");
 
                     var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                     var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
                     if (System.IO.File.Exists(sourceSettingsPath))
                     {
                         System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
+                        System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Settings copied to {backupSettingsPath}");
                     }
+
+                    System.Diagnostics.Debug.WriteLine("PerformDatabaseSync: Backup completed successfully!");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Source database not found at {sourceDbPath}");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Silent fail - don't block app close
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: ERROR - {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"PerformDatabaseSync: Stack trace - {ex.StackTrace}");
             }
         }
 
