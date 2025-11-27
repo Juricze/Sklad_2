@@ -17,7 +17,121 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 26. listopad 2025 (odpoledne) - ČÁST 2**
+## 📅 **Poslední session: 27. listopad 2025 (odpoledne) - ČÁST 3**
+
+### ✅ Hotovo:
+**Release v1.0.8: Profesionální formátování účtenek s logem**
+
+**Implementované funkce:**
+
+1. **Logo na účtenkách** 🖼️
+   - ESC/POS raster format (GS v 0) s RAW byte commands
+   - SkiaSharp integrace: načtení BMP → konverze mono → scaling → ESC/POS
+   - Auto threshold 128 (color/gray → black/white)
+   - Max šířka 384px, auto-scale
+   - Soubor: `essets/luvera_logo.bmp` (400x400px)
+   - Fallback na název firmy pokud logo chybí
+
+2. **Tečkované vyplnění** mezi cenami
+   - `7x 100.00 Kč..............560.00 Kč`
+   - S tečkami: produkty, Mezisoučet, Poukaz, Přijato, Vráceno
+   - Bez teček: DPH rozklad
+
+3. **Tenké čáry mezi položkami**
+   - Separátor `--------` (48 znaků) mezi každou položkou
+
+4. **Vycentrované info řádky**
+   - Účtenka, Datum, Prodejce - na STŘEDU
+   - Dobropis č., Datum, K původní účtence - na STŘEDU
+
+5. **Zmenšené CELKEM** (bez přetékání)
+   - Odstraněn Double Height (GS ! 0x10)
+   - Jen BOLD (ESC E 1)
+   - Vejde se až `*** CELKEM: 9999,99 Kč ***`
+
+6. **48 sloupců + symetrické 3+3**
+   - RECEIPT_WIDTH = 48 (správně pro 80mm papír)
+   - INDENT = 3 mezery vlevo
+   - RIGHT_MARGIN = 3 mezery vpravo
+   - Separátory plná šířka (48 znaků)
+
+7. **Word Wrap** pro dlouhé názvy (max 40 znaků)
+
+8. **Přesun adresy/IČ/DIČ** do footeru (před "Děkujeme")
+
+**Technické:**
+- Helper metody: LoadLogoCommands(), WordWrap(), FormatLineWithRightPrice()
+- SkiaSharp using pro bitmap operace
+- Build: logo se kopíruje do output (Content Include)
+
+**Git:**
+- Commit: 6f2b092
+- ZIP: Sklad_2-v1.0.8-win-x64.zip (70MB)
+
+---
+
+## 📅 **Předchozí session: 27. listopad 2025 (pokračování)**
+
+### ✅ Hotovo:
+**Kontrola změn od v1.0.2 → v1.0.7 (5 nových verzí)**
+
+**Přehled nových verzí:**
+
+### **v1.0.7 - Single-Instance Ochrana** (27.11.2025)
+- 🔒 Mutex ochrana proti spuštění více instancí současně
+- Win32 MessageBox pro okamžité upozornění (funguje před WinUI inicializací)
+- Prevence konfliktů s SQLite databází
+- Automatické uvolnění Mutex při ukončení
+- **Soubory:** App.xaml.cs, RELEASE_NOTES_v1.0.7.md
+- **Commit:** 86020b6 + d6a2297 + 016c603
+
+### **v1.0.6 - Aktualizace O Aplikaci** (26.11.2025)
+- ℹ️ Sekce "O aplikaci" aktualizována
+- Dynamická verze z assembly
+- Kontakt: Jiří Hejda - Aplikárna®, info@aplikarna.cz
+- Klikatelný odkaz: aplikarna.cz
+- Seznam 12 hlavních funkcí
+- **Soubory:** NastaveniPage.xaml, RELEASE_NOTES_v1.0.6.md
+- **Commit:** bd5a3f7 + 1639022 + a8ead2b
+
+### **v1.0.5 - UTF-8 & PowerShell Fixes** (26.11.2025)
+- 🔧 UTF-8 encoding fix v PowerShell update scriptu
+- Auto cleanup po úspěšném update
+- Robustní error handling
+- Podpora pro self-contained WinUI 3 build (multi-file)
+- **Soubory:** UpdateHelper.ps1
+- **Commit:** bdcb53b + 2f93d76
+
+### **v1.0.4 - Tisk Účtenek** (26.11.2025)
+- 🖨️ Zvětšení názvu firmy na účtenkách
+- Test release pro GitHub auto-updater
+- **Commit:** 49df672
+
+### **v1.0.3 - Multi-File Auto-Updater** (26.11.2025)
+- 📦 Multi-file ZIP auto-updater místo single-file
+- Profesionální error handling
+- PowerShell UpdateHelper.ps1 script
+- Podpora pro celou self-contained aplikaci
+- **Soubory:** UpdateService.cs, UpdateHelper.ps1
+- **Commit:** d2a4467 + 1304bff
+
+### **Další fixnuté bugy:**
+- ✅ StatusBar validace vyžaduje IČ (CompanyId) - commit e42859f
+- ✅ NOT NULL constraint pro VatId a RedeemedGiftCardEan - commit 9d19b59
+- ✅ DIČ validace pouze pro plátce DPH - commit 70dfbe6
+- ✅ *.zip přidán do .gitignore - commit f2d320c
+
+**Aktuální verze:** **v1.0.7**
+
+**Build status:**
+✅ Všechny verze úspěšně vytvořeny a commitnuty
+✅ Single-instance ochrana implementována
+✅ Auto-update systém plně funkční
+✅ Win10 kompatibilita zachována
+
+---
+
+## 📅 **Předchozí session: 26. listopad 2025 (odpoledne) - ČÁST 2**
 
 ### ✅ Hotovo:
 **Auto-update přesunut na login screen + Release v1.0.2 připraven**
@@ -553,6 +667,37 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    ```
    - x:Bind je compile-time bezpečné a spolehlivé
 
+16. **Single-Instance Protection s Mutex** ⚠️ NOVÉ!
+   - Prevence spuštění více instancí aplikace současně
+   - **Řešení: System.Threading.Mutex**
+   ```csharp
+   // V App.xaml.cs
+   private static Mutex _singleInstanceMutex;
+
+   protected override void OnLaunched(LaunchActivatedEventArgs args)
+   {
+       bool createdNew;
+       _singleInstanceMutex = new Mutex(true, "UniqueAppName_Mutex", out createdNew);
+
+       if (!createdNew)
+       {
+           // Druhá instance - zobrazit upozornění a ukončit
+           MessageBox(IntPtr.Zero, "Aplikace již běží", "Upozornění", MB_OK | MB_ICONWARNING);
+           _singleInstanceMutex?.Close();
+           Environment.Exit(0);
+           return;
+       }
+   }
+   ```
+   - **Win32 MessageBox místo ContentDialog** (funguje před WinUI inicializací)
+   - **P/Invoke:**
+   ```csharp
+   [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+   private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+   ```
+   - Mutex se automaticky uvolní při ukončení procesu
+   - Důležité pro SQLite databázi (prevence konfliktů)
+
 15. **ListView ItemContainerStyle pro zarovnání** ⚠️ NOVÉ!
    - ListView automaticky přidává padding do ListViewItem
    - Hlavičky a data se nezarovnají bez úpravy
@@ -704,7 +849,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 12/15 hlavních funkcí (~80%)
+**Hotovo:** 15/17 hlavních funkcí (~88%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -718,13 +863,16 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 9. PPD Compliance (profesionální účtenky, storno, export FÚ)
 10. UI optimalizace pro neplátce DPH
 11. Vlastní cesta pro zálohy + Dialog při zavření
-12. **Systém dárkových poukazů (kompletní)** ✅ NOVÉ!
+12. Systém dárkových poukazů (kompletní)
+13. **Auto-update systém** (multi-file ZIP, PowerShell, GitHub Releases)
+14. **Tisk účtenek** (ESC/POS, české znaky CP852, Epson TM-T20III)
+15. **Single-instance ochrana** (Mutex, Win32 MessageBox)
 
 ### ⏳ Zbývá:
 1. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
-3. Export uzavírek (CSV/PDF)
+2. Export uzavírek do CSV/PDF
 
 ---
 
-**Poslední aktualizace:** 26. listopad 2025
-**Aktuální verze:** v1.0.1
+**Poslední aktualizace:** 27. listopad 2025
+**Aktuální verze:** v1.0.7
