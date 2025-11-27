@@ -23,3 +23,6 @@ Bundle/
 # Ignore Rider files
 .idea/
 publish/
+
+# Ignore Claude Code local settings
+.claude/settings.local.json
