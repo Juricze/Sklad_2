@@ -39,5 +39,10 @@ namespace Sklad_2.Services
         /// Vrátí datum poslední uzavírky (nebo null pokud ještě nebyla žádná)
         /// </summary>
         Task<DateTime?> GetLastCloseDateAsync();
+
+        /// <summary>
+        /// Vrátí přehled denních tržeb pro aktuální kalendářní měsíc
+        /// </summary>
+        Task<List<DailySalesSummary>> GetCurrentMonthDailySalesAsync();
     }
 }

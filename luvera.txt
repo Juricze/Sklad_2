@@ -16,7 +16,7 @@
 	- Klientské učty ( Jmeno, email ) 
 		- vyhledávání/zadávání podle jména nebo emailu. - zjednodušené žádné kartičky EAN kody.
 	- Marže do Nový produkt. 
-	- Odstranit Darkovým poukazem v možnosti platby.
+-DONE-	- Odstranit Darkovým poukazem v možnosti platby.
 	- adminovi přidat možnost editovat Produkty ( Produkty(Přehled)
 	- *možná přidat možnost obrázku pro každý produkt
 	- Do tržby/zavírky přidat jednoduchý přehled od denních třbách

@@ -316,6 +316,95 @@ namespace Sklad_2.Services
             }
         }
 
+        public async Task<List<DailySalesSummary>> GetCurrentMonthDailySalesAsync()
+        {
+            try
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+
+                // Aktuální kalendářní měsíc
+                var today = DateTime.Today;
+                var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+                var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+                // Načíst všechny účtenky za měsíc
+                var receipts = await context.Receipts
+                    .AsNoTracking()
+                    .Where(r => r.SaleDate.Date >= firstDayOfMonth && r.SaleDate.Date <= lastDayOfMonth)
+                    .ToListAsync();
+
+                // Načíst vratky za měsíc
+                var returns = await context.Returns
+                    .AsNoTracking()
+                    .Where(r => r.ReturnDate.Date >= firstDayOfMonth && r.ReturnDate.Date <= lastDayOfMonth)
+                    .ToListAsync();
+
+                // Seskupit účtenky podle dne
+                var receiptsByDay = receipts
+                    .GroupBy(r => r.SaleDate.Date)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // Seskupit vratky podle dne
+                var returnsByDay = returns
+                    .GroupBy(r => r.ReturnDate.Date)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // Získat všechny unikátní dny s aktivitou
+                var allDays = receiptsByDay.Keys
+                    .Union(returnsByDay.Keys)
+                    .OrderByDescending(d => d)
+                    .ToList();
+
+                var summaries = new List<DailySalesSummary>();
+
+                foreach (var day in allDays)
+                {
+                    var dayReceipts = receiptsByDay.GetValueOrDefault(day, new List<Receipt>());
+                    var dayReturns = returnsByDay.GetValueOrDefault(day, new List<Return>());
+
+                    // Oddělit normální a stornované účtenky
+                    var normalReceipts = dayReceipts.Where(r => !r.IsStorno).ToList();
+                    var stornoReceipts = dayReceipts.Where(r => r.IsStorno).ToList();
+
+                    // Vypočítat tržby
+                    var cashSales = normalReceipts.Sum(r => r.CashAmount);
+                    var cardSales = normalReceipts.Sum(r => r.CardAmount);
+
+                    // Stornované účtenky (záporné hodnoty)
+                    cashSales += stornoReceipts.Sum(r => r.CashAmount);
+                    cardSales += stornoReceipts.Sum(r => r.CardAmount);
+
+                    // Vratky odečíst od hotovosti
+                    var returnAmount = dayReturns.Sum(r => r.TotalRefundAmount);
+                    cashSales -= returnAmount;
+
+                    // Rozmezí účtenek
+                    var orderedReceipts = dayReceipts.OrderBy(r => r.ReceiptSequence).ToList();
+                    var receiptFrom = orderedReceipts.FirstOrDefault()?.FormattedReceiptNumber ?? "";
+                    var receiptTo = orderedReceipts.LastOrDefault()?.FormattedReceiptNumber ?? "";
+
+                    summaries.Add(new DailySalesSummary
+                    {
+                        Date = day,
+                        ReceiptRangeFrom = receiptFrom,
+                        ReceiptRangeTo = receiptTo,
+                        CashSales = cashSales,
+                        CardSales = cardSales,
+                        TotalSales = cashSales + cardSales,
+                        ReceiptCount = dayReceipts.Count
+                    });
+                }
+
+                Debug.WriteLine($"DailyCloseService: Retrieved {summaries.Count} daily summaries for {today:MMMM yyyy}");
+                return summaries;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DailyCloseService: Error getting current month daily sales: {ex.Message}");
+                return new List<DailySalesSummary>();
+            }
+        }
+
         // Helper methods
 
         private (DateTime FromDate, DateTime ToDate) CalculatePeriodRange(string period, DateTime referenceDate)

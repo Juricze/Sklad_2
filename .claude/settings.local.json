@@ -27,7 +27,9 @@
       "Bash(git push:*)",
       "Bash(gh release create:*)",
       "Bash(git rm:*)",
-      "Bash(Select-String -Pattern \"error|warning|Build succeeded|Build FAILED\")"
+      "Bash(Select-String -Pattern \"error|warning|Build succeeded|Build FAILED\")",
+      "Bash(gh release list:*)",
+      "Bash(Select-String -Pattern \"error|warning CS|Build succeeded|Build FAILED\")"
     ],
     "deny": [],
     "ask": []

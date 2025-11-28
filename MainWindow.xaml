@@ -8,7 +8,11 @@
     mc:Ignorable="d">
 
     <Grid Background="Transparent" x:Name="RootGrid">
-        <NavigationView x:Name="NavView" IsBackButtonVisible="Collapsed" IsSettingsVisible="true" PaneDisplayMode="Left" IsPaneOpen="True" PaneTitle="Sklad App" ItemInvoked="NavView_ItemInvoked">
+        <Grid.Resources>
+            <!-- Workaround pro WinUI 3 bug: GridLength to Double converter error -->
+            <x:Double x:Key="NavigationViewCompactPaneLength">48</x:Double>
+        </Grid.Resources>
+        <NavigationView x:Name="NavView" IsBackButtonVisible="Collapsed" IsSettingsVisible="true" PaneDisplayMode="Left" IsPaneOpen="True" PaneTitle="Sklad App" ItemInvoked="NavView_ItemInvoked" OpenPaneLength="280" CompactPaneLength="48">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Prodej" Tag="Prodej" Icon="Shop"/>
                 <NavigationViewItem Content="Naskladnění" Tag="Naskladneni" Icon="Add"/>

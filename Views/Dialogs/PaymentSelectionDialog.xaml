@@ -16,11 +16,6 @@
         <StackPanel Spacing="12" HorizontalAlignment="Center">
             <Button Content="Hotově" Click="CashButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
             <Button Content="Kartou" Click="CardButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
-            <Button Content="Dárkovým poukazem"
-                    Click="GiftCardButton_Click"
-                    Style="{StaticResource AccentButtonStyle}"
-                    MinWidth="200"
-                    Visibility="{x:Bind HasGiftCardLoaded, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
         </StackPanel>
     </StackPanel>
 </ContentDialog>

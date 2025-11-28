@@ -75,6 +75,69 @@
                 </StackPanel>
             </Border>
 
+            <!-- Přehled denních tržeb za měsíc -->
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="{Binding CurrentMonthName, Mode=OneWay, FallbackValue='Přehled za měsíc'}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               FontWeight="SemiBold"/>
+
+                    <!-- Hlavička tabulky -->
+                    <Grid Padding="8,4" Background="#F0F0F0" CornerRadius="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Datum" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Grid.Column="1" Text="Účtenky" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Grid.Column="2" Text="Hotovost" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="Karta" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="Celkem" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                    </Grid>
+
+                    <!-- Seznam denních tržeb -->
+                    <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto">
+                        <ListView ItemsSource="{Binding DailySalesSummaries, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="MinHeight" Value="30"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8,6" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding DateFormatted}" FontSize="13" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ReceiptRange}" FontSize="12" Opacity="0.8" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding CashSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#34C759"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding CardSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#007AFF"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding TotalSalesFormatted}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#FF9500"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
             <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8"

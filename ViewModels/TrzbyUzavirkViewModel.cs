@@ -82,6 +82,12 @@ namespace Sklad_2.ViewModels
         // Seznam uzavírek
         public ObservableCollection<DailyClose> DailyCloses { get; } = new();
 
+        // Přehled denních tržeb za aktuální měsíc
+        public ObservableCollection<DailySalesSummary> DailySalesSummaries { get; } = new();
+
+        [ObservableProperty]
+        private string currentMonthName;
+
         // Filtry
         [ObservableProperty]
         private DateTime? filterFromDate;
@@ -112,6 +118,9 @@ namespace Sklad_2.ViewModels
 
                 // Kontrola, zda je už session den uzavřený
                 IsDayClosed = await _dailyCloseService.IsDayClosedAsync(SessionDate);
+
+                // Načíst přehled denních tržeb za měsíc
+                await LoadDailySalesSummariesAsync();
 
                 Debug.WriteLine($"TrzbyUzavirkViewModel: Loaded session ({SessionDate:yyyy-MM-dd}) sales - Total: {total:N2} Kč, Closed: {IsDayClosed}");
             }
@@ -202,6 +211,35 @@ namespace Sklad_2.ViewModels
                 StatusMessage = errorMsg;
                 Debug.WriteLine($"TrzbyUzavirkViewModel: Error closing day: {ex.Message}");
                 return (false, errorMsg, null);
+            }
+        }
+
+        /// <summary>
+        /// Načíst přehled denních tržeb za aktuální měsíc
+        /// </summary>
+        [RelayCommand]
+        public async Task LoadDailySalesSummariesAsync()
+        {
+            try
+            {
+                var summaries = await _dailyCloseService.GetCurrentMonthDailySalesAsync();
+
+                DailySalesSummaries.Clear();
+                foreach (var summary in summaries)
+                {
+                    DailySalesSummaries.Add(summary);
+                }
+
+                // Nastavit název měsíce
+                var today = DateTime.Today;
+                CurrentMonthName = $"{today:MMMM yyyy}";
+
+                Debug.WriteLine($"TrzbyUzavirkViewModel: Loaded {summaries.Count} daily summaries");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"TrzbyUzavirkViewModel: Error loading daily summaries: {ex.Message}");
+                StatusMessage = $"Chyba při načítání přehledu: {ex.Message}";
             }
         }
 

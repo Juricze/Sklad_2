@@ -190,9 +190,7 @@ namespace Sklad_2.Views
             }
 
             // Payment dialog shows amount AFTER gift card deduction
-            var paymentSelectionDialog = new PaymentSelectionDialog(
-                ViewModel.AmountToPay,
-                ViewModel.ScannedGiftCard != null)
+            var paymentSelectionDialog = new PaymentSelectionDialog(ViewModel.AmountToPay)
             {
                 XamlRoot = this.XamlRoot,
             };
@@ -289,19 +287,6 @@ namespace Sklad_2.Views
                     parameters.Add("paymentMethod", PaymentMethod.Card);
                     await ViewModel.CheckoutCommand.ExecuteAsync(parameters);
                     break;
-
-                case PaymentMethod.GiftCard:
-                    // This should never happen now (button is hidden when gift card is loaded)
-                    // But keep for safety
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Chyba",
-                        Content = "Neplatná platební metoda. Načtěte dárkový poukaz v sekci výše.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
-                    return;
 
                 case PaymentMethod.None:
                     return;
