@@ -332,6 +332,43 @@ private void RefreshItems()
 
 **Claude POVINNOST**: Vždy upozorni na potřebu schema version update po DB změnách!**
 
+---
+
+## 🚀 KRITICKÉ: Release Checklist
+
+**VŽDY při vytváření nového release:**
+
+1. **NEJDŘÍV aktualizovat verzi v `Sklad_2.csproj`:**
+   ```xml
+   <Version>X.Y.Z</Version>
+   <AssemblyVersion>X.Y.Z.0</AssemblyVersion>
+   <FileVersion>X.Y.Z.0</FileVersion>
+   ```
+
+2. **Build release:**
+   ```bash
+   dotnet publish Sklad_2.csproj -c Release -r win-x64 --self-contained false -p:Platform=x64
+   ```
+
+3. **Commit + Push:**
+   ```bash
+   git add -A && git commit -m "Release vX.Y.Z: [popis]" && git push
+   ```
+
+4. **Vytvořit ZIP:**
+   ```bash
+   powershell.exe -ExecutionPolicy Bypass -Command "Compress-Archive -Path 'bin\x64\Release\...\publish\*' -DestinationPath 'Sklad_2-vX.Y.Z-win-x64.zip' -Force"
+   ```
+
+5. **GitHub Release:**
+   ```bash
+   gh release create vX.Y.Z --title "vX.Y.Z - [název]" --notes "[popis]" Sklad_2-vX.Y.Z-win-x64.zip
+   ```
+
+**Claude POVINNOST**: Vždy aktualizovat verzi v `.csproj` PŘED buildem!
+
+---
+
 ## Session Workflow
 - **"pokracuj" / "pokračujem" / "pokračujeme"** → Začátek session - načti `SESSION.md` a pokračuj v práci
 - **"konec" / "končíme" / "končit"** → Konec session - shrň provedenou práci a zapiš do `SESSION.md`, aktualizuj TODO list
