@@ -119,8 +119,9 @@
                            HorizontalAlignment="Center" Margin="0,8,0,8"
                            Foreground="#999999"/>
 
-                <!-- === GIFT CARD REDEMPTION === -->
-                <StackPanel Visibility="{x:Bind Receipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- === DISCOUNTS SECTION (Loyalty + Gift Card) === -->
+                <StackPanel Visibility="{x:Bind Receipt.HasAnyDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <!-- Mezisoučet (only if there's any discount) -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -129,19 +130,43 @@
                         <TextBlock Grid.Column="0" Text="Mezisoučet:" FontSize="12"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind Receipt.TotalAmountFormatted, Mode=OneWay}" FontSize="12"/>
                     </Grid>
-                    <Grid Margin="0,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Použitý poukaz:" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
-                        <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50">
-                            <Run Text="-"/><Run Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}"/>
+
+                    <!-- Loyalty discount -->
+                    <StackPanel Visibility="{x:Bind Receipt.HasLoyaltyDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontSize="12" FontWeight="SemiBold" Foreground="#007AFF">
+                                <Run Text="Věrnostní sleva ("/><Run Text="{x:Bind Receipt.LoyaltyDiscountPercent, Mode=OneWay}"/><Run Text="%)"/>
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" Text="{x:Bind Receipt.LoyaltyDiscountAmountFormatted, Mode=OneWay}"
+                                       FontSize="12" FontWeight="SemiBold" Foreground="#007AFF"/>
+                        </Grid>
+                        <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0"
+                                   Visibility="{x:Bind Receipt.HasLoyaltyCustomerEmail, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Run Text="Člen: "/><Run Text="{x:Bind Receipt.LoyaltyCustomerEmail, Mode=OneWay}"/>
                         </TextBlock>
-                    </Grid>
-                    <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0">
-                        <Run Text="EAN: "/><Run Text="{x:Bind Receipt.RedeemedGiftCardEan, Mode=OneWay}"/>
-                    </TextBlock>
+                    </StackPanel>
+
+                    <!-- Gift card redemption -->
+                    <StackPanel Visibility="{x:Bind Receipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Použitý poukaz:" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                            <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50">
+                                <Run Text="-"/><Run Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
+                        <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0">
+                            <Run Text="EAN: "/><Run Text="{x:Bind Receipt.RedeemedGiftCardEan, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
                     <!-- Separator -->
                     <TextBlock Text="────────────────────────────────────"
                                FontFamily="Consolas" FontSize="10"
@@ -187,7 +212,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="CELKEM:" FontSize="16" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Text="{x:Bind AmountToPay, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                    <TextBlock Grid.Column="1" Text="{x:Bind Receipt.AmountToPayFormatted, Mode=OneWay}"
                                FontSize="16" FontWeight="Bold"/>
                 </Grid>
 

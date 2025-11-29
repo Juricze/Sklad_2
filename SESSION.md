@@ -17,7 +17,44 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 3. prosinec 2025 (noc)**
+## 📅 **Poslední session: 29. listopad 2025**
+
+### ✅ Hotovo:
+**Release v1.0.11: Opravy peněžních toků a DRY princip**
+
+**Kritické opravy:**
+
+1. **DRY princip pro AmountToPay/AmountToRefund**
+   - PrehledProdejuViewModel - PaymentMethodStats používá AmountToPay
+   - ReturnPreviewDialog - zobrazuje AmountToRefund
+   - EscPosPrintService - tisk vratek používá AmountToRefund
+   - VratkyPrehledPage - seznam i detail používá AmountToRefund
+   - DailyCloseService.CloseDayAsync - používá AmountToRefund
+
+2. **Věrnostní sleva - nepočítá se z dárkových poukazů**
+   - GetDiscountableAmount() nyní filtruje podle Category != "Dárkové poukazy"
+
+3. **TotalPurchases - správné sledování**
+   - Prodej: nepočítá uplatněné poukazy (GiftCardRedemptionAmount)
+   - Storno: používá AmountToPay
+   - Vratky: počítá poměrnou část poukazu a odečítá jen hotovostní část
+
+4. **Validace dárkových poukazů**
+   - Nelze prodat a použít stejný poukaz v téže účtence
+   - Nelze přidat stejný poukaz do košíku vícekrát (unikátní EAN)
+
+**Soubory:**
+- `ViewModels/ProdejViewModel.cs` - validace poukazů, TotalPurchases
+- `ViewModels/VratkyViewModel.cs` - proporční výpočet poukazu pro vratky
+- `ViewModels/PrehledProdejuViewModel.cs` - DRY opravy
+- `Services/DailyCloseService.cs` - AmountToRefund místo TotalRefundAmount
+- `Services/EscPosPrintService.cs` - tisk vratek
+- `Views/VratkyPrehledPage.xaml` - zobrazení AmountToRefund
+- `Views/Dialogs/ReturnPreviewDialog.xaml` - zobrazení AmountToRefund
+
+---
+
+## 📅 **Předchozí session: 3. prosinec 2025 (noc)**
 
 ### ✅ Hotovo:
 **Release v1.0.9: UI Auto-Refresh Tržby/Uzavírky + Win10 Compatibility**
@@ -327,8 +364,9 @@ public string DayStatusFormatted => IsDayClosed
 ### ⏳ Zbývá:
 1. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
 2. Export uzavírek do CSV/PDF
+3. **DPH statistiky** - `TotalSalesAmountWithoutVat` nerespektuje slevy (věrnostní/poukaz) - PrehledProdejuViewModel:183-185
 
 ---
 
-**Poslední aktualizace:** 3. prosinec 2025
-**Aktuální verze:** v1.0.9
+**Poslední aktualizace:** 29. listopad 2025
+**Aktuální verze:** v1.0.11

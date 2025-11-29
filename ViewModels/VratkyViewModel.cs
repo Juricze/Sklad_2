@@ -1,12 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.EntityFrameworkCore;
+using Sklad_2.Data;
 using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +21,7 @@ namespace Sklad_2.ViewModels
         private readonly ISettingsService _settingsService;
         private readonly IMessenger _messenger;
         private readonly IAuthService _authService;
+        private readonly IDbContextFactory<DatabaseContext> _contextFactory;
 
         public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
 
@@ -54,12 +58,13 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return lastCreatedReturn;
 
-        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, IMessenger messenger, IAuthService authService)
+        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, IMessenger messenger, IAuthService authService, IDbContextFactory<DatabaseContext> contextFactory)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _messenger = messenger;
             _authService = authService;
+            _contextFactory = contextFactory;
 
             // Listen for settings changes to update IsVatPayer property
             _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
@@ -206,6 +211,17 @@ namespace Sklad_2.ViewModels
                     totalRefundVatAmount += vatAmountForItem;
                 }
 
+                // Calculate proportional loyalty discount for returned items
+                // If original receipt had 10% discount on 200 Kč total, and we return items worth 100 Kč,
+                // the proportional discount is: (100 / 200) * 20 Kč = 10 Kč
+                decimal loyaltyDiscountForReturn = 0;
+                if (FoundReceipt.HasLoyaltyDiscount && FoundReceipt.TotalAmount > 0 && TotalRefundAmount > 0)
+                {
+                    decimal proportion = TotalRefundAmount / FoundReceipt.TotalAmount;
+                    loyaltyDiscountForReturn = Math.Round(FoundReceipt.LoyaltyDiscountAmount * proportion, 2);
+                    Debug.WriteLine($"VratkyViewModel: Proportional loyalty discount: {TotalRefundAmount:C} / {FoundReceipt.TotalAmount:C} * {FoundReceipt.LoyaltyDiscountAmount:C} = {loyaltyDiscountForReturn:C}");
+                }
+
                 // Create return document with proper numbering
                 int returnYear = DateTime.Now.Year;
                 int returnSequence = await _dataService.GetNextReturnSequenceAsync(returnYear);
@@ -216,6 +232,8 @@ namespace Sklad_2.ViewModels
                     ReturnSequence = returnSequence,
                     ReturnDate = DateTime.Now,
                     OriginalReceiptId = FoundReceipt.ReceiptId,
+                    LoyaltyCustomerId = FoundReceipt.LoyaltyCustomerId,  // Copy from original receipt for TotalPurchases tracking
+                    LoyaltyDiscountAmount = loyaltyDiscountForReturn,  // Proportional loyalty discount for returned items
                     ShopName = settings.ShopName,
                     ShopAddress = settings.ShopAddress,
                     CompanyId = settings.CompanyId,
@@ -235,6 +253,49 @@ namespace Sklad_2.ViewModels
 
                 // Save return document
                 await _dataService.SaveReturnAsync(returnDocument);
+
+                // Deduct TotalPurchases from loyalty customer (if original receipt had loyalty customer)
+                // DRY: Deduct only what customer actually paid in cash (exclude proportional gift card portion)
+                if (FoundReceipt.LoyaltyCustomerId.HasValue && returnDocument.AmountToRefund > 0)
+                {
+                    try
+                    {
+                        // Calculate proportional gift card redemption for returned items
+                        // If original receipt had 500 Kč gift card on 1000 Kč total, and we return items worth 500 Kč,
+                        // the proportional gift card is: (500 / 1000) * 500 Kč = 250 Kč
+                        decimal giftCardRedemptionForReturn = 0;
+                        if (FoundReceipt.ContainsGiftCardRedemption && FoundReceipt.TotalAmount > 0 && TotalRefundAmount > 0)
+                        {
+                            decimal proportion = TotalRefundAmount / FoundReceipt.TotalAmount;
+                            giftCardRedemptionForReturn = Math.Round(FoundReceipt.GiftCardRedemptionAmount * proportion, 2);
+                            Debug.WriteLine($"VratkyViewModel: Proportional gift card redemption: {TotalRefundAmount:C} / {FoundReceipt.TotalAmount:C} * {FoundReceipt.GiftCardRedemptionAmount:C} = {giftCardRedemptionForReturn:C}");
+                        }
+
+                        // Deduct only the cash portion (AmountToRefund minus proportional gift card)
+                        decimal cashPortionToDeduct = returnDocument.AmountToRefund - giftCardRedemptionForReturn;
+
+                        using var context = await _contextFactory.CreateDbContextAsync();
+                        var customer = await context.LoyaltyCustomers.FirstOrDefaultAsync(c => c.Id == FoundReceipt.LoyaltyCustomerId.Value);
+                        if (customer != null && cashPortionToDeduct > 0)
+                        {
+                            customer.TotalPurchases -= cashPortionToDeduct;
+
+                            // Ensure TotalPurchases doesn't go negative
+                            if (customer.TotalPurchases < 0)
+                            {
+                                customer.TotalPurchases = 0;
+                            }
+
+                            await context.SaveChangesAsync();
+                            Debug.WriteLine($"VratkyViewModel: Deducted TotalPurchases for {customer.Email}: -{cashPortionToDeduct:C} (cash portion) = {customer.TotalPurchases:C}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"VratkyViewModel: Failed to deduct TotalPurchases: {ex.Message}");
+                        // Continue - return was already saved successfully
+                    }
+                }
 
                 StatusMessage = $"Vratka pro účtenku č. {FoundReceipt.ReceiptId} byla úspěšně vytvořena.";
                 LastCreatedReturn = returnDocument;

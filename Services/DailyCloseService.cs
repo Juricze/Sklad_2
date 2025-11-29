@@ -50,12 +50,13 @@ namespace Sklad_2.Services
                 cardSales += stornoReceipts.Sum(r => r.CardAmount); // Přičíst zápornou hodnotu
 
                 // Načíst vratky ze session dne - odečíst od hotovostní tržby (vracíme vždy v hotovosti)
+                // DRY: Use AmountToRefund (after loyalty discount) - actual amount returned to customer
                 var todayReturns = await context.Returns
                     .AsNoTracking()
                     .Where(r => r.ReturnDate.Date == sessionDate)
                     .ToListAsync();
 
-                var returnAmount = todayReturns.Sum(r => r.TotalRefundAmount);
+                var returnAmount = todayReturns.Sum(r => r.AmountToRefund);
                 cashSales -= returnAmount; // Vratky odečítáme od hotovostní tržby
 
                 var totalSales = cashSales + cardSales;
@@ -139,7 +140,8 @@ namespace Sklad_2.Services
                     .Where(r => r.ReturnDate.Date == sessionDate)
                     .ToListAsync();
 
-                var returnAmount = todayReturns.Sum(r => r.TotalRefundAmount);
+                // DRY: Use AmountToRefund (after loyalty discount) - actual amount returned to customer
+                var returnAmount = todayReturns.Sum(r => r.AmountToRefund);
                 cashSales -= returnAmount; // Vratky odečítáme od hotovostní tržby
 
                 var totalSales = cashSales + cardSales;

@@ -69,7 +69,11 @@ foreach ($file in $modelFiles) {
             # DailyClose (V10 migration)
             "date", "cashSales", "cardSales", "totalSales", "vatAmount", "receiptNumberFrom", "receiptNumberTo", "closedAt",
             # Receipt payment breakdown (V10 migration)
-            "cashAmount", "cardAmount"
+            "cashAmount", "cardAmount",
+            # LoyaltyCustomer (V11 migration)
+            "firstName", "lastName", "email", "cardEan", "discountPercent", "totalPurchases", "createdAt",
+            # Receipt loyalty fields (V12 migration)
+            "hasLoyaltyDiscount", "loyaltyCustomerEmail", "loyaltyDiscountPercent", "loyaltyDiscountAmount"
         )
         
         $hasInitialSchema = $propertyName -in $initialProperties

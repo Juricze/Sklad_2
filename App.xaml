@@ -31,6 +31,7 @@
             <converters:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
             <converters:BooleanToDiscountColorConverter x:Key="BooleanToDiscountColorConverter"/>
             <converters:DayClosedConverter x:Key="DayClosedConverter"/>
+            <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

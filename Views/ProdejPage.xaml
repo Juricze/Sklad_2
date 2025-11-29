@@ -119,6 +119,69 @@
                 </StackPanel>
             </Border>
 
+            <!-- Věrnostní program -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="16"
+                    Shadow="{ThemeResource CardShadow}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Věrnostní program"
+                               FontWeight="SemiBold"
+                               FontSize="16"/>
+
+                    <!-- Input pro vyhledání/načtení člena -->
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsLoyaltyCustomerLoaded, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <AutoSuggestBox x:Name="LoyaltySearchBox"
+                                        PlaceholderText="Jméno, email nebo EAN kartičky..."
+                                        Text="{x:Bind ViewModel.LoyaltySearchInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ItemsSource="{x:Bind ViewModel.LoyaltySearchResults, Mode=OneWay}"
+                                        TextChanged="LoyaltySearchBox_TextChanged"
+                                        SuggestionChosen="LoyaltySearchBox_SuggestionChosen"
+                                        QuerySubmitted="LoyaltySearchBox_QuerySubmitted">
+                            <AutoSuggestBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Padding="4">
+                                        <TextBlock Text="{Binding FullName}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Email}" Opacity="0.7" FontSize="12"/>
+                                        <TextBlock Text="{Binding CardEanFormatted}" Opacity="0.5" FontSize="11"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </AutoSuggestBox.ItemTemplate>
+                        </AutoSuggestBox>
+                    </StackPanel>
+
+                    <!-- Loaded Loyalty Customer Info -->
+                    <Border Background="#E3F2FD"
+                            BorderBrush="#2196F3"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="12"
+                            Visibility="{x:Bind ViewModel.IsLoyaltyCustomerLoaded, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE779;" Foreground="#2196F3" FontSize="20"/>
+                                <TextBlock Text="{x:Bind ViewModel.SelectedLoyaltyCustomer.FullName, Mode=OneWay}"
+                                           FontWeight="SemiBold" Foreground="#2196F3" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock>
+                                <Run Text="Email:"/>
+                                <Run Text="{x:Bind ViewModel.SelectedLoyaltyCustomer.Email, Mode=OneWay}" FontSize="12"/>
+                            </TextBlock>
+                            <TextBlock Visibility="{x:Bind ViewModel.SelectedLoyaltyCustomer.DiscountPercent, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                <Run Text="Sleva:"/>
+                                <Run Text="{x:Bind ViewModel.SelectedLoyaltyCustomer.DiscountFormatted, Mode=OneWay}" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </TextBlock>
+                            <Button Content="Zrušit načteného člena"
+                                    Command="{x:Bind ViewModel.ClearLoyaltyCustomerCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
             <!-- Cancel Last Receipt Warning -->
             <Border Background="#FFF3CD"
                     BorderBrush="#FF9500"

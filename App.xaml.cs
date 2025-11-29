@@ -195,7 +195,8 @@ namespace Sklad_2
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<IGiftCardService>(),
-                sp.GetRequiredService<IPrintService>()));
+                sp.GetRequiredService<IPrintService>(),
+                sp.GetRequiredService<IDbContextFactory<DatabaseContext>>()));
             services.AddSingleton<PrijemZboziViewModel>(sp => new PrijemZboziViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>()));
@@ -225,7 +226,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IMessenger>(),
-                sp.GetRequiredService<IAuthService>()));
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<IDbContextFactory<DatabaseContext>>()));
             services.AddSingleton<TrzbyUzavirkViewModel>(sp => new TrzbyUzavirkViewModel(
                 sp.GetRequiredService<IDailyCloseService>(),
                 sp.GetRequiredService<IAuthService>(),
@@ -244,6 +246,9 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>()));
             services.AddSingleton<PoukazyViewModel>(sp => new PoukazyViewModel(
                 sp.GetRequiredService<IGiftCardService>()));
+            services.AddSingleton<LoyaltyViewModel>(sp => new LoyaltyViewModel(
+                sp.GetRequiredService<IDbContextFactory<DatabaseContext>>(),
+                sp.GetRequiredService<IAuthService>()));
 
             // Transient ViewModels (for dialogs, login, etc.)
             services.AddTransient<LoginViewModel>(sp => new LoginViewModel(

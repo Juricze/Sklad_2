@@ -170,6 +170,41 @@ Centralizovány ve statické třídě `Models/ProductCategories.cs`. Seznam kate
 - **Chyby**: Vždy vyžadovat přesné chybové hlášky z Visual Studio před opravou
 - **Design**: Striktně dodržovat Mica design s černobílou paletou
 
+---
+
+## 🔄 DRY Princip (Don't Repeat Yourself)
+
+**KRITICKÉ: Nikdy neduplikovat výpočty, formátování nebo business logiku!**
+
+### Pravidla pro celou aplikaci:
+
+1. **Model jako jediný zdroj pravdy** - computed properties patří do Models, ne do ViewModels
+2. **ViewModely pouze delegují** - `ViewModel.Property => Model?.Property ?? default`
+3. **Jeden výpočet = jedno místo** - pokud se něco počítá, počítá se jen v jednom souboru
+4. **Při změně logiky = jedna úprava** - nemusíš hledat duplikáty po celém projektu
+
+### Příklad - Receipt model:
+
+```csharp
+// ❌ ŠPATNĚ - duplikace výpočtu v ViewModel nebo code-behind
+public decimal AmountToPay => SelectedReceipt.TotalAmount
+    - SelectedReceipt.GiftCardRedemptionAmount;
+
+// ✅ SPRÁVNĚ - delegace na Receipt model (jediný zdroj pravdy)
+public decimal AmountToPay => SelectedReceipt?.AmountToPay ?? 0;
+```
+
+### Jak aplikovat DRY:
+
+1. **Výpočty částek** → Model (Receipt, Product, CashRegisterEntry...)
+2. **Formátování** → Model (`*Formatted` properties)
+3. **Validace** → Model nebo centrální ValidationHelper
+4. **Business pravidla** → Services nebo Model
+
+**Claude POVINNOST**: Před přidáním nové computed property zkontroluj, zda už neexistuje v Modelu. Pokud ne, přidej ji tam - ne do ViewModelu!
+
+---
+
 ## 🔴 KRITICKÉ: Windows 10 Compatibility Requirements
 
 **⚠️ PRODUKČNÍ PC BĚŽÍ NA WINDOWS 10!**
@@ -373,125 +408,4 @@ private void RefreshItems()
 - **"pokracuj" / "pokračujem" / "pokračujeme"** → Začátek session - načti `SESSION.md` a pokračuj v práci
 - **"konec" / "končíme" / "končit"** → Konec session - shrň provedenou práci a zapiš do `SESSION.md`, aktualizuj TODO list
 
----
-
-## 📝 TODO List
-
-### ✅ Hotovo (aktualizováno 18.11.2025)
-
-1. ✅ **Role-based UI restrictions**
-   - Skrytý panel "Denní kontrola pokladny" pro roli "Prodej"
-   - Tlačítko "Smazat vybrané" disabled pro roli "Prodej"
-
-2. ✅ **Databáze produktů - vylepšení**
-   - Filtrování podle kategorie
-   - Řazení (klik na hlavičku: Název, Skladem, Cena)
-   - Přidán sloupec "Nákupní cena"
-   - Fix: EAN vyhledávání - přesný prefix match (StartsWith)
-
-3. ✅ **Status Bar (Informační panel)**
-   - Zobrazení stavu: Firma, DPH kategorie, DPH plátce/neplátce, Databáze
-   - Zobrazení hardware: Tiskárna, Scanner, Uzavírka dne
-   - Barevné indikátory (zelená/červená/oranžová/modrá/šedá)
-   - Auto-refresh při startu a navigaci
-
-4. ✅ **Dashboard prodejů (Přehled prodejů)**
-   - KPI karty (celkové tržby, průměr na účtenku, DPH, čistá tržba)
-   - Quick Stats (Denní průměr vypočítaný podle časového horizontu, Počet účtenek, DPH Info)
-   - Top 5 nejprodávanějších produktů
-   - Nejméně prodávané produkty (5)
-   - Statistiky platebních metod
-   - Časové filtry (Celkem/Dnešní/Týdenní/Měsíční/Vlastní)
-   - Auto-refresh při otevření stránky
-   - Oprava týdenního filtru (Sunday edge case) ve všech ViewModelech
-
-5. ✅ **Denní otevírka/uzavírka pokladny**
-   - Zahájení nového dne při prvním přihlášení
-   - Ochrana proti změně systémového času
-   - Uzavírka dne s kontrolou rozdílu (přebytek/manko)
-   - Validace všech částek (0-10M Kč)
-   - Kontrola uzavírky při zavírání aplikace (pouze role "Prodej")
-
-6. ✅ **DPH systém**
-   - Konfigurace DPH pro kategorie
-   - Přepínač Plátce/Neplátce plně implementován
-   - Auto-fill sazby DPH podle kategorie produktu
-
-7. ✅ **Historie a přehledy**
-   - CashRegisterHistoryPage s filtry
-   - UctenkyPage s filtry
-   - VratkyPrehledPage s filtry
-
-8. ✅ **Dynamická správa kategorií**
-   - CategoriesPanel v NastaveniPage (Nastavení → Kategorie)
-   - Funkce: Přidat, přejmenovat, smazat kategorii
-   - ProductCategories.cs dynamicky načítá z AppSettings.Categories
-   - Automatická aktualizace produktů při přejmenování
-   - Ochrana proti smazání používané kategorie
-
-9. ✅ **UI optimalizace pro neplátce DPH** (18.11.2025)
-   - Dynamické skrývání DPH prvků podle IsVatPayer
-   - Podmíněná validace - neplátce nemusí nastavovat DPH kategorie
-   - Skryté komponenty: panel Sazby DPH, pole Sazba DPH, DPH KPI karty, DPH sloupce, Status Bar "DPH kat"
-   - Auto-refresh při změně nastavení Plátce/Neplátce
-   - Právně správné doklady pro neplátce (bez DIČ, bez "DAŇOVÝ DOKLAD", bez DPH rozkladu)
-
-10. ✅ **Vlastní cesta pro zálohy a exporty** (19.11.2025)
-   - Konfigurovatelná cesta v Nastavení → Systém
-   - Priorita: Vlastní cesta → OneDrive → Dokumenty (fallback)
-   - UI zobrazení aktivní cesty (📁 ikona + modrý text)
-   - FolderPicker pro výběr složky
-   - Export FÚ používá stejnou cestu jako zálohy
-   - Dialog "Záloha dokončena" při zavření aplikace
-   - Čisté ukončení s exit code 0 (Environment.Exit)
-   - Hybrid backup strategy: aplikace běží offline, záloha při zavření
-   - Auto-restore při startu pokud backup je novější
-
-11. ✅ **Systém uživatelských účtů** (22.11.2025)
-   - Databázová tabulka Users
-   - Skutečné uživatele s přihlášením (nahrazuje fixed roles)
-   - Role/oprávnění per uživatel
-   - SellerName = skutečné jméno prodavače
-
-12. ✅ **Systém dárkových poukazů** (24.11.2025)
-   - Kompletní CRUD operace (přidat, smazat, zobrazit)
-   - Životní cyklus: NotIssued → Issued (prodej) → Used (uplatnění)
-   - Integrace s POS systémem (prodej i uplatnění poukazů na účtence)
-   - Profesionální UI správy poukazů:
-     - Statistiky (Celkem, Neprodané, Prodané, Využité, Expirované, Závazek)
-     - Kombinovatelné filtry (5 checkboxů s data binding)
-     - Řazení (7 možností: datum prodeje/využití ↑↓, hodnota ↑↓, EAN)
-     - Vyhledávání podle EAN/poznámek
-     - Kompaktní tabulka (7 sloupců, perfektně zarovnané hlavičky)
-   - Technické vylepšení:
-     - Data binding místo visual tree traversal (spolehlivější filtry)
-     - ItemContainerStyle pro zarovnání ListView hlaviček
-     - Statistiky nezávislé na filtrech (_allGiftCards vs GiftCards)
-
-### ⏳ Zbývá udělat
-
-1. ⏳ **Tisk účtenek - rozlišení prodeje vs uplatnění poukazu**
-   - Upravit PrintService pro různé formáty tisku
-
-2. ⏳ **Export uzavírek do CSV/PDF**
-   - Export denních uzavírek pokladny
-   - Export přehledů prodejů
-
-3. ⏳ **Implementovat skutečný PrintService**
-   - Zatím pouze placeholder (simuluje úspěch)
-   - Respektovat "Plátce DPH" přepínač v tisku účtenek
-   - Skutečná detekce připojení tiskárny
-
-4. ⏳ **Vylepšit error handling**
-   - Lokalizované chybové hlášky (zatím anglické exception messages)
-   - User-friendly error dialogy
-
-### 💡 Možná budoucí vylepšení
-
-- Věrnostní kartičky - pole pro načtení jako u poukazů, zobrazení pod 'Poukaz načten pro platbu'
-- Grafy vývoje tržeb v čase (najít stabilní charting library)
-- Nejvyšší/nejnižší účtenka v dashboardu
-- Srovnání s předchozím obdobím (% růst/pokles)
-- Nejčastější hodina prodeje (rush hour analýza)
-- Multi-store podpora
-- Scanner integrace (POZASTAVENO - EAN scanners fungují jako HID klávesnice automaticky)
+**Poznámka**: TODO list je udržován v `SESSION.md`, ne zde.

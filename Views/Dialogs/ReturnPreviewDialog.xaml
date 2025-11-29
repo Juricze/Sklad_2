@@ -138,13 +138,14 @@
                 </StackPanel>
 
                 <!-- === TOTAL === -->
+                <!-- DRY: Use AmountToRefund (after loyalty discount) for actual refund amount -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="VRÁCENO:" FontSize="16" FontWeight="Bold" Foreground="#D32F2F"/>
-                    <TextBlock Grid.Column="1" Text="{x:Bind ReturnDocument.TotalRefundAmountFormatted, Mode=OneWay}"
+                    <TextBlock Grid.Column="1" Text="{x:Bind ReturnDocument.AmountToRefundFormatted, Mode=OneWay}"
                                FontSize="16" FontWeight="Bold" Foreground="#D32F2F"/>
                 </Grid>
 

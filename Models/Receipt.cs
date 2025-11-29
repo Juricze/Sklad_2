@@ -121,10 +121,41 @@ namespace Sklad_2.Models
 
         public string GiftCardRedemptionAmountFormatted => $"{GiftCardRedemptionAmount:C}";
 
+        // Loyalty program fields
+        [ObservableProperty]
+        private bool hasLoyaltyDiscount; // True if loyalty discount was applied
+
+        [ObservableProperty]
+        private int? loyaltyCustomerId; // ID of the loyalty customer (for storno TotalPurchases update)
+
+        [ObservableProperty]
+        private string loyaltyCustomerEmail = string.Empty; // Masked email (e.g., pavel@********)
+
+        [ObservableProperty]
+        private decimal loyaltyDiscountPercent; // Percent of discount applied (0-30)
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LoyaltyDiscountAmountFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
+        private decimal loyaltyDiscountAmount; // Actual discount amount in CZK
+
+        public string LoyaltyDiscountAmountFormatted => LoyaltyDiscountAmount > 0 ? $"-{LoyaltyDiscountAmount:C}" : string.Empty;
+
         /// <summary>
-        /// Částka k úhradě po odečtení dárkového poukazu (pro zobrazení v seznamech)
+        /// True pokud je vyplněn email věrnostního zákazníka
         /// </summary>
-        public decimal AmountToPay => TotalAmount - (ContainsGiftCardRedemption ? GiftCardRedemptionAmount : 0);
+        public bool HasLoyaltyCustomerEmail => !string.IsNullOrEmpty(LoyaltyCustomerEmail);
+
+        /// <summary>
+        /// True pokud byla aplikována jakákoliv sleva (věrnostní nebo poukaz)
+        /// </summary>
+        public bool HasAnyDiscount => HasLoyaltyDiscount || ContainsGiftCardRedemption;
+
+        /// <summary>
+        /// Částka k úhradě po odečtení věrnostní slevy a dárkového poukazu (pro zobrazení v seznamech)
+        /// </summary>
+        public decimal AmountToPay => TotalAmount - LoyaltyDiscountAmount - (ContainsGiftCardRedemption ? GiftCardRedemptionAmount : 0);
 
         public string AmountToPayFormatted => $"{AmountToPay:C}";
 

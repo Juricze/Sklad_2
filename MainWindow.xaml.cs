@@ -789,6 +789,9 @@ namespace Sklad_2
                 case "Vratky":
                     page = new VratkyPage();
                     break;
+                case "Vernostni":
+                    page = new LoyaltyPage();
+                    break;
                 case "TrzbyUzavirky":
                     page = new TrzbyUzavirkPage();
                     break;

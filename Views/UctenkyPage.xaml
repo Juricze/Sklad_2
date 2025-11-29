@@ -208,6 +208,19 @@
                                    Style="{ThemeResource SubtitleTextBlockStyle}"
                                    HorizontalAlignment="Right"/>
 
+                        <!-- Věrnostní sleva (pokud byla použita) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.HasLoyaltyDiscount, Mode=OneWay}" Margin="0,8,0,0">
+                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right">
+                                <Run Text="Věrnostní sleva ("/>
+                                <Run Text="{x:Bind ViewModel.SelectedReceipt.LoyaltyDiscountPercent, Mode=OneWay}"/>
+                                <Run Text="%):"/>
+                            </TextBlock>
+                            <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.LoyaltyDiscountAmountFormatted, Mode=OneWay}"
+                                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                                       HorizontalAlignment="Right"
+                                       Foreground="#007AFF"/>
+                        </StackPanel>
+
                         <!-- Dárkový poukaz (pokud byl použit) -->
                         <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay}" Margin="0,8,0,0">
                             <TextBlock Text="Dárkový poukaz:" Style="{ThemeResource CaptionTextBlockStyle}" HorizontalAlignment="Right"/>
@@ -217,8 +230,8 @@
                                        Foreground="#34C759"/>
                         </StackPanel>
 
-                        <!-- K úhradě (pokud byl použit poukaz) -->
-                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay}" Margin="0,8,0,0">
+                        <!-- K úhradě (pokud byla použita jakákoliv sleva) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.HasAnyDiscount, Mode=OneWay}" Margin="0,8,0,0">
                             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,0,0,8"/>
                             <TextBlock Text="K ÚHRADĚ" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
                             <TextBlock Text="{x:Bind ViewModel.AmountToPayFormatted, Mode=OneWay}"
@@ -227,8 +240,8 @@
                                        FontWeight="Bold"/>
                         </StackPanel>
 
-                        <!-- Celkem uhrazeno (pokud NEBYL použit poukaz) -->
-                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.ContainsGiftCardRedemption, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}" Margin="0,8,0,0">
+                        <!-- Celkem uhrazeno (pokud NEBYLA použita žádná sleva) -->
+                        <StackPanel Visibility="{x:Bind ViewModel.SelectedReceipt.HasAnyDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}" Margin="0,8,0,0">
                             <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,0,0,8"/>
                             <TextBlock Text="CELKEM UHRAZENO" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Right"/>
                             <TextBlock Text="{x:Bind ViewModel.SelectedReceipt.TotalAmountFormatted, Mode=OneWay}"

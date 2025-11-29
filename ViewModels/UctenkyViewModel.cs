@@ -41,13 +41,11 @@ namespace Sklad_2.ViewModels
         public bool IsCustomFilterVisible => SelectedFilterType == DateFilterType.Custom;
 
         /// <summary>
-        /// Částka k úhradě po odečtení dárkového poukazu
+        /// Částka k úhradě po odečtení slev (věrnostní + poukaz) - delegace na Receipt model (DRY)
         /// </summary>
-        public decimal AmountToPay => SelectedReceipt != null
-            ? SelectedReceipt.TotalAmount - (SelectedReceipt.ContainsGiftCardRedemption ? SelectedReceipt.GiftCardRedemptionAmount : 0)
-            : 0;
+        public decimal AmountToPay => SelectedReceipt?.AmountToPay ?? 0;
 
-        public string AmountToPayFormatted => $"{AmountToPay:C}";
+        public string AmountToPayFormatted => SelectedReceipt?.AmountToPayFormatted ?? "0 Kč";
 
         public UctenkyViewModel(IDataService dataService)
         {

@@ -179,7 +179,8 @@ namespace Sklad_2.ViewModels
 
         private void CalculateTotals()
         {
-            TotalSalesAmount = Sales.Sum(r => r.TotalAmount);
+            // DRY: Use AmountToPay (after discounts) instead of TotalAmount (before discounts)
+            TotalSalesAmount = Sales.Sum(r => r.AmountToPay);
             TotalSalesAmountWithoutVat = Sales.Sum(r => r.TotalAmountWithoutVat);
             TotalVatAmount = Sales.Sum(r => r.TotalVatAmount);
             NumberOfReceipts = Sales.Count;
@@ -264,13 +265,14 @@ namespace Sklad_2.ViewModels
         {
             PaymentMethodStats.Clear();
 
+            // DRY: Use AmountToPay (after discounts) for accurate payment statistics
             var paymentStats = Sales
                 .GroupBy(r => r.PaymentMethod)
                 .Select(g => new PaymentMethodStats
                 {
                     PaymentMethod = g.Key,
                     Count = g.Count(),
-                    TotalAmount = g.Sum(r => r.TotalAmount)
+                    TotalAmount = g.Sum(r => r.AmountToPay)
                 })
                 .ToList();
 

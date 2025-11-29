@@ -602,8 +602,8 @@ namespace Sklad_2.Services
             commands.AddRange(Cp852.GetBytes(new string('=', RECEIPT_WIDTH)));
             commands.AddRange(new byte[] { 0x0A });
 
-            // === GIFT CARD REDEMPTION ===
-            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            // === DISCOUNTS SECTION (Loyalty + Gift Card) ===
+            if (receipt.HasAnyDiscount)
             {
                 commands.AddRange(new byte[] { 0x0A });
 
@@ -614,21 +614,46 @@ namespace Sklad_2.Services
                 commands.AddRange(Cp852.GetBytes(line));
                 commands.AddRange(new byte[] { 0x0A });
 
-                // Bold ON: ESC E 1
-                commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
-                leftText = $"{INDENT}Použitý poukaz:";
-                rightText = $"-{receipt.GiftCardRedemptionAmount:N2} Kč";
-                line = FormatLineWithRightPrice(leftText, rightText, RECEIPT_WIDTH, useDots: true);
-                commands.AddRange(Cp852.GetBytes(line));
-                commands.AddRange(new byte[] { 0x0A });
-                // Bold OFF: ESC E 0
-                commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
-
-                // Show gift card EAN
-                if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+                // === LOYALTY DISCOUNT ===
+                if (receipt.HasLoyaltyDiscount && receipt.LoyaltyDiscountAmount > 0)
                 {
-                    commands.AddRange(Cp852.GetBytes($"{INDENT}EAN poukazu: {receipt.RedeemedGiftCardEan}"));
+                    // Bold ON: ESC E 1
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                    leftText = $"{INDENT}Věrn. sleva ({receipt.LoyaltyDiscountPercent:N0}%):";
+                    rightText = $"-{receipt.LoyaltyDiscountAmount:N2} Kč";
+                    line = FormatLineWithRightPrice(leftText, rightText, RECEIPT_WIDTH, useDots: true);
+                    commands.AddRange(Cp852.GetBytes(line));
                     commands.AddRange(new byte[] { 0x0A });
+                    // Bold OFF: ESC E 0
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+
+                    // Show member email
+                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerEmail))
+                    {
+                        commands.AddRange(Cp852.GetBytes($"{INDENT}Člen: {receipt.LoyaltyCustomerEmail}"));
+                        commands.AddRange(new byte[] { 0x0A });
+                    }
+                }
+
+                // === GIFT CARD REDEMPTION ===
+                if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+                {
+                    // Bold ON: ESC E 1
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+                    leftText = $"{INDENT}Použitý poukaz:";
+                    rightText = $"-{receipt.GiftCardRedemptionAmount:N2} Kč";
+                    line = FormatLineWithRightPrice(leftText, rightText, RECEIPT_WIDTH, useDots: true);
+                    commands.AddRange(Cp852.GetBytes(line));
+                    commands.AddRange(new byte[] { 0x0A });
+                    // Bold OFF: ESC E 0
+                    commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
+
+                    // Show gift card EAN
+                    if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+                    {
+                        commands.AddRange(Cp852.GetBytes($"{INDENT}EAN poukazu: {receipt.RedeemedGiftCardEan}"));
+                        commands.AddRange(new byte[] { 0x0A });
+                    }
                 }
             }
 
@@ -685,7 +710,8 @@ namespace Sklad_2.Services
             // Bold ON: ESC E 1 (bez double height pro úsporu místa)
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
 
-            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            // Použít AmountToPay pokud je jakákoliv sleva (věrnostní nebo poukaz)
+            if (receipt.HasAnyDiscount)
             {
                 commands.AddRange(Cp852.GetBytes($"*** K ÚHRADĚ: {receipt.AmountToPay:N2} Kč ***"));
             }
@@ -975,11 +1001,12 @@ namespace Sklad_2.Services
             }
 
             // === TOTAL ===
+            // DRY: Use AmountToRefund (after loyalty discount) for actual refund amount
             commands.AddRange(new byte[] { 0x0A });
             // Center align + Bold (bez double height)
             commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
-            commands.AddRange(Cp852.GetBytes($"*** VRÁCENO: {returnDocument.TotalRefundAmount:N2} Kč ***"));
+            commands.AddRange(Cp852.GetBytes($"*** VRÁCENO: {returnDocument.AmountToRefund:N2} Kč ***"));
             commands.AddRange(new byte[] { 0x0A });
 
             // Reset styles
@@ -1093,8 +1120,9 @@ namespace Sklad_2.Services
             }
 
             // === TOTAL ===
+            // DRY: Use AmountToRefund (after loyalty discount) for actual refund amount
             sb.AppendLine(FormatLine("", TextAlign.Left));
-            sb.AppendLine(FormatLine($"*** VRACENO: {returnDocument.TotalRefundAmount:N2} Kc ***", TextAlign.Center, bold: true));
+            sb.AppendLine(FormatLine($"*** VRACENO: {returnDocument.AmountToRefund:N2} Kc ***", TextAlign.Center, bold: true));
             sb.AppendLine(FormatLine("", TextAlign.Left));
 
             sb.AppendLine($"|{separator}|");
@@ -1207,15 +1235,31 @@ namespace Sklad_2.Services
 
             sb.AppendLine($"|{doubleSeparator}|");
 
-            // === GIFT CARD REDEMPTION ===
-            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            // === DISCOUNTS SECTION (Loyalty + Gift Card) ===
+            if (receipt.HasAnyDiscount)
             {
                 sb.AppendLine(FormatLineWithPrice("Mezisoučet:", $"{receipt.TotalAmount:N2} Kč"));
-                sb.AppendLine(FormatLineWithPrice("Použitý poukaz:", $"-{receipt.GiftCardRedemptionAmount:N2} Kč", bold: true));
-                if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+
+                // Loyalty discount
+                if (receipt.HasLoyaltyDiscount && receipt.LoyaltyDiscountAmount > 0)
                 {
-                    sb.AppendLine(FormatLine($"EAN poukazu: {receipt.RedeemedGiftCardEan}", TextAlign.Left));
+                    sb.AppendLine(FormatLineWithPrice($"Věrn. sleva ({receipt.LoyaltyDiscountPercent:N0}%):", $"-{receipt.LoyaltyDiscountAmount:N2} Kč", bold: true));
+                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerEmail))
+                    {
+                        sb.AppendLine(FormatLine($"Člen: {receipt.LoyaltyCustomerEmail}", TextAlign.Left));
+                    }
                 }
+
+                // Gift card redemption
+                if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+                {
+                    sb.AppendLine(FormatLineWithPrice("Použitý poukaz:", $"-{receipt.GiftCardRedemptionAmount:N2} Kč", bold: true));
+                    if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+                    {
+                        sb.AppendLine(FormatLine($"EAN poukazu: {receipt.RedeemedGiftCardEan}", TextAlign.Left));
+                    }
+                }
+
                 sb.AppendLine($"|{separator}|");
             }
 
@@ -1247,7 +1291,8 @@ namespace Sklad_2.Services
             // === TOTAL ===
             sb.AppendLine(FormatLine("", TextAlign.Left)); // Empty line
 
-            if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
+            // Použít AmountToPay pokud je jakákoliv sleva (věrnostní nebo poukaz)
+            if (receipt.HasAnyDiscount)
             {
                 sb.AppendLine(FormatLine($"*** K ÚHRADĚ: {receipt.AmountToPay:N2} Kč ***", TextAlign.Center, bold: true));
             }

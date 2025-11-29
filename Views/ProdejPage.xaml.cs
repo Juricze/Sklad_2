@@ -31,6 +31,7 @@ namespace Sklad_2.Views
                     ViewModel.CheckoutFailed += ViewModel_CheckoutFailed;
                     ViewModel.ReceiptCancelled += ViewModel_ReceiptCancelled;
                     ViewModel.GiftCardValidationFailed += ViewModel_GiftCardValidationFailed;
+                    ViewModel.LoyaltyValidationFailed += ViewModel_LoyaltyValidationFailed;
                 }
             };
             this.Unloaded += (s, e) =>
@@ -41,6 +42,7 @@ namespace Sklad_2.Views
                     ViewModel.CheckoutFailed -= ViewModel_CheckoutFailed;
                     ViewModel.ReceiptCancelled -= ViewModel_ReceiptCancelled;
                     ViewModel.GiftCardValidationFailed -= ViewModel_GiftCardValidationFailed;
+                    ViewModel.LoyaltyValidationFailed -= ViewModel_LoyaltyValidationFailed;
                 }
             };
         }
@@ -83,6 +85,18 @@ namespace Sklad_2.Views
             ContentDialog errorDialog = new ContentDialog
             {
                 Title = "Chyba při načítání poukazu",
+                Content = errorMessage,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
+        }
+
+        private async void ViewModel_LoyaltyValidationFailed(object sender, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Věrnostní program",
                 Content = errorMessage,
                 CloseButtonText = "OK",
                 XamlRoot = this.XamlRoot
@@ -137,6 +151,33 @@ namespace Sklad_2.Views
         private async void LoadGiftCardButton_Click(object sender, RoutedEventArgs e)
         {
             await ViewModel.LoadGiftCardForRedemptionCommand.ExecuteAsync(ViewModel.GiftCardEanInput);
+        }
+
+        // Věrnostní program - event handlery
+        private async void LoyaltySearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                await ViewModel.SearchLoyaltyCustomersCommand.ExecuteAsync(sender.Text);
+            }
+        }
+
+        private void LoyaltySearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            if (args.SelectedItem is Sklad_2.Models.LoyaltyCustomer customer)
+            {
+                ViewModel.SelectLoyaltyCustomer(customer);
+                sender.Text = string.Empty;
+            }
+        }
+
+        private async void LoyaltySearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            // Pokud je to EAN kartičky, zkusit načíst přímo
+            if (!string.IsNullOrWhiteSpace(args.QueryText) && args.ChosenSuggestion == null)
+            {
+                await ViewModel.LoadLoyaltyCustomerByEanCommand.ExecuteAsync(args.QueryText);
+            }
         }
 
         private async void ClearReceiptButton_Click(object sender, RoutedEventArgs e)

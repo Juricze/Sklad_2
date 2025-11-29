@@ -74,7 +74,8 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{x:Bind ReturnDateFormatted}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{x:Bind TotalRefundAmountFormatted}" VerticalAlignment="Center"/>
+                            <!-- DRY: Use AmountToRefund (after loyalty discount) -->
+                            <TextBlock Grid.Column="1" Text="{x:Bind AmountToRefundFormatted}" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind OriginalReceiptId}" VerticalAlignment="Center"/>
                         </Grid>
                     </DataTemplate>
@@ -150,7 +151,8 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <TextBlock Text="{x:Bind ViewModel.SelectedReturn.TotalRefundAmountFormatted, Mode=OneWay}"
+                    <!-- DRY: Use AmountToRefund (after loyalty discount) -->
+                    <TextBlock Text="{x:Bind ViewModel.SelectedReturn.AmountToRefundFormatted, Mode=OneWay}"
                                Style="{ThemeResource TitleTextBlockStyle}"
                                HorizontalAlignment="Right"
                                Margin="0,12,0,0"/>

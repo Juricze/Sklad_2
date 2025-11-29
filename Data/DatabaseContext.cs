@@ -18,6 +18,7 @@ namespace Sklad_2.Data
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<GiftCard> GiftCards { get; set; }
         public DbSet<DailyClose> DailyCloses { get; set; }
+        public DbSet<LoyaltyCustomer> LoyaltyCustomers { get; set; }
 
         public DatabaseContext()
         {
@@ -37,6 +38,17 @@ namespace Sklad_2.Data
             modelBuilder.Entity<GiftCard>()
                 .HasIndex(gc => gc.Ean)
                 .IsUnique();
+
+            // Set unique index on LoyaltyCustomer.Email
+            modelBuilder.Entity<LoyaltyCustomer>()
+                .HasIndex(lc => lc.Email)
+                .IsUnique();
+
+            // Set unique index on LoyaltyCustomer.CardEan (only when not null)
+            modelBuilder.Entity<LoyaltyCustomer>()
+                .HasIndex(lc => lc.CardEan)
+                .IsUnique()
+                .HasFilter("[CardEan] IS NOT NULL AND [CardEan] != ''");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

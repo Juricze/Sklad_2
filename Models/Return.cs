@@ -30,6 +30,10 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private int originalReceiptId;
 
+        // Reference to loyalty customer (for TotalPurchases tracking on return)
+        [ObservableProperty]
+        private int? loyaltyCustomerId;
+
         // Seller info at the time of return
         [ObservableProperty]
         private string shopName;
@@ -46,9 +50,20 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private bool isVatPayer;
 
+        // Loyalty discount (proportional part of original receipt's loyalty discount for returned items)
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LoyaltyDiscountAmountFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToRefund))]
+        [NotifyPropertyChangedFor(nameof(AmountToRefundFormatted))]
+        private decimal loyaltyDiscountAmount;
+
+        public string LoyaltyDiscountAmountFormatted => LoyaltyDiscountAmount > 0 ? $"-{LoyaltyDiscountAmount:C}" : string.Empty;
+
         // Refund totals
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(TotalRefundAmountFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToRefund))]
+        [NotifyPropertyChangedFor(nameof(AmountToRefundFormatted))]
         private decimal totalRefundAmount;
 
         [ObservableProperty]
@@ -64,6 +79,14 @@ namespace Sklad_2.Models
         public string TotalRefundAmountWithoutVatFormatted => $"{TotalRefundAmountWithoutVat:C}";
         public string TotalRefundVatAmountFormatted => $"{TotalRefundVatAmount:C}";
         public string ReturnDateFormatted => $"{ReturnDate:g}";
+
+        /// <summary>
+        /// Skutečná částka k vrácení zákazníkovi (po odečtení poměrné části věrnostní slevy).
+        /// DRY: Jediný zdroj pravdy pro částku vratky.
+        /// </summary>
+        public decimal AmountToRefund => TotalRefundAmount - LoyaltyDiscountAmount;
+
+        public string AmountToRefundFormatted => $"{AmountToRefund:C}";
 
         [ObservableProperty]
         private ObservableCollection<ReturnItem> items;

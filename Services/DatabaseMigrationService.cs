@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 10; // Version 10: Add DailyClose table and payment breakdown to Receipts
+        private const int CURRENT_SCHEMA_VERSION = 16; // Version 16: Add LoyaltyDiscountAmount to Returns for proper refund calculation
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -182,6 +182,18 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V9_AddReturnNumbering(context);
                     case 10:
                         return await ApplyMigration_V10_AddDailyCloseAndPaymentBreakdown(context);
+                    case 11:
+                        return await ApplyMigration_V11_AddLoyaltyCustomer(context);
+                    case 12:
+                        return await ApplyMigration_V12_AddLoyaltyDiscountToReceipts(context);
+                    case 13:
+                        return await ApplyMigration_V13_FixLoyaltyCustomerNulls(context);
+                    case 14:
+                        return await ApplyMigration_V14_AddLoyaltyCustomerIdToReceipts(context);
+                    case 15:
+                        return await ApplyMigration_V15_AddLoyaltyCustomerIdToReturns(context);
+                    case 16:
+                        return await ApplyMigration_V16_AddLoyaltyDiscountToReturns(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -670,6 +682,223 @@ namespace Sklad_2.Services
             return true;
         }
 
+        private async Task<bool> ApplyMigration_V11_AddLoyaltyCustomer(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V11 - Add LoyaltyCustomer table");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Create LoyaltyCustomers table
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                CREATE TABLE IF NOT EXISTS LoyaltyCustomers (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    FirstName TEXT NOT NULL,
+                    LastName TEXT NOT NULL,
+                    Email TEXT NOT NULL,
+                    CardEan TEXT NULL,
+                    DiscountPercent REAL NOT NULL DEFAULT 0,
+                    TotalPurchases REAL NOT NULL DEFAULT 0,
+                    CreatedAt TEXT NOT NULL
+                );
+
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_LoyaltyCustomers_Email ON LoyaltyCustomers(Email);
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_LoyaltyCustomers_CardEan ON LoyaltyCustomers(CardEan) WHERE CardEan IS NOT NULL AND CardEan != '';
+            ";
+
+            await command.ExecuteNonQueryAsync();
+            Debug.WriteLine("DatabaseMigrationService: V11 - LoyaltyCustomers table created");
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V12_AddLoyaltyDiscountToReceipts(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V12 - Add Loyalty Discount fields to Receipts");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            var migrations = new List<string>
+            {
+                "ALTER TABLE Receipts ADD COLUMN HasLoyaltyDiscount INTEGER NOT NULL DEFAULT 0",
+                "ALTER TABLE Receipts ADD COLUMN LoyaltyCustomerEmail TEXT NOT NULL DEFAULT ''",
+                "ALTER TABLE Receipts ADD COLUMN LoyaltyDiscountPercent REAL NOT NULL DEFAULT 0",
+                "ALTER TABLE Receipts ADD COLUMN LoyaltyDiscountAmount REAL NOT NULL DEFAULT 0"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql}");
+                }
+                catch (Exception ex)
+                {
+                    // Column might already exist
+                    if (ex.Message.Contains("duplicate column name"))
+                    {
+                        Debug.WriteLine($"DatabaseMigrationService: Column already exists, skipping: {sql}");
+                        continue;
+                    }
+
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V13_FixLoyaltyCustomerNulls(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V13 - Fix NULL values in LoyaltyCustomers");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            var migrations = new List<string>
+            {
+                "UPDATE LoyaltyCustomers SET CardEan = '' WHERE CardEan IS NULL",
+                "UPDATE LoyaltyCustomers SET FirstName = '' WHERE FirstName IS NULL",
+                "UPDATE LoyaltyCustomers SET LastName = '' WHERE LastName IS NULL",
+                "UPDATE LoyaltyCustomers SET Email = '' WHERE Email IS NULL"
+            };
+
+            foreach (var sql in migrations)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    var rowsAffected = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql} (affected {rowsAffected} rows)");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V14_AddLoyaltyCustomerIdToReceipts(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V14 - Add LoyaltyCustomerId to Receipts");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add LoyaltyCustomerId column to Receipts table (nullable INTEGER for foreign key to LoyaltyCustomers)
+            var sql = "ALTER TABLE Receipts ADD COLUMN LoyaltyCustomerId INTEGER NULL";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added LoyaltyCustomerId column to Receipts");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding LoyaltyCustomerId: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: LoyaltyCustomerId column already exists");
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V15_AddLoyaltyCustomerIdToReturns(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V15 - Add LoyaltyCustomerId to Returns");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add LoyaltyCustomerId column to Returns table (nullable INTEGER for foreign key to LoyaltyCustomers)
+            var sql = "ALTER TABLE Returns ADD COLUMN LoyaltyCustomerId INTEGER NULL";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added LoyaltyCustomerId column to Returns");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding LoyaltyCustomerId to Returns: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: LoyaltyCustomerId column already exists in Returns");
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V16_AddLoyaltyDiscountToReturns(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V16 - Add LoyaltyDiscountAmount to Returns");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add LoyaltyDiscountAmount column to Returns table (REAL with default 0)
+            var sql = "ALTER TABLE Returns ADD COLUMN LoyaltyDiscountAmount REAL NOT NULL DEFAULT 0";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added LoyaltyDiscountAmount column to Returns");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding LoyaltyDiscountAmount to Returns: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: LoyaltyDiscountAmount column already exists in Returns");
+            }
+
+            return true;
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -677,10 +906,10 @@ namespace Sklad_2.Services
             {
                 await connection.OpenAsync();
             }
-            
+
             using var command = connection.CreateCommand();
             command.CommandText = @"
-                INSERT INTO schema_versions (version, applied_at, description) 
+                INSERT INTO schema_versions (version, applied_at, description)
                 VALUES (@version, @appliedAt, @description)";
             
             var versionParam = command.CreateParameter();
@@ -715,6 +944,12 @@ namespace Sklad_2.Services
                 8 => "Ensure RedeemedGiftCardEan is never NULL (re-run fix)",
                 9 => "Add ReturnYear and ReturnSequence for return document numbering (D2025/0001)",
                 10 => "Add DailyClose table and CashAmount/CardAmount payment breakdown to Receipts",
+                11 => "Add LoyaltyCustomer table for loyalty program",
+                12 => "Add LoyaltyDiscount fields to Receipts for loyalty program integration",
+                13 => "Fix NULL values in LoyaltyCustomers table",
+                14 => "Add LoyaltyCustomerId to Receipts for storno TotalPurchases tracking",
+                15 => "Add LoyaltyCustomerId to Returns for return TotalPurchases tracking",
+                16 => "Add LoyaltyDiscountAmount to Returns for proper refund calculation with loyalty discounts",
                 _ => $"Unknown migration version {version}"
             };
         }
