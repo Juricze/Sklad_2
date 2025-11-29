@@ -155,6 +155,19 @@ namespace Sklad_2
                     {
                         System.IO.File.Copy(backupSettingsPath, localSettingsPath, true);
                     }
+
+                    // Also restore ProductImages folder if it exists
+                    var backupImagesPath = System.IO.Path.Combine(backupFolderPath, "ProductImages");
+                    var localImagesPath = System.IO.Path.Combine(localFolderPath, "ProductImages");
+                    if (System.IO.Directory.Exists(backupImagesPath))
+                    {
+                        System.IO.Directory.CreateDirectory(localImagesPath);
+                        foreach (var file in System.IO.Directory.GetFiles(backupImagesPath))
+                        {
+                            var fileName = System.IO.Path.GetFileName(file);
+                            System.IO.File.Copy(file, System.IO.Path.Combine(localImagesPath, fileName), true);
+                        }
+                    }
                 }
             }
             catch
@@ -181,6 +194,7 @@ namespace Sklad_2
             services.AddSingleton<IDailyCloseService, DailyCloseService>();
             services.AddSingleton<IGiftCardService, GiftCardService>();
             services.AddSingleton<IUpdateService, UpdateService>();
+            services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<IAuthService>(sp => new AuthService(
                 sp.GetRequiredService<IMessenger>(),
                 sp.GetRequiredService<IDataService>()));
@@ -196,6 +210,7 @@ namespace Sklad_2
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<IGiftCardService>(),
                 sp.GetRequiredService<IPrintService>(),
+                sp.GetRequiredService<IProductImageService>(),
                 sp.GetRequiredService<IDbContextFactory<DatabaseContext>>()));
             services.AddSingleton<PrijemZboziViewModel>(sp => new PrijemZboziViewModel(
                 sp.GetRequiredService<IDataService>(),
@@ -204,7 +219,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<ISettingsService>(),
-                sp.GetRequiredService<IMessenger>()));
+                sp.GetRequiredService<IMessenger>(),
+                sp.GetRequiredService<IProductImageService>()));
             services.AddSingleton<NastaveniViewModel>(sp => new NastaveniViewModel(
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IPrintService>(),
@@ -217,6 +233,7 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<ISettingsService>(),
+                sp.GetRequiredService<IProductImageService>(),
                 sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<PrehledProdejuViewModel>(sp => new PrehledProdejuViewModel(
                 sp.GetRequiredService<IDataService>(),

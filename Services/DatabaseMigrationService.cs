@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 16; // Version 16: Add LoyaltyDiscountAmount to Returns for proper refund calculation
+        private const int CURRENT_SCHEMA_VERSION = 19; // Version 19: Add Description to Products
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -194,6 +194,12 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V15_AddLoyaltyCustomerIdToReturns(context);
                     case 16:
                         return await ApplyMigration_V16_AddLoyaltyDiscountToReturns(context);
+                    case 17:
+                        return await ApplyMigration_V17_AddMarkupToProducts(context);
+                    case 18:
+                        return await ApplyMigration_V18_AddImagePathToProducts(context);
+                    case 19:
+                        return await ApplyMigration_V19_AddDescriptionToProducts(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -899,6 +905,127 @@ namespace Sklad_2.Services
             return true;
         }
 
+        private async Task<bool> ApplyMigration_V17_AddMarkupToProducts(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V17 - Add Markup to Products");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add Markup column to Products table (REAL with default 0)
+            var sql = "ALTER TABLE Products ADD COLUMN Markup REAL NOT NULL DEFAULT 0";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added Markup column to Products");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding Markup to Products: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: Markup column already exists in Products");
+            }
+
+            // Calculate and set Markup for existing products based on PurchasePrice and SalePrice
+            try
+            {
+                using var updateCommand = connection.CreateCommand();
+                // Markup = (SalePrice - PurchasePrice) / PurchasePrice * 100
+                // Only update where PurchasePrice > 0 to avoid division by zero
+                updateCommand.CommandText = @"
+                    UPDATE Products
+                    SET Markup = ROUND((SalePrice - PurchasePrice) / PurchasePrice * 100, 2)
+                    WHERE PurchasePrice > 0 AND Markup = 0";
+                var rowsAffected = await updateCommand.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Calculated Markup for {rowsAffected} existing products");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error calculating Markup for existing products: {ex.Message}");
+                // Don't fail migration - column is added, just calculation didn't work
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V18_AddImagePathToProducts(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V18 - Add ImagePath to Products");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add ImagePath column to Products table (TEXT with default empty string)
+            var sql = "ALTER TABLE Products ADD COLUMN ImagePath TEXT NOT NULL DEFAULT ''";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added ImagePath column to Products");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding ImagePath to Products: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: ImagePath column already exists in Products");
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ApplyMigration_V19_AddDescriptionToProducts(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V19 - Add Description to Products");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // Add Description column to Products table (TEXT with default empty string)
+            var sql = "ALTER TABLE Products ADD COLUMN Description TEXT NOT NULL DEFAULT ''";
+
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Added Description column to Products");
+            }
+            catch (Exception ex)
+            {
+                // Column might already exist
+                if (!ex.Message.Contains("duplicate column"))
+                {
+                    Debug.WriteLine($"DatabaseMigrationService: Error adding Description to Products: {ex.Message}");
+                    throw;
+                }
+                Debug.WriteLine("DatabaseMigrationService: Description column already exists in Products");
+            }
+
+            return true;
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -950,6 +1077,9 @@ namespace Sklad_2.Services
                 14 => "Add LoyaltyCustomerId to Receipts for storno TotalPurchases tracking",
                 15 => "Add LoyaltyCustomerId to Returns for return TotalPurchases tracking",
                 16 => "Add LoyaltyDiscountAmount to Returns for proper refund calculation with loyalty discounts",
+                17 => "Add Markup to Products for profit margin tracking",
+                18 => "Add ImagePath to Products for product images",
+                19 => "Add Description to Products for product descriptions",
                 _ => $"Unknown migration version {version}"
             };
         }

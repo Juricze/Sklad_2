@@ -14,15 +14,76 @@
                 <StackPanel Spacing="12">
                     <TextBox Header="EAN kód" Text="{x:Bind ViewModel.Ean, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                     <TextBox Header="Název produktu" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
-                    <ComboBox Header="Kategorie" 
+                    <ComboBox Header="Kategorie"
                               ItemsSource="{x:Bind ViewModel.Categories}"
                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Header="Popis (nepovinné)"
+                             Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             MinHeight="60"
+                             MaxHeight="100"
+                             PlaceholderText="Zadejte popis produktu..."
+                             IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
                     <TextBox Header="Nákupní cena (Kč)" Text="{x:Bind ViewModel.PurchasePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
-                    <TextBox Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Header="Prodejní cena (Kč)" Text="{x:Bind ViewModel.SalePrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                        <TextBox Grid.Column="1" Header="Marže (%)" Text="{x:Bind ViewModel.Markup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                    </Grid>
                     <StackPanel Visibility="{x:Bind ViewModel.IsVatPayer, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="Sazba DPH" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Text="{x:Bind ViewModel.VatRateDisplay, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,4,0,0"/>
                     </StackPanel>
+
+                    <!-- Image Section -->
+                    <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,8,0,0">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Obrázek produktu" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Image Preview -->
+                                <Border Grid.Column="0"
+                                        Width="120" Height="120"
+                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4">
+                                    <Grid>
+                                        <!-- Placeholder icon -->
+                                        <FontIcon Glyph="&#xE91B;"
+                                                  FontSize="40"
+                                                  Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.HasPendingImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                        <!-- Preview image -->
+                                        <Image Source="{x:Bind ViewModel.PreviewImage, Mode=OneWay}"
+                                               Stretch="Uniform"
+                                               Visibility="{x:Bind ViewModel.HasPendingImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Buttons -->
+                                <StackPanel Grid.Column="1" Spacing="8" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <Button Content="Vybrat obrázek"
+                                            Click="SelectImageButton_Click"
+                                            IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                                    <Button Content="Odstranit"
+                                            Command="{x:Bind ViewModel.RemoveImageCommand}"
+                                            Visibility="{x:Bind ViewModel.HasPendingImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
                     <!-- Discount Section -->
                     <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,8,0,0">

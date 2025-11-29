@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
@@ -32,19 +33,38 @@ namespace Sklad_2.ViewModels
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
         private readonly IMessenger _messenger;
+        private readonly IProductImageService _imageService;
         private List<Product> _allProducts = new List<Product>();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
+        [NotifyCanExecuteChangedFor(nameof(EditProductCommand))]
         private bool isSalesRole;
 
         public bool IsVatPayer => _settingsService.CurrentSettings.IsVatPayer;
+        public bool IsAdmin => _authService.CurrentRole == "Admin";
+        public bool IsSalesOrAdmin => _authService.CurrentRole == "Cashier" || _authService.CurrentRole == "Admin";
+
+        /// <summary>
+        /// Returns the full image of the selected product (for detail view)
+        /// </summary>
+        public BitmapImage SelectedProductImage => SelectedProduct != null && SelectedProduct.HasImage
+            ? _imageService?.GetImage(SelectedProduct.Ean)
+            : null;
+
+        /// <summary>
+        /// Returns true if a product is selected (for detail panel visibility)
+        /// </summary>
+        public bool IsProductSelected => SelectedProduct != null;
 
         public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
+        [NotifyCanExecuteChangedFor(nameof(EditProductCommand))]
+        [NotifyPropertyChangedFor(nameof(SelectedProductImage))]
+        [NotifyPropertyChangedFor(nameof(IsProductSelected))]
         private Product selectedProduct;
 
         [ObservableProperty]
@@ -56,13 +76,14 @@ namespace Sklad_2.ViewModels
         private SortColumn _currentSortColumn = SortColumn.None;
         private SortDirection _currentSortDirection = SortDirection.Ascending;
 
-        public DatabazeViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger)
+        public DatabazeViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger, IProductImageService imageService)
         {
             _dataService = dataService;
             _authService = authService;
             _settingsService = settingsService;
             _messenger = messenger;
-            IsSalesRole = _authService.CurrentRole == "Prodej";
+            _imageService = imageService;
+            IsSalesRole = _authService.CurrentRole == "Cashier";
 
             // Initialize categories
             Categories.Add("Vše");
@@ -200,6 +221,7 @@ namespace Sklad_2.ViewModels
         }
 
         private bool CanDeleteProduct() => SelectedProduct != null && !IsSalesRole;
+        private bool CanEditProduct() => SelectedProduct != null && IsAdmin;
 
         [RelayCommand(CanExecute = nameof(CanDeleteProduct))]
         private async Task DeleteProductAsync()
@@ -207,6 +229,24 @@ namespace Sklad_2.ViewModels
             // Zde bude v budoucnu potvrzovací dialog
             await _dataService.DeleteProductAsync(SelectedProduct.Ean);
             await LoadProductsAsync(); // Refresh list
+        }
+
+        [RelayCommand(CanExecute = nameof(CanEditProduct))]
+        private async Task EditProductAsync(Product product)
+        {
+            if (product == null) return;
+
+            // Product is updated by the dialog, just save it
+            await _dataService.UpdateProductAsync(product);
+            await LoadProductsAsync(); // Refresh list
+        }
+
+        // Method to refresh command states after role change
+        public void RefreshCommandStates()
+        {
+            OnPropertyChanged(nameof(IsAdmin));
+            EditProductCommand.NotifyCanExecuteChanged();
+            DeleteProductCommand.NotifyCanExecuteChanged();
         }
     }
 }

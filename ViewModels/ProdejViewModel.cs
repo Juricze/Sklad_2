@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Sklad_2.Data;
 using Sklad_2.Models;
 using Sklad_2.Services;
@@ -24,13 +25,22 @@ namespace Sklad_2.ViewModels
         private readonly IAuthService _authService;
         private readonly IGiftCardService _giftCardService;
         private readonly IPrintService _printService;
+        private readonly IProductImageService _imageService;
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         public IReceiptService Receipt { get; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsProductFound))]
         [NotifyPropertyChangedFor(nameof(ScannedProductPriceFormatted))]
+        [NotifyPropertyChangedFor(nameof(ScannedProductImage))]
         private Product scannedProduct;
+
+        /// <summary>
+        /// Gets the image for the scanned product.
+        /// </summary>
+        public BitmapImage ScannedProductImage => ScannedProduct != null && ScannedProduct.HasImage
+            ? _imageService?.GetImage(ScannedProduct.Ean)
+            : null;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(IncrementQuantityCommand))]
@@ -188,13 +198,14 @@ namespace Sklad_2.ViewModels
         public string GrandTotalWithoutVatFormatted => $"Základ: {Receipt.GrandTotalWithoutVat:C}";
         public string GrandTotalVatAmountFormatted => $"DPH: {Receipt.GrandTotalVatAmount:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, IAuthService authService, IGiftCardService giftCardService, IPrintService printService, IDbContextFactory<DatabaseContext> contextFactory)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, IAuthService authService, IGiftCardService giftCardService, IPrintService printService, IProductImageService imageService, IDbContextFactory<DatabaseContext> contextFactory)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _authService = authService;
             _giftCardService = giftCardService;
             _printService = printService;
+            _imageService = imageService;
             _contextFactory = contextFactory;
             Receipt = receiptService;
 

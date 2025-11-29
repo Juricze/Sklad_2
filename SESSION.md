@@ -17,7 +17,99 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 29. listopad 2025**
+## 📅 **Poslední session: 29. listopad 2025 (noc)**
+
+### ✅ Hotovo:
+**Popis produktů + Redesign DatabazePage + Role-based editace**
+
+**1. Popis (Description) produktů:**
+- Přidáno pole `Description` do modelu Product (migrace V19)
+- Nepovinné textové pole (multiline) pro detailní popis produktu
+- Zobrazení v DatabazePage (detail panel) a ProdejPage (max 2 řádky)
+- Editace v EditProductDialog a NovyProduktPage
+
+**2. Redesign DatabazePage - Master-Detail layout:**
+- Kompaktní seznam vlevo (EAN, Název, Kategorie, Sklad, Cena)
+- Detail panel vpravo (obrázek, popis, všechny ceny, sleva)
+- Thumbnail obrázky v seznamu (36×36px)
+- Sortování kliknutím na záhlaví sloupců
+- Header přesunut mimo ListView pro lepší zarovnání
+
+**3. Role-based editace produktů:**
+- **Cashier (Prodavač):** může editovat název, popis, kategorii, obrázek
+- **Admin (Vlastník):** může editovat vše včetně cen, slevy, mazání
+- Tlačítko "Upravit" viditelné pro obě role, "Smazat" jen pro Admin
+- EditProductDialog zobrazuje různé sekce podle role
+
+**4. Oprava názvů rolí:**
+- Sjednocení v celém projektu: "Admin" a "Cashier"
+- Opraveno v DatabazeViewModel, NovyProduktViewModel
+
+**Nové/upravené soubory:**
+- `Models/Product.cs` - Description property
+- `Services/DatabaseMigrationService.cs` - V19 migrace
+- `Views/DatabazePage.xaml` - kompletní redesign
+- `Views/DatabazePage.xaml.cs` - EditButton_Click
+- `ViewModels/DatabazeViewModel.cs` - IsAdmin, IsSalesOrAdmin, oprava rolí
+- `Views/Dialogs/EditProductDialog.xaml/.cs` - role-based UI
+- `Views/NovyProduktPage.xaml` - Description field
+- `ViewModels/NovyProduktViewModel.cs` - Description, oprava rolí
+- `Views/ProdejPage.xaml` - zobrazení popisu
+
+**Schema verze:** 19
+
+---
+
+## 📅 **Předchozí session: 29. listopad 2025 (večer)**
+
+### ✅ Hotovo:
+**Marže produktů + Obrázky produktů**
+
+**1. Marže (Markup) produktů:**
+- Přidáno pole `Markup` do modelu Product (migrace V17)
+- Bidirektionální výpočet v NovyProduktPage: zadání marže → vypočítá prodejní cenu, zadání ceny → vypočítá marži
+- Vzorec Markup: (ProdejníCena - NákupníCena) / NákupníCena × 100
+- Zobrazení marže v DatabazePage (sloupec)
+- Editace marže v EditProductDialog (pouze admin)
+- Zaokrouhlení na celá čísla
+
+**2. Obrázky produktů:**
+- Přidáno pole `ImagePath` do modelu Product (migrace V18)
+- Nová služba `ProductImageService` (SkiaSharp):
+  - Resize na max 800×800px
+  - Thumbnail 80×80px
+  - JPEG kvalita 100%
+  - Zachování poměru stran s bílým pozadím
+- NovyProduktPage: nahrání, náhled, smazání obrázku
+- EditProductDialog: správa obrázku (pouze admin)
+- ProdejPage: zobrazení obrázku posledního naskenovaného produktu (100×100px)
+- DatabazePage: thumbnail sloupec (40×40px)
+- Backup/Restore zahrnuje složku ProductImages
+- Umístění: `%LocalAppData%\Sklad_2_Data\ProductImages\`
+
+**Nové soubory:**
+- `Services/IProductImageService.cs`
+- `Services/ProductImageService.cs`
+- `Converters/EanToThumbnailConverter.cs`
+
+**Upravené soubory:**
+- `Models/Product.cs` - Markup, ImagePath, HasImage
+- `Services/DatabaseMigrationService.cs` - V17, V18 migrace
+- `ViewModels/NovyProduktViewModel.cs` - výpočty marže, obrázky
+- `ViewModels/ProdejViewModel.cs` - ScannedProductImage
+- `Views/NovyProduktPage.xaml/.cs` - UI pro marži a obrázky
+- `Views/Dialogs/EditProductDialog.xaml/.cs` - editace marže a obrázků
+- `Views/ProdejPage.xaml` - zobrazení obrázku
+- `Views/DatabazePage.xaml` - thumbnail sloupec
+- `ViewModels/NastaveniViewModel.cs` - backup ProductImages
+- `App.xaml.cs` - DI registrace, restore ProductImages
+- `App.xaml` - EanToThumbnailConverter
+
+**Schema verze:** 18
+
+---
+
+## 📅 **Předchozí session: 29. listopad 2025**
 
 ### ✅ Hotovo:
 **Release v1.0.11: Opravy peněžních toků a DRY princip**
@@ -342,7 +434,7 @@ public string DayStatusFormatted => IsDayClosed
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 15/17 hlavních funkcí (~88%)
+**Hotovo:** 18/19 hlavních funkcí (~95%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -360,13 +452,14 @@ public string DayStatusFormatted => IsDayClosed
 13. **Auto-update systém** (multi-file ZIP, PowerShell, GitHub Releases)
 14. **Tisk účtenek** (ESC/POS, české znaky CP852, Epson TM-T20III)
 15. **Single-instance ochrana** (Mutex, Win32 MessageBox)
+16. **Marže produktů** (bidirektionální výpočet, editace pro admin)
+17. **Obrázky produktů** (upload, thumbnail, resize, backup)
+18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit)
 
 ### ⏳ Zbývá:
-1. Tisk účtenek - rozlišení prodeje vs uplatnění poukazu
-2. Export uzavírek do CSV/PDF
-3. **DPH statistiky** - `TotalSalesAmountWithoutVat` nerespektuje slevy (věrnostní/poukaz) - PrehledProdejuViewModel:183-185
+1. **DPH statistiky** - `TotalSalesAmountWithoutVat` nerespektuje slevy (věrnostní/poukaz) - PrehledProdejuViewModel:183-185
 
 ---
 
 **Poslední aktualizace:** 29. listopad 2025
-**Aktuální verze:** v1.0.11
+**Aktuální verze:** v1.0.12 (schema V19)

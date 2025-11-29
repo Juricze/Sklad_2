@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Sklad_2.Messages;
 using Sklad_2.Models;
 using Sklad_2.Services;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Sklad_2.ViewModels
 {
@@ -17,8 +19,10 @@ namespace Sklad_2.ViewModels
         private readonly IDataService _dataService;
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
+        private readonly IProductImageService _imageService;
         private readonly IMessenger _messenger;
         private List<VatConfig> _vatConfigs;
+        private StorageFile _pendingImageFile;
 
         [ObservableProperty]
         private bool isSalesRole;
@@ -33,11 +37,21 @@ namespace Sklad_2.ViewModels
         private string name = string.Empty;
 
         [ObservableProperty]
+        private string description = string.Empty;
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(FinalPriceDisplay))]
         private string salePrice = string.Empty;
 
         [ObservableProperty]
         private string purchasePrice = string.Empty;
+
+        [ObservableProperty]
+        private string markup = string.Empty;
+
+        // Flag to prevent infinite loop when updating markup/salePrice
+        private bool _isUpdatingFromMarkup = false;
+        private bool _isUpdatingFromSalePrice = false;
 
         [ObservableProperty]
         private string selectedCategory;
@@ -50,6 +64,13 @@ namespace Sklad_2.ViewModels
 
         [ObservableProperty]
         private string statusMessage = string.Empty;
+
+        // Image properties
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasPendingImage))]
+        private BitmapImage previewImage;
+
+        public bool HasPendingImage => PreviewImage != null;
 
         // Discount properties
         [ObservableProperty]
@@ -101,17 +122,18 @@ namespace Sklad_2.ViewModels
 
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
 
-        public NovyProduktViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IMessenger messenger)
+        public NovyProduktViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IProductImageService imageService, IMessenger messenger)
         {
             _dataService = dataService;
             _authService = authService;
             _settingsService = settingsService;
+            _imageService = imageService;
             _messenger = messenger;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
             SelectedDiscountReason = DiscountReasons.FirstOrDefault();
 
             // Initial check
-            IsSalesRole = _authService.CurrentRole == "Prodej";
+            IsSalesRole = _authService.CurrentRole == "Cashier";
 
             // Register for messages
             _messenger.Register<RoleChangedMessage>(this);
@@ -135,7 +157,7 @@ namespace Sklad_2.ViewModels
 
         public void Receive(RoleChangedMessage message)
         {
-            IsSalesRole = message.Value == "Prodej";
+            IsSalesRole = message.Value == "Cashier";
             OnPropertyChanged(nameof(IsAdmin));
         }
 
@@ -170,6 +192,64 @@ namespace Sklad_2.ViewModels
         partial void OnSelectedCategoryChanged(string value)
         {
             UpdateVatRateForSelectedCategory();
+        }
+
+        partial void OnPurchasePriceChanged(string value)
+        {
+            // When purchase price changes, recalculate markup based on current sale price
+            RecalculateMarkupFromSalePrice();
+        }
+
+        partial void OnMarkupChanged(string value)
+        {
+            // When markup changes, recalculate sale price
+            if (_isUpdatingFromSalePrice) return;
+
+            if (!decimal.TryParse(PurchasePrice, out decimal purchaseValue) || purchaseValue <= 0)
+                return;
+
+            if (!decimal.TryParse(value, out decimal markupValue))
+                return;
+
+            // Calculate sale price from markup: SalePrice = PurchasePrice * (1 + Markup/100)
+            decimal newSalePrice = Math.Round(purchaseValue * (1 + markupValue / 100), 2);
+
+            _isUpdatingFromMarkup = true;
+            SalePrice = newSalePrice.ToString("F2");
+            _isUpdatingFromMarkup = false;
+        }
+
+        partial void OnSalePriceChanged(string value)
+        {
+            // Recalculate markup when sale price changes (unless we're updating from markup)
+            if (!_isUpdatingFromMarkup)
+            {
+                RecalculateMarkupFromSalePrice();
+            }
+        }
+
+        private void RecalculateMarkupFromSalePrice()
+        {
+            if (_isUpdatingFromMarkup) return;
+
+            if (!decimal.TryParse(PurchasePrice, out decimal purchaseValue) || purchaseValue <= 0)
+            {
+                // Can't calculate markup without valid purchase price
+                return;
+            }
+
+            if (!decimal.TryParse(SalePrice, out decimal saleValue) || saleValue <= 0)
+            {
+                return;
+            }
+
+            // Calculate markup: Markup = (SalePrice - PurchasePrice) / PurchasePrice * 100
+            // Round to whole number for cleaner display (33% instead of 33.3%)
+            decimal calculatedMarkup = Math.Round((saleValue - purchaseValue) / purchaseValue * 100, 0);
+
+            _isUpdatingFromSalePrice = true;
+            Markup = calculatedMarkup.ToString("F0");
+            _isUpdatingFromSalePrice = false;
         }
 
         private void UpdateVatRateForSelectedCategory()
@@ -241,13 +321,22 @@ namespace Sklad_2.ViewModels
                 vatRateToUse = 0;
             }
 
+            // Parse markup value (default to 0 if not valid)
+            decimal markupValue = 0;
+            if (decimal.TryParse(Markup, out decimal parsedMarkup))
+            {
+                markupValue = parsedMarkup;
+            }
+
             var newProduct = new Product
             {
                 Ean = this.Ean,
                 Name = this.Name,
+                Description = this.Description ?? string.Empty,
                 Category = this.SelectedCategory,
                 SalePrice = salePriceValue,
                 PurchasePrice = purchasePriceValue,
+                Markup = markupValue,
                 StockQuantity = 0, // New products start with 0 stock
                 VatRate = vatRateToUse,
                 DiscountPercent = HasDiscount && DiscountPercent > 0 ? (decimal?)DiscountPercent : null,
@@ -265,6 +354,16 @@ namespace Sklad_2.ViewModels
                 }
                 else
                 {
+                    // Save image if pending
+                    if (_pendingImageFile != null)
+                    {
+                        var imagePath = await _imageService.SaveImageAsync(newProduct.Ean, _pendingImageFile);
+                        if (!string.IsNullOrEmpty(imagePath))
+                        {
+                            newProduct.ImagePath = imagePath;
+                        }
+                    }
+
                     await _dataService.AddProductAsync(newProduct);
 
                     // Record stock movement - Product Created
@@ -298,8 +397,10 @@ namespace Sklad_2.ViewModels
         {
             Ean = string.Empty;
             Name = string.Empty;
+            Description = string.Empty;
             SalePrice = string.Empty;
             PurchasePrice = string.Empty;
+            Markup = string.Empty;
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
             // VatRate will be updated automatically by OnSelectedCategoryChanged
             HasDiscount = false;
@@ -307,6 +408,44 @@ namespace Sklad_2.ViewModels
             SelectedDiscountReason = DiscountReasons.FirstOrDefault();
             DiscountValidFrom = DateTimeOffset.Now;
             DiscountValidTo = DateTimeOffset.Now.AddDays(30);
+            // Clear image
+            _pendingImageFile = null;
+            PreviewImage = null;
+        }
+
+        /// <summary>
+        /// Sets the pending image file from the UI FileOpenPicker.
+        /// </summary>
+        public async Task SetPendingImageAsync(StorageFile file)
+        {
+            if (file == null)
+            {
+                _pendingImageFile = null;
+                PreviewImage = null;
+                return;
+            }
+
+            _pendingImageFile = file;
+
+            // Load preview
+            try
+            {
+                var bitmap = new BitmapImage();
+                using var stream = await file.OpenReadAsync();
+                await bitmap.SetSourceAsync(stream);
+                PreviewImage = bitmap;
+            }
+            catch
+            {
+                PreviewImage = null;
+            }
+        }
+
+        [RelayCommand]
+        private void RemoveImage()
+        {
+            _pendingImageFile = null;
+            PreviewImage = null;
         }
     }
 }

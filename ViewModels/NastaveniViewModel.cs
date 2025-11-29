@@ -336,6 +336,19 @@ namespace Sklad_2.ViewModels
                         File.Copy(sourceSettingsPath, backupSettingsPath, true);
                     }
 
+                    // Copy ProductImages folder
+                    var sourceImagesPath = Path.Combine(sourceFolderPath, "ProductImages");
+                    var backupImagesPath = Path.Combine(backupFolderPath, "ProductImages");
+                    if (Directory.Exists(sourceImagesPath))
+                    {
+                        Directory.CreateDirectory(backupImagesPath);
+                        foreach (var file in Directory.GetFiles(sourceImagesPath))
+                        {
+                            var fileName = Path.GetFileName(file);
+                            File.Copy(file, Path.Combine(backupImagesPath, fileName), true);
+                        }
+                    }
+
                     BackupStatusMessage = $"Databáze úspěšně synchronizována do: {backupFilePath}";
                     BackupStatusColor = "#34C759"; // Green for success
                 }

@@ -14,6 +14,9 @@ namespace Sklad_2.Models
         private string name;
 
         [ObservableProperty]
+        private string description = string.Empty;
+
+        [ObservableProperty]
         private string category;
 
         [ObservableProperty]
@@ -22,6 +25,10 @@ namespace Sklad_2.Models
 
         [ObservableProperty]
         private decimal purchasePrice;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MarkupFormatted))]
+        private decimal markup;
 
         [ObservableProperty]
         private decimal vatRate;
@@ -47,9 +54,20 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private string testField = string.Empty;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasImage))]
+        private string imagePath = string.Empty;
+
+        /// <summary>
+        /// Returns true if the product has an image assigned
+        /// </summary>
+        public bool HasImage => !string.IsNullOrEmpty(ImagePath);
+
         public string SalePriceFormatted => $"{SalePrice:C}";
 
         public string PurchasePriceFormatted => $"{PurchasePrice:C}";
+
+        public string MarkupFormatted => $"{Markup:N0} %";
 
         public string VatRateFormatted => $"{VatRate} %";
 

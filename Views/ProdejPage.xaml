@@ -23,24 +23,64 @@
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" Visibility="{x:Bind ViewModel.IsProductFound, Mode=OneWay}">
                 <StackPanel Spacing="6">
                     <TextBlock Text="Poslední skenovaný produkt" Style="{ThemeResource TitleTextBlockStyle}"/>
-                    <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.Name, Mode=OneWay}"/></TextBlock>
-                    <StackPanel>
-                        <TextBlock>
-                            <Run Text="Cena:" FontWeight="Bold"/> 
-                            <Run Text="{x:Bind ViewModel.ScannedProduct.FinalPriceFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Visibility="{x:Bind ViewModel.ScannedProduct.IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                   Foreground="{ThemeResource AccentFillColorDefaultBrush}">
-                            <Run Text="Původní cena:"/>
-                            <Run Text="{x:Bind ViewModel.ScannedProduct.SalePriceFormatted, Mode=OneWay}"/>
-                            <Run Text=" • Sleva"/>
-                            <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountPercentFormatted, Mode=OneWay}"/>
-                            <Run Text=" ("/>
-                            <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountReason, Mode=OneWay}"/>
-                            <Run Text=")"/>
-                        </TextBlock>
-                    </StackPanel>
-                    <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.StockQuantity, Mode=OneWay}"/> <Run Text="ks"/></TextBlock>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Product Image -->
+                        <Border Grid.Column="0"
+                                Width="100" Height="100"
+                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <Grid>
+                                <!-- Placeholder icon -->
+                                <FontIcon Glyph="&#xE91B;"
+                                          FontSize="32"
+                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Visibility="{x:Bind ViewModel.ScannedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                <!-- Product image -->
+                                <Image Source="{x:Bind ViewModel.ScannedProductImage, Mode=OneWay}"
+                                       Stretch="Uniform"
+                                       Visibility="{x:Bind ViewModel.ScannedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Product Details -->
+                        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock><Run Text="Název:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.Name, Mode=OneWay}"/></TextBlock>
+                            <StackPanel>
+                                <TextBlock>
+                                    <Run Text="Cena:" FontWeight="Bold"/>
+                                    <Run Text="{x:Bind ViewModel.ScannedProduct.FinalPriceFormatted, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Visibility="{x:Bind ViewModel.ScannedProduct.IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Foreground="{ThemeResource AccentFillColorDefaultBrush}">
+                                    <Run Text="Původní cena:"/>
+                                    <Run Text="{x:Bind ViewModel.ScannedProduct.SalePriceFormatted, Mode=OneWay}"/>
+                                    <Run Text=" • Sleva"/>
+                                    <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountPercentFormatted, Mode=OneWay}"/>
+                                    <Run Text=" ("/>
+                                    <Run Text="{x:Bind ViewModel.ScannedProduct.DiscountReason, Mode=OneWay}"/>
+                                    <Run Text=")"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock><Run Text="Skladem:" FontWeight="Bold"/> <Run Text="{x:Bind ViewModel.ScannedProduct.StockQuantity, Mode=OneWay}"/> <Run Text="ks"/></TextBlock>
+                            <TextBlock Text="{x:Bind ViewModel.ScannedProduct.Description, Mode=OneWay}"
+                                       Visibility="{x:Bind ViewModel.ScannedProduct.Description, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       MaxLines="2"
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 

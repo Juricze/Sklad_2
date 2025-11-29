@@ -32,6 +32,7 @@
             <converters:BooleanToDiscountColorConverter x:Key="BooleanToDiscountColorConverter"/>
             <converters:DayClosedConverter x:Key="DayClosedConverter"/>
             <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+            <converters:EanToThumbnailConverter x:Key="EanToThumbnailConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
