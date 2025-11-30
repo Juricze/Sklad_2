@@ -17,7 +17,62 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 30. listopad 2025**
+## 📅 **Poslední session: 30. listopad 2025 (pokračování)**
+
+### ✅ Hotovo:
+**Export inventurního soupisu (tisknutelná HTML + Excel CSV verze)**
+
+**Kontext:**
+- Uživatel požádal o zjištění právních povinností OSVČ s kamenným obchodem ohledně inventur
+- Zjištěno: Fyzická inventura je povinná minimálně 1× ročně (nejpozději k 31.12.)
+- Požadavek: DVĚ verze exportu v Nastavení → Systém
+
+**Implementované funkce:**
+
+**1. Tisknutelná verze (HTML)** 📄
+- Profesionální layout s informacemi o firmě (název, IČ, DIČ)
+- Žluté buňky (`#FFFFCC`) pro ruční zápis skutečných stavů
+- Sloupce: Kategorie, EAN, Název, Nákupní cena, Systémový stav, Skutečný stav, Hodnota
+- Podpisové řádky (osoba provádějící inventuru, osoba kontrolující)
+- Instrukce pro použití
+- Print-friendly CSS (odstranění okrajů, optimalizace tisku)
+- Řazení podle kategorie a názvu
+
+**2. Excel verze (CSV)** 📊
+- UTF-8 BOM encoding pro správné zobrazení českých znaků v Excelu
+- Středník (`;`) jako oddělovač (český Excel standard)
+- Instrukční řádky na začátku:
+  - "NÁVOD: Do sloupce 'Skutečný stav' zapište napočítané množství"
+  - "V Excelu vypočítejte rozdíl: =E2-F2 (Systémový - Skutečný)"
+- Hlavičky: Kategorie;EAN;Název;Nákupní cena (Kč);Systémový stav;Skutečný stav
+- Řazení podle kategorie a názvu
+
+**UI:**
+- Nová sekce "Export inventurního soupisu" v Nastavení → Systém
+- `CalendarDatePicker` pro výběr data inventury (výchozí: dnes)
+- Tlačítko "Tisknutelná verze" (ikona 📄)
+- Tlačítko "Excel verze" (ikona 📊)
+- Popisek s vysvětlením použití obou verzí
+
+**Technické detaily:**
+- `ExportInventoryPrintCommand` - generuje HTML, použití `FileSavePicker`
+- `ExportInventoryCsvCommand` - generuje CSV s UTF-8 BOM
+- `GenerateInventoryPrintHtml()` - 123 řádků HTML/CSS generátoru
+- `GenerateInventoryCsv()` - 46 řádků CSV generátoru
+- Data načítána přes `_dataService.GetProductsAsync()`
+- Vlastnost `InventoryDate` pro výběr data
+
+**Upravené soubory:**
+- `Views/NastaveniPage.xaml` - UI sekce pro inventuru
+- `ViewModels/NastaveniViewModel.cs` - commands a generátory
+
+**Git:**
+- Commit: e380aa5 - "Feature: Export inventurního soupisu (tisknutelná HTML + Excel CSV verze)"
+- Branch: main (ahead of origin by 1 commit)
+
+---
+
+## 📅 **Předchozí session: 30. listopad 2025**
 
 ### ✅ Hotovo:
 **Release v1.0.13: Export vratek + Záloha obrázků + Maximalizace okna**
@@ -461,7 +516,7 @@ public string DayStatusFormatted => IsDayClosed
 
 ## 📊 Aktuální stav projektu
 
-**Hotovo:** 18/19 hlavních funkcí (~95%)
+**Hotovo:** 19/20 hlavních funkcí (~95%)
 
 ### ✅ Implementováno:
 1. Role-based UI restrictions
@@ -482,6 +537,7 @@ public string DayStatusFormatted => IsDayClosed
 16. **Marže produktů** (bidirektionální výpočet, editace pro admin)
 17. **Obrázky produktů** (upload, thumbnail, resize, backup)
 18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit)
+19. **Export inventurního soupisu** (tisknutelná HTML + Excel CSV, datum inventury, žluté buňky pro ruční zápis)
 
 ### ⏳ Zbývá:
 1. **DPH statistiky** - `TotalSalesAmountWithoutVat` nerespektuje slevy (věrnostní/poukaz) - PrehledProdejuViewModel:183-185
