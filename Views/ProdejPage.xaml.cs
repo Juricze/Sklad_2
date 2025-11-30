@@ -153,6 +153,14 @@ namespace Sklad_2.Views
             await ViewModel.LoadGiftCardForRedemptionCommand.ExecuteAsync(ViewModel.GiftCardEanInput);
         }
 
+        private void RemoveGiftCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string ean)
+            {
+                ViewModel.RemoveGiftCardCommand.Execute(ean);
+            }
+        }
+
         // Věrnostní program - event handlery
         private async void LoyaltySearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
@@ -242,8 +250,8 @@ namespace Sklad_2.Views
             switch (paymentSelectionDialog.SelectedPaymentMethod)
             {
                 case PaymentMethod.Cash:
-                    // If gift card is loaded and covers full amount, skip cash dialog
-                    if (ViewModel.ScannedGiftCard != null && ViewModel.AmountToPay == 0)
+                    // If gift cards are loaded and cover full amount, skip cash dialog
+                    if (ViewModel.IsAnyGiftCardReady && ViewModel.AmountToPay == 0)
                     {
                         // Show warning about forfeiture if applicable
                         if (ViewModel.WillHavePartialUsage)
@@ -251,7 +259,7 @@ namespace Sklad_2.Views
                             ContentDialog forfeitureWarningDialog = new ContentDialog
                             {
                                 Title = "Upozornění: Částečné využití",
-                                Content = $"Hodnota poukazu ({ViewModel.GiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
+                                Content = $"Hodnota poukazů ({ViewModel.TotalGiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
                                          $"Zbývající částka {ViewModel.ForfeitedAmountFormatted} propadne a nelze ji použít v budoucnu.\n\n" +
                                          $"Chcete pokračovat?",
                                 PrimaryButtonText = "Ano, pokračovat",
@@ -299,13 +307,13 @@ namespace Sklad_2.Views
                     break;
 
                 case PaymentMethod.Card:
-                    // Show warning about forfeiture if applicable (gift card loaded and covers more than total)
-                    if (ViewModel.ScannedGiftCard != null && ViewModel.WillHavePartialUsage)
+                    // Show warning about forfeiture if applicable (gift cards loaded and cover more than total)
+                    if (ViewModel.IsAnyGiftCardReady && ViewModel.WillHavePartialUsage)
                     {
                         ContentDialog forfeitureWarningDialog = new ContentDialog
                         {
                             Title = "Upozornění: Částečné využití",
-                            Content = $"Hodnota poukazu ({ViewModel.GiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
+                            Content = $"Hodnota poukazů ({ViewModel.TotalGiftCardValueFormatted}) je vyšší než celková částka ({ViewModel.Receipt.GrandTotal:C}).\n\n" +
                                      $"Zbývající částka {ViewModel.ForfeitedAmountFormatted} propadne a nelze ji použít v budoucnu.\n\n" +
                                      $"Chcete pokračovat?",
                             PrimaryButtonText = "Ano, pokračovat",

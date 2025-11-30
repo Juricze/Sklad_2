@@ -157,14 +157,23 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Použitý poukaz:" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                            <TextBlock Grid.Column="0" Text="Použité poukazy:" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
                             <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50">
                                 <Run Text="-"/><Run Text="{x:Bind Receipt.GiftCardRedemptionAmountFormatted, Mode=OneWay}"/>
                             </TextBlock>
                         </Grid>
-                        <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0">
-                            <Run Text="EAN: "/><Run Text="{x:Bind Receipt.RedeemedGiftCardEan, Mode=OneWay}"/>
-                        </TextBlock>
+
+                        <!-- Seznam uplatněných poukazů -->
+                        <ItemsControl ItemsSource="{x:Bind Receipt.RedeemedGiftCards, Mode=OneWay}" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:ReceiptGiftCardRedemption">
+                                    <TextBlock FontSize="10" Foreground="#666666" Margin="0,1,0,0">
+                                        <Run Text="EAN: "/><Run Text="{x:Bind GiftCardEan, Mode=OneWay}"/>
+                                        <Run Text=" ("/><Run Text="{x:Bind RedeemedAmount, Mode=OneWay}"/><Run Text=" Kč)"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
 
                     <!-- Separator -->

@@ -78,15 +78,17 @@ namespace Sklad_2.ViewModels
         [NotifyPropertyChangedFor(nameof(CanCancelLastReceipt))]
         private Receipt lastCreatedReceipt;
 
+        // Více uplatněných dárkových poukazů
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsGiftCardReady))]
-        [NotifyPropertyChangedFor(nameof(GiftCardValueFormatted))]
+        [NotifyPropertyChangedFor(nameof(IsAnyGiftCardReady))]
+        [NotifyPropertyChangedFor(nameof(TotalGiftCardValue))]
+        [NotifyPropertyChangedFor(nameof(TotalGiftCardValueFormatted))]
         [NotifyPropertyChangedFor(nameof(AmountToPay))]
         [NotifyPropertyChangedFor(nameof(GrandTotalFormatted))]
         [NotifyPropertyChangedFor(nameof(WillHavePartialUsage))]
         [NotifyPropertyChangedFor(nameof(ForfeitedAmount))]
         [NotifyPropertyChangedFor(nameof(ForfeitedAmountFormatted))]
-        private GiftCard scannedGiftCard;
+        private ObservableCollection<GiftCard> redeemedGiftCards = new();
 
         [ObservableProperty]
         private string giftCardEanInput = string.Empty;
@@ -116,18 +118,21 @@ namespace Sklad_2.ViewModels
 
         public bool IsCheckoutSuccessful { get; private set; }
         public bool CanCancelLastReceipt => LastCreatedReceipt != null;
-        public bool IsGiftCardReady => ScannedGiftCard != null && ScannedGiftCard.CanBeUsed;
-        public string GiftCardValueFormatted => ScannedGiftCard != null ? ScannedGiftCard.ValueFormatted : string.Empty;
+
+        // Computed properties pro více poukazů
+        public bool IsAnyGiftCardReady => RedeemedGiftCards != null && RedeemedGiftCards.Any();
+        public decimal TotalGiftCardValue => RedeemedGiftCards?.Sum(gc => gc.Value) ?? 0;
+        public string TotalGiftCardValueFormatted => TotalGiftCardValue > 0 ? $"{TotalGiftCardValue:C}" : string.Empty;
 
         /// <summary>
-        /// Zjistí, zda dojde k částečnému využití poukazu (zbytek propadne)
+        /// Zjistí, zda dojde k částečnému využití poukazů (zbytek propadne)
         /// </summary>
-        public bool WillHavePartialUsage => ScannedGiftCard != null && ScannedGiftCard.Value > Receipt.GrandTotal;
+        public bool WillHavePartialUsage => TotalGiftCardValue > Receipt.GrandTotal;
 
         /// <summary>
         /// Částka, která propadne při částečném využití
         /// </summary>
-        public decimal ForfeitedAmount => WillHavePartialUsage ? ScannedGiftCard.Value - Receipt.GrandTotal : 0;
+        public decimal ForfeitedAmount => WillHavePartialUsage ? TotalGiftCardValue - Receipt.GrandTotal : 0;
 
         public string ForfeitedAmountFormatted => ForfeitedAmount > 0 ? $"{ForfeitedAmount:C}" : string.Empty;
 
@@ -138,7 +143,7 @@ namespace Sklad_2.ViewModels
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
 
         /// <summary>
-        /// Částka k úhradě po odečtení věrnostní slevy a poukazu
+        /// Částka k úhradě po odečtení věrnostní slevy a poukazů
         /// </summary>
         public decimal AmountToPay
         {
@@ -149,11 +154,8 @@ namespace Sklad_2.ViewModels
                 // Odečíst věrnostní slevu
                 total -= LoyaltyDiscountAmount;
 
-                // Odečíst poukaz
-                if (ScannedGiftCard != null)
-                {
-                    total = Math.Max(0, total - ScannedGiftCard.Value);
-                }
+                // Odečíst poukazy
+                total = Math.Max(0, total - TotalGiftCardValue);
 
                 return Math.Max(0, total);
             }
@@ -170,12 +172,19 @@ namespace Sklad_2.ViewModels
                     lines.Add($"Věrnostní sleva: {LoyaltyDiscountFormatted}");
                 }
 
-                if (ScannedGiftCard != null)
+                if (IsAnyGiftCardReady)
                 {
-                    lines.Add($"Poukaz: -{ScannedGiftCard.Value:C}");
+                    if (RedeemedGiftCards.Count == 1)
+                    {
+                        lines.Add($"Poukaz: -{TotalGiftCardValue:C}");
+                    }
+                    else
+                    {
+                        lines.Add($"Poukazy ({RedeemedGiftCards.Count}×): -{TotalGiftCardValue:C}");
+                    }
                 }
 
-                if (LoyaltyDiscountAmount > 0 || ScannedGiftCard != null)
+                if (LoyaltyDiscountAmount > 0 || IsAnyGiftCardReady)
                 {
                     lines.Add($"K úhradě: {AmountToPay:C}");
                 }
@@ -251,7 +260,7 @@ namespace Sklad_2.ViewModels
             if (giftCard != null)
             {
                 // CRITICAL: Check if this gift card is already loaded for payment (prevent sell+use in same receipt)
-                if (ScannedGiftCard != null && ScannedGiftCard.Ean == eanCode)
+                if (RedeemedGiftCards.Any(gc => gc.Ean == eanCode))
                 {
                     CheckoutFailed?.Invoke(this, "Tento poukaz je již načten pro platbu. Nelze jej současně prodávat a používat k úhradě.");
                     return;
@@ -347,6 +356,8 @@ namespace Sklad_2.ViewModels
         private void ClearReceipt()
         {
             Receipt.Clear();
+            RedeemedGiftCards.Clear();
+            SelectedLoyaltyCustomer = null;
         }
 
         [RelayCommand(CanExecute = nameof(CanDecrementQuantity))]
@@ -382,7 +393,6 @@ namespace Sklad_2.ViewModels
         {
             if (string.IsNullOrWhiteSpace(ean))
             {
-                ScannedGiftCard = null;
                 return;
             }
 
@@ -391,8 +401,14 @@ namespace Sklad_2.ViewModels
                 item.Product?.Category == "Dárkové poukazy" && item.Product?.Ean == ean);
             if (giftCardInCart != null)
             {
-                ScannedGiftCard = null;
                 GiftCardValidationFailed?.Invoke(this, "Tento poukaz je již v košíku pro prodej. Nelze jej současně prodávat a používat k úhradě.");
+                return;
+            }
+
+            // Check if this gift card is already loaded for redemption
+            if (RedeemedGiftCards.Any(gc => gc.Ean == ean))
+            {
+                GiftCardValidationFailed?.Invoke(this, "Tento poukaz je již načten pro uplatnění.");
                 return;
             }
 
@@ -401,19 +417,29 @@ namespace Sklad_2.ViewModels
 
             if (!canUse)
             {
-                ScannedGiftCard = null;
                 GiftCardValidationFailed?.Invoke(this, message);
                 return;
             }
 
-            // Gift card is valid and ready to use
-            ScannedGiftCard = giftCard;
+            // Add gift card to redemption list
+            RedeemedGiftCards.Add(giftCard);
+            GiftCardEanInput = string.Empty; // Clear input after successful add
         }
 
         [RelayCommand]
-        private void ClearGiftCard()
+        private void RemoveGiftCard(string ean)
         {
-            ScannedGiftCard = null;
+            var cardToRemove = RedeemedGiftCards.FirstOrDefault(gc => gc.Ean == ean);
+            if (cardToRemove != null)
+            {
+                RedeemedGiftCards.Remove(cardToRemove);
+            }
+        }
+
+        [RelayCommand]
+        private void ClearAllGiftCards()
+        {
+            RedeemedGiftCards.Clear();
             GiftCardEanInput = string.Empty;
         }
 
@@ -632,20 +658,28 @@ namespace Sklad_2.ViewModels
                 string loyaltyCustomerMaskedEmail = SelectedLoyaltyCustomer?.MaskedEmail ?? string.Empty;
                 decimal loyaltyDiscountPercent = SelectedLoyaltyCustomer?.DiscountPercent ?? 0;
 
-                // Calculate gift card redemption amount (if gift card is loaded)
-                // Gift card applies AFTER loyalty discount
+                // Calculate gift card redemption amount (if gift cards are loaded)
+                // Gift cards apply AFTER loyalty discount
                 decimal giftCardRedemptionAmount = 0;
                 decimal totalAfterLoyaltyDiscount = Receipt.GrandTotal - loyaltyDiscountAmount;
-                if (ScannedGiftCard != null)
+                if (RedeemedGiftCards.Any())
                 {
-                    giftCardRedemptionAmount = Math.Min(ScannedGiftCard.Value, totalAfterLoyaltyDiscount);
+                    decimal totalGiftCardValue = RedeemedGiftCards.Sum(gc => gc.Value);
+                    giftCardRedemptionAmount = Math.Min(totalGiftCardValue, totalAfterLoyaltyDiscount);
                 }
 
-                // Build payment method string (include gift card if used)
+                // Build payment method string (include gift cards if used)
                 string paymentMethodString = GetPaymentMethodString(paymentMethod);
-                if (ScannedGiftCard != null)
+                if (RedeemedGiftCards.Any())
                 {
-                    paymentMethodString = $"{paymentMethodString} + Dárkový poukaz";
+                    if (RedeemedGiftCards.Count == 1)
+                    {
+                        paymentMethodString = $"{paymentMethodString} + Dárkový poukaz";
+                    }
+                    else
+                    {
+                        paymentMethodString = $"{paymentMethodString} + Dárkové poukazy ({RedeemedGiftCards.Count}×)";
+                    }
                 }
 
                 // Calculate actual payment amounts (cash vs card)
@@ -690,9 +724,8 @@ namespace Sklad_2.ViewModels
                     ContainsGiftCardSale = giftCardsToSell.Count > 0,
                     GiftCardSaleAmount = giftCardSaleAmount,
                     // Gift card fields - redemption
-                    ContainsGiftCardRedemption = ScannedGiftCard != null,
+                    ContainsGiftCardRedemption = RedeemedGiftCards.Any(),
                     GiftCardRedemptionAmount = giftCardRedemptionAmount,
-                    RedeemedGiftCardEan = ScannedGiftCard?.Ean ?? string.Empty,  // Empty string if no gift card (NOT NULL constraint)
                     // Loyalty program fields
                     HasLoyaltyDiscount = loyaltyDiscountAmount > 0,
                     LoyaltyCustomerId = SelectedLoyaltyCustomer?.Id,  // Store ID for storno TotalPurchases update
@@ -717,14 +750,37 @@ namespace Sklad_2.ViewModels
                         }
                     }
 
-                    // Mark gift card as used if one was loaded (change state Issued → Used)
-                    if (ScannedGiftCard != null)
+                    // Mark gift cards as used and save to ReceiptGiftCardRedemptions table
+                    if (RedeemedGiftCards.Any())
                     {
-                        var useResult = await _giftCardService.UseGiftCardAsync(ScannedGiftCard.Ean, newReceipt.ReceiptId, userName);
-                        if (!useResult.Success)
+                        using var context = await _contextFactory.CreateDbContextAsync();
+                        decimal remainingToRedeem = giftCardRedemptionAmount;
+
+                        foreach (var giftCard in RedeemedGiftCards)
                         {
-                            Debug.WriteLine($"Warning: Failed to mark gift card {ScannedGiftCard.Ean} as used: {useResult.Message}");
+                            // Mark gift card as used (change state Issued → Used)
+                            var useResult = await _giftCardService.UseGiftCardAsync(giftCard.Ean, newReceipt.ReceiptId, userName);
+                            if (!useResult.Success)
+                            {
+                                Debug.WriteLine($"Warning: Failed to mark gift card {giftCard.Ean} as used: {useResult.Message}");
+                            }
+
+                            // Calculate how much of this card was actually redeemed
+                            decimal redeemedFromThisCard = Math.Min(giftCard.Value, remainingToRedeem);
+                            remainingToRedeem -= redeemedFromThisCard;
+
+                            // Save to ReceiptGiftCardRedemptions table
+                            var redemption = new ReceiptGiftCardRedemption
+                            {
+                                ReceiptId = newReceipt.ReceiptId,
+                                GiftCardEan = giftCard.Ean,
+                                RedeemedAmount = redeemedFromThisCard
+                            };
+                            context.ReceiptGiftCardRedemptions.Add(redemption);
                         }
+
+                        await context.SaveChangesAsync();
+                        Debug.WriteLine($"ProdejViewModel: Saved {RedeemedGiftCards.Count} gift card redemptions to database");
                     }
 
                     // Update loyalty customer's TotalPurchases
@@ -751,9 +807,21 @@ namespace Sklad_2.ViewModels
                         }
                     }
 
-                    // Print receipt
+                    // Print receipt (load RedeemedGiftCards for printing)
                     try
                     {
+                        // Load RedeemedGiftCards navigation property for print service
+                        using var printContext = await _contextFactory.CreateDbContextAsync();
+                        var receiptForPrint = await printContext.Receipts
+                            .Include(r => r.RedeemedGiftCards)
+                            .FirstOrDefaultAsync(r => r.ReceiptId == newReceipt.ReceiptId);
+
+                        if (receiptForPrint != null)
+                        {
+                            // Copy navigation property to newReceipt for printing
+                            newReceipt.RedeemedGiftCards = receiptForPrint.RedeemedGiftCards;
+                        }
+
                         var printSuccess = await _printService.PrintReceiptAsync(newReceipt);
                         if (!printSuccess)
                         {
@@ -768,7 +836,7 @@ namespace Sklad_2.ViewModels
                     // Clear state
                     Receipt.Clear();
                     ScannedProduct = null;
-                    ScannedGiftCard = null;
+                    RedeemedGiftCards.Clear();
                     GiftCardEanInput = string.Empty;
                     SelectedLoyaltyCustomer = null;
                     LoyaltySearchInput = string.Empty;
@@ -953,7 +1021,7 @@ namespace Sklad_2.ViewModels
                     GiftCardSaleAmount = -originalReceipt.GiftCardSaleAmount,  // NEGATIVE for storno
                     ContainsGiftCardRedemption = originalReceipt.ContainsGiftCardRedemption,
                     GiftCardRedemptionAmount = -originalReceipt.GiftCardRedemptionAmount,  // NEGATIVE for storno
-                    RedeemedGiftCardEan = originalReceipt.RedeemedGiftCardEan ?? string.Empty,  // NOT NULL constraint
+                    // NOTE: RedeemedGiftCardEan deprecated - now using ReceiptGiftCardRedemptions table
                     // Loyalty fields (for storno, negate amounts)
                     HasLoyaltyDiscount = originalReceipt.HasLoyaltyDiscount,
                     LoyaltyCustomerId = originalReceipt.LoyaltyCustomerId,  // Keep reference for consistency

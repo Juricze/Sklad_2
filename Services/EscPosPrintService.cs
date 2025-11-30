@@ -648,11 +648,14 @@ namespace Sklad_2.Services
                     // Bold OFF: ESC E 0
                     commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
 
-                    // Show gift card EAN
-                    if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+                    // Show gift card EANs (multiple cards possible)
+                    if (receipt.RedeemedGiftCards != null && receipt.RedeemedGiftCards.Any())
                     {
-                        commands.AddRange(Cp852.GetBytes($"{INDENT}EAN poukazu: {receipt.RedeemedGiftCardEan}"));
-                        commands.AddRange(new byte[] { 0x0A });
+                        foreach (var redemption in receipt.RedeemedGiftCards)
+                        {
+                            commands.AddRange(Cp852.GetBytes($"{INDENT}EAN poukazu: {redemption.GiftCardEan} ({redemption.RedeemedAmount:C})"));
+                            commands.AddRange(new byte[] { 0x0A });
+                        }
                     }
                 }
             }
@@ -1253,10 +1256,13 @@ namespace Sklad_2.Services
                 // Gift card redemption
                 if (receipt.ContainsGiftCardRedemption && receipt.GiftCardRedemptionAmount > 0)
                 {
-                    sb.AppendLine(FormatLineWithPrice("Použitý poukaz:", $"-{receipt.GiftCardRedemptionAmount:N2} Kč", bold: true));
-                    if (!string.IsNullOrWhiteSpace(receipt.RedeemedGiftCardEan))
+                    sb.AppendLine(FormatLineWithPrice("Použité poukazy:", $"-{receipt.GiftCardRedemptionAmount:N2} Kč", bold: true));
+                    if (receipt.RedeemedGiftCards != null && receipt.RedeemedGiftCards.Any())
                     {
-                        sb.AppendLine(FormatLine($"EAN poukazu: {receipt.RedeemedGiftCardEan}", TextAlign.Left));
+                        foreach (var redemption in receipt.RedeemedGiftCards)
+                        {
+                            sb.AppendLine(FormatLine($"EAN poukazu: {redemption.GiftCardEan} ({redemption.RedeemedAmount:C})", TextAlign.Left));
+                        }
                     }
                 }
 

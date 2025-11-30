@@ -116,10 +116,15 @@ namespace Sklad_2.Models
         [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
         private decimal giftCardRedemptionAmount; // Total value of gift cards redeemed on this receipt
 
-        [ObservableProperty]
-        private string redeemedGiftCardEan = string.Empty; // EAN of the gift card used for payment
-
         public string GiftCardRedemptionAmountFormatted => $"{GiftCardRedemptionAmount:C}";
+
+        // DEPRECATED: Kept for backwards compatibility with old receipts and dialogs
+        // New receipts use RedeemedGiftCards navigation property instead
+        [ObservableProperty]
+        private string redeemedGiftCardEan = string.Empty;
+
+        // Navigation property - více uplatněných poukazů
+        public ICollection<ReceiptGiftCardRedemption> RedeemedGiftCards { get; set; } = new List<ReceiptGiftCardRedemption>();
 
         // Loyalty program fields
         [ObservableProperty]

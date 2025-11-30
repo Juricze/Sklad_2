@@ -19,6 +19,7 @@ namespace Sklad_2.Data
         public DbSet<GiftCard> GiftCards { get; set; }
         public DbSet<DailyClose> DailyCloses { get; set; }
         public DbSet<LoyaltyCustomer> LoyaltyCustomers { get; set; }
+        public DbSet<ReceiptGiftCardRedemption> ReceiptGiftCardRedemptions { get; set; }
 
         public DatabaseContext()
         {

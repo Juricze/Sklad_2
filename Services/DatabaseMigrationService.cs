@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 19; // Version 19: Add Description to Products
+        private const int CURRENT_SCHEMA_VERSION = 20; // Version 20: Multiple Gift Card Redemptions per Receipt
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -200,6 +200,8 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V18_AddImagePathToProducts(context);
                     case 19:
                         return await ApplyMigration_V19_AddDescriptionToProducts(context);
+                    case 20:
+                        return await ApplyMigration_V20_CreateGiftCardRedemptionTable(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -1026,6 +1028,67 @@ namespace Sklad_2.Services
             return true;
         }
 
+        private async Task<bool> ApplyMigration_V20_CreateGiftCardRedemptionTable(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V20 - Create ReceiptGiftCardRedemptions table");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // 1. Create ReceiptGiftCardRedemptions table
+                var createTableSql = @"
+                    CREATE TABLE IF NOT EXISTS ReceiptGiftCardRedemptions (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ReceiptId INTEGER NOT NULL,
+                        GiftCardEan TEXT NOT NULL,
+                        RedeemedAmount DECIMAL(18,2) NOT NULL,
+                        FOREIGN KEY (ReceiptId) REFERENCES Receipts(ReceiptId),
+                        FOREIGN KEY (GiftCardEan) REFERENCES GiftCards(Ean)
+                    )";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createTableSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created ReceiptGiftCardRedemptions table");
+                }
+
+                // 2. Migrate existing data from Receipts.RedeemedGiftCardEan to new table
+                // Only migrate receipts that have RedeemedGiftCardEan not empty and GiftCardRedemptionAmount > 0
+                var migrateSql = @"
+                    INSERT INTO ReceiptGiftCardRedemptions (ReceiptId, GiftCardEan, RedeemedAmount)
+                    SELECT ReceiptId, RedeemedGiftCardEan, GiftCardRedemptionAmount
+                    FROM Receipts
+                    WHERE RedeemedGiftCardEan IS NOT NULL
+                      AND RedeemedGiftCardEan != ''
+                      AND GiftCardRedemptionAmount > 0";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = migrateSql;
+                    var migratedRows = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Migrated {migratedRows} existing gift card redemptions to new table");
+                }
+
+                // 3. Note: We keep RedeemedGiftCardEan column in Receipts for backwards compatibility
+                // SQLite ALTER TABLE DROP COLUMN is only supported in SQLite 3.35+
+                // The column will remain but won't be used by the application anymore
+                Debug.WriteLine("DatabaseMigrationService: Keeping RedeemedGiftCardEan column for backwards compatibility");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V20 migration: {ex.Message}");
+                throw;
+            }
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -1080,6 +1143,7 @@ namespace Sklad_2.Services
                 17 => "Add Markup to Products for profit margin tracking",
                 18 => "Add ImagePath to Products for product images",
                 19 => "Add Description to Products for product descriptions",
+                20 => "Create ReceiptGiftCardRedemptions table for multiple gift cards per receipt",
                 _ => $"Unknown migration version {version}"
             };
         }
