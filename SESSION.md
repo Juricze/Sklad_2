@@ -48,7 +48,7 @@ modelBuilder.Entity<ReceiptGiftCardRedemption>()
 - `Data/DatabaseContext.cs` - přidána Fluent API konfigurace
 
 **Git:**
-- Commit: (pending)
+- Commit: 44013c6 - "Fix: EF Core vztah pro ReceiptGiftCardRedemption - použit Ean jako principal key"
 - Build: ✅ 0 warnings, 0 errors
 
 ---

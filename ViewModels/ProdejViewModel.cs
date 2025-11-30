@@ -232,7 +232,20 @@ namespace Sklad_2.ViewModels
                     OnPropertyChanged(nameof(ForfeitedAmountFormatted));
                 };
             }
-            
+
+            // Listen for changes in RedeemedGiftCards collection to update computed properties
+            RedeemedGiftCards.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(IsAnyGiftCardReady));
+                OnPropertyChanged(nameof(TotalGiftCardValue));
+                OnPropertyChanged(nameof(TotalGiftCardValueFormatted));
+                OnPropertyChanged(nameof(AmountToPay));
+                OnPropertyChanged(nameof(GrandTotalFormatted));
+                OnPropertyChanged(nameof(WillHavePartialUsage));
+                OnPropertyChanged(nameof(ForfeitedAmount));
+                OnPropertyChanged(nameof(ForfeitedAmountFormatted));
+            };
+
             // Listen for settings changes to update manual discount availability
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<ProdejViewModel, Sklad_2.Messages.SettingsChangedMessage, string>(this, "SettingsUpdateToken", (r, m) =>
             {

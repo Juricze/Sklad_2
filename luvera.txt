@@ -22,4 +22,4 @@
 -DONE-	- Do tržby/zavírky přidat jednoduchý přehled od denních třbách
 -DONE-	- Maximilizace po spusteni aplikace.
 	- Při přihlášení do uzavřeného dne ( ve stejný den ) jako prodavač -> povolit vstup do aplikace ale bez prodeje a vratek.
-	-
+	- žpřístupnit kartu poukázek prodavači ale bez možřných uprav.

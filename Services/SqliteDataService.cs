@@ -154,13 +154,20 @@ namespace Sklad_2.Services
         public async Task<List<Receipt>> GetReceiptsAsync()
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Receipts.Include(r => r.Items).ToListAsync();
+            return await context.Receipts
+                                .Include(r => r.Items)
+                                .Include(r => r.RedeemedGiftCards)
+                                .ToListAsync();
         }
 
         public async Task<List<Receipt>> GetReceiptsAsync(DateTime startDate, DateTime endDate)
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Receipts.Include(r => r.Items).Where(r => r.SaleDate >= startDate && r.SaleDate <= endDate).ToListAsync();
+            return await context.Receipts
+                                .Include(r => r.Items)
+                                .Include(r => r.RedeemedGiftCards)
+                                .Where(r => r.SaleDate >= startDate && r.SaleDate <= endDate)
+                                .ToListAsync();
         }
 
         public async Task<Receipt> GetReceiptByIdAsync(int receiptId)
@@ -168,6 +175,7 @@ namespace Sklad_2.Services
             using var context = _contextFactory.CreateDbContext();
             return await context.Receipts
                                  .Include(r => r.Items)
+                                 .Include(r => r.RedeemedGiftCards)
                                  .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
         }
 
@@ -176,6 +184,7 @@ namespace Sklad_2.Services
             using var context = _contextFactory.CreateDbContext();
             var receipt = await context.Receipts
                                        .Include(r => r.Items)
+                                       .Include(r => r.RedeemedGiftCards)
                                        .FirstOrDefaultAsync(r => r.ReceiptId == receiptId);
             if (receipt != null)
             {
