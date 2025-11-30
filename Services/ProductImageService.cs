@@ -10,7 +10,7 @@ namespace Sklad_2.Services
 {
     public class ProductImageService : IProductImageService
     {
-        private const int MAX_IMAGE_SIZE = 1600;  // Zvětšeno z 800 pro lepší kvalitu v detail panelu
+        private const int MAX_IMAGE_SIZE = 2000;  // Zvětšeno na 2000 pro detail panel (MaxWidth/MaxHeight 2000)
         private const int THUMBNAIL_SIZE = 80;
         private const int JPEG_QUALITY = 100;
 

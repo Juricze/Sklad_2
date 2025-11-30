@@ -100,15 +100,15 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header (outside ListView) -->
-                <Grid Grid.Row="0" Padding="0,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                <Grid Grid.Row="0" Padding="12,8,12,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="44"/>   <!-- Obrázek: fixní -->
-                        <ColumnDefinition Width="4*"/>   <!-- EAN: 4 -->
-                        <ColumnDefinition Width="5*"/>   <!-- Název: 5 (nejširší) -->
-                        <ColumnDefinition Width="3*"/>   <!-- Značka: 3 -->
-                        <ColumnDefinition Width="3*"/>   <!-- Kategorie: 3 -->
-                        <ColumnDefinition Width="1*"/>   <!-- Sklad: 1 (nejužší) -->
-                        <ColumnDefinition Width="2*"/>   <!-- Cena: 2 -->
+                        <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
+                        <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
+                        <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
+                        <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
+                        <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
+                        <ColumnDefinition Width="2*" MinWidth="60"/>   <!-- Sklad: 2 -->
+                        <ColumnDefinition Width="2*" MinWidth="80"/>   <!-- Cena: 2 -->
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -129,13 +129,13 @@
                     <DataTemplate x:DataType="models:Product">
                         <Grid Padding="0,6" ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="44"/>   <!-- Obrázek: fixní -->
-                                <ColumnDefinition Width="4*"/>   <!-- EAN: 4 -->
-                                <ColumnDefinition Width="5*"/>   <!-- Název: 5 (nejširší) -->
-                                <ColumnDefinition Width="3*"/>   <!-- Značka: 3 -->
-                                <ColumnDefinition Width="3*"/>   <!-- Kategorie: 3 -->
-                                <ColumnDefinition Width="1*"/>   <!-- Sklad: 1 (nejužší) -->
-                                <ColumnDefinition Width="2*"/>   <!-- Cena: 2 -->
+                                <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
+                                <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
+                                <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
+                                <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
+                                <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
+                                <ColumnDefinition Width="2*" MinWidth="60"/>   <!-- Sklad: 2 -->
+                                <ColumnDefinition Width="2*" MinWidth="80"/>   <!-- Cena: 2 -->
                             </Grid.ColumnDefinitions>
 
                             <!-- Thumbnail -->
@@ -213,21 +213,21 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border MaxWidth="500" MaxHeight="500"
+                        <Border MaxWidth="2000" MaxHeight="2000"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8"
                                 HorizontalAlignment="Center">
                             <Grid>
                                 <FontIcon Glyph="&#xE91B;"
-                                          FontSize="128"
+                                          FontSize="512"
                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
                                 <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
                                        Stretch="Uniform"
-                                       MaxWidth="500"
-                                       MaxHeight="500"
+                                       MaxWidth="2000"
+                                       MaxHeight="2000"
                                        Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </Border>
