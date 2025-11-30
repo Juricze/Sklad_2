@@ -17,7 +17,109 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 30. listopad 2025 (pokračování)**
+## 📅 **Poslední session: 30. listopad 2025 (pokračování 3)**
+
+### ✅ Hotovo:
+**Fix: EF Core vztah pro ReceiptGiftCardRedemption**
+
+**Chyba:**
+```
+System.InvalidOperationException: The relationship from 'ReceiptGiftCardRedemption.GiftCard'
+to 'GiftCard' with foreign key properties {'GiftCardEan' : string} cannot target the primary
+key {'Id' : int} because it is not compatible.
+```
+
+**Příčina:**
+- `GiftCard` má primary key `Id` (int)
+- `ReceiptGiftCardRedemption` používá `GiftCardEan` (string) jako FK
+- EF Core automaticky hledá primary key, což způsobí type mismatch
+
+**Řešení:**
+Přidána Fluent API konfigurace v `DatabaseContext.OnModelCreating()`:
+```csharp
+modelBuilder.Entity<ReceiptGiftCardRedemption>()
+    .HasOne(r => r.GiftCard)
+    .WithMany()
+    .HasForeignKey(r => r.GiftCardEan)
+    .HasPrincipalKey(gc => gc.Ean);  // Použít Ean místo Id
+```
+
+**Upravené soubory:**
+- `Data/DatabaseContext.cs` - přidána Fluent API konfigurace
+
+**Git:**
+- Commit: (pending)
+- Build: ✅ 0 warnings, 0 errors
+
+---
+
+## 📅 **Předchozí session: 30. listopad 2025 (pokračování 2)**
+
+### ✅ Hotovo:
+**Podpora více dárkových poukazů na jedné účtence (schema V20)**
+
+**Problém:**
+- Současná implementace umožňovala uplatnit pouze JEDEN dárkový poukaz na účtenku
+- Uživatel požadoval možnost uplatnit více poukazů najednou
+
+**Řešení:**
+Implementováno čisté řešení s DB migrací a many-to-many vztahem.
+
+**Databázové změny:**
+- Nový model: `ReceiptGiftCardRedemption` (junction table)
+- Sloupce: `Id`, `ReceiptId`, `GiftCardEan`, `RedeemedAmount`
+- Migrace V20: `CREATE TABLE ReceiptGiftCardRedemptions`
+- Automatická migrace existujících dat z `Receipt.RedeemedGiftCardEan`
+- `Receipt.RedeemedGiftCardEan` zachován pro backwards compatibility (označen DEPRECATED)
+
+**Backend změny:**
+- `ProdejViewModel.RedeemedGiftCards` - ObservableCollection<GiftCard>
+- `TotalGiftCardValue` - součet hodnot všech poukazů
+- `IsAnyGiftCardReady` - má načtený alespoň jeden poukaz
+- Commands: `LoadGiftCardForRedemption`, `RemoveGiftCard`, `ClearAllGiftCards`
+- Validace: kontrola duplicit, kontrola prodej+uplatnění na stejné účtence
+- `CompleteCheckoutAsync`: iterace přes všechny poukazy, proporcionální výpočet `RedeemedAmount`
+- Uložení do `ReceiptGiftCardRedemptions` table s přesnou částkou pro každý poukaz
+
+**UI změny:**
+- `ProdejPage`: ListView s načtenými poukazy (zobrazuje EAN, hodnotu, tlačítko Odstranit)
+- Tlačítko "Zrušit všechny poukazy"
+- Upravený text upozornění: "Celková hodnota poukazů..."
+- `GrandTotalFormatted`: "Poukazy (3×): -450,00 Kč" (zobrazuje počet)
+
+**Tisk:**
+- ESC/POS: Každý poukaz na samostatném řádku s EAN a částkou
+- HTML export: Seznam všech poukazů s částkami
+
+**Dialogy:**
+- `ReceiptPreviewDialog`: `ItemsControl` zobrazuje všechny uplatněné poukazy
+- Formát: "EAN: 1234567890 (150,00 Kč)"
+
+**DRY princip dodržen:**
+- Všechna zobrazení poukazů používají `RedeemedGiftCards` kolekci
+- Computed properties místo duplikace výpočtů
+- Backwards compatibility pro staré účtenky přes deprecated property
+
+**Upravené soubory:**
+- `Models/ReceiptGiftCardRedemption.cs` - nový
+- `Data/DatabaseContext.cs` - DbSet
+- `Models/Receipt.cs` - navigation property + deprecated RedeemedGiftCardEan
+- `Services/DatabaseMigrationService.cs` - migrace V20
+- `ViewModels/ProdejViewModel.cs` - ObservableCollection + commands
+- `Views/ProdejPage.xaml` - ListView
+- `Views/ProdejPage.xaml.cs` - RemoveGiftCard_Click handler
+- `Services/EscPosPrintService.cs` - tisk více poukazů
+- `Views/Dialogs/ReceiptPreviewDialog.xaml` - ItemsControl pro seznam
+
+**Schema verze:** 20
+
+**Git:**
+- Commit: 34c25e6 - "Feature: Podpora více dárkových poukazů na jedné účtence (schema V20)"
+- Pushed to main
+
+---
+
+## 📅 **Předchozí session: 30. listopad 2025 (pokračování)**
 
 ### ✅ Hotovo:
 **Export inventurního soupisu (tisknutelná HTML + Excel CSV verze)**

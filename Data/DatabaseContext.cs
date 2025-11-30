@@ -50,6 +50,13 @@ namespace Sklad_2.Data
                 .HasIndex(lc => lc.CardEan)
                 .IsUnique()
                 .HasFilter("[CardEan] IS NOT NULL AND [CardEan] != ''");
+
+            // Configure ReceiptGiftCardRedemption relationship to use GiftCard.Ean as principal key
+            modelBuilder.Entity<ReceiptGiftCardRedemption>()
+                .HasOne(r => r.GiftCard)
+                .WithMany()
+                .HasForeignKey(r => r.GiftCardEan)
+                .HasPrincipalKey(gc => gc.Ean);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
