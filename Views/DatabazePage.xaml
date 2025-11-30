@@ -213,21 +213,24 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                                CornerRadius="8"
-                                HorizontalAlignment="Center">
-                            <Grid MaxWidth="600" MaxHeight="600">
-                                <FontIcon Glyph="&#xE91B;"
-                                          FontSize="128"
-                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                                <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
-                                       Stretch="Uniform"
-                                       Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            </Grid>
-                        </Border>
+                        <Viewbox MaxWidth="2000" MaxHeight="2000" Stretch="Uniform">
+                            <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                    CornerRadius="8"
+                                    Width="2000"
+                                    Height="2000">
+                                <Grid>
+                                    <FontIcon Glyph="&#xE91B;"
+                                              FontSize="512"
+                                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                    <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
+                                           Stretch="Uniform"
+                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </Grid>
+                            </Border>
+                        </Viewbox>
 
                         <!-- Product Name -->
                         <TextBlock Text="{Binding SelectedProduct.Name, Mode=OneWay}"
