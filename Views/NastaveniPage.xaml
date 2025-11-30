@@ -438,6 +438,61 @@
                                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                                 </Border>
                             </StackPanel>
+
+                            <!-- Inventory Export Section -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Export inventurního soupisu" FontWeight="SemiBold"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    Exportujte seznam všech produktů pro fyzickou inventuru. Tisknutelná verze pro ruční zápis nebo Excel pro elektronické zpracování.
+                                </TextBlock>
+
+                                <!-- Inventory Date Selection -->
+                                <StackPanel Spacing="8" Margin="0,8,0,0">
+                                    <CalendarDatePicker Header="Datum inventury"
+                                                       Date="{x:Bind ViewModel.InventoryDate, Mode=TwoWay}"
+                                                       HorizontalAlignment="Stretch"
+                                                       Width="200"/>
+                                </StackPanel>
+
+                                <!-- Export Buttons -->
+                                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                                    <Button Command="{x:Bind ViewModel.ExportInventoryPrintCommand}"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            HorizontalAlignment="Stretch"
+                                            Width="220"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE749;" FontSize="16"/>
+                                            <TextBlock Text="Tisknutelná verze"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Command="{x:Bind ViewModel.ExportInventoryCsvCommand}"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            HorizontalAlignment="Stretch"
+                                            Width="220"
+                                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8A5;" FontSize="16"/>
+                                            <TextBlock Text="Excel verze"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Inventory Export Status -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="8"
+                                        Margin="0,8,0,0"
+                                        Visibility="{x:Bind ViewModel.InventoryExportStatus, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <TextBlock Text="{x:Bind ViewModel.InventoryExportStatus, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 

@@ -90,6 +90,13 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string exportStatusMessage;
 
+        // Inventory export properties
+        [ObservableProperty]
+        private DateTimeOffset? inventoryDate = DateTime.Now;
+
+        [ObservableProperty]
+        private string inventoryExportStatus;
+
         [ObservableProperty]
         private string manualDiscountsStatusMessage;
 
@@ -805,6 +812,297 @@ namespace Sklad_2.ViewModels
 
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Export inventurního soupisu - tisknutelná verze (HTML)
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportInventoryPrintAsync()
+        {
+            InventoryExportStatus = string.Empty;
+
+            if (!InventoryDate.HasValue)
+            {
+                InventoryExportStatus = "Musíte vybrat datum inventury.";
+                return;
+            }
+
+            try
+            {
+                var inventoryDate = InventoryDate.Value.DateTime;
+
+                // Get all products
+                var products = await _dataService.GetProductsAsync();
+
+                if (products == null || products.Count == 0)
+                {
+                    InventoryExportStatus = "Nejsou k dispozici žádné produkty pro export.";
+                    return;
+                }
+
+                // File picker
+                var picker = new Windows.Storage.Pickers.FileSavePicker();
+                var app = Microsoft.UI.Xaml.Application.Current as App;
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                picker.SuggestedFileName = $"Inventurni_Soupis_{inventoryDate:yyyy-MM-dd}";
+                picker.FileTypeChoices.Add("HTML soubor", new List<string>() { ".html" });
+
+                var file = await picker.PickSaveFileAsync();
+                if (file == null)
+                {
+                    InventoryExportStatus = "Export zrušen.";
+                    return;
+                }
+
+                // Generate HTML
+                var html = GenerateInventoryPrintHtml(products, inventoryDate);
+
+                // Save to file
+                await Windows.Storage.FileIO.WriteTextAsync(file, html, Windows.Storage.Streams.UnicodeEncoding.Utf8);
+
+                InventoryExportStatus = $"✓ Inventurní soupis byl úspěšně exportován do: {file.Path}";
+            }
+            catch (Exception ex)
+            {
+                InventoryExportStatus = $"Chyba při exportu: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Export error: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Export inventurního soupisu - Excel verze (CSV)
+        /// </summary>
+        [RelayCommand]
+        private async Task ExportInventoryCsvAsync()
+        {
+            InventoryExportStatus = string.Empty;
+
+            if (!InventoryDate.HasValue)
+            {
+                InventoryExportStatus = "Musíte vybrat datum inventury.";
+                return;
+            }
+
+            try
+            {
+                var inventoryDate = InventoryDate.Value.DateTime;
+
+                // Get all products
+                var products = await _dataService.GetProductsAsync();
+
+                if (products == null || products.Count == 0)
+                {
+                    InventoryExportStatus = "Nejsou k dispozici žádné produkty pro export.";
+                    return;
+                }
+
+                // File picker
+                var picker = new Windows.Storage.Pickers.FileSavePicker();
+                var app = Microsoft.UI.Xaml.Application.Current as App;
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                picker.SuggestedFileName = $"Inventura_{inventoryDate:yyyy-MM-dd}";
+                picker.FileTypeChoices.Add("CSV soubor", new List<string>() { ".csv" });
+
+                var file = await picker.PickSaveFileAsync();
+                if (file == null)
+                {
+                    InventoryExportStatus = "Export zrušen.";
+                    return;
+                }
+
+                // Generate CSV
+                var csv = GenerateInventoryCsv(products, inventoryDate);
+
+                // Save to file with UTF-8 BOM (for Excel compatibility with Czech characters)
+                var utf8WithBom = new System.Text.UTF8Encoding(true);
+                var bytes = utf8WithBom.GetBytes(csv);
+                await Windows.Storage.FileIO.WriteBytesAsync(file, bytes);
+
+                InventoryExportStatus = $"✓ Inventura exportována do Excel: {file.Path}";
+            }
+            catch (Exception ex)
+            {
+                InventoryExportStatus = $"Chyba při exportu: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Export error: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Generate HTML for printable inventory sheet
+        /// </summary>
+        private string GenerateInventoryPrintHtml(List<Product> products, DateTime inventoryDate)
+        {
+            var settings = _settingsService.CurrentSettings;
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine("<!DOCTYPE html>");
+            sb.AppendLine("<html>");
+            sb.AppendLine("<head>");
+            sb.AppendLine("<meta charset='utf-8'/>");
+            sb.AppendLine("<title>Inventurní soupis</title>");
+            sb.AppendLine("<style>");
+            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
+            sb.AppendLine("h1 { text-align: center; margin-bottom: 5px; }");
+            sb.AppendLine("h2 { text-align: center; margin-top: 0; color: #666; font-size: 18px; }");
+            sb.AppendLine(".info { margin: 20px 0; }");
+            sb.AppendLine(".info p { margin: 5px 0; }");
+            sb.AppendLine("table { width: 100%; border-collapse: collapse; margin-top: 20px; }");
+            sb.AppendLine("th, td { border: 1px solid #000; padding: 8px; text-align: left; }");
+            sb.AppendLine("th { background-color: #f0f0f0; font-weight: bold; }");
+            sb.AppendLine(".number { text-align: right; }");
+            sb.AppendLine(".center { text-align: center; }");
+            sb.AppendLine(".count-cell { background-color: #fffacd; min-width: 80px; }"); // Yellow for manual entry
+            sb.AppendLine(".signature { margin-top: 40px; }");
+            sb.AppendLine(".signature-line { border-top: 1px solid #000; width: 300px; margin-top: 40px; padding-top: 5px; }");
+            sb.AppendLine("@media print { body { margin: 10px; } }");
+            sb.AppendLine("</style>");
+            sb.AppendLine("</head>");
+            sb.AppendLine("<body>");
+
+            // Header
+            sb.AppendLine("<h1>INVENTURNÍ SOUPIS</h1>");
+            sb.AppendLine($"<h2>k datu {inventoryDate:dd.MM.yyyy}</h2>");
+
+            // Company info
+            sb.AppendLine("<div class='info'>");
+            if (!string.IsNullOrEmpty(settings.ShopName))
+            {
+                sb.AppendLine($"<p><strong>Firma:</strong> {settings.ShopName}</p>");
+            }
+            if (!string.IsNullOrEmpty(settings.ShopAddress))
+            {
+                sb.AppendLine($"<p><strong>Adresa:</strong> {settings.ShopAddress}</p>");
+            }
+            if (!string.IsNullOrEmpty(settings.CompanyId))
+            {
+                sb.AppendLine($"<p><strong>IČ:</strong> {settings.CompanyId}</p>");
+            }
+            sb.AppendLine("</div>");
+
+            // Products table
+            sb.AppendLine("<table>");
+            sb.AppendLine("<thead>");
+            sb.AppendLine("<tr>");
+            sb.AppendLine("<th class='center'>Číslo</th>");
+            sb.AppendLine("<th>EAN</th>");
+            sb.AppendLine("<th>Název produktu</th>");
+            sb.AppendLine("<th>Kategorie</th>");
+            sb.AppendLine("<th class='number'>Stav v DB (ks)</th>");
+            sb.AppendLine("<th class='count-cell center'>Skutečný počet</th>");
+            sb.AppendLine("<th class='number'>Nákupní cena (Kč)</th>");
+            sb.AppendLine("<th class='number'>Hodnota v DB (Kč)</th>");
+            sb.AppendLine("</tr>");
+            sb.AppendLine("</thead>");
+            sb.AppendLine("<tbody>");
+
+            decimal totalValueDb = 0;
+            int rowNumber = 1;
+
+            foreach (var product in products.OrderBy(p => p.Category).ThenBy(p => p.Name))
+            {
+                decimal valueDb = product.StockQuantity * product.PurchasePrice;
+                totalValueDb += valueDb;
+
+                sb.AppendLine("<tr>");
+                sb.AppendLine($"<td class='center'>{rowNumber}</td>");
+                sb.AppendLine($"<td>{product.Ean}</td>");
+                sb.AppendLine($"<td>{product.Name}</td>");
+                sb.AppendLine($"<td>{product.Category}</td>");
+                sb.AppendLine($"<td class='number'>{product.StockQuantity}</td>");
+                sb.AppendLine($"<td class='count-cell'>&nbsp;</td>"); // Empty for manual entry
+                sb.AppendLine($"<td class='number'>{product.PurchasePrice:N2}</td>");
+                sb.AppendLine($"<td class='number'>{valueDb:N2}</td>");
+                sb.AppendLine("</tr>");
+
+                rowNumber++;
+            }
+
+            // Total row
+            sb.AppendLine("<tr style='font-weight: bold; background-color: #e0e0e0;'>");
+            sb.AppendLine($"<td colspan='7' class='number'>CELKOVÁ HODNOTA ZÁSOB (dle databáze):</td>");
+            sb.AppendLine($"<td class='number'>{totalValueDb:N2} Kč</td>");
+            sb.AppendLine("</tr>");
+
+            sb.AppendLine("</tbody>");
+            sb.AppendLine("</table>");
+
+            // Instructions
+            sb.AppendLine("<div style='margin-top: 20px; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #007AFF;'>");
+            sb.AppendLine("<p><strong>Pokyny k provedení inventury:</strong></p>");
+            sb.AppendLine("<ol>");
+            sb.AppendLine("<li>Fyzicky spočítejte každou položku na skladě</li>");
+            sb.AppendLine("<li>Zapište skutečný počet do sloupce \"Skutečný počet\" (žlutý)</li>");
+            sb.AppendLine("<li>Po dokončení podepište dokument</li>");
+            sb.AppendLine("<li>Archivujte na 5 let</li>");
+            sb.AppendLine("</ol>");
+            sb.AppendLine("</div>");
+
+            // Signature section
+            sb.AppendLine("<div class='signature'>");
+            sb.AppendLine("<p><strong>Způsob zjištění skutečného stavu:</strong> Fyzické počítání</p>");
+            sb.AppendLine("<p style='margin-top: 30px;'><strong>Inventuru provedl(a):</strong></p>");
+            sb.AppendLine("<div class='signature-line'>Jméno a podpis</div>");
+            sb.AppendLine("<p style='margin-top: 30px;'><strong>Datum provedení inventury:</strong> __________________</p>");
+            sb.AppendLine("</div>");
+
+            sb.AppendLine("</body>");
+            sb.AppendLine("</html>");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Generate CSV for Excel import
+        /// </summary>
+        private string GenerateInventoryCsv(List<Product> products, DateTime inventoryDate)
+        {
+            var settings = _settingsService.CurrentSettings;
+            var sb = new System.Text.StringBuilder();
+
+            // Header with metadata
+            sb.AppendLine($"Inventurní soupis k datu: {inventoryDate:dd.MM.yyyy}");
+            if (!string.IsNullOrEmpty(settings.ShopName))
+            {
+                sb.AppendLine($"Firma: {settings.ShopName}");
+            }
+            sb.AppendLine(""); // Empty line
+
+            // CSV header
+            sb.AppendLine("Číslo;EAN;Název;Kategorie;Stav v DB (ks);Skutečný počet;Rozdíl;Nákupní cena (Kč);Hodnota v DB (Kč);Skutečná hodnota (Kč);Rozdíl hodnoty (Kč)");
+
+            // Data rows
+            decimal totalValueDb = 0;
+            int rowNumber = 1;
+
+            foreach (var product in products.OrderBy(p => p.Category).ThenBy(p => p.Name))
+            {
+                decimal valueDb = product.StockQuantity * product.PurchasePrice;
+                totalValueDb += valueDb;
+
+                sb.AppendLine($"{rowNumber};{product.Ean};{product.Name};{product.Category};{product.StockQuantity};;0;{product.PurchasePrice:F2};{valueDb:F2};;");
+
+                rowNumber++;
+            }
+
+            // Total row
+            sb.AppendLine($";;;CELKEM;;;;;{totalValueDb:F2};;");
+
+            // Instructions
+            sb.AppendLine("");
+            sb.AppendLine("Pokyny:");
+            sb.AppendLine("1. Vyplňte sloupec 'Skutečný počet' podle fyzické inventury");
+            sb.AppendLine("2. Sloupce 'Rozdíl' a 'Skutečná hodnota' se vypočítají automaticky (Excel vzorce)");
+            sb.AppendLine("3. Manka (záporný rozdíl) = daňově neuznatelný náklad");
+            sb.AppendLine("4. Přebytky (kladný rozdíl) = zdanitelný příjem");
 
             return sb.ToString();
         }
