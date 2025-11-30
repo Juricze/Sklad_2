@@ -218,7 +218,7 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border Width="400" Height="400"
+                        <Border MaxWidth="400" MaxHeight="300"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8"
                                 HorizontalAlignment="Center">
@@ -231,6 +231,8 @@
                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
                                 <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
                                        Stretch="Uniform"
+                                       MaxWidth="400"
+                                       MaxHeight="300"
                                        Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </Border>
