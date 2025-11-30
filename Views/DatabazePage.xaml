@@ -103,7 +103,7 @@
                 <Grid Grid.Row="0" Padding="12,8,12,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
-                        <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
+                        <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- EAN: 3 -->
                         <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
                         <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
                         <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
@@ -130,7 +130,7 @@
                         <Grid Padding="0,6" ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
-                                <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
+                                <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- EAN: 3 -->
                                 <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
                                 <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
                                 <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
@@ -213,21 +213,18 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border MaxWidth="2000" MaxHeight="2000"
-                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8"
                                 HorizontalAlignment="Center">
-                            <Grid>
+                            <Grid MaxWidth="600" MaxHeight="600">
                                 <FontIcon Glyph="&#xE91B;"
-                                          FontSize="512"
+                                          FontSize="128"
                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
                                 <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
                                        Stretch="Uniform"
-                                       MaxWidth="2000"
-                                       MaxHeight="2000"
                                        Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </Border>
