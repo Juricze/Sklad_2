@@ -380,22 +380,34 @@ private void RefreshItems()
    <FileVersion>X.Y.Z.0</FileVersion>
    ```
 
-2. **Build release:**
+2. **KRITICKÉ: Smazat build cache (WinUI/XAML cachuje assembly verzi!):**
+   ```bash
+   rm -rf bin obj
+   ```
+   **⚠️ BEZ TOHOTO KROKU SE VERZE NEPROPAGUJE DO EXE!**
+
+3. **Build release:**
    ```bash
    dotnet publish Sklad_2.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64
    ```
 
-3. **Commit + Push:**
+4. **Verifikovat assembly verzi:**
+   ```bash
+   powershell -Command "(Get-Item 'bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\publish\Sklad_2.exe').VersionInfo.FileVersion"
+   ```
+   **MUSÍ odpovídat X.Y.Z.0!** Pokud ne, opakuj krok 2-4.
+
+5. **Vytvořit ZIP:**
+   ```bash
+   powershell.exe -ExecutionPolicy Bypass -Command "Compress-Archive -Path 'bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\publish\*' -DestinationPath 'Sklad_2-vX.Y.Z-win-x64.zip' -Force"
+   ```
+
+6. **Commit + Push:**
    ```bash
    git add -A && git commit -m "Release vX.Y.Z: [popis]" && git push
    ```
 
-4. **Vytvořit ZIP:**
-   ```bash
-   powershell.exe -ExecutionPolicy Bypass -Command "Compress-Archive -Path 'bin\x64\Release\...\publish\*' -DestinationPath 'Sklad_2-vX.Y.Z-win-x64.zip' -Force"
-   ```
-
-5. **GitHub Release:**
+7. **GitHub Release:**
    ```bash
    gh release create vX.Y.Z --title "vX.Y.Z - [název]" --notes "[popis]" Sklad_2-vX.Y.Z-win-x64.zip
    ```
