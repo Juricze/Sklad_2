@@ -50,8 +50,8 @@ try {
     # ===========================================
     Write-ColorLog "KROK 1: Určení instalační cesty" "Yellow"
 
-    # Výchozí cesta
-    $defaultPath = Join-Path $env:USERPROFILE "Desktop\Sklad_2"
+    # Výchozí cesta = adresář, kde je StandaloneUpdater.ps1
+    $defaultPath = $PSScriptRoot
 
     Write-Host ""
     Write-Host "  Zadej cestu k instalaci Sklad_2:" -ForegroundColor White
