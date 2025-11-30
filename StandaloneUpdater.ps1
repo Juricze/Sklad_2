@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # Sklad_2 Standalone Updater
 # ============================================================
 # Tento script aktualizuje Sklad_2 bez nutnosti spouštět aplikaci.
@@ -33,12 +33,12 @@ function Write-ColorLog {
 
 # ASCII Art Banner
 Write-Host ""
-Write-Host "  ███████╗██╗  ██╗██╗      █████╗ ██████╗     ██████╗ " -ForegroundColor Cyan
-Write-Host "  ██╔════╝██║ ██╔╝██║     ██╔══██╗██╔══██╗    ╚════██╗" -ForegroundColor Cyan
-Write-Host "  ███████╗█████╔╝ ██║     ███████║██║  ██║     █████╔╝" -ForegroundColor Cyan
-Write-Host "  ╚════██║██╔═██╗ ██║     ██╔══██║██║  ██║    ██╔═══╝ " -ForegroundColor Cyan
-Write-Host "  ███████║██║  ██╗███████╗██║  ██║██████╔╝    ███████╗" -ForegroundColor Cyan
-Write-Host "  ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝     ╚══════╝" -ForegroundColor Cyan
+Write-Host "  █████████  ████      █████ ██████     ██████ " -ForegroundColor Cyan
+Write-Host "  ████ ████     ████████    ██" -ForegroundColor Cyan
+Write-Host "  ████████████ ██     █████████  ██     █████" -ForegroundColor Cyan
+Write-Host "  ██████ ██     ██████  ██    ██ " -ForegroundColor Cyan
+Write-Host "  █████████  ███████████  ████████    ███████" -ForegroundColor Cyan
+Write-Host "           " -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Standalone Updater v1.0" -ForegroundColor Yellow
 Write-Host "  ==============================================" -ForegroundColor DarkGray
@@ -74,14 +74,14 @@ try {
 
         if ($create -eq "A" -or $create -eq "a") {
             New-Item -ItemType Directory -Path $installPath -Force | Out-Null
-            Write-ColorLog "✓ Složka vytvořena" "Green"
+            Write-ColorLog "OK Složka vytvořena" "Green"
         } else {
             Write-ColorLog "Aktualizace zrušena" "Red"
             exit 1
         }
     }
 
-    Write-ColorLog "✓ Instalační cesta: $installPath" "Green"
+    Write-ColorLog "OK Instalační cesta: $installPath" "Green"
     Write-Host ""
 
     # ===========================================
@@ -99,7 +99,7 @@ try {
     $releaseNotes = $response.body
     $publishedAt = $response.published_at
 
-    Write-ColorLog "✓ Nejnovější verze: $latestVersion" "Green"
+    Write-ColorLog "OK Nejnovější verze: $latestVersion" "Green"
     Write-ColorLog "  Datum vydání: $publishedAt" "DarkGray"
     Write-Host ""
 
@@ -111,7 +111,7 @@ try {
     $zipAsset = $response.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -First 1
 
     if (-not $zipAsset) {
-        Write-ColorLog "❌ CHYBA: Nebyl nalezen ZIP soubor v release!" "Red"
+        Write-ColorLog "X CHYBA: Nebyl nalezen ZIP soubor v release!" "Red"
         exit 1
     }
 
@@ -119,7 +119,7 @@ try {
     $zipFileName = $zipAsset.name
     $zipSizeMB = [math]::Round($zipAsset.size / 1MB, 2)
 
-    Write-ColorLog "✓ Nalezen: $zipFileName ($zipSizeMB MB)" "Green"
+    Write-ColorLog "OK Nalezen: $zipFileName ($zipSizeMB MB)" "Green"
     Write-ColorLog "  URL: $downloadUrl" "DarkGray"
     Write-Host ""
 
@@ -185,7 +185,7 @@ try {
     $webClient.Dispose()
     Write-Progress -Activity "Stahování aktualizace" -Completed
 
-    Write-ColorLog "✓ Staženo: $zipPath" "Green"
+    Write-ColorLog "OK Staženo: $zipPath" "Green"
     Write-Host ""
 
     # ===========================================
@@ -199,7 +199,7 @@ try {
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $extractPath)
 
     $fileCount = (Get-ChildItem -Path $extractPath -Recurse -File).Count
-    Write-ColorLog "✓ Rozbaleno: $fileCount souborů" "Green"
+    Write-ColorLog "OK Rozbaleno: $fileCount souborů" "Green"
     Write-Host ""
 
     # ===========================================
@@ -210,14 +210,14 @@ try {
     $runningProcess = Get-Process -Name "Sklad_2" -ErrorAction SilentlyContinue
 
     if ($runningProcess) {
-        Write-ColorLog "⚠ VAROVÁNÍ: Sklad_2 je spuštěn!" "Yellow"
+        Write-ColorLog "! VAROVÁNÍ: Sklad_2 je spuštěn!" "Yellow"
         Write-Host "  Chceš aplikaci zavřít? (A/N): " -NoNewline -ForegroundColor Cyan
         $closeApp = Read-Host
 
         if ($closeApp -eq "A" -or $closeApp -eq "a") {
             Stop-Process -Name "Sklad_2" -Force
             Start-Sleep -Seconds 2
-            Write-ColorLog "✓ Aplikace zavřena" "Green"
+            Write-ColorLog "OK Aplikace zavřena" "Green"
         } else {
             Write-ColorLog "VAROVÁNÍ: Aktualizace může selhat pokud je aplikace spuštěna!" "Yellow"
             Write-Host "  Pokračovat i přesto? (A/N): " -NoNewline -ForegroundColor Cyan
@@ -230,7 +230,7 @@ try {
             }
         }
     } else {
-        Write-ColorLog "✓ Aplikace není spuštěna" "Green"
+        Write-ColorLog "OK Aplikace není spuštěna" "Green"
     }
 
     Write-Host ""
@@ -250,7 +250,7 @@ try {
 
             Copy-Item -Path "$installPath\*" -Destination $backupFolder -Recurse -Force -ErrorAction SilentlyContinue
 
-            Write-ColorLog "✓ Záloha vytvořena: $backupFolder" "Green"
+            Write-ColorLog "OK Záloha vytvořena: $backupFolder" "Green"
             Write-ColorLog "  (Záloha bude smazána po restartování PC)" "DarkGray"
         } else {
             Write-ColorLog "○ Záloha přeskočena" "DarkGray"
@@ -301,11 +301,11 @@ try {
             }
         }
         catch {
-            Write-ColorLog "  ⚠ Chyba při kopírování: $relativePath" "Yellow"
+            Write-ColorLog "  ! Chyba při kopírování: $relativePath" "Yellow"
         }
     }
 
-    Write-ColorLog "✓ Zkopírováno: $copiedCount souborů" "Green"
+    Write-ColorLog "OK Zkopírováno: $copiedCount souborů" "Green"
     Write-ColorLog "  Přeskočeno: $skippedCount souborů (user data)" "DarkGray"
     Write-Host ""
 
@@ -319,21 +319,21 @@ try {
     Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue
 
     Write-Host ""
-    Write-Host "  ╔═══════════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "  ║ " -NoNewline -ForegroundColor Green
-    Write-Host "✓ AKTUALIZACE ÚSPĚŠNÁ!                      " -NoNewline -ForegroundColor White
-    Write-Host "║" -ForegroundColor Green
-    Write-Host "  ╠═══════════════════════════════════════════════╣" -ForegroundColor Green
-    Write-Host "  ║ " -NoNewline -ForegroundColor Green
+    Write-Host "  " -ForegroundColor Green
+    Write-Host "   " -NoNewline -ForegroundColor Green
+    Write-Host "OK AKTUALIZACE ÚSPĚŠNÁ!                      " -NoNewline -ForegroundColor White
+    Write-Host "" -ForegroundColor Green
+    Write-Host "  " -ForegroundColor Green
+    Write-Host "   " -NoNewline -ForegroundColor Green
     Write-Host "Verze: $latestVersion" -NoNewline -ForegroundColor Cyan
     Write-Host (" " * (36 - $latestVersion.Length)) -NoNewline
-    Write-Host "║" -ForegroundColor Green
-    Write-Host "  ║ " -NoNewline -ForegroundColor Green
+    Write-Host "" -ForegroundColor Green
+    Write-Host "   " -NoNewline -ForegroundColor Green
     Write-Host "Umístění: $installPath" -NoNewline -ForegroundColor White
     $padding = 31 - $installPath.Length
     if ($padding -gt 0) { Write-Host (" " * $padding) -NoNewline }
-    Write-Host " ║" -ForegroundColor Green
-    Write-Host "  ╚═══════════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host " " -ForegroundColor Green
+    Write-Host "  " -ForegroundColor Green
     Write-Host ""
 
     # Nabídka spuštění
@@ -344,9 +344,9 @@ try {
         $exePath = Join-Path $installPath "Sklad_2.exe"
         if (Test-Path $exePath) {
             Start-Process -FilePath $exePath
-            Write-ColorLog "✓ Aplikace spuštěna" "Green"
+            Write-ColorLog "OK Aplikace spuštěna" "Green"
         } else {
-            Write-ColorLog "⚠ Sklad_2.exe nenalezen!" "Yellow"
+            Write-ColorLog "! Sklad_2.exe nenalezen!" "Yellow"
         }
     }
 
@@ -358,7 +358,7 @@ try {
 }
 catch {
     Write-Host ""
-    Write-ColorLog "❌ CHYBA: $($_.Exception.Message)" "Red"
+    Write-ColorLog "X CHYBA: $($_.Exception.Message)" "Red"
     Write-ColorLog "Řádek: $($_.InvocationInfo.ScriptLineNumber)" "DarkGray"
     Write-Host ""
     Write-ColorLog "Pro pomoc kontaktuj vývojáře" "Yellow"
