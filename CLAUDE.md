@@ -409,14 +409,27 @@ private void RefreshItems()
 **Pro situace, kdy aplikaci nelze spustit** (chybějící .NET runtime, corrupted files, atd.)
 
 ### Použití:
+
+**NEJJEDNODUŠŠÍ (doporučeno):**
+1. **Stáhni `StandaloneUpdater.bat`** z repository
+2. **Dvojklik** na soubor
+3. Hotovo - obchází Execution Policy automaticky
+
+**Alternativa (PowerShell přímo):**
 1. **Stáhni `StandaloneUpdater.ps1`** z repository
-2. **Pravý klik** → "Spustit pomocí PowerShell"
-3. **Zadej cestu** k instalaci Sklad_2 (nebo stiskni Enter pro Desktop\Sklad_2)
-4. Script automaticky:
-   - Stáhne nejnovější release z GitHub
-   - Vytvoří zálohu (volitelně)
-   - Zkopíruje nové soubory (kromě user data)
-   - Nabídne spuštění aplikace
+2. **Pravý klik** na soubor → "Spustit pomocí PowerShell"
+3. Pokud selže (Execution Policy), spusť CMD a zadej:
+   ```cmd
+   powershell -ExecutionPolicy Bypass -File "cesta\k\StandaloneUpdater.ps1"
+   ```
+
+**Po spuštění:**
+- Zadej cestu k instalaci Sklad_2 (nebo Enter pro Desktop\Sklad_2)
+- Script automaticky:
+  - Stáhne nejnovější release z GitHub
+  - Vytvoří zálohu (volitelně)
+  - Zkopíruje nové soubory (kromě user data)
+  - Nabídne spuštění aplikace
 
 ### Funkce:
 - ✅ **Nezávislý na aplikaci** - nevyžaduje funkční Sklad_2.exe
