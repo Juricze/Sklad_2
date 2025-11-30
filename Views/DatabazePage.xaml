@@ -15,18 +15,75 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Search and Filter Bar -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
-            <TextBox
-                PlaceholderText="Hledat podle názvu nebo EAN..."
-                Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                MinWidth="300"/>
-            <ComboBox
-                Header="Kategorie"
-                ItemsSource="{x:Bind ViewModel.Categories}"
-                SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
-                MinWidth="150"/>
-        </StackPanel>
+        <!-- Professional Filter Bar -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="8"
+                Padding="16"
+                Shadow="{ThemeResource CardShadow}">
+            <Grid ColumnSpacing="12" RowSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" MinWidth="300"/>
+                    <ColumnDefinition Width="*" MinWidth="180"/>
+                    <ColumnDefinition Width="*" MinWidth="180"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Search Box -->
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Hledat" FontWeight="SemiBold" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBox PlaceholderText="Název nebo EAN..."
+                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.Resources>
+                            <SolidColorBrush x:Key="TextBoxBorderBrushFocused" Color="#FF0078D7"/>
+                        </TextBox.Resources>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- Brand Filter -->
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock FontWeight="SemiBold" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                        <Run Text="🟣"/>
+                        <Run Text="Značka"/>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.SelectedBrand, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"
+                              PlaceholderText="Vše">
+                        <ComboBox.Resources>
+                            <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#FF6B4EBB"/>
+                        </ComboBox.Resources>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Category Filter -->
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock FontWeight="SemiBold" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                        <Run Text="🔵"/>
+                        <Run Text="Kategorie"/>
+                    </TextBlock>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"
+                              PlaceholderText="Vše">
+                        <ComboBox.Resources>
+                            <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#FF0078D7"/>
+                        </ComboBox.Resources>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Clear Filters Button -->
+                <Button Grid.Column="3"
+                        VerticalAlignment="Bottom"
+                        Click="ClearFilters_Click"
+                        ToolTipService.ToolTip="Vymazat všechny filtry">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE894;" FontSize="14"/>
+                        <TextBlock Text="Vymazat"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
 
         <!-- Master-Detail Layout -->
         <Grid Grid.Row="1" ColumnSpacing="16">

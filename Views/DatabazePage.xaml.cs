@@ -57,5 +57,12 @@ namespace Sklad_2.Views
 
             await dialog.ShowAsync();
         }
+
+        private void ClearFilters_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.SearchText = string.Empty;
+            ViewModel.SelectedBrand = "Vše";
+            ViewModel.SelectedCategory = "Vše";
+        }
     }
 }

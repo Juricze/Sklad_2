@@ -59,6 +59,7 @@ namespace Sklad_2.ViewModels
 
         public ObservableCollection<Product> FilteredProducts { get; } = new ObservableCollection<Product>();
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>();
+        public ObservableCollection<string> Brands { get; } = new ObservableCollection<string>();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
@@ -72,6 +73,9 @@ namespace Sklad_2.ViewModels
 
         [ObservableProperty]
         private string selectedCategory;
+
+        [ObservableProperty]
+        private string selectedBrand;
 
         private SortColumn _currentSortColumn = SortColumn.None;
         private SortDirection _currentSortDirection = SortDirection.Ascending;
@@ -93,18 +97,23 @@ namespace Sklad_2.ViewModels
             }
             SelectedCategory = "Vše";
 
+            // Initialize brands
+            Brands.Add("Vše");
+            SelectedBrand = "Vše";
+
             // Listen for settings changes to update IsVatPayer property
             _messenger.Register<SettingsChangedMessage>(this, (r, m) =>
             {
                 OnPropertyChanged(nameof(IsVatPayer));
             });
 
-            // Listen for category changes (Win10 fix)
+            // Listen for category/brand changes (Win10 fix)
             _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
             {
                 // Small delay for file system flush
                 await Task.Delay(100);
                 RefreshCategories();
+                await RefreshBrandsAsync();
             });
         }
 
@@ -131,10 +140,36 @@ namespace Sklad_2.ViewModels
             }
         }
 
+        private async Task RefreshBrandsAsync()
+        {
+            // Load brands from database
+            var brandsFromDb = await _dataService.GetBrandsAsync();
+            var currentSelection = SelectedBrand;
+
+            Brands.Clear();
+            Brands.Add("Vše");
+
+            foreach (var brand in brandsFromDb)
+            {
+                Brands.Add(brand.Name);
+            }
+
+            // Restore selection if it still exists, otherwise select "Vše"
+            if (Brands.Contains(currentSelection))
+            {
+                SelectedBrand = currentSelection;
+            }
+            else
+            {
+                SelectedBrand = "Vše";
+            }
+        }
+
         [RelayCommand]
         private async Task LoadProductsAsync()
         {
             _allProducts = await _dataService.GetProductsAsync();
+            await RefreshBrandsAsync();
             FilterProducts();
         }
 
@@ -144,6 +179,11 @@ namespace Sklad_2.ViewModels
         }
 
         partial void OnSelectedCategoryChanged(string value)
+        {
+            FilterProducts();
+        }
+
+        partial void OnSelectedBrandChanged(string value)
         {
             FilterProducts();
         }
@@ -159,6 +199,13 @@ namespace Sklad_2.ViewModels
                 filtered = filtered.Where(p =>
                     p.Name.StartsWith(SearchText, System.StringComparison.OrdinalIgnoreCase) ||
                     p.Ean.StartsWith(SearchText, System.StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Filter by brand
+            if (!string.IsNullOrWhiteSpace(SelectedBrand) && SelectedBrand != "Vše")
+            {
+                // Use BrandName helper property for backwards compatibility
+                filtered = filtered.Where(p => p.BrandName == SelectedBrand);
             }
 
             // Filter by category
