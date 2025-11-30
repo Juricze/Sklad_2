@@ -64,5 +64,45 @@ namespace Sklad_2.Views
             ViewModel.SelectedBrand = "Vše";
             ViewModel.SelectedCategory = "Vše";
         }
+
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedProduct == null)
+            {
+                return;
+            }
+
+            var product = ViewModel.SelectedProduct;
+
+            // Build warning message
+            var warningMessage = $"Opravdu chcete smazat produkt '{product.Name}' (EAN: {product.Ean})?";
+
+            if (product.StockQuantity > 0)
+            {
+                warningMessage += $"\n\n⚠️ POZOR: Produkt má na skladě {product.StockQuantity} ks!";
+            }
+
+            warningMessage += "\n\nTato akce je nevratná!";
+
+            // Confirmation dialog
+            var confirmDialog = new ContentDialog
+            {
+                Title = "Potvrdit smazání produktu",
+                Content = warningMessage,
+                PrimaryButtonText = "Smazat",
+                CloseButtonText = "Zrušit",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            // Style the primary button as destructive (red)
+            confirmDialog.PrimaryButtonClick += (s, args) => { };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.DeleteProductCommand.ExecuteAsync(null);
+            }
+        }
     }
 }
