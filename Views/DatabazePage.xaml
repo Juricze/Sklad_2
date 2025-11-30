@@ -48,16 +48,18 @@
                         <ColumnDefinition Width="44"/>
                         <ColumnDefinition Width="100"/>
                         <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="1.2*"/>
                         <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="2" Content="Název ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="3" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <Button Grid.Column="4" Content="Sklad ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Button Grid.Column="5" Content="Cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="Značka" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Grid.Column="5" Content="Sklad ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Button Grid.Column="6" Content="Cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
 
                 <!-- ListView without header -->
@@ -73,7 +75,8 @@
                                 <ColumnDefinition Width="44"/>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="1.2*"/>
                                 <ColumnDefinition Width="60"/>
                                 <ColumnDefinition Width="80"/>
                             </Grid.ColumnDefinitions>
@@ -99,11 +102,17 @@
 
                             <TextBlock Grid.Column="1" Text="{x:Bind Ean}" VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Column="3" Text="{x:Bind Category}" VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="4" Text="{x:Bind StockQuantity}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+                            <!-- Brand -->
+                            <TextBlock Grid.Column="3" Text="{x:Bind BrandName}" VerticalAlignment="Center" FontSize="12" Foreground="#FF6B4EBB" TextTrimming="CharacterEllipsis"/>
+
+                            <!-- Category -->
+                            <TextBlock Grid.Column="4" Text="{x:Bind CategoryName}" VerticalAlignment="Center" FontSize="12" Foreground="#FF0078D7" TextTrimming="CharacterEllipsis"/>
+
+                            <TextBlock Grid.Column="5" Text="{x:Bind StockQuantity}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
 
                             <!-- Price with discount indicator -->
-                            <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="4">
+                            <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="4">
                                 <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
                                         CornerRadius="8"
                                         Padding="4,1"
@@ -178,13 +187,29 @@
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
 
-                        <!-- Category Badge -->
-                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                                CornerRadius="12"
-                                Padding="12,4"
-                                HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding SelectedProduct.Category, Mode=OneWay}"/>
-                        </Border>
+                        <!-- Brand & Category Badges -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                            <!-- Brand Badge -->
+                            <Border Background="#FFF3F0FF"
+                                    CornerRadius="12"
+                                    Padding="12,4"
+                                    Visibility="{Binding SelectedProduct.BrandName, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <FontIcon Glyph="&#xE8B8;" FontSize="12" Foreground="#FF6B4EBB"/>
+                                    <TextBlock Text="{Binding SelectedProduct.BrandName, Mode=OneWay}" Foreground="#FF6B4EBB" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Category Badge -->
+                            <Border Background="#FFE6F4FF"
+                                    CornerRadius="12"
+                                    Padding="12,4">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <FontIcon Glyph="&#xE8FD;" FontSize="12" Foreground="#FF0078D7"/>
+                                    <TextBlock Text="{Binding SelectedProduct.CategoryName, Mode=OneWay}" Foreground="#FF0078D7" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
 
                         <!-- Description -->
                         <StackPanel Spacing="4"
