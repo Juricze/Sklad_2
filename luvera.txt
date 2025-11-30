@@ -16,9 +16,10 @@
 -DONE-	- Klientské učty ( Jmeno, email ) 
 -DONE-	- vyhledávání/zadávání podle jména nebo emailu. - zjednodušené žádné kartičky EAN kody.
 -DONE-	- Marže do Nový produkt.
-	- obrázek produktu do Nový Produkt - a zobrazení Prodej - Poslední načtený produkt. 
+-DONE-	- obrázek produktu do Nový Produkt - a zobrazení Prodej - Poslední načtený produkt. 
 -DONE-	- Odstranit Darkovým poukazem v možnosti platby.
 -DONE-	- adminovi přidat možnost editovat Produkty ( Produkty(Přehled)
 -DONE-	- Do tržby/zavírky přidat jednoduchý přehled od denních třbách
+-DONE-	- Maximilizace po spusteni aplikace.
 	- Při přihlášení do uzavřeného dne ( ve stejný den ) jako prodavač -> povolit vstup do aplikace ale bez prodeje a vratek.
 	-

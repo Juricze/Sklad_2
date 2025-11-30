@@ -17,7 +17,34 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 29. listopad 2025 (noc)**
+## 📅 **Poslední session: 30. listopad 2025**
+
+### ✅ Hotovo:
+**Release v1.0.13: Export vratek + Záloha obrázků + Maximalizace okna**
+
+**1. Export účtenek - nyní zahrnuje vratky:**
+- Nová sekce "Vratky (dobropisy)" s přehledem vratek
+- Detailní položky vratek (EAN, název, množství, cena)
+- Souhrn s počtem vratek a celkovou částkou
+- ČISTÝ OBRAT (tržby - vratky) v závěrečném souhrnu
+- DPH breakdown pro vratky (pokud je plátce DPH)
+
+**2. Automatická záloha obrázků produktů:**
+- `PerformDatabaseSync()` při zavření aplikace nyní kopíruje i složku `ProductImages`
+- Manuální záloha v Nastavení už to dělala
+
+**3. Maximalizace okna při startu:**
+- Aplikace se spouští maximalizovaná
+- Fix: `DispatcherQueue.TryEnqueue` s nízkou prioritou (po XamlRoot ready)
+- Nenarušuje login dialogy
+
+**Upravené soubory:**
+- `ViewModels/NastaveniViewModel.cs` - export vratek v HTML
+- `MainWindow.xaml.cs` - záloha ProductImages, maximalizace okna
+
+---
+
+## 📅 **Předchozí session: 29. listopad 2025 (noc)**
 
 ### ✅ Hotovo:
 **Popis produktů + Redesign DatabazePage + Role-based editace**
@@ -461,5 +488,5 @@ public string DayStatusFormatted => IsDayClosed
 
 ---
 
-**Poslední aktualizace:** 29. listopad 2025
-**Aktuální verze:** v1.0.12 (schema V19)
+**Poslední aktualizace:** 30. listopad 2025
+**Aktuální verze:** v1.0.13 (schema V19)

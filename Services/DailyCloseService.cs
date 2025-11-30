@@ -44,10 +44,21 @@ namespace Sklad_2.Services
                 var cardSales = normalReceipts.Sum(r => r.CardAmount);
 
                 // Stornované účtenky - přičíst (mají záporné hodnoty, takže přičtení = odečtení)
-                // Storno účtenka má CashAmount = -100, takže cashSales + (-100) = cashSales - 100
                 var stornoReceipts = allReceipts.Where(r => r.IsStorno).ToList();
-                cashSales += stornoReceipts.Sum(r => r.CashAmount); // Přičíst zápornou hodnotu
-                cardSales += stornoReceipts.Sum(r => r.CardAmount); // Přičíst zápornou hodnotu
+                cashSales += stornoReceipts.Sum(r => r.CashAmount);
+                cardSales += stornoReceipts.Sum(r => r.CardAmount);
+
+                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z AmountToPay
+                if (cashSales == 0 && cardSales == 0 && allReceipts.Count > 0)
+                {
+                    foreach (var r in allReceipts)
+                    {
+                        if (r.PaymentMethod?.Contains("Karta") == true)
+                            cardSales += r.AmountToPay;
+                        else
+                            cashSales += r.AmountToPay;
+                    }
+                }
 
                 // Načíst vratky ze session dne - odečíst od hotovostní tržby (vracíme vždy v hotovosti)
                 // DRY: Use AmountToRefund (after loyalty discount) - actual amount returned to customer
@@ -133,6 +144,18 @@ namespace Sklad_2.Services
                 // Stornované účtenky přičíst (mají záporné hodnoty, takže přičtení = odečtení)
                 cashSales += stornoReceipts.Sum(r => r.CashAmount);
                 cardSales += stornoReceipts.Sum(r => r.CardAmount);
+
+                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z AmountToPay
+                if (cashSales == 0 && cardSales == 0 && allReceipts.Count > 0)
+                {
+                    foreach (var r in allReceipts)
+                    {
+                        if (r.PaymentMethod?.Contains("Karta") == true)
+                            cardSales += r.AmountToPay;
+                        else
+                            cashSales += r.AmountToPay;
+                    }
+                }
 
                 // Načíst vratky ze session dne - odečíst od hotovostní tržby
                 var todayReturns = await context.Returns
@@ -406,18 +429,20 @@ namespace Sklad_2.Services
         {
             var sb = new StringBuilder();
 
-            // Načíst všechny účtenky a vratky za období
+            // Načíst účtenky a vratky POUZE z uzavřených dnů (ne všechny v rozmezí!)
+            var closedDates = closes.Select(c => c.Date.Date).ToHashSet();
+
             using var context = await _contextFactory.CreateDbContextAsync();
 
             var receipts = await context.Receipts
                 .AsNoTracking()
-                .Where(r => r.SaleDate.Date >= fromDate.Date && r.SaleDate.Date <= toDate.Date)
+                .Where(r => closedDates.Contains(r.SaleDate.Date))
                 .OrderBy(r => r.ReceiptYear).ThenBy(r => r.ReceiptSequence)
                 .ToListAsync();
 
             var returns = await context.Returns
                 .AsNoTracking()
-                .Where(r => r.ReturnDate.Date >= fromDate.Date && r.ReturnDate.Date <= toDate.Date)
+                .Where(r => closedDates.Contains(r.ReturnDate.Date))
                 .OrderBy(r => r.ReturnYear).ThenBy(r => r.ReturnSequence)
                 .ToListAsync();
 
@@ -430,7 +455,7 @@ namespace Sklad_2.Services
                 ? $"{returns.First().FormattedReturnNumber} - {returns.Last().FormattedReturnNumber}"
                 : "Žádné vratky";
 
-            // Celkové tržby
+            // Celkové tržby z uzavřených dnů (DailyCloses)
             var totalCash = closes.Sum(c => c.CashSales);
             var totalCard = closes.Sum(c => c.CardSales);
             var totalSales = closes.Sum(c => c.TotalSales);

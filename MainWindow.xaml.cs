@@ -55,6 +55,15 @@ namespace Sklad_2
             if (appWindow != null)
             {
                 appWindow.Closing += AppWindow_Closing;
+
+                // Maximize window with delay (after XamlRoot is ready for dialogs)
+                this.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                {
+                    if (appWindow.Presenter is OverlappedPresenter presenter)
+                    {
+                        presenter.Maximize();
+                    }
+                });
             }
 
             TrySetSystemBackdrop();
@@ -642,6 +651,21 @@ namespace Sklad_2
                     {
                         System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
                         Log($"PerformDatabaseSync: Settings copied to {backupSettingsPath}");
+                    }
+
+                    // Copy ProductImages folder
+                    var sourceImagesPath = System.IO.Path.Combine(sourceFolderPath, "ProductImages");
+                    var backupImagesPath = System.IO.Path.Combine(backupFolderPath, "ProductImages");
+                    if (System.IO.Directory.Exists(sourceImagesPath))
+                    {
+                        System.IO.Directory.CreateDirectory(backupImagesPath);
+                        var imageFiles = System.IO.Directory.GetFiles(sourceImagesPath);
+                        foreach (var file in imageFiles)
+                        {
+                            var fileName = System.IO.Path.GetFileName(file);
+                            System.IO.File.Copy(file, System.IO.Path.Combine(backupImagesPath, fileName), true);
+                        }
+                        Log($"PerformDatabaseSync: ProductImages folder copied ({imageFiles.Length} files)");
                     }
 
                     Log("PerformDatabaseSync: Backup completed successfully!");

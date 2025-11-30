@@ -426,15 +426,16 @@ namespace Sklad_2.ViewModels
                 var endDate = ExportEndDate.Value.DateTime.AddDays(1).AddSeconds(-1); // Include the whole end day
 
                 var receipts = await _dataService.GetReceiptsAsync(startDate, endDate);
+                var returns = await _dataService.GetReturnsAsync(startDate, endDate);
 
-                if (receipts == null || receipts.Count == 0)
+                if ((receipts == null || receipts.Count == 0) && (returns == null || returns.Count == 0))
                 {
-                    ExportStatusMessage = "Nenalezeny žádné účtenky v zadaném období.";
+                    ExportStatusMessage = "Nenalezeny žádné účtenky ani vratky v zadaném období.";
                     return;
                 }
 
                 // Generate HTML
-                var html = GenerateReceiptsHtml(receipts, startDate, endDate);
+                var html = GenerateReceiptsHtml(receipts ?? new List<Receipt>(), returns ?? new List<Return>(), startDate, endDate);
 
                 // Check if backup path is configured
                 if (!_settingsService.IsBackupPathConfigured())
@@ -468,7 +469,7 @@ namespace Sklad_2.ViewModels
             }
         }
 
-        private string GenerateReceiptsHtml(List<Receipt> receipts, DateTime startDate, DateTime endDate)
+        private string GenerateReceiptsHtml(List<Receipt> receipts, List<Return> returns, DateTime startDate, DateTime endDate)
         {
             var settings = _settingsService.CurrentSettings;
             var sb = new System.Text.StringBuilder();
@@ -640,6 +641,111 @@ namespace Sklad_2.ViewModels
             sb.AppendLine("</tbody>");
             sb.AppendLine("</table>");
 
+            // Returns section
+            decimal totalReturnsAmount = 0;
+            decimal totalReturnsWithoutVat = 0;
+            decimal totalReturnsVat = 0;
+
+            if (returns.Count > 0)
+            {
+                sb.AppendLine("<h2 style='margin-top: 40px; color: #c00;'>Vratky (dobropisy)</h2>");
+                sb.AppendLine("<table>");
+                sb.AppendLine("<thead>");
+                sb.AppendLine("<tr>");
+                sb.AppendLine("<th>Číslo vratky</th>");
+                sb.AppendLine("<th>Datum a čas</th>");
+                sb.AppendLine("<th>Původní účtenka</th>");
+                sb.AppendLine("<th>Částka k vrácení (Kč)</th>");
+
+                if (settings.IsVatPayer)
+                {
+                    sb.AppendLine("<th>Základ (Kč)</th>");
+                    sb.AppendLine("<th>DPH (Kč)</th>");
+                }
+
+                sb.AppendLine("</tr>");
+                sb.AppendLine("</thead>");
+                sb.AppendLine("<tbody>");
+
+                foreach (var ret in returns.OrderBy(r => r.ReturnDate))
+                {
+                    sb.AppendLine("<tr style='background-color: #ffe6e6;'>");
+                    sb.AppendLine($"<td>{ret.FormattedReturnNumber}</td>");
+                    sb.AppendLine($"<td>{ret.ReturnDate:dd.MM.yyyy HH:mm:ss}</td>");
+                    sb.AppendLine($"<td>Účtenka #{ret.OriginalReceiptId}</td>");
+                    sb.AppendLine($"<td style='text-align: right; color: #c00;'>-{ret.AmountToRefund:N2}</td>");
+
+                    if (settings.IsVatPayer)
+                    {
+                        sb.AppendLine($"<td style='text-align: right;'>-{ret.TotalRefundAmountWithoutVat:N2}</td>");
+                        sb.AppendLine($"<td style='text-align: right;'>-{ret.TotalRefundVatAmount:N2}</td>");
+                    }
+
+                    sb.AppendLine("</tr>");
+
+                    totalReturnsAmount += ret.AmountToRefund;
+                    totalReturnsWithoutVat += ret.TotalRefundAmountWithoutVat;
+                    totalReturnsVat += ret.TotalRefundVatAmount;
+                }
+
+                sb.AppendLine("</tbody>");
+                sb.AppendLine("</table>");
+
+                // Returns detail items
+                sb.AppendLine("<h3 style='margin-top: 20px;'>Detailní položky vratek</h3>");
+                sb.AppendLine("<table>");
+                sb.AppendLine("<thead>");
+                sb.AppendLine("<tr>");
+                sb.AppendLine("<th>Vratka</th>");
+                sb.AppendLine("<th>Datum</th>");
+                sb.AppendLine("<th>Produkt (EAN)</th>");
+                sb.AppendLine("<th>Název</th>");
+                sb.AppendLine("<th>Množství</th>");
+                sb.AppendLine("<th>Jednotková cena</th>");
+                sb.AppendLine("<th>Celkem za položku</th>");
+
+                if (settings.IsVatPayer)
+                {
+                    sb.AppendLine("<th>DPH %</th>");
+                    sb.AppendLine("<th>Základ</th>");
+                    sb.AppendLine("<th>DPH</th>");
+                }
+
+                sb.AppendLine("</tr>");
+                sb.AppendLine("</thead>");
+                sb.AppendLine("<tbody>");
+
+                foreach (var ret in returns.OrderBy(r => r.ReturnDate))
+                {
+                    if (ret.Items != null)
+                    {
+                        foreach (var item in ret.Items)
+                        {
+                            sb.AppendLine("<tr style='background-color: #ffe6e6;'>");
+                            sb.AppendLine($"<td>{ret.FormattedReturnNumber}</td>");
+                            sb.AppendLine($"<td>{ret.ReturnDate:dd.MM.yyyy}</td>");
+                            sb.AppendLine($"<td>{item.ProductEan}</td>");
+                            sb.AppendLine($"<td>{item.ProductName}</td>");
+                            sb.AppendLine($"<td style='text-align: center;'>{item.ReturnedQuantity}</td>");
+                            sb.AppendLine($"<td style='text-align: right;'>{item.UnitPrice:N2} Kč</td>");
+                            sb.AppendLine($"<td style='text-align: right; color: #c00;'>-{item.TotalRefund:N2} Kč</td>");
+
+                            if (settings.IsVatPayer)
+                            {
+                                sb.AppendLine($"<td style='text-align: center;'>{item.VatRate:F0}%</td>");
+                                sb.AppendLine($"<td style='text-align: right;'>-{item.PriceWithoutVat:N2} Kč</td>");
+                                sb.AppendLine($"<td style='text-align: right;'>-{item.VatAmount:N2} Kč</td>");
+                            }
+
+                            sb.AppendLine("</tr>");
+                        }
+                    }
+                }
+
+                sb.AppendLine("</tbody>");
+                sb.AppendLine("</table>");
+            }
+
             // Summary
             sb.AppendLine("<div class='summary'>");
             sb.AppendLine("<h2>Souhrn za období</h2>");
@@ -653,7 +759,7 @@ namespace Sklad_2.ViewModels
                 var totalDiscountAmount = discountedItems.Sum(i => i.TotalDiscountAmount);
                 var totalOriginalAmount = discountedItems.Sum(i => i.OriginalUnitPrice * i.Quantity);
                 var avgDiscountPercent = discountedItems.Average(i => i.DiscountPercent ?? 0);
-                
+
                 sb.AppendLine($"<p><strong>Položky se slevou:</strong> {discountedItems.Count()}</p>");
                 sb.AppendLine($"<p><strong>Celková výše slev:</strong> {totalDiscountAmount:N2} Kč</p>");
                 sb.AppendLine($"<p><strong>Původní hodnota zlevněných položek:</strong> {totalOriginalAmount:N2} Kč</p>");
@@ -665,6 +771,30 @@ namespace Sklad_2.ViewModels
             {
                 sb.AppendLine($"<p><strong>Základ (bez DPH):</strong> {totalWithoutVat:N2} Kč</p>");
                 sb.AppendLine($"<p><strong>Celkem DPH:</strong> {totalVat:N2} Kč</p>");
+            }
+
+            // Returns summary
+            if (returns.Count > 0)
+            {
+                sb.AppendLine($"<hr style='margin: 15px 0;' />");
+                sb.AppendLine($"<p style='color: #c00;'><strong>Celkový počet vratek:</strong> {returns.Count}</p>");
+                sb.AppendLine($"<p style='color: #c00;'><strong>Celková částka vratek:</strong> -{totalReturnsAmount:N2} Kč</p>");
+
+                if (settings.IsVatPayer)
+                {
+                    sb.AppendLine($"<p style='color: #c00;'><strong>Základ vratek (bez DPH):</strong> -{totalReturnsWithoutVat:N2} Kč</p>");
+                    sb.AppendLine($"<p style='color: #c00;'><strong>DPH vratek:</strong> -{totalReturnsVat:N2} Kč</p>");
+                }
+
+                // Net totals
+                sb.AppendLine($"<hr style='margin: 15px 0;' />");
+                sb.AppendLine($"<p><strong>ČISTÝ OBRAT (tržby - vratky):</strong> {(totalAmount - totalReturnsAmount):N2} Kč</p>");
+
+                if (settings.IsVatPayer)
+                {
+                    sb.AppendLine($"<p><strong>Čistý základ (bez DPH):</strong> {(totalWithoutVat - totalReturnsWithoutVat):N2} Kč</p>");
+                    sb.AppendLine($"<p><strong>Čisté DPH:</strong> {(totalVat - totalReturnsVat):N2} Kč</p>");
+                }
             }
 
             sb.AppendLine("</div>");
