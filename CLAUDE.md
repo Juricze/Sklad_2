@@ -382,7 +382,7 @@ private void RefreshItems()
 
 2. **Build release:**
    ```bash
-   dotnet publish Sklad_2.csproj -c Release -r win-x64 --self-contained false -p:Platform=x64
+   dotnet publish Sklad_2.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64
    ```
 
 3. **Commit + Push:**
