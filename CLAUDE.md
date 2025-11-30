@@ -404,6 +404,41 @@ private void RefreshItems()
 
 ---
 
+## 🔄 Standalone Updater
+
+**Pro situace, kdy aplikaci nelze spustit** (chybějící .NET runtime, corrupted files, atd.)
+
+### Použití:
+1. **Stáhni `StandaloneUpdater.ps1`** z repository
+2. **Pravý klik** → "Spustit pomocí PowerShell"
+3. **Zadej cestu** k instalaci Sklad_2 (nebo stiskni Enter pro Desktop\Sklad_2)
+4. Script automaticky:
+   - Stáhne nejnovější release z GitHub
+   - Vytvoří zálohu (volitelně)
+   - Zkopíruje nové soubory (kromě user data)
+   - Nabídne spuštění aplikace
+
+### Funkce:
+- ✅ **Nezávislý na aplikaci** - nevyžaduje funkční Sklad_2.exe
+- ✅ **Automatická detekce verze** - vždy stáhne latest release
+- ✅ **Ochrana user data** - nepřepíše databázi, nastavení, obrázky
+- ✅ **Záloha** - volitelné vytvoření backup složky
+- ✅ **Progress reporting** - barevný výstup s progress barem
+- ✅ **Interaktivní** - potvrzení před každým krokem
+
+### Kdy použít:
+- ❌ Aplikace nejde spustit (chybí .NET 8 Runtime)
+- ❌ Corrupted files po neúspěšné aktualizaci
+- 🔄 Chceš aktualizovat bez spouštění aplikace
+- 🔄 Potřebuješ aktualizovat více instalací najednou
+
+### Distribution:
+- Zahrnut v každém release ZIP
+- Dostupný samostatně v repository root
+- Ke stažení z GitHub web interface
+
+---
+
 ## Session Workflow
 - **"pokracuj" / "pokračujem" / "pokračujeme"** → Začátek session - načti `SESSION.md` a pokračuj v práci
 - **"konec" / "končíme" / "končit"** → Konec session - shrň provedenou práci a zapiš do `SESSION.md`, aktualizuj TODO list
