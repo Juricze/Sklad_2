@@ -17,25 +17,67 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 30. listopad 2025 (pokračování 5)**
+## 📅 **Poslední session: 30. listopad 2025 (pokračování 6)**
 
 ### ✅ Hotovo:
-**Release v1.0.17: UI polishing - Zarovnání + Responzivní obrázky**
+**Release v1.0.18: UI Polishing DatabazePage - Responzivní detail + Robustní layout**
 
-**1. Fix: Zarovnání headeru se seznamem produktů**
+**1. KRITICKÁ OPRAVA: Revert ItemContainerStyle breaking change**
+- **Problém**: ItemContainerStyle s Padding="0" úplně rozbil Grid layout v seznamu produktů
+- **Symptom**: Všechny sloupce se zhroutily do jedné horizontální řady, text vedle sebe
+- **Příčina**: ListView potřebuje svůj výchozí padding pro správné renderování Grid uvnitř DataTemplate
+- **Fix**: Odstraněn ItemContainerStyle, Header Padding vrácen na "12,8"
+- **LESSON LEARNED**: ⚠️ **NIKDY nenastavovat ItemContainerStyle Padding="0" - ničí Grid layout!**
+
+**2. Postupné zvětšování detail obrázku:**
+- **Fáze 1**: 400×300 px → 500×500 px (malé obrazovky OK, velké příliš malý)
+- **Fáze 2**: 500×500 px → 1000×1000 px (lepší, ale stále ne ideální)
+- **Fáze 3**: 1000×1000 px → **2000×2000 px** (finální - perfektní na všech rozlišeních)
+- FontIcon placeholder: 128px → 256px → **512px**
+- Zachováno `Stretch="Uniform"` pro aspect ratio
+
+**3. Finální úprava sloupců pro robustnost:**
+- **Sklad sloupec**: 1* → **2*** (opraveno "ujíždění doprava")
+- **MinWidth constraints** přidány pro prevenci nečitelnosti při zmenšování okna:
+  - EAN: MinWidth="80"
+  - Název: MinWidth="100"
+  - Značka: MinWidth="80"
+  - Kategorie: MinWidth="90"
+  - Sklad: MinWidth="60"
+  - Cena: MinWidth="80"
+- Header Padding: finálně **"12,8,12,8"** (odpovídá ListView internal padding)
+
+**4. Synchronizace image storage s UI capabilities:**
+- **Problém**: MAX_IMAGE_SIZE byl 1600px, ale UI zobrazuje až 2000px
+- **Fix**: `ProductImageService.MAX_IMAGE_SIZE` zvýšen z 1600 → **2000**
+- **Důsledek**: Nově uploadované obrázky se ukládají ve vyšší kvalitě
+
+**Upravené soubory:**
+- `Views/DatabazePage.xaml` - revert ItemContainerStyle, image 2000px, MinWidth, Sklad 2*
+- `Services/ProductImageService.cs` - MAX_IMAGE_SIZE 2000
+
+**Git:**
+- Commit: 9a13fd6 - "Revert: Zarovnání headeru (ItemContainerStyle rozbil layout)"
+- Commit: 33a8c09 - "UX: Zvětšení obrázku na 500px + Header padding 0,8"
+- Commit: c3d85b0 - "UX: Finální úpravy DatabazePage - Obrázek 2000px + MinWidth sloupců"
+- Release: v1.0.18 (self-contained)
+
+---
+
+## 📅 **Předchozí session: 30. listopad 2025 (pokračování 5)**
+
+### ✅ Hotovo:
+**Release v1.0.17: UI polishing - Zarovnání + Responzivní obrázky (mezistupeň)**
+
+**1. Fix: Zarovnání headeru se seznamem produktů (LATER REVERTED)**
 - Header Grid: Padding změněn z "12,8" → "0,8"
 - ItemTemplate Grid: Zachován původní "0,6"
-- ItemContainerStyle: Přidán Padding="0" pro odstranění výchozího ListView paddingu
-- **Výsledek**: Nadpisy sloupců (EAN, Název, Značka...) jsou perfektně zarovnané s daty
+- ItemContainerStyle: Přidán Padding="0" (⚠️ ROZBILO LAYOUT - revertováno v v1.0.18!)
 
 **2. UX: Responzivní velikost obrázku v detail panelu**
 - **Před**: Fixní `Width="400" Height="400"` → na malých obrazovkách přes většinu výšky
 - **Po**: `MaxWidth="400" MaxHeight="300"` → automatické přizpůsobení
-- **Výhody**:
-  - Velké obrazovky: až 400×300 px (25% menší výška než před)
-  - Malé obrazovky: automaticky menší podle dostupného místa
-  - Zachován aspect ratio (`Stretch="Uniform"`)
-  - Text detailu vždy viditelný bez nutnosti scrollování
+- Zachován aspect ratio (`Stretch="Uniform"`)
 
 **Upravené soubory:**
 - `Views/DatabazePage.xaml` - zarovnání headeru, responzivní obrázek
@@ -43,7 +85,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 **Git:**
 - Commit: 521323b - "Fix: Zarovnání headeru DatabazePage se seznamem produktů"
 - Commit: a769f2b - "UX: Responzivní velikost obrázku v detail panelu produktu"
-- Release: v1.0.17 (připraveno)
+- Release: v1.0.17
 
 ---
 
@@ -200,31 +242,36 @@ Clipboard.SetContent(dataPackage);
 - Na malých obrazovkách: automaticky menší
 - `Stretch="Uniform"` zachová aspect ratio
 
-**5. Zarovnání ListView s headerem** ⚠️ NOVÉ!
+**5. Zarovnání ListView s headerem** ⚠️ KRITICKÉ!
 ```xaml
-<!-- Header Grid -->
-<Grid Padding="0,8" ColumnSpacing="8">
-    <TextBlock Grid.Column="0" Text="Název"/>
-</Grid>
-
-<!-- ListView ItemTemplate -->
+<!-- ❌ ŠPATNĚ - ItemContainerStyle Padding="0" ROZBÍJÍ GRID LAYOUT! -->
 <ListView>
     <ListView.ItemContainerStyle>
         <Style TargetType="ListViewItem">
-            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Padding" Value="0"/>  <!-- NEBEZPEČNÉ! -->
         </Style>
     </ListView.ItemContainerStyle>
+</ListView>
+
+<!-- ✅ SPRÁVNĚ - Header padding odpovídá ListView internal padding -->
+<Grid Padding="12,8,12,8" ColumnSpacing="8">  <!-- Header Grid -->
+    <TextBlock Grid.Column="0" Text="Název"/>
+</Grid>
+
+<ListView>
+    <!-- ŽÁDNÝ ItemContainerStyle! ListView potřebuje výchozí padding pro Grid layout -->
     <ListView.ItemTemplate>
         <DataTemplate>
-            <Grid Padding="0,6" ColumnSpacing="8">
+            <Grid Padding="0,6" ColumnSpacing="8">  <!-- ItemTemplate Grid -->
                 <TextBlock Grid.Column="0" Text="{Binding Name}"/>
             </Grid>
         </DataTemplate>
     </ListView.ItemTemplate>
 </ListView>
 ```
-- MUSÍ být stejný horizontální padding (nebo 0)
-- ItemContainerStyle odstraní výchozí ListView padding
+- **NIKDY** nenastavovat ItemContainerStyle Padding="0" - zničí Grid layout uvnitř DataTemplate!
+- Header padding musí odpovídat ListView internal padding (obvykle 12px left/right)
+- ItemTemplate Grid má vlastní padding pro vertikální spacing (např. "0,6")
 
 ---
 
@@ -249,8 +296,8 @@ Clipboard.SetContent(dataPackage);
 14. **Tisk účtenek** (ESC/POS, české znaky CP852, Epson TM-T20III, **logo**)
 15. **Single-instance ochrana** (Mutex, Win32 MessageBox)
 16. **Marže produktů** (bidirektionální výpočet, editace pro admin)
-17. **Obrázky produktů** (upload, thumbnail, resize, backup, **1600px kvalita**, **responzivní zobrazení**)
-18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit, **perfektní zarovnání**)
+17. **Obrázky produktů** (upload, thumbnail, resize, backup, **2000px kvalita**, **responzivní zobrazení**, **MinWidth constraints**)
+18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit, **robustní layout**)
 19. **Export inventurního soupisu** (tisknutelná HTML + Excel CSV)
 20. **Brand & Category management** (UI dialogy, schema V21, **profesionální filtry**)
 
@@ -260,4 +307,4 @@ Clipboard.SetContent(dataPackage);
 ---
 
 **Poslední aktualizace:** 30. listopad 2025
-**Aktuální verze:** v1.0.17 (schema V21)
+**Aktuální verze:** v1.0.18 (schema V21)
