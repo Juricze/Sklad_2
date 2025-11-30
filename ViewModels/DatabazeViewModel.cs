@@ -89,15 +89,10 @@ namespace Sklad_2.ViewModels
             _imageService = imageService;
             IsSalesRole = _authService.CurrentRole == "Cashier";
 
-            // Initialize categories
+            // Initialize filters (will be populated from DB on LoadProducts)
             Categories.Add("Vše");
-            foreach (var category in ProductCategories.All)
-            {
-                Categories.Add(category);
-            }
             SelectedCategory = "Vše";
 
-            // Initialize brands
             Brands.Add("Vše");
             SelectedBrand = "Vše";
 
@@ -112,21 +107,23 @@ namespace Sklad_2.ViewModels
             {
                 // Small delay for file system flush
                 await Task.Delay(100);
-                RefreshCategories();
+                await RefreshCategoriesAsync();
                 await RefreshBrandsAsync();
             });
         }
 
-        private void RefreshCategories()
+        private async Task RefreshCategoriesAsync()
         {
-            // Win10 fix: Reload categories from ProductCategories.All
+            // Load categories from database
+            var categoriesFromDb = await _dataService.GetProductCategoriesAsync();
             var currentSelection = SelectedCategory;
+
             Categories.Clear();
             Categories.Add("Vše");
 
-            foreach (var category in ProductCategories.All)
+            foreach (var category in categoriesFromDb)
             {
-                Categories.Add(category);
+                Categories.Add(category.Name);
             }
 
             // Restore selection if it still exists, otherwise select "Vše"
@@ -169,6 +166,7 @@ namespace Sklad_2.ViewModels
         private async Task LoadProductsAsync()
         {
             _allProducts = await _dataService.GetProductsAsync();
+            await RefreshCategoriesAsync();
             await RefreshBrandsAsync();
             FilterProducts();
         }

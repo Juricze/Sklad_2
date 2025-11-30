@@ -29,13 +29,22 @@ namespace Sklad_2.Services
         {
             using var context = _contextFactory.CreateDbContext();
             // Use AsNoTracking to prevent entity tracking issues when used across contexts
-            return await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Ean == ean);
+            // Include Brand and ProductCategory for navigation properties
+            return await context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductCategory)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Ean == ean);
         }
 
         public async Task<List<Product>> GetProductsAsync()
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Products.ToListAsync();
+            // Include Brand and ProductCategory for navigation properties (BrandName, CategoryName)
+            return await context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductCategory)
+                .ToListAsync();
         }
 
         public async Task UpdateProductAsync(Product product)
