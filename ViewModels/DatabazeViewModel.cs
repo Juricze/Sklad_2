@@ -164,7 +164,8 @@ namespace Sklad_2.ViewModels
             // Filter by category
             if (!string.IsNullOrWhiteSpace(SelectedCategory) && SelectedCategory != "Vše")
             {
-                filtered = filtered.Where(p => p.Category == SelectedCategory);
+                // Use CategoryName helper property (ProductCategory.Name ?? Category) for backwards compatibility
+                filtered = filtered.Where(p => p.CategoryName == SelectedCategory);
             }
 
             // Apply sorting

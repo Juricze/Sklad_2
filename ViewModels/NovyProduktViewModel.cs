@@ -56,6 +56,13 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string selectedCategory;
 
+        // ===== Brand & Category (DB-backed) =====
+        [ObservableProperty]
+        private Brand selectedBrand;
+
+        [ObservableProperty]
+        private ProductCategory selectedProductCategory;
+
         [ObservableProperty]
         private double vatRate;
 
@@ -120,7 +127,12 @@ namespace Sklad_2.ViewModels
             }
         }
 
+        // ===== OLD - Keep for backwards compatibility temporarily =====
         public ObservableCollection<string> Categories { get; } = new ObservableCollection<string>(ProductCategories.All);
+
+        // ===== NEW - DB-backed collections =====
+        public ObservableCollection<Brand> Brands { get; } = new ObservableCollection<Brand>();
+        public ObservableCollection<ProductCategory> ProductCategoriesCollection { get; } = new ObservableCollection<ProductCategory>();
 
         public NovyProduktViewModel(IDataService dataService, IAuthService authService, ISettingsService settingsService, IProductImageService imageService, IMessenger messenger)
         {
@@ -139,8 +151,10 @@ namespace Sklad_2.ViewModels
             _messenger.Register<RoleChangedMessage>(this);
             _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
             {
-                // Reload categories from AppSettings (Win10 compatibility)
+                // Reload categories from Database (Win10 compatibility)
                 await Task.Delay(100); // Small delay for file system flush
+                await LoadBrandsAsync();
+                await LoadCategoriesAsync();
                 RefreshCategories();
                 LoadVatConfigsAsync();
             });
@@ -167,6 +181,26 @@ namespace Sklad_2.ViewModels
             UpdateVatRateForSelectedCategory();
         }
 
+        public async Task LoadBrandsAsync()
+        {
+            var brands = await _dataService.GetBrandsAsync();
+            Brands.Clear();
+            foreach (var brand in brands)
+            {
+                Brands.Add(brand);
+            }
+        }
+
+        public async Task LoadCategoriesAsync()
+        {
+            var categories = await _dataService.GetProductCategoriesAsync();
+            ProductCategoriesCollection.Clear();
+            foreach (var category in categories)
+            {
+                ProductCategoriesCollection.Add(category);
+            }
+        }
+
         private void RefreshCategories()
         {
             // Win10 fix: Reload categories from ProductCategories.All
@@ -190,6 +224,11 @@ namespace Sklad_2.ViewModels
         }
 
         partial void OnSelectedCategoryChanged(string value)
+        {
+            UpdateVatRateForSelectedCategory();
+        }
+
+        partial void OnSelectedProductCategoryChanged(ProductCategory value)
         {
             UpdateVatRateForSelectedCategory();
         }
@@ -254,7 +293,9 @@ namespace Sklad_2.ViewModels
 
         private void UpdateVatRateForSelectedCategory()
         {
-            var config = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+            // Use new ProductCategory system if available, fallback to old Category string
+            var categoryName = SelectedProductCategory?.Name ?? SelectedCategory;
+            var config = _vatConfigs?.FirstOrDefault(c => c.CategoryName == categoryName);
 
             if (config != null)
             {
@@ -307,10 +348,12 @@ namespace Sklad_2.ViewModels
             decimal vatRateToUse = 0;
             if (_settingsService.CurrentSettings.IsVatPayer)
             {
-                var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+                // Use new ProductCategory system if available, fallback to old Category string
+                var categoryName = SelectedProductCategory?.Name ?? SelectedCategory;
+                var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == categoryName);
                 if (vatConfig == null || vatConfig.Rate == 0)
                 {
-                    StatusMessage = $"Pro kategorii '{SelectedCategory}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
+                    StatusMessage = $"Pro kategorii '{categoryName}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
                     return;
                 }
                 vatRateToUse = (decimal)vatConfig.Rate;
@@ -333,7 +376,11 @@ namespace Sklad_2.ViewModels
                 Ean = this.Ean,
                 Name = this.Name,
                 Description = this.Description ?? string.Empty,
-                Category = this.SelectedCategory,
+                // ===== NEW: FK approach =====
+                BrandId = SelectedBrand?.Id,
+                ProductCategoryId = SelectedProductCategory?.Id,
+                // ===== Backwards compatibility: synchronize Category string =====
+                Category = SelectedProductCategory?.Name ?? this.SelectedCategory,
                 SalePrice = salePriceValue,
                 PurchasePrice = purchasePriceValue,
                 Markup = markupValue,
@@ -401,6 +448,9 @@ namespace Sklad_2.ViewModels
             SalePrice = string.Empty;
             PurchasePrice = string.Empty;
             Markup = string.Empty;
+            // Reset Brand & Category
+            SelectedBrand = null;
+            SelectedProductCategory = ProductCategoriesCollection.FirstOrDefault(c => c.Name == "Ostatní");
             SelectedCategory = Categories.FirstOrDefault(c => c == "Ostatní");
             // VatRate will be updated automatically by OnSelectedCategoryChanged
             HasDiscount = false;

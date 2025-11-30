@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Sklad_2.Models;
 using Sklad_2.Services;
 using System;
+using System.Linq;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
@@ -15,6 +16,7 @@ namespace Sklad_2.Views.Dialogs
     {
         private readonly Product _product;
         private readonly IProductImageService _imageService;
+        private readonly IDataService _dataService;
         private readonly bool _isAdmin;
         private bool _isUpdatingFromMarkup = false;
         private bool _isUpdatingFromSalePrice = false;
@@ -26,7 +28,9 @@ namespace Sklad_2.Views.Dialogs
             this.InitializeComponent();
             _product = product;
             _isAdmin = isAdmin;
-            _imageService = ((App)Application.Current).Services.GetRequiredService<IProductImageService>();
+            var app = (App)Application.Current;
+            _imageService = app.Services.GetRequiredService<IProductImageService>();
+            _dataService = app.Services.GetRequiredService<IDataService>();
 
             // Display read-only info
             EanText.Text = product.Ean;
@@ -35,12 +39,8 @@ namespace Sklad_2.Views.Dialogs
             NameBox.Text = product.Name;
             DescriptionBox.Text = product.Description ?? string.Empty;
 
-            // Populate categories
-            foreach (var category in ProductCategories.All)
-            {
-                CategoryCombo.Items.Add(category);
-            }
-            CategoryCombo.SelectedItem = product.Category;
+            // Load Brands and Categories from database
+            LoadBrandsAndCategoriesAsync();
 
             // Price fields (admin only)
             PurchasePriceBox.Text = product.PurchasePrice.ToString("F2");
@@ -60,6 +60,39 @@ namespace Sklad_2.Views.Dialogs
                 PurchasePriceBox.TextChanged += PurchasePriceBox_TextChanged;
                 SalePriceBox.TextChanged += SalePriceBox_TextChanged;
                 MarkupBox.TextChanged += MarkupBox_TextChanged;
+            }
+        }
+
+        private async void LoadBrandsAndCategoriesAsync()
+        {
+            // Load Brands
+            var brands = await _dataService.GetBrandsAsync();
+            BrandCombo.ItemsSource = brands;
+            BrandCombo.DisplayMemberPath = "Name";
+
+            // Set selected brand
+            if (_product.BrandId.HasValue)
+            {
+                var selectedBrand = brands.FirstOrDefault(b => b.Id == _product.BrandId.Value);
+                BrandCombo.SelectedItem = selectedBrand;
+            }
+
+            // Load Categories
+            var categories = await _dataService.GetProductCategoriesAsync();
+            CategoryCombo.ItemsSource = categories;
+            CategoryCombo.DisplayMemberPath = "Name";
+
+            // Set selected category
+            if (_product.ProductCategoryId.HasValue)
+            {
+                var selectedCategory = categories.FirstOrDefault(c => c.Id == _product.ProductCategoryId.Value);
+                CategoryCombo.SelectedItem = selectedCategory;
+            }
+            else
+            {
+                // Fallback: try to find by string Category name (backwards compatibility)
+                var selectedCategory = categories.FirstOrDefault(c => c.Name == _product.Category);
+                CategoryCombo.SelectedItem = selectedCategory;
             }
         }
 
@@ -210,7 +243,17 @@ namespace Sklad_2.Views.Dialogs
             // Apply changes that all roles can make
             _product.Name = NameBox.Text.Trim();
             _product.Description = DescriptionBox.Text?.Trim() ?? string.Empty;
-            _product.Category = CategoryCombo.SelectedItem?.ToString() ?? _product.Category;
+
+            // Set Brand
+            var selectedBrand = BrandCombo.SelectedItem as Brand;
+            _product.BrandId = selectedBrand?.Id;
+
+            // Set Category
+            var selectedCategory = CategoryCombo.SelectedItem as ProductCategory;
+            _product.ProductCategoryId = selectedCategory?.Id;
+
+            // Synchronize Category string for backwards compatibility
+            _product.Category = selectedCategory?.Name ?? _product.Category;
 
             return true;
         }

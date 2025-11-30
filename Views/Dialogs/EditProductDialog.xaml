@@ -16,8 +16,11 @@
             <!-- Name (editable by all) -->
             <TextBox x:Name="NameBox" Header="Název"/>
 
+            <!-- Brand (editable by all) -->
+            <ComboBox x:Name="BrandCombo" Header="Značka (volitelné)" MinWidth="200" PlaceholderText="Vyberte značku..."/>
+
             <!-- Category (editable by all) -->
-            <ComboBox x:Name="CategoryCombo" Header="Kategorie" MinWidth="200"/>
+            <ComboBox x:Name="CategoryCombo" Header="Kategorie" MinWidth="200" PlaceholderText="Vyberte kategorii..."/>
 
             <!-- Description (editable by all) -->
             <TextBox x:Name="DescriptionBox"

@@ -10,17 +10,19 @@ using System.Threading.Tasks;
 
 namespace Sklad_2.ViewModels
 {
+    /// <summary>
+    /// REFACTORED: Now uses ProductCategory table instead of AppSettings.Categories
+    /// </summary>
     public partial class CategoryManagementViewModel : ObservableObject
     {
-        private readonly ISettingsService _settingsService;
         private readonly IDataService _dataService;
         private readonly IMessenger _messenger;
 
         [ObservableProperty]
-        private ObservableCollection<string> categories = new();
+        private ObservableCollection<ProductCategory> categories = new();
 
         [ObservableProperty]
-        private string selectedCategory;
+        private ProductCategory selectedCategory;
 
         [ObservableProperty]
         private string newCategoryName;
@@ -46,20 +48,17 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private bool isDeleteStatusError;
 
-        public CategoryManagementViewModel(ISettingsService settingsService, IDataService dataService, IMessenger messenger)
+        public CategoryManagementViewModel(IDataService dataService, IMessenger messenger)
         {
-            _settingsService = settingsService;
             _dataService = dataService;
             _messenger = messenger;
-
-            LoadCategories();
         }
 
-        private void LoadCategories()
+        public async Task LoadCategoriesAsync()
         {
             Categories.Clear();
-            var cats = _settingsService.CurrentSettings.Categories ?? ProductCategories.All;
-            foreach (var cat in cats.OrderBy(c => c))
+            var cats = await _dataService.GetProductCategoriesAsync();
+            foreach (var cat in cats)
             {
                 Categories.Add(cat);
             }
@@ -76,26 +75,21 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
-            if (Categories.Contains(NewCategoryName))
+            var existing = await _dataService.GetProductCategoryByNameAsync(NewCategoryName);
+            if (existing != null)
             {
                 ShowAddError("Kategorie s tímto názvem již existuje.");
                 return;
             }
 
-            var categoryName = NewCategoryName;
+            var newCategory = new ProductCategory { Name = NewCategoryName, Description = string.Empty };
+            await _dataService.AddProductCategoryAsync(newCategory);
 
-            // Add to settings
-            _settingsService.CurrentSettings.Categories.Add(categoryName);
-            await _settingsService.SaveSettingsAsync();
-
-            // Reload
-            LoadCategories();
+            await LoadCategoriesAsync();
             NewCategoryName = string.Empty;
 
-            // Notify other ViewModels
             _messenger.Send(new VatConfigsChangedMessage());
-
-            ShowAddSuccess($"Kategorie '{categoryName}' byla přidána.");
+            ShowAddSuccess($"Kategorie '{newCategory.Name}' byla přidána.");
         }
 
         [RelayCommand]
@@ -103,7 +97,7 @@ namespace Sklad_2.ViewModels
         {
             ClearRenameStatus();
 
-            if (string.IsNullOrWhiteSpace(SelectedCategory))
+            if (SelectedCategory == null)
             {
                 ShowRenameError("Vyberte kategorii k přejmenování.");
                 return;
@@ -115,19 +109,24 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
-            if (Categories.Contains(RenameCategoryName))
+            var existing = await _dataService.GetProductCategoryByNameAsync(RenameCategoryName);
+            if (existing != null && existing.Id != SelectedCategory.Id)
             {
                 ShowRenameError("Kategorie s tímto názvem již existuje.");
                 return;
             }
 
-            var oldName = SelectedCategory;
+            var oldName = SelectedCategory.Name;
             var newName = RenameCategoryName;
 
-            // Check how many products use this category
-            var productCount = await _dataService.GetProductCountByCategoryAsync(oldName);
+            // Check how many products use this category (via ProductCategoryId)
+            var productCount = await _dataService.GetProductCountByCategoryIdAsync(SelectedCategory.Id);
 
-            // Update products
+            // Update ProductCategory name
+            SelectedCategory.Name = newName;
+            await _dataService.UpdateProductCategoryAsync(SelectedCategory);
+
+            // Synchronize Product.Category string for backwards compatibility
             if (productCount > 0)
             {
                 await _dataService.UpdateProductsCategoryAsync(oldName, newName);
@@ -143,22 +142,11 @@ namespace Sklad_2.ViewModels
                 await _dataService.SaveVatConfigsAsync(new[] { newVatConfig });
             }
 
-            // Update settings
-            var index = _settingsService.CurrentSettings.Categories.IndexOf(oldName);
-            if (index >= 0)
-            {
-                _settingsService.CurrentSettings.Categories[index] = newName;
-                await _settingsService.SaveSettingsAsync();
-            }
-
-            // Reload
-            LoadCategories();
-            SelectedCategory = newName;
+            await LoadCategoriesAsync();
+            SelectedCategory = Categories.FirstOrDefault(c => c.Name == newName);
             RenameCategoryName = string.Empty;
 
-            // Notify other ViewModels
             _messenger.Send(new VatConfigsChangedMessage());
-
             ShowRenameSuccess($"Kategorie '{oldName}' byla přejmenována na '{newName}'. Aktualizováno {productCount} produktů.");
         }
 
@@ -167,36 +155,32 @@ namespace Sklad_2.ViewModels
         {
             ClearDeleteStatus();
 
-            if (string.IsNullOrWhiteSpace(SelectedCategory))
+            if (SelectedCategory == null)
             {
                 ShowDeleteError("Vyberte kategorii ke smazání.");
                 return;
             }
 
             // Check if any products use this category
-            var productCount = await _dataService.GetProductCountByCategoryAsync(SelectedCategory);
+            var productCount = await _dataService.GetProductCountByCategoryIdAsync(SelectedCategory.Id);
             if (productCount > 0)
             {
-                ShowDeleteError($"Kategorii '{SelectedCategory}' nelze smazat. Je použita u {productCount} produktů. Nejprve přejmenujte kategorii nebo odstraňte produkty.");
+                ShowDeleteError($"Kategorii '{SelectedCategory.Name}' nelze smazat. Je použita u {productCount} produktů. Nejprve přejmenujte kategorii nebo odstraňte produkty.");
                 return;
             }
 
-            var categoryName = SelectedCategory;
+            var categoryName = SelectedCategory.Name;
 
             // Delete VatConfig
             await _dataService.DeleteVatConfigAsync(categoryName);
 
-            // Remove from settings
-            _settingsService.CurrentSettings.Categories.Remove(categoryName);
-            await _settingsService.SaveSettingsAsync();
+            // Delete category from DB
+            await _dataService.DeleteProductCategoryAsync(SelectedCategory.Id);
 
-            // Reload
-            LoadCategories();
+            await LoadCategoriesAsync();
             SelectedCategory = null;
 
-            // Notify other ViewModels
             _messenger.Send(new VatConfigsChangedMessage());
-
             ShowDeleteSuccess($"Kategorie '{categoryName}' byla smazána.");
         }
 

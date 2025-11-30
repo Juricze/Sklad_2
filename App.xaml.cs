@@ -256,6 +256,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IPrintService>(),
                 sp.GetRequiredService<IDailyCloseService>(),
                 sp.GetRequiredService<IMessenger>()));
+            services.AddSingleton<BrandManagementViewModel>(sp => new BrandManagementViewModel(
+                sp.GetRequiredService<IDataService>()));
             services.AddSingleton<CategoryManagementViewModel>();
             services.AddSingleton<UserManagementViewModel>(sp => new UserManagementViewModel(
                 sp.GetRequiredService<IDataService>()));
