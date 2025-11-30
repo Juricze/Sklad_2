@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using System;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace Sklad_2.Views
 {
@@ -103,6 +104,37 @@ namespace Sklad_2.Views
             {
                 await ViewModel.DeleteProductCommand.ExecuteAsync(null);
             }
+        }
+
+        private async void EanButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Get EAN from HyperlinkButton content or from data context
+            string ean = null;
+            if (sender is HyperlinkButton button)
+            {
+                ean = button.Content?.ToString();
+            }
+
+            if (string.IsNullOrEmpty(ean))
+            {
+                return;
+            }
+
+            // Copy to clipboard
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(ean);
+            Clipboard.SetContent(dataPackage);
+
+            // Show success notification
+            var successDialog = new ContentDialog
+            {
+                Title = "EAN zkopírován",
+                Content = $"EAN {ean} byl zkopírován do schránky.",
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+
+            await successDialog.ShowAsync();
         }
     }
 }

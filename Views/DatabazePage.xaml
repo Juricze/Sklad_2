@@ -157,7 +157,7 @@
                                 </Grid>
                             </Border>
 
-                            <TextBlock Grid.Column="1" Text="{x:Bind Ean}" VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <HyperlinkButton Grid.Column="1" Content="{x:Bind Ean}" Click="EanButton_Click" VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Padding="0" ToolTipService.ToolTip="Klikněte pro zkopírování EAN"/>
                             <TextBlock Grid.Column="2" Text="{x:Bind Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
                             <!-- Brand -->
@@ -213,13 +213,13 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border Width="200" Height="200"
+                        <Border Width="400" Height="400"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8"
                                 HorizontalAlignment="Center">
                             <Grid>
                                 <FontIcon Glyph="&#xE91B;"
-                                          FontSize="64"
+                                          FontSize="128"
                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -237,11 +237,14 @@
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"/>
 
-                        <!-- EAN -->
+                        <!-- EAN (Clickable) -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
                             <FontIcon Glyph="&#xED14;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Text="{Binding SelectedProduct.Ean, Mode=OneWay}"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <HyperlinkButton Content="{Binding SelectedProduct.Ean, Mode=OneWay}"
+                                           Click="EanButton_Click"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           Padding="0"
+                                           ToolTipService.ToolTip="Klikněte pro zkopírování EAN"/>
                         </StackPanel>
 
                         <!-- Brand & Category Badges -->
