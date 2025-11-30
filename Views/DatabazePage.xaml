@@ -100,7 +100,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header (outside ListView) -->
-                <Grid Grid.Row="0" Padding="12,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                <Grid Grid.Row="0" Padding="0,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="44"/>   <!-- Obrázek: fixní -->
                         <ColumnDefinition Width="4*"/>   <!-- EAN: 4 -->
@@ -213,7 +213,7 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Border MaxWidth="400" MaxHeight="300"
+                        <Border MaxWidth="500" MaxHeight="500"
                                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                 CornerRadius="8"
                                 HorizontalAlignment="Center">
@@ -226,8 +226,8 @@
                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
                                 <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
                                        Stretch="Uniform"
-                                       MaxWidth="400"
-                                       MaxHeight="300"
+                                       MaxWidth="500"
+                                       MaxHeight="500"
                                        Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </Grid>
                         </Border>
