@@ -20,6 +20,8 @@ namespace Sklad_2.Data
         public DbSet<DailyClose> DailyCloses { get; set; }
         public DbSet<LoyaltyCustomer> LoyaltyCustomers { get; set; }
         public DbSet<ReceiptGiftCardRedemption> ReceiptGiftCardRedemptions { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
 
         public DatabaseContext()
         {
@@ -57,6 +59,16 @@ namespace Sklad_2.Data
                 .WithMany()
                 .HasForeignKey(r => r.GiftCardEan)
                 .HasPrincipalKey(gc => gc.Ean);
+
+            // Set unique index on Brand.Name
+            modelBuilder.Entity<Brand>()
+                .HasIndex(b => b.Name)
+                .IsUnique();
+
+            // Set unique index on ProductCategory.Name
+            modelBuilder.Entity<ProductCategory>()
+                .HasIndex(pc => pc.Name)
+                .IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

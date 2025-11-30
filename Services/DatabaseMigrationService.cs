@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 20; // Version 20: Multiple Gift Card Redemptions per Receipt
+        private const int CURRENT_SCHEMA_VERSION = 21; // Version 21: Brand and ProductCategory tables
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -202,6 +202,8 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V19_AddDescriptionToProducts(context);
                     case 20:
                         return await ApplyMigration_V20_CreateGiftCardRedemptionTable(context);
+                    case 21:
+                        return await ApplyMigration_V21_CreateBrandAndCategoryTables(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -1089,6 +1091,158 @@ namespace Sklad_2.Services
             }
         }
 
+        private async Task<bool> ApplyMigration_V21_CreateBrandAndCategoryTables(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V21 - Create Brand and ProductCategory tables");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // 1. Create Brands table
+                var createBrandsSql = @"
+                    CREATE TABLE IF NOT EXISTS Brands (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL,
+                        Description TEXT NOT NULL DEFAULT ''
+                    )";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createBrandsSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created Brands table");
+                }
+
+                // 2. Create unique index on Brand.Name
+                var createBrandIndexSql = @"
+                    CREATE UNIQUE INDEX IF NOT EXISTS IX_Brands_Name
+                    ON Brands(Name)";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createBrandIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created unique index on Brands.Name");
+                }
+
+                // 3. Create ProductCategories table
+                var createCategoriesSql = @"
+                    CREATE TABLE IF NOT EXISTS ProductCategories (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL,
+                        Description TEXT NOT NULL DEFAULT ''
+                    )";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createCategoriesSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created ProductCategories table");
+                }
+
+                // 4. Create unique index on ProductCategory.Name
+                var createCategoryIndexSql = @"
+                    CREATE UNIQUE INDEX IF NOT EXISTS IX_ProductCategories_Name
+                    ON ProductCategories(Name)";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createCategoryIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created unique index on ProductCategories.Name");
+                }
+
+                // 5. Add BrandId column to Products (nullable)
+                var addBrandIdSql = @"
+                    ALTER TABLE Products
+                    ADD COLUMN BrandId INTEGER NULL";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = addBrandIdSql;
+                    try
+                    {
+                        await command.ExecuteNonQueryAsync();
+                        Debug.WriteLine("DatabaseMigrationService: Added BrandId column to Products");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Column might already exist (idempotency)
+                        Debug.WriteLine($"DatabaseMigrationService: BrandId column might already exist: {ex.Message}");
+                    }
+                }
+
+                // 6. Add ProductCategoryId column to Products (nullable)
+                var addCategoryIdSql = @"
+                    ALTER TABLE Products
+                    ADD COLUMN ProductCategoryId INTEGER NULL";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = addCategoryIdSql;
+                    try
+                    {
+                        await command.ExecuteNonQueryAsync();
+                        Debug.WriteLine("DatabaseMigrationService: Added ProductCategoryId column to Products");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Column might already exist (idempotency)
+                        Debug.WriteLine($"DatabaseMigrationService: ProductCategoryId column might already exist: {ex.Message}");
+                    }
+                }
+
+                // 7. Migrate existing categories from Products.Category to ProductCategories table
+                var migrateCategoriesSql = @"
+                    INSERT INTO ProductCategories (Name, Description)
+                    SELECT DISTINCT Category, ''
+                    FROM Products
+                    WHERE Category IS NOT NULL
+                      AND Category != ''
+                      AND Category NOT IN (SELECT Name FROM ProductCategories)";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = migrateCategoriesSql;
+                    var migratedCategories = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Migrated {migratedCategories} unique categories to ProductCategories table");
+                }
+
+                // 8. Synchronize Products.ProductCategoryId with Products.Category string
+                var synchronizeSql = @"
+                    UPDATE Products
+                    SET ProductCategoryId = (
+                        SELECT Id FROM ProductCategories
+                        WHERE Name = Products.Category
+                    )
+                    WHERE Category IS NOT NULL
+                      AND Category != ''";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = synchronizeSql;
+                    var synchronizedProducts = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Synchronized ProductCategoryId for {synchronizedProducts} products");
+                }
+
+                // 9. Note: We keep Category string column in Products for backwards compatibility
+                // This ensures VatConfig, ProdejViewModel (gift card detection), and filters continue to work
+                Debug.WriteLine("DatabaseMigrationService: Keeping Category string column for backwards compatibility");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V21 migration: {ex.Message}");
+                throw;
+            }
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -1144,6 +1298,7 @@ namespace Sklad_2.Services
                 18 => "Add ImagePath to Products for product images",
                 19 => "Add Description to Products for product descriptions",
                 20 => "Create ReceiptGiftCardRedemptions table for multiple gift cards per receipt",
+                21 => "Create Brand and ProductCategory tables for product classification",
                 _ => $"Unknown migration version {version}"
             };
         }

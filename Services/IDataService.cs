@@ -55,5 +55,23 @@ namespace Sklad_2.Services
         Task AddGiftCardAsync(GiftCard giftCard);
         Task UpdateGiftCardAsync(GiftCard giftCard);
         Task DeleteGiftCardAsync(string ean);
+
+        // Brands
+        Task<List<Brand>> GetBrandsAsync();
+        Task<Brand> GetBrandByIdAsync(int id);
+        Task<Brand> GetBrandByNameAsync(string name);
+        Task AddBrandAsync(Brand brand);
+        Task UpdateBrandAsync(Brand brand);
+        Task DeleteBrandAsync(int id);
+        Task<int> GetProductCountByBrandIdAsync(int brandId);
+
+        // Product Categories
+        Task<List<ProductCategory>> GetProductCategoriesAsync();
+        Task<ProductCategory> GetProductCategoryByIdAsync(int id);
+        Task<ProductCategory> GetProductCategoryByNameAsync(string name);
+        Task AddProductCategoryAsync(ProductCategory category);
+        Task UpdateProductCategoryAsync(ProductCategory category);
+        Task DeleteProductCategoryAsync(int id);
+        Task<int> GetProductCountByCategoryIdAsync(int categoryId);
     }
 }

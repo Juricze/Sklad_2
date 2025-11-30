@@ -16,8 +16,26 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private string description = string.Empty;
 
+        // ===== DEPRECATED (zachovat pro backwards compatibility) =====
+        /// <summary>
+        /// DEPRECATED: Použijte ProductCategoryId a CategoryName.
+        /// Zachováno pro backwards compatibility s ProdejViewModel, VatConfig, atd.
+        /// </summary>
         [ObservableProperty]
         private string category;
+
+        // ===== NOVÉ (moderní FK přístup) =====
+        /// <summary>
+        /// FK na tabulku Brand (nullable pro zpětnou kompatibilitu)
+        /// </summary>
+        [ObservableProperty]
+        private int? brandId;
+
+        /// <summary>
+        /// FK na tabulku ProductCategory (nullable pro zpětnou kompatibilitu)
+        /// </summary>
+        [ObservableProperty]
+        private int? productCategoryId;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(SalePriceFormatted))]
@@ -87,5 +105,27 @@ namespace Sklad_2.Models
             var validTo = DiscountValidTo?.Date ?? DateTime.MaxValue;
             return now >= validFrom && now <= validTo;
         }
+
+        // ===== Navigation properties (EF Core) =====
+        /// <summary>
+        /// Navigace na entitu Brand
+        /// </summary>
+        public Brand Brand { get; set; }
+
+        /// <summary>
+        /// Navigace na entitu ProductCategory
+        /// </summary>
+        public ProductCategory ProductCategory { get; set; }
+
+        // ===== Helper properties pro UI =====
+        /// <summary>
+        /// Název značky (nebo prázdný string pokud není nastavena)
+        /// </summary>
+        public string BrandName => Brand?.Name ?? string.Empty;
+
+        /// <summary>
+        /// Název kategorie s fallbackem na deprecated Category string
+        /// </summary>
+        public string CategoryName => ProductCategory?.Name ?? Category ?? string.Empty;
     }
 }

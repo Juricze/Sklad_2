@@ -73,7 +73,9 @@ foreach ($file in $modelFiles) {
             # LoyaltyCustomer (V11 migration)
             "firstName", "lastName", "email", "cardEan", "discountPercent", "totalPurchases", "createdAt",
             # Receipt loyalty fields (V12 migration)
-            "hasLoyaltyDiscount", "loyaltyCustomerEmail", "loyaltyDiscountPercent", "loyaltyDiscountAmount"
+            "hasLoyaltyDiscount", "loyaltyCustomerEmail", "loyaltyDiscountPercent", "loyaltyDiscountAmount",
+            # Product Brand/Category FK (V21 migration)
+            "brandId", "productCategoryId"
         )
         
         $hasInitialSchema = $propertyName -in $initialProperties

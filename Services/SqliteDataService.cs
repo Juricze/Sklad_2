@@ -424,5 +424,109 @@ namespace Sklad_2.Services
                 await context.SaveChangesAsync();
             }
         }
+
+        // Brands
+        public async Task<List<Brand>> GetBrandsAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Brands
+                .OrderBy(b => b.Name)
+                .ToListAsync();
+        }
+
+        public async Task<Brand> GetBrandByIdAsync(int id)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Brands.FindAsync(id);
+        }
+
+        public async Task<Brand> GetBrandByNameAsync(string name)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Brands.FirstOrDefaultAsync(b => b.Name == name);
+        }
+
+        public async Task AddBrandAsync(Brand brand)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.Brands.AddAsync(brand);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateBrandAsync(Brand brand)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.Brands.Update(brand);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteBrandAsync(int id)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var brand = await context.Brands.FindAsync(id);
+            if (brand != null)
+            {
+                context.Brands.Remove(brand);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<int> GetProductCountByBrandIdAsync(int brandId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Products.CountAsync(p => p.BrandId == brandId);
+        }
+
+        // Product Categories
+        public async Task<List<ProductCategory>> GetProductCategoriesAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.ProductCategories
+                .OrderBy(pc => pc.Name)
+                .ToListAsync();
+        }
+
+        public async Task<ProductCategory> GetProductCategoryByIdAsync(int id)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.ProductCategories.FindAsync(id);
+        }
+
+        public async Task<ProductCategory> GetProductCategoryByNameAsync(string name)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.ProductCategories.FirstOrDefaultAsync(pc => pc.Name == name);
+        }
+
+        public async Task AddProductCategoryAsync(ProductCategory category)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.ProductCategories.AddAsync(category);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateProductCategoryAsync(ProductCategory category)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.ProductCategories.Update(category);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteProductCategoryAsync(int id)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var category = await context.ProductCategories.FindAsync(id);
+            if (category != null)
+            {
+                context.ProductCategories.Remove(category);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<int> GetProductCountByCategoryIdAsync(int categoryId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            return await context.Products.CountAsync(p => p.ProductCategoryId == categoryId);
+        }
     }
 }
