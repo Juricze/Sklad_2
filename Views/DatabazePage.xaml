@@ -100,7 +100,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header (outside ListView) -->
-                <Grid Grid.Row="0" Padding="12,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                <Grid Grid.Row="0" Padding="0,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="44"/>   <!-- Obrázek: fixní -->
                         <ColumnDefinition Width="4*"/>   <!-- EAN: 4 -->
@@ -125,6 +125,11 @@
                     ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}"
                     SelectedItem="{x:Bind ViewModel.SelectedProduct, Mode=TwoWay}"
                     SelectionMode="Single">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:Product">
                         <Grid Padding="0,6" ColumnSpacing="8">
