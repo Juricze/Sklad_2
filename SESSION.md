@@ -20,7 +20,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 ## 📅 **Poslední session: 30. listopad 2025 (pokračování 3)**
 
 ### ✅ Hotovo:
-**Fix: EF Core vztah pro ReceiptGiftCardRedemption**
+**Fix 1: EF Core vztah pro ReceiptGiftCardRedemption**
 
 **Chyba:**
 ```
@@ -49,6 +49,53 @@ modelBuilder.Entity<ReceiptGiftCardRedemption>()
 
 **Git:**
 - Commit: 44013c6 - "Fix: EF Core vztah pro ReceiptGiftCardRedemption - použit Ean jako principal key"
+
+---
+
+**Fix 2: UI refresh při načtení poukazu + Načítání RedeemedGiftCards v náhledu účtenky**
+
+**Problém 1: UI neaktualizace při načtení poukazu**
+- Po naskenování poukazu se ListView nezobrazil (v pozadí načtený)
+- Celková cena se aktualizovala až po další akci
+- Duplicitní scan správně hlásil chybu (poukaz byl načtený)
+
+**Příčina:**
+`ObservableCollection.CollectionChanged` event nevyvolává `PropertyChanged` pro computed properties.
+
+**Řešení:**
+Přidán listener v `ProdejViewModel` konstruktoru:
+```csharp
+RedeemedGiftCards.CollectionChanged += (s, e) =>
+{
+    OnPropertyChanged(nameof(IsAnyGiftCardReady));
+    OnPropertyChanged(nameof(TotalGiftCardValue));
+    OnPropertyChanged(nameof(TotalGiftCardValueFormatted));
+    OnPropertyChanged(nameof(AmountToPay));
+    OnPropertyChanged(nameof(GrandTotalFormatted));
+    // ... další computed properties
+};
+```
+
+**Problém 2: Náhled účtenky nezobrazoval jednotlivé poukazy**
+- V UctenkyPage → Náhled se zobrazilo "Použité poukazy:" ale seznam byl prázdný
+- Tisk účtenky fungoval správně
+
+**Příčina:**
+EF Core navigation property `RedeemedGiftCards` nebyla načtená (lazy loading není zapnutý).
+
+**Řešení:**
+Přidán `.Include(r => r.RedeemedGiftCards)` do všech metod v `SqliteDataService`:
+- `GetReceiptsAsync()` - pro UctenkyPage
+- `GetReceiptsAsync(DateTime, DateTime)` - pro filtrované seznamy
+- `GetReceiptByIdAsync()` - pro detail účtenky
+- `DeleteReceiptAsync()` - pro cascade delete
+
+**Upravené soubory:**
+- `ViewModels/ProdejViewModel.cs` - CollectionChanged listener
+- `Services/SqliteDataService.cs` - .Include() ve 4 metodách
+
+**Git:**
+- Commit: 8e5176a - "Fix: Načítání RedeemedGiftCards navigation property v náhledu účtenky"
 - Build: ✅ 0 warnings, 0 errors
 
 ---
