@@ -15,7 +15,7 @@ WinUI 3 aplikace pro správu skladu a prodeje, postavená na .NET 8 s architektu
 - **Build Tools**: Windows SDK Build Tools 10.0.22621.3233
 - **Platformy**: x86, x64, ARM64
 
-**Poznámka**: Aplikace je určena výhradně pro Windows 10 build 19041+ (verze 2004 a novější). Projekt nemá unit testy.
+**Poznámka**: Aplikace je určena výhradně pro Windows 10 build 19041+ (verze 2004 a novější). Projekt má unit testy pro kritické finanční výpočty (Receipt/Return models).
 
 ## Build a spuštění
 ```bash
