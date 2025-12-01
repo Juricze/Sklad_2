@@ -308,7 +308,7 @@ namespace Sklad_2.Services
         public async Task<List<User>> GetAllUsersAsync()
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Users.ToListAsync();
+            return await context.Users.AsNoTracking().ToListAsync();
         }
 
         public async Task<User> GetUserByUsernameAsync(string username)
@@ -338,6 +338,17 @@ namespace Sklad_2.Services
             if (user != null)
             {
                 user.IsActive = isActive;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteUserAsync(int userId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var user = await context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                context.Users.Remove(user);
                 await context.SaveChangesAsync();
             }
         }

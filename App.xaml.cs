@@ -260,7 +260,8 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>()));
             services.AddSingleton<CategoryManagementViewModel>();
             services.AddSingleton<UserManagementViewModel>(sp => new UserManagementViewModel(
-                sp.GetRequiredService<IDataService>()));
+                sp.GetRequiredService<IDataService>(),
+                sp.GetRequiredService<IAuthService>()));
             services.AddSingleton<SkladPrehledViewModel>(sp => new SkladPrehledViewModel(
                 sp.GetRequiredService<IDataService>()));
             services.AddSingleton<PoukazyViewModel>(sp => new PoukazyViewModel(

@@ -57,20 +57,26 @@ namespace Sklad_2.Views
 
         private async Task<(bool confirmed, string username, string displayName, string password, string role)> HandleRequestAddUserAsync()
         {
+            // Win10 compatibility - initial delay to ensure UI is ready
+            await Task.Delay(200);
+
             var dialog = new AddEditUserDialog();
             dialog.XamlRoot = this.XamlRoot;
 
             ContentDialogResult result = ContentDialogResult.None;
 
-            // Win10 compatibility - retry if dialog fails due to concurrent dialog
-            int maxRetries = 3;
+            // Win10 compatibility - retry if dialog fails due to concurrent dialog or async issues
+            int maxRetries = 5; // Increased retries for Win10
             for (int attempt = 0; attempt < maxRetries; attempt++)
             {
                 try
                 {
                     if (attempt > 0)
                     {
-                        await Task.Delay(300); // Wait for previous dialog to fully close
+                        // Exponential backoff for Win10
+                        int delayMs = 300 + (attempt * 200);
+                        Debug.WriteLine($"NastaveniPage: Retrying add dialog after {delayMs}ms delay...");
+                        await Task.Delay(delayMs);
                     }
 
                     result = await dialog.ShowAsync();
@@ -78,12 +84,17 @@ namespace Sklad_2.Views
                 }
                 catch (System.Runtime.InteropServices.COMException ex) when (attempt < maxRetries - 1)
                 {
-                    Debug.WriteLine($"NastaveniPage: Dialog attempt {attempt + 1} failed: {ex.Message}");
+                    Debug.WriteLine($"NastaveniPage: Add dialog attempt {attempt + 1} failed (COM): {ex.Message} (HResult: 0x{ex.HResult:X})");
+                    // Retry with longer delay
+                }
+                catch (Exception ex) when (attempt < maxRetries - 1)
+                {
+                    Debug.WriteLine($"NastaveniPage: Add dialog attempt {attempt + 1} failed: {ex.Message}");
                     // Retry
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"NastaveniPage: Error showing add user dialog: {ex.Message}");
+                    Debug.WriteLine($"NastaveniPage: Error showing add user dialog after all retries: {ex.Message}");
                     return (false, null, null, null, null);
                 }
             }
@@ -98,21 +109,27 @@ namespace Sklad_2.Views
 
         private async Task<(bool confirmed, string username, string displayName, string password, string role)> HandleRequestEditUserAsync(User user)
         {
+            // Win10 compatibility - initial delay to ensure UI is ready
+            await Task.Delay(200);
+
             var dialog = new AddEditUserDialog();
             dialog.SetEditMode(user);
             dialog.XamlRoot = this.XamlRoot;
 
             ContentDialogResult result = ContentDialogResult.None;
 
-            // Win10 compatibility - retry if dialog fails due to concurrent dialog
-            int maxRetries = 3;
+            // Win10 compatibility - retry if dialog fails due to concurrent dialog or async issues
+            int maxRetries = 5; // Increased retries for Win10
             for (int attempt = 0; attempt < maxRetries; attempt++)
             {
                 try
                 {
                     if (attempt > 0)
                     {
-                        await Task.Delay(300); // Wait for previous dialog to fully close
+                        // Exponential backoff for Win10
+                        int delayMs = 300 + (attempt * 200);
+                        Debug.WriteLine($"NastaveniPage: Retrying edit dialog after {delayMs}ms delay...");
+                        await Task.Delay(delayMs);
                     }
 
                     result = await dialog.ShowAsync();
@@ -120,12 +137,17 @@ namespace Sklad_2.Views
                 }
                 catch (System.Runtime.InteropServices.COMException ex) when (attempt < maxRetries - 1)
                 {
+                    Debug.WriteLine($"NastaveniPage: Edit dialog attempt {attempt + 1} failed (COM): {ex.Message} (HResult: 0x{ex.HResult:X})");
+                    // Retry with longer delay
+                }
+                catch (Exception ex) when (attempt < maxRetries - 1)
+                {
                     Debug.WriteLine($"NastaveniPage: Edit dialog attempt {attempt + 1} failed: {ex.Message}");
                     // Retry
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"NastaveniPage: Error showing edit user dialog: {ex.Message}");
+                    Debug.WriteLine($"NastaveniPage: Error showing edit user dialog after all retries: {ex.Message}");
                     return (false, null, null, null, null);
                 }
             }

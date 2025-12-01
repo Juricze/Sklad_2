@@ -40,6 +40,7 @@ namespace Sklad_2.Services
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task SetUserActiveAsync(int userId, bool isActive);
+        Task DeleteUserAsync(int userId);
 
         // Stock Movements
         Task AddStockMovementAsync(StockMovement movement);

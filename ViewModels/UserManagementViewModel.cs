@@ -12,6 +12,7 @@ namespace Sklad_2.ViewModels
     public partial class UserManagementViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
+        private readonly IAuthService _authService;
 
         [ObservableProperty]
         private ObservableCollection<User> users = new();
@@ -28,9 +29,10 @@ namespace Sklad_2.ViewModels
         public Func<Task<(bool confirmed, string username, string displayName, string password, string role)>> RequestAddUserAsync { get; set; }
         public Func<User, Task<(bool confirmed, string username, string displayName, string password, string role)>> RequestEditUserAsync { get; set; }
 
-        public UserManagementViewModel(IDataService dataService)
+        public UserManagementViewModel(IDataService dataService, IAuthService authService)
         {
             _dataService = dataService;
+            _authService = authService;
         }
 
         public async Task LoadUsersAsync()
@@ -78,7 +80,9 @@ namespace Sklad_2.ViewModels
                     };
 
                     await _dataService.CreateUserAsync(newUser);
+                    await Task.Delay(100); // Win10 file system flush
                     await LoadUsersAsync();
+                    await Task.Delay(200); // Win10 UI refresh
                     StatusMessage = $"Uživatel '{newUser.DisplayName}' byl úspěšně přidán.";
                 }
                 catch (Exception ex)
@@ -123,7 +127,9 @@ namespace Sklad_2.ViewModels
                     SelectedUser.Role = result.role;
 
                     await _dataService.UpdateUserAsync(SelectedUser);
+                    await Task.Delay(100); // Win10 file system flush
                     await LoadUsersAsync();
+                    await Task.Delay(200); // Win10 UI refresh
                     StatusMessage = $"Uživatel '{SelectedUser.DisplayName}' byl úspěšně aktualizován.";
                 }
                 catch (Exception ex)
@@ -148,14 +154,49 @@ namespace Sklad_2.ViewModels
                 await _dataService.SetUserActiveAsync(SelectedUser.UserId, newStatus);
                 SelectedUser.IsActive = newStatus;
 
+                await Task.Delay(100); // Win10 file system flush
+
                 var statusText = newStatus ? "aktivován" : "deaktivován";
                 StatusMessage = $"Uživatel '{SelectedUser.DisplayName}' byl {statusText}.";
 
                 await LoadUsersAsync();
+                await Task.Delay(200); // Win10 UI refresh
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Chyba při změně stavu uživatele: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private async Task DeleteUserAsync()
+        {
+            if (SelectedUser == null)
+            {
+                StatusMessage = "Vyberte uživatele ze seznamu.";
+                return;
+            }
+
+            // Prevent deleting yourself
+            if (SelectedUser.UserId == _authService.CurrentUser?.UserId)
+            {
+                StatusMessage = "Nelze smazat vlastní účet. Kontaktujte jiného administrátora.";
+                return;
+            }
+
+            try
+            {
+                var userToDelete = SelectedUser.DisplayName;
+                await _dataService.DeleteUserAsync(SelectedUser.UserId);
+                await Task.Delay(100); // Win10 file system flush
+                await LoadUsersAsync();
+                await Task.Delay(200); // Win10 UI refresh
+                StatusMessage = $"Uživatel '{userToDelete}' byl úspěšně smazán.";
+                SelectedUser = null; // Clear selection
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Chyba při mazání uživatele: {ex.Message}";
             }
         }
 

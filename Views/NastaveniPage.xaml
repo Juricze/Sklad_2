@@ -212,6 +212,17 @@
                                 <Button Content="Změnit stav vybraného uživatele"
                                         Command="{x:Bind UserMgmtVM.ToggleUserActiveCommand}"
                                         IsEnabled="{x:Bind UserMgmtVM.IsUserSelected, Mode=OneWay}"/>
+                            </StackPanel>
+
+                            <!-- Delete User -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                                <TextBlock Text="Smazat uživatele" FontWeight="SemiBold" Foreground="#FF3B30"/>
+                                <TextBlock Text="Vyberte uživatele a smažte jeho účet. POZOR: Tato akce je nevratná! Nemůžete smazat vlastní účet." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Button Content="🗑️ Smazat vybraného uživatele"
+                                        Command="{x:Bind UserMgmtVM.DeleteUserCommand}"
+                                        IsEnabled="{x:Bind UserMgmtVM.IsUserSelected, Mode=OneWay}"
+                                        Background="#FF3B30"
+                                        Foreground="White"/>
 
                                 <!-- Status Message -->
                                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
