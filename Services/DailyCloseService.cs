@@ -48,26 +48,26 @@ namespace Sklad_2.Services
                 cashSales += stornoReceipts.Sum(r => r.CashAmount);
                 cardSales += stornoReceipts.Sum(r => r.CardAmount);
 
-                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z AmountToPay
+                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z FinalAmountRounded (pro staré účtenky)
                 if (cashSales == 0 && cardSales == 0 && allReceipts.Count > 0)
                 {
                     foreach (var r in allReceipts)
                     {
                         if (r.PaymentMethod?.Contains("Karta") == true)
-                            cardSales += r.AmountToPay;
+                            cardSales += r.FinalAmountRounded;
                         else
-                            cashSales += r.AmountToPay;
+                            cashSales += r.FinalAmountRounded;
                     }
                 }
 
                 // Načíst vratky ze session dne - odečíst od hotovostní tržby (vracíme vždy v hotovosti)
-                // DRY: Use AmountToRefund (after loyalty discount) - actual amount returned to customer
+                // DRY: Use FinalRefundRounded (zaokrouhlená částka) - skutečně vrácená částka zákazníkovi
                 var todayReturns = await context.Returns
                     .AsNoTracking()
                     .Where(r => r.ReturnDate.Date == sessionDate)
                     .ToListAsync();
 
-                var returnAmount = todayReturns.Sum(r => r.AmountToRefund);
+                var returnAmount = todayReturns.Sum(r => r.FinalRefundRounded);
                 cashSales -= returnAmount; // Vratky odečítáme od hotovostní tržby
 
                 var totalSales = cashSales + cardSales;
@@ -145,15 +145,15 @@ namespace Sklad_2.Services
                 cashSales += stornoReceipts.Sum(r => r.CashAmount);
                 cardSales += stornoReceipts.Sum(r => r.CardAmount);
 
-                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z AmountToPay
+                // Fallback: Pokud CashAmount/CardAmount jsou 0, vypočítat z FinalAmountRounded (pro staré účtenky)
                 if (cashSales == 0 && cardSales == 0 && allReceipts.Count > 0)
                 {
                     foreach (var r in allReceipts)
                     {
                         if (r.PaymentMethod?.Contains("Karta") == true)
-                            cardSales += r.AmountToPay;
+                            cardSales += r.FinalAmountRounded;
                         else
-                            cashSales += r.AmountToPay;
+                            cashSales += r.FinalAmountRounded;
                     }
                 }
 
@@ -163,8 +163,8 @@ namespace Sklad_2.Services
                     .Where(r => r.ReturnDate.Date == sessionDate)
                     .ToListAsync();
 
-                // DRY: Use AmountToRefund (after loyalty discount) - actual amount returned to customer
-                var returnAmount = todayReturns.Sum(r => r.AmountToRefund);
+                // DRY: Use FinalRefundRounded (zaokrouhlená částka) - skutečně vrácená částka zákazníkovi
+                var returnAmount = todayReturns.Sum(r => r.FinalRefundRounded);
                 cashSales -= returnAmount; // Vratky odečítáme od hotovostní tržby
 
                 var totalSales = cashSales + cardSales;

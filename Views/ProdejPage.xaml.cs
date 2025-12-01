@@ -238,8 +238,8 @@ namespace Sklad_2.Views
                 return;
             }
 
-            // Payment dialog shows amount AFTER gift card deduction
-            var paymentSelectionDialog = new PaymentSelectionDialog(ViewModel.AmountToPay)
+            // Payment dialog - select payment method
+            var paymentSelectionDialog = new PaymentSelectionDialog()
             {
                 XamlRoot = this.XamlRoot,
             };
@@ -281,12 +281,13 @@ namespace Sklad_2.Views
                         break;
                     }
 
-                    decimal amountToPay = ViewModel.AmountToPay;
+                    // Použít zaokrouhlenou částku (celé koruny)
+                    decimal amountToPayRounded = ViewModel.AmountToPayRounded;
                     ContentDialogResult cashPaymentResult;
                     decimal receivedAmount = 0m;
                     decimal changeAmount = 0m;
 
-                    var cashPaymentDialog = new CashPaymentDialog(amountToPay) { XamlRoot = this.XamlRoot };
+                    var cashPaymentDialog = new CashPaymentDialog(amountToPayRounded) { XamlRoot = this.XamlRoot };
                     cashPaymentResult = await cashPaymentDialog.ShowAsync();
 
                     if (cashPaymentResult != ContentDialogResult.Primary) break;
@@ -294,7 +295,7 @@ namespace Sklad_2.Views
                     receivedAmount = cashPaymentDialog.ReceivedAmount;
                     changeAmount = cashPaymentDialog.ChangeAmount;
 
-                    var cashConfirmationDialog = new CashConfirmationDialog(amountToPay, receivedAmount, changeAmount) { XamlRoot = this.XamlRoot };
+                    var cashConfirmationDialog = new CashConfirmationDialog(amountToPayRounded, receivedAmount, changeAmount) { XamlRoot = this.XamlRoot };
                     ContentDialogResult confirmationResult = await cashConfirmationDialog.ShowAsync();
 
                     if (confirmationResult != ContentDialogResult.Primary) break;

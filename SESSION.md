@@ -17,7 +17,75 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 1. prosinec 2025 (pokračování 7)**
+## 📅 **Poslední session: 1. prosinec 2025 (pokračování 8)**
+
+### ✅ Hotovo:
+**Release v1.0.20: Zaokrouhlování na celé koruny + Opravy denní uzavírky + F1 shortcut**
+
+**1. Matematické zaokrouhlování na celé koruny**
+- **Implementace**: `Math.Round(..., 0, MidpointRounding.AwayFromZero)`
+- **DPH compliance**: Od 1.4.2019 musí být DPH na 2 desetinná místa - zachováno
+- **Transparentnost**: Zobrazuje přesnou částku, zaokrouhlení a finální částku k úhradě
+- **Model properties** (computed):
+  - `Receipt.FinalAmountRounded` - zaokrouhlená částka k úhradě
+  - `Receipt.RoundingAmount` - rozdíl zaokrouhlení (+/-)
+  - `Receipt.HasRounding` - boolean pro conditional visibility
+  - `Return.FinalRefundRounded` - zaokrouhlená částka vratky
+  - `Return.RefundRoundingAmount` - rozdíl zaokrouhlení vratky
+  - `Return.HasRefundRounding` - boolean pro conditional visibility
+- **ViewModel properties**:
+  - `ProdejViewModel.AmountToPayRounded` - zaokrouhlená částka
+  - `ProdejViewModel.RoundingDifference` - rozdíl zaokrouhlení
+  - `ProdejViewModel.HasRounding` - boolean pro UI
+  - Formatted properties pro všechny částky
+
+**2. KRITICKÉ OPRAVY: DailyCloseService - 3 bugy kde se používaly přesné místo zaokrouhlené částky**
+- **Bug #1 (lines 57-59, 154-156)**: Fallback logika používala `AmountToPay` místo `FinalAmountRounded`
+  - Doppad: Denní uzavírka by byla špatná o akumulované zaokrouhlení
+- **Bug #2 (lines 70, 167)**: Vratky používaly `AmountToRefund` místo `FinalRefundRounded`
+  - Doppad: Vrácené částky by nesouhlasily se skutečně vydanými penězi
+- **Fix**: Všechny výpočty nyní používají zaokrouhlené částky (FinalAmountRounded, FinalRefundRounded)
+- **Výsledek**: Denní uzavírka správně odpovídá fyzickým penězům v pokladně
+
+**3. UI: Kompletní zobrazení zaokrouhlení**
+- **ProdejPage.xaml**: Zobrazuje přesnou částku + zaokrouhlení + finální částku k úhradě
+- **ReceiptPreviewDialog**: Zobrazuje zaokrouhlení před tiskem
+- **ESC/POS tisk**: Zobrazuje zaokrouhlení na účtence i dobropisu
+  - `EscPosPrintService.cs` lines 709-755 (receipt)
+  - `EscPosPrintService.cs` lines 1031-1066 (return)
+
+**4. UX: PaymentSelectionDialog redesign**
+- **Odebrána částka** - není potřeba, uživatel ji vidí na hlavní stránce
+- **Moderní UI**: 2 velká tlačítka (140px) vedle sebe
+- **Ikony**: 💰 Hotově (&#xE8CB;), 💳 Kartou (&#xE8C7;) - velikost 48px
+- **Accent barva**: Plný accent background pro oba buttony
+- **Zjednodušený kód**: Pouze výběr payment method, žádné amount handling
+
+**5. UX: F1 keyboard shortcut**
+- **Tlačítko "K Platbě"**: Přidán `<KeyboardAccelerator Key="F1" />`
+- **Text updatován**: "K Platbě (F1)" - zobrazuje zkratku
+- **Tooltip**: "Stiskněte F1 pro rychlé přechod k platbě"
+- **Výsledek**: Rychlejší checkout workflow pro pokladní
+
+**Upravené soubory:**
+- `Models/Receipt.cs` - FinalAmountRounded, RoundingAmount, HasRounding, formatted properties
+- `Models/Return.cs` - FinalRefundRounded, RefundRoundingAmount, HasRefundRounding
+- `ViewModels/ProdejViewModel.cs` - AmountToPayRounded, RoundingDifference, HasRounding, formatted properties
+- `Views/ProdejPage.xaml` - UI pro zaokrouhlení, F1 keyboard accelerator
+- `Views/ProdejPage.xaml.cs` - používá AmountToPayRounded v payment dialozích
+- `Views/Dialogs/PaymentSelectionDialog.xaml` - redesign bez částky
+- `Views/Dialogs/PaymentSelectionDialog.xaml.cs` - simplified (bez amount)
+- `Views/Dialogs/ReceiptPreviewDialog.xaml` - zobrazení zaokrouhlení
+- `Services/EscPosPrintService.cs` - zaokrouhlení na tištěných účtenkách/dobropisy
+- `Services/DailyCloseService.cs` - **KRITICKÁ OPRAVA** - 3 bugy s FinalAmountRounded/FinalRefundRounded
+
+**Git:**
+- Commit: (připraveno)
+- Release: v1.0.20 (self-contained)
+
+---
+
+## 📅 **Předchozí session: 1. prosinec 2025 (pokračování 7)**
 
 ### ✅ Hotovo:
 **Release v1.0.19: Fix responzivity obrázků + Změna obrázku produktu + UX polish**
@@ -362,4 +430,4 @@ Clipboard.SetContent(dataPackage);
 ---
 
 **Poslední aktualizace:** 1. prosinec 2025
-**Aktuální verze:** v1.0.19 (schema V21)
+**Aktuální verze:** v1.0.20 (schema V21)

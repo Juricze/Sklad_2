@@ -397,11 +397,77 @@
 
             <StackPanel Grid.Row="1" Spacing="12" Margin="0,24,0,0">
                 <StackPanel Spacing="4" HorizontalAlignment="Right">
-                    <TextBlock Text="{x:Bind ViewModel.GrandTotalWithoutVatFormatted, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBlock Text="{x:Bind ViewModel.GrandTotalVatAmountFormatted, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBlock Text="{x:Bind ViewModel.GrandTotalFormatted, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Right"/>
+                    <!-- Mezisoučet (jen pokud jsou slevy) -->
+                    <Grid Visibility="{x:Bind ViewModel.HasAnyDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Mezisoučet:" Margin="0,0,8,0" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.GrandTotalFormatted, Mode=OneWay}" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </Grid>
+
+                    <!-- Věrnostní sleva -->
+                    <Grid Visibility="{x:Bind ViewModel.IsLoyaltyCustomerLoaded, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Věrnostní sleva:" Margin="0,0,8,0" FontSize="14" Foreground="#2196F3" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.LoyaltyDiscountAmountFormatted, Mode=OneWay}" FontSize="14" Foreground="#2196F3" FontWeight="SemiBold"/>
+                    </Grid>
+
+                    <!-- Poukazy -->
+                    <Grid Visibility="{x:Bind ViewModel.IsAnyGiftCardReady, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Poukazy:" Margin="0,0,8,0" FontSize="14" Foreground="#4CAF50" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" FontSize="14" Foreground="#4CAF50" FontWeight="SemiBold">
+                            <Run Text="-"/><Run Text="{x:Bind ViewModel.TotalGiftCardValueFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+
+                    <!-- Separator pokud jsou slevy -->
+                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"
+                            Visibility="{x:Bind ViewModel.HasAnyDiscount, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Přesná částka -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Celkem (přesně):" Margin="0,0,8,0" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.AmountToPayFormatted, Mode=OneWay}" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </Grid>
+
+                    <!-- Zaokrouhlení (jen pokud není 0) -->
+                    <Grid Visibility="{x:Bind ViewModel.HasRounding, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Zaokrouhlení:" Margin="0,0,8,0" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.RoundingDifferenceFormatted, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                    </Grid>
+
+                    <!-- K ÚHRADĚ - finální zaokrouhlená částka -->
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="K ÚHRADĚ:" Margin="0,0,8,0" FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.AmountToPayRoundedFormatted, Mode=OneWay}" FontSize="20" FontWeight="Bold"/>
+                    </Grid>
                 </StackPanel>
-                <Button Content="K Platbě" Click="CheckoutButton_Click" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                <Button Content="K Platbě (F1)" Click="CheckoutButton_Click" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" ToolTipService.ToolTip="Stiskněte F1 pro rychlé přechod k platbě">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F1" />
+                    </Button.KeyboardAccelerators>
+                </Button>
                 <Button Content="Smazat účtenku" Click="ClearReceiptButton_Click" HorizontalAlignment="Stretch"/>
             </StackPanel>
         </Grid>

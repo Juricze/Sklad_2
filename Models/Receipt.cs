@@ -158,11 +158,39 @@ namespace Sklad_2.Models
         public bool HasAnyDiscount => HasLoyaltyDiscount || ContainsGiftCardRedemption;
 
         /// <summary>
-        /// Částka k úhradě po odečtení věrnostní slevy a dárkového poukazu (pro zobrazení v seznamech)
+        /// Částka k úhradě po odečtení věrnostní slevy a dárkového poukazu (PŘESNÁ hodnota s haléři)
         /// </summary>
         public decimal AmountToPay => TotalAmount - LoyaltyDiscountAmount - (ContainsGiftCardRedemption ? GiftCardRedemptionAmount : 0);
 
+        /// <summary>
+        /// Matematické zaokrouhlení částky k úhradě na celé koruny (0,50 Kč a více nahoru, méně než 0,50 dolů)
+        /// </summary>
+        public decimal FinalAmountRounded => Math.Round(AmountToPay, 0, MidpointRounding.AwayFromZero);
+
+        /// <summary>
+        /// Rozdíl zaokrouhlení (pro evidenci a tisk na účtence)
+        /// Kladná hodnota = zaokrouhleno nahoru, záporná = zaokrouhleno dolů
+        /// </summary>
+        public decimal RoundingAmount => FinalAmountRounded - AmountToPay;
+
+        /// <summary>
+        /// True pokud existuje rozdíl zaokrouhlení (není 0)
+        /// </summary>
+        public bool HasRounding => RoundingAmount != 0;
+
         public string AmountToPayFormatted => $"{AmountToPay:C}";
+
+        /// <summary>
+        /// Formátovaná finální částka k úhradě (zaokrouhlená na celé koruny)
+        /// </summary>
+        public string FinalAmountRoundedFormatted => $"{FinalAmountRounded:N0} Kč";
+
+        /// <summary>
+        /// Formátovaný rozdíl zaokrouhlení s označením +/- (pro tisk na účtence)
+        /// </summary>
+        public string RoundingAmountFormatted => RoundingAmount >= 0
+            ? $"+{RoundingAmount:F2} Kč"
+            : $"{RoundingAmount:F2} Kč";
 
         [ObservableProperty]
         private ObservableCollection<ReceiptItem> items;

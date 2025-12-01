@@ -4,18 +4,71 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:Sklad_2.Converters"
     mc:Ignorable="d"
-    Title="Vyberte způsob platby"
-    CloseButtonText="Zrušit">
+    Title="Způsob platby"
+    CloseButtonText="Zrušit"
+    DefaultButton="None">
 
-    <StackPanel Spacing="24" MinWidth="300">
-        <TextBlock Text="Celkem k úhradě:" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        <TextBlock Text="{x:Bind GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold"/>
+    <Grid MinWidth="400" Padding="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <StackPanel Spacing="12" HorizontalAlignment="Center">
-            <Button Content="Hotově" Click="CashButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
-            <Button Content="Kartou" Click="CardButton_Click" Style="{StaticResource AccentButtonStyle}" MinWidth="200"/>
-        </StackPanel>
-    </StackPanel>
+        <!-- Informační text -->
+        <TextBlock Grid.Row="0"
+                   Text="Jak bude zákazník platit?"
+                   FontSize="16"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,24"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+        <!-- Tlačítka pro výběr -->
+        <Grid Grid.Row="1" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Hotově -->
+            <Button Grid.Column="0"
+                    Click="CashButton_Click"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Padding="24"
+                    MinHeight="140"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource AccentControlElevationBorderBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="12" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE8CB;" FontSize="48" Foreground="White"/>
+                    <TextBlock Text="Hotově"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Kartou -->
+            <Button Grid.Column="1"
+                    Click="CardButton_Click"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Padding="24"
+                    MinHeight="140"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource AccentControlElevationBorderBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="12" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE8C7;" FontSize="48" Foreground="White"/>
+                    <TextBlock Text="Kartou"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Grid>
 </ContentDialog>

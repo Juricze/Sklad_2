@@ -708,20 +708,45 @@ namespace Sklad_2.Services
 
             // === TOTAL AMOUNT ===
             commands.AddRange(new byte[] { 0x0A });
-            // Center align: ESC a 1
-            commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
-            // Bold ON: ESC E 1 (bez double height pro úsporu místa)
-            commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
 
-            // Použít AmountToPay pokud je jakákoliv sleva (věrnostní nebo poukaz)
+            // Left align for precise amount display
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x00 });
+
+            // Zobrazit přesnou částku (s haléři)
             if (receipt.HasAnyDiscount)
             {
-                commands.AddRange(Cp852.GetBytes($"*** K ÚHRADĚ: {receipt.AmountToPay:N2} Kč ***"));
+                var leftPrecise = $"{INDENT}Celkem (přesně):";
+                var rightPrecise = $"{receipt.AmountToPay:N2} Kč";
+                var linePrecise = FormatLineWithRightPrice(leftPrecise, rightPrecise, RECEIPT_WIDTH, useDots: true);
+                commands.AddRange(Cp852.GetBytes(linePrecise));
             }
             else
             {
-                commands.AddRange(Cp852.GetBytes($"*** CELKEM: {receipt.TotalAmount:N2} Kč ***"));
+                var leftPrecise = $"{INDENT}Celkem (přesně):";
+                var rightPrecise = $"{receipt.TotalAmount:N2} Kč";
+                var linePrecise = FormatLineWithRightPrice(leftPrecise, rightPrecise, RECEIPT_WIDTH, useDots: true);
+                commands.AddRange(Cp852.GetBytes(linePrecise));
             }
+            commands.AddRange(new byte[] { 0x0A });
+
+            // Zobrazit zaokrouhlení (pokud není 0)
+            if (receipt.RoundingAmount != 0)
+            {
+                var leftRounding = $"{INDENT}Zaokrouhlení:";
+                var rightRounding = receipt.RoundingAmountFormatted;
+                var lineRounding = FormatLineWithRightPrice(leftRounding, rightRounding, RECEIPT_WIDTH, useDots: true);
+                commands.AddRange(Cp852.GetBytes(lineRounding));
+                commands.AddRange(new byte[] { 0x0A });
+            }
+
+            commands.AddRange(new byte[] { 0x0A });
+
+            // Center align + Bold pro finální částku
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
+            commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
+
+            // Zobrazit zaokrouhlenou částku k úhradě (celé koruny)
+            commands.AddRange(Cp852.GetBytes($"*** K ÚHRADĚ: {receipt.FinalAmountRounded:N0} Kč ***"));
             commands.AddRange(new byte[] { 0x0A });
 
             // Reset styles: ESC E 0
@@ -1006,10 +1031,33 @@ namespace Sklad_2.Services
             // === TOTAL ===
             // DRY: Use AmountToRefund (after loyalty discount) for actual refund amount
             commands.AddRange(new byte[] { 0x0A });
-            // Center align + Bold (bez double height)
+
+            // Left align for precise amount display
+            commands.AddRange(new byte[] { 0x1B, 0x61, 0x00 });
+
+            // Zobrazit přesnou částku vratky (s haléři)
+            var leftRefundPrecise = $"{INDENT}Vratka (přesně):";
+            var rightRefundPrecise = $"{returnDocument.AmountToRefund:N2} Kč";
+            var lineRefundPrecise = FormatLineWithRightPrice(leftRefundPrecise, rightRefundPrecise, RECEIPT_WIDTH, useDots: true);
+            commands.AddRange(Cp852.GetBytes(lineRefundPrecise));
+            commands.AddRange(new byte[] { 0x0A });
+
+            // Zobrazit zaokrouhlení vratky (pokud není 0)
+            if (returnDocument.RefundRoundingAmount != 0)
+            {
+                var leftRefundRounding = $"{INDENT}Zaokrouhlení:";
+                var rightRefundRounding = returnDocument.RefundRoundingAmountFormatted;
+                var lineRefundRounding = FormatLineWithRightPrice(leftRefundRounding, rightRefundRounding, RECEIPT_WIDTH, useDots: true);
+                commands.AddRange(Cp852.GetBytes(lineRefundRounding));
+                commands.AddRange(new byte[] { 0x0A });
+            }
+
+            commands.AddRange(new byte[] { 0x0A });
+
+            // Center align + Bold pro finální částku vratky (celé koruny)
             commands.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
             commands.AddRange(new byte[] { 0x1B, 0x45, 0x01 });
-            commands.AddRange(Cp852.GetBytes($"*** VRÁCENO: {returnDocument.AmountToRefund:N2} Kč ***"));
+            commands.AddRange(Cp852.GetBytes($"*** VRÁCENO: {returnDocument.FinalRefundRounded:N0} Kč ***"));
             commands.AddRange(new byte[] { 0x0A });
 
             // Reset styles

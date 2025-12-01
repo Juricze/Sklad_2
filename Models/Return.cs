@@ -81,12 +81,39 @@ namespace Sklad_2.Models
         public string ReturnDateFormatted => $"{ReturnDate:g}";
 
         /// <summary>
-        /// Skutečná částka k vrácení zákazníkovi (po odečtení poměrné části věrnostní slevy).
+        /// Skutečná částka k vrácení zákazníkovi (PŘESNÁ hodnota s haléři, po odečtení poměrné části věrnostní slevy).
         /// DRY: Jediný zdroj pravdy pro částku vratky.
         /// </summary>
         public decimal AmountToRefund => TotalRefundAmount - LoyaltyDiscountAmount;
 
+        /// <summary>
+        /// Matematické zaokrouhlení částky vratky na celé koruny
+        /// </summary>
+        public decimal FinalRefundRounded => Math.Round(AmountToRefund, 0, MidpointRounding.AwayFromZero);
+
+        /// <summary>
+        /// Rozdíl zaokrouhlení vratky
+        /// </summary>
+        public decimal RefundRoundingAmount => FinalRefundRounded - AmountToRefund;
+
+        /// <summary>
+        /// True pokud existuje rozdíl zaokrouhlení vratky (není 0)
+        /// </summary>
+        public bool HasRefundRounding => RefundRoundingAmount != 0;
+
         public string AmountToRefundFormatted => $"{AmountToRefund:C}";
+
+        /// <summary>
+        /// Formátovaná finální částka vratky (zaokrouhlená na celé koruny)
+        /// </summary>
+        public string FinalRefundRoundedFormatted => $"{FinalRefundRounded:N0} Kč";
+
+        /// <summary>
+        /// Formátovaný rozdíl zaokrouhlení vratky
+        /// </summary>
+        public string RefundRoundingAmountFormatted => RefundRoundingAmount >= 0
+            ? $"+{RefundRoundingAmount:F2} Kč"
+            : $"{RefundRoundingAmount:F2} Kč";
 
         [ObservableProperty]
         private ObservableCollection<ReturnItem> items;

@@ -215,13 +215,36 @@
                 </StackPanel>
 
                 <!-- === TOTAL === -->
-                <Grid>
+                <!-- Precise amount (with haléře) -->
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="CELKEM:" FontSize="16" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Text="{x:Bind Receipt.AmountToPayFormatted, Mode=OneWay}"
+                    <TextBlock Grid.Column="0" Text="Celkem (přesně):" FontSize="12"/>
+                    <TextBlock Grid.Column="1" Text="{x:Bind Receipt.AmountToPayFormatted, Mode=OneWay}" FontSize="12"/>
+                </Grid>
+
+                <!-- Rounding (if any) -->
+                <Grid Margin="0,0,0,4"
+                      Visibility="{x:Bind Receipt.HasRounding, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Zaokrouhlení:" FontSize="11" Foreground="#666666"/>
+                    <TextBlock Grid.Column="1" Text="{x:Bind Receipt.RoundingAmountFormatted, Mode=OneWay}"
+                               FontSize="11" Foreground="#666666"/>
+                </Grid>
+
+                <!-- Final rounded amount to pay -->
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="K ÚHRADĚ:" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1" Text="{x:Bind Receipt.FinalAmountRoundedFormatted, Mode=OneWay}"
                                FontSize="16" FontWeight="Bold"/>
                 </Grid>
 

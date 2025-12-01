@@ -81,9 +81,16 @@ namespace Sklad_2.ViewModels
         // Více uplatněných dárkových poukazů
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsAnyGiftCardReady))]
+        [NotifyPropertyChangedFor(nameof(HasAnyDiscount))]
         [NotifyPropertyChangedFor(nameof(TotalGiftCardValue))]
         [NotifyPropertyChangedFor(nameof(TotalGiftCardValueFormatted))]
         [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayRounded))]
+        [NotifyPropertyChangedFor(nameof(RoundingDifference))]
+        [NotifyPropertyChangedFor(nameof(HasRounding))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayRoundedFormatted))]
+        [NotifyPropertyChangedFor(nameof(RoundingDifferenceFormatted))]
         [NotifyPropertyChangedFor(nameof(GrandTotalFormatted))]
         [NotifyPropertyChangedFor(nameof(WillHavePartialUsage))]
         [NotifyPropertyChangedFor(nameof(ForfeitedAmount))]
@@ -96,9 +103,17 @@ namespace Sklad_2.ViewModels
         // Věrnostní program
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsLoyaltyCustomerLoaded))]
+        [NotifyPropertyChangedFor(nameof(HasAnyDiscount))]
         [NotifyPropertyChangedFor(nameof(LoyaltyDiscountAmount))]
         [NotifyPropertyChangedFor(nameof(LoyaltyDiscountFormatted))]
+        [NotifyPropertyChangedFor(nameof(LoyaltyDiscountAmountFormatted))]
         [NotifyPropertyChangedFor(nameof(AmountToPay))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayFormatted))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayRounded))]
+        [NotifyPropertyChangedFor(nameof(RoundingDifference))]
+        [NotifyPropertyChangedFor(nameof(HasRounding))]
+        [NotifyPropertyChangedFor(nameof(AmountToPayRoundedFormatted))]
+        [NotifyPropertyChangedFor(nameof(RoundingDifferenceFormatted))]
         [NotifyPropertyChangedFor(nameof(GrandTotalFormatted))]
         private LoyaltyCustomer selectedLoyaltyCustomer;
 
@@ -114,6 +129,13 @@ namespace Sklad_2.ViewModels
             : 0;
         public string LoyaltyDiscountFormatted => LoyaltyDiscountAmount > 0
             ? $"-{LoyaltyDiscountAmount:C} ({SelectedLoyaltyCustomer.DiscountPercent:N0}%)"
+            : string.Empty;
+
+        /// <summary>
+        /// Formátovaná částka věrnostní slevy (jen hodnota)
+        /// </summary>
+        public string LoyaltyDiscountAmountFormatted => LoyaltyDiscountAmount > 0
+            ? $"-{LoyaltyDiscountAmount:C}"
             : string.Empty;
 
         public bool IsCheckoutSuccessful { get; private set; }
@@ -143,7 +165,7 @@ namespace Sklad_2.ViewModels
         public string ScannedProductPriceFormatted => ScannedProduct != null ? $"{ScannedProduct.SalePrice:C}" : string.Empty;
 
         /// <summary>
-        /// Částka k úhradě po odečtení věrnostní slevy a poukazů
+        /// Částka k úhradě po odečtení věrnostní slevy a poukazů (PŘESNÁ hodnota s haléři)
         /// </summary>
         public decimal AmountToPay
         {
@@ -160,6 +182,43 @@ namespace Sklad_2.ViewModels
                 return Math.Max(0, total);
             }
         }
+
+        /// <summary>
+        /// Zaokrouhlená částka k úhradě na celé koruny (pro zobrazení zákazníkovi)
+        /// </summary>
+        public decimal AmountToPayRounded => Math.Round(AmountToPay, 0, MidpointRounding.AwayFromZero);
+
+        /// <summary>
+        /// Rozdíl zaokrouhlení
+        /// </summary>
+        public decimal RoundingDifference => AmountToPayRounded - AmountToPay;
+
+        /// <summary>
+        /// True pokud existuje rozdíl zaokrouhlení (není 0)
+        /// </summary>
+        public bool HasRounding => RoundingDifference != 0;
+
+        /// <summary>
+        /// Formátovaná přesná částka k úhradě (s haléři)
+        /// </summary>
+        public string AmountToPayFormatted => $"{AmountToPay:C}";
+
+        /// <summary>
+        /// Formátovaná zaokrouhlená částka k úhradě
+        /// </summary>
+        public string AmountToPayRoundedFormatted => $"{AmountToPayRounded:N0} Kč";
+
+        /// <summary>
+        /// Formátovaný rozdíl zaokrouhlení
+        /// </summary>
+        public string RoundingDifferenceFormatted => RoundingDifference >= 0
+            ? $"+{RoundingDifference:F2} Kč"
+            : $"{RoundingDifference:F2} Kč";
+
+        /// <summary>
+        /// True pokud je aplikována jakákoliv sleva (věrnostní nebo poukaz)
+        /// </summary>
+        public bool HasAnyDiscount => IsLoyaltyCustomerLoaded || IsAnyGiftCardReady;
 
         public string GrandTotalFormatted
         {
@@ -224,6 +283,12 @@ namespace Sklad_2.ViewModels
                 notifiedReceipt.PropertyChanged += (s, e) =>
                 {
                     OnPropertyChanged(nameof(AmountToPay));
+                    OnPropertyChanged(nameof(AmountToPayFormatted));
+                    OnPropertyChanged(nameof(AmountToPayRounded));
+                    OnPropertyChanged(nameof(RoundingDifference));
+                    OnPropertyChanged(nameof(HasRounding));
+                    OnPropertyChanged(nameof(AmountToPayRoundedFormatted));
+                    OnPropertyChanged(nameof(RoundingDifferenceFormatted));
                     OnPropertyChanged(nameof(GrandTotalFormatted));
                     OnPropertyChanged(nameof(GrandTotalWithoutVatFormatted));
                     OnPropertyChanged(nameof(GrandTotalVatAmountFormatted));
@@ -240,6 +305,12 @@ namespace Sklad_2.ViewModels
                 OnPropertyChanged(nameof(TotalGiftCardValue));
                 OnPropertyChanged(nameof(TotalGiftCardValueFormatted));
                 OnPropertyChanged(nameof(AmountToPay));
+                OnPropertyChanged(nameof(AmountToPayFormatted));
+                OnPropertyChanged(nameof(AmountToPayRounded));
+                OnPropertyChanged(nameof(RoundingDifference));
+                OnPropertyChanged(nameof(HasRounding));
+                OnPropertyChanged(nameof(AmountToPayRoundedFormatted));
+                OnPropertyChanged(nameof(RoundingDifferenceFormatted));
                 OnPropertyChanged(nameof(GrandTotalFormatted));
                 OnPropertyChanged(nameof(WillHavePartialUsage));
                 OnPropertyChanged(nameof(ForfeitedAmount));
@@ -698,18 +769,22 @@ namespace Sklad_2.ViewModels
                 // Calculate actual payment amounts (cash vs card)
                 // Amount to pay = Total - Loyalty discount - Gift card redemption
                 decimal amountToPay = totalAfterLoyaltyDiscount - giftCardRedemptionAmount;
+
+                // Zaokrouhlení na celé koruny (FÚ compliance - hotovostní platby)
+                decimal roundedAmount = Math.Round(amountToPay, 0, MidpointRounding.AwayFromZero);
+
                 decimal cashAmount = 0;
                 decimal cardAmount = 0;
 
                 // Determine payment breakdown based on payment method
                 if (paymentMethod == PaymentMethod.Card || paymentMethodString.Contains("Karta"))
                 {
-                    cardAmount = amountToPay;
+                    cardAmount = roundedAmount;  // Zaokrouhlená částka
                     cashAmount = 0;
                 }
                 else // Hotově
                 {
-                    cashAmount = amountToPay;
+                    cashAmount = roundedAmount;  // Zaokrouhlená částka
                     cardAmount = 0;
                 }
 
