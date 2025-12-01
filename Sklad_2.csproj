@@ -21,6 +21,12 @@
     <SatelliteResourceLanguages>en-US;cs-CZ</SatelliteResourceLanguages>
   </PropertyGroup>
 
+  <!-- Exclude test project files from main project compilation -->
+  <ItemGroup>
+    <Compile Remove="Sklad_2.Tests\**\*.cs" />
+    <None Include="Sklad_2.Tests\**\*.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="ESCPOS_NET" Version="3.0.0" />

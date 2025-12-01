@@ -40,7 +40,7 @@ Projekt striktně dodržuje MVVM pattern:
 Vše je registrováno v `App.xaml.cs` metodě `ConfigureServices()`:
 - **Singleton ViewModels**: Většina ViewModelů je singleton (sdílený stav během session)
 - **Transient ViewModels**: `LoginViewModel` (pro dialogy a přihlášení)
-- **Services**: `IDataService`, `IReceiptService`, `IPrintService`, `ICashRegisterService`, `IAuthService`, `ISettingsService`
+- **Services**: `IDataService`, `IReceiptService`, `IPrintService`, `IAuthService`, `ISettingsService`, `IDailyCloseService`
 - **DbContext**: Registrován jako `DbContextFactory<DatabaseContext>` kvůli workaround pro WinUI binding issues
 
 ### Databáze
@@ -461,6 +461,103 @@ private void RefreshItems()
 - Zahrnut v každém release ZIP
 - Dostupný samostatně v repository root
 - Ke stažení z GitHub web interface
+
+---
+
+## 🧪 Unit Testy & Testing Workflow
+
+**Projekt má unit testy pro kritické výpočty** (od prosince 2025).
+
+### **Co testujeme:**
+
+✅ **Receipt Model** (`Sklad_2.Tests/Models/ReceiptTests.cs` - 19 testů)
+- Zaokrouhlování na celé koruny (FinalAmountRounded, RoundingAmount, HasRounding)
+- Výpočet AmountToPay (věrnostní sleva + dárkové poukazy)
+- Kombinace slev + zaokrouhlování (KRITICKÉ pro denní uzávěrku)
+- Edge cases (nulové/velmi malé/velké částky)
+
+✅ **Return Model** (`Sklad_2.Tests/Models/ReturnTests.cs` - 15 testů)
+- Zaokrouhlování vratek (FinalRefundRounded, RefundRoundingAmount)
+- Věrnostní slevy při vratce (poměrná část)
+- DRY konzistence s Receipt modelem
+
+### **Kdy spustit testy:**
+
+**VŽDY před:**
+- ✅ Commitnutím změn v Models (Receipt, Return, CashRegisterEntry)
+- ✅ Změnami ve výpočtech (zaokrouhlování, DPH, slevy)
+- ✅ Vytvořením nového release
+
+**Volitelně:**
+- Po změnách v Services (DailyCloseService, SqliteDataService)
+
+### **Jak spustit:**
+
+**Visual Studio 2022 (DOPORUČENO):**
+1. Otevři `Sklad_2.sln`
+2. Test → Test Explorer (nebo Ctrl+E, T)
+3. Run All Tests (Ctrl+R, A)
+4. Všechny testy by měly projít ✅
+
+**Poznámka**: .NET CLI (`dotnet test`) může mít problémy s WinUI projekty na SDK 9. Používej Visual Studio.
+
+### **Workflow pro nové features:**
+
+Při implementaci nové funkce s finanční/business logikou:
+
+1. **Implementuj rychle** (jako dosud) - Model, ViewModel, View
+2. **Otestuj manuálně v UI** - vytvoř testovací prodej, ověř v DB
+3. **Před commitem: Přidej unit test PRO BUSINESS LOGIKU**:
+   ```csharp
+   // Sklad_2.Tests/Models/MyNewFeatureTests.cs
+   [Fact]
+   public void MyCalculation_Scenario_ExpectedResult()
+   {
+       // Arrange
+       var model = new MyModel { Property = value };
+
+       // Act
+       var result = model.ComputedProperty;
+
+       // Assert
+       Assert.Equal(expected, result);
+   }
+   ```
+4. **Spusť všechny testy** (Visual Studio Test Explorer)
+5. **Commit + Release** (pouze pokud všechny testy procházejí ✅)
+
+### **Co NETESTUJEME (není potřeba):**
+
+- ❌ UI code-behind (`.xaml.cs` event handlers)
+- ❌ ViewModely s WinUI závislostmi (ContentDialog, XamlRoot...)
+- ❌ Navigation logika
+- ❌ Dialogy
+
+**Pravidlo**: Testuj pouze **business logiku** (Models, Services), ne UI.
+
+### **xUnit Cheat Sheet:**
+
+```csharp
+using Xunit;
+
+// Jeden test
+[Fact]
+public void TestName() { }
+
+// Parametrizované testy (více vstupů)
+[Theory]
+[InlineData(100.50, 101)]
+[InlineData(100.49, 100)]
+public void TestName(decimal input, decimal expected) { }
+
+// Assertions
+Assert.Equal(expected, actual);
+Assert.True(condition);
+Assert.False(condition);
+Assert.Throws<TException>(() => code);
+```
+
+**Více info**: `Sklad_2.Tests/README.md`
 
 ---
 

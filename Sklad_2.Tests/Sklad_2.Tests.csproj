@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Platforms>AnyCPU</Platforms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- Disable RuntimeIdentifier resolution to avoid win10-* conflicts -->
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+    <RuntimeIdentifier></RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <!-- CommunityToolkit.Mvvm required for ObservableObject (used in Models) -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include Model source files as linked files (compile them without WinUI dependencies) -->
+    <Compile Include="..\Models\Receipt.cs" Link="Models\Receipt.cs" />
+    <Compile Include="..\Models\Return.cs" Link="Models\Return.cs" />
+    <Compile Include="..\Models\ReceiptItem.cs" Link="Models\ReceiptItem.cs" />
+    <Compile Include="..\Models\ReturnItem.cs" Link="Models\ReturnItem.cs" />
+    <Compile Include="..\Models\ReceiptGiftCardRedemption.cs" Link="Models\ReceiptGiftCardRedemption.cs" />
+    <Compile Include="..\Models\GiftCard.cs" Link="Models\GiftCard.cs" />
+    <Compile Include="..\Models\GiftCardStatus.cs" Link="Models\GiftCardStatus.cs" />
+  </ItemGroup>
+
+</Project>
