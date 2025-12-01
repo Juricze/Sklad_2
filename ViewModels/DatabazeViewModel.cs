@@ -64,6 +64,7 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
         [NotifyCanExecuteChangedFor(nameof(EditProductCommand))]
+        [NotifyCanExecuteChangedFor(nameof(WriteOffProductCommand))]
         [NotifyPropertyChangedFor(nameof(SelectedProductImage))]
         [NotifyPropertyChangedFor(nameof(IsProductSelected))]
         private Product selectedProduct;
@@ -296,12 +297,59 @@ namespace Sklad_2.ViewModels
             OnPropertyChanged(nameof(SelectedProductImage));
         }
 
+        private bool CanWriteOffProduct() => SelectedProduct != null && IsAdmin && SelectedProduct.StockQuantity > 0;
+
+        [RelayCommand(CanExecute = nameof(CanWriteOffProduct))]
+        private async Task WriteOffProductAsync(Tuple<StockMovementType, int, string> parameters)
+        {
+            if (SelectedProduct == null || parameters == null) return;
+
+            var writeOffType = parameters.Item1;
+            var quantity = parameters.Item2;
+            var notes = parameters.Item3;
+
+            // Save current selection EAN
+            var selectedEan = SelectedProduct.Ean;
+
+            // Get current stock before update
+            var stockBefore = SelectedProduct.StockQuantity;
+
+            // Decrease stock quantity
+            SelectedProduct.StockQuantity -= quantity;
+
+            // Update product in database
+            await _dataService.UpdateProductAsync(SelectedProduct);
+
+            // Create stock movement record
+            var movement = new StockMovement
+            {
+                ProductEan = SelectedProduct.Ean,
+                ProductName = SelectedProduct.Name,
+                MovementType = writeOffType,
+                QuantityChange = -quantity, // Negative for write-off
+                StockBefore = stockBefore,
+                StockAfter = SelectedProduct.StockQuantity,
+                Timestamp = DateTime.Now,
+                UserName = _authService.CurrentUser?.DisplayName ?? "Neznámý",
+                Notes = notes
+            };
+
+            await _dataService.AddStockMovementAsync(movement);
+
+            // Refresh product list
+            await LoadProductsAsync();
+
+            // Re-select the updated product
+            SelectedProduct = FilteredProducts.FirstOrDefault(p => p.Ean == selectedEan);
+        }
+
         // Method to refresh command states after role change
         public void RefreshCommandStates()
         {
             OnPropertyChanged(nameof(IsAdmin));
             EditProductCommand.NotifyCanExecuteChanged();
             DeleteProductCommand.NotifyCanExecuteChanged();
+            WriteOffProductCommand.NotifyCanExecuteChanged();
         }
     }
 }

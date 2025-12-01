@@ -50,6 +50,8 @@ namespace Sklad_2.Models
             StockMovementType.Sale => "Prodej",
             StockMovementType.Return => "Vratka",
             StockMovementType.Adjustment => "Úprava",
+            StockMovementType.WriteOffTester => "Odpis - Tester",
+            StockMovementType.WriteOffDamaged => "Odpis - Poškozené",
             _ => MovementType.ToString()
         };
 

@@ -1,0 +1,69 @@
+<ContentDialog
+    x:Class="Sklad_2.Views.Dialogs.WriteOffDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Odepsat produkt"
+    PrimaryButtonText="Odepsat"
+    CloseButtonText="Zrušit"
+    DefaultButton="Primary"
+    PrimaryButtonClick="PrimaryButton_Click">
+
+    <StackPanel Spacing="12" MinWidth="400">
+        <!-- Product Info (read-only display) -->
+        <TextBlock FontWeight="SemiBold" FontSize="14">
+            <Run Text="Produkt: "/>
+            <Run x:Name="ProductNameRun" Text=""/>
+        </TextBlock>
+        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+            <Run Text="EAN: "/>
+            <Run x:Name="ProductEanRun" Text=""/>
+        </TextBlock>
+        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+            <Run Text="Skladem: "/>
+            <Run x:Name="StockQuantityRun" Text=""/>
+            <Run Text=" ks"/>
+        </TextBlock>
+
+        <!-- Separator -->
+        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,4"/>
+
+        <!-- Write-off Type Selection -->
+        <ComboBox x:Name="WriteOffTypeComboBox"
+                  Header="Typ odpisu"
+                  PlaceholderText="Vyberte typ odpisu"
+                  SelectedIndex="0"
+                  HorizontalAlignment="Stretch">
+            <ComboBoxItem Content="Tester" Tag="WriteOffTester"/>
+            <ComboBoxItem Content="Poškozené/Expirované/Jiné" Tag="WriteOffDamaged"/>
+        </ComboBox>
+
+        <!-- Quantity -->
+        <NumberBox x:Name="QuantityNumberBox"
+                   Header="Počet kusů k odepsání"
+                   PlaceholderText="Zadejte počet kusů"
+                   SpinButtonPlacementMode="Inline"
+                   Minimum="1"
+                   SmallChange="1"
+                   LargeChange="5"
+                   Value="1"
+                   ValueChanged="QuantityNumberBox_ValueChanged"/>
+
+        <!-- Notes (optional) -->
+        <TextBox x:Name="NotesTextBox"
+                 Header="Poznámka (nepovinné)"
+                 PlaceholderText="např. Poškozeno při dopravě, Expirace 12/2024..."
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 MinHeight="80"
+                 MaxHeight="120"/>
+
+        <!-- Error message -->
+        <TextBlock x:Name="ErrorTextBlock"
+                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                   TextWrapping="Wrap"
+                   Visibility="Collapsed"/>
+    </StackPanel>
+</ContentDialog>

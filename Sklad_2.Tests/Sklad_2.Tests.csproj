@@ -12,6 +12,9 @@
     <!-- Disable RuntimeIdentifier resolution to avoid win10-* conflicts -->
     <RuntimeIdentifiers></RuntimeIdentifiers>
     <RuntimeIdentifier></RuntimeIdentifier>
+
+    <!-- Suppress nullable warnings for linked model files (initialized by EF Core in main project) -->
+    <NoWarn>$(NoWarn);CS8618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -128,5 +128,42 @@ namespace Sklad_2.Views
                 }
             }
         }
+
+        private async void WriteOffButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedProduct == null)
+            {
+                return;
+            }
+
+            var product = ViewModel.SelectedProduct;
+
+            // Check if product has stock
+            if (product.StockQuantity <= 0)
+            {
+                var noStockDialog = new ContentDialog
+                {
+                    Title = "Nelze odepsat",
+                    Content = "Produkt nemá žádné kusy na skladě.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await noStockDialog.ShowAsync();
+                return;
+            }
+
+            // Show write-off dialog
+            var dialog = new WriteOffDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
+            dialog.SetProduct(product.Name, product.Ean, product.StockQuantity);
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.WriteOffProductCommand.ExecuteAsync(new Tuple<Models.StockMovementType, int, string>(dialog.SelectedWriteOffType, dialog.Quantity, dialog.Notes));
+            }
+        }
     }
 }

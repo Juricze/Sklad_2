@@ -27,7 +27,9 @@ namespace Sklad_2.ViewModels
             new StockMovementTypeFilter { Name = "Naskladnění", Type = StockMovementType.StockIn },
             new StockMovementTypeFilter { Name = "Prodej", Type = StockMovementType.Sale },
             new StockMovementTypeFilter { Name = "Vratka", Type = StockMovementType.Return },
-            new StockMovementTypeFilter { Name = "Úprava", Type = StockMovementType.Adjustment }
+            new StockMovementTypeFilter { Name = "Úprava", Type = StockMovementType.Adjustment },
+            new StockMovementTypeFilter { Name = "Odpis - Tester", Type = StockMovementType.WriteOffTester },
+            new StockMovementTypeFilter { Name = "Odpis - Poškozené", Type = StockMovementType.WriteOffDamaged }
         };
 
         [ObservableProperty]

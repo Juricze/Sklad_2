@@ -168,8 +168,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="models:ReceiptGiftCardRedemption">
                                     <TextBlock FontSize="10" Foreground="#666666" Margin="0,1,0,0">
-                                        <Run Text="EAN: "/><Run Text="{x:Bind GiftCardEan, Mode=OneWay}"/>
-                                        <Run Text=" ("/><Run Text="{x:Bind RedeemedAmount, Mode=OneWay}"/><Run Text=" Kč)"/>
+                                        <Run Text="EAN: "/><Run Text="{x:Bind GiftCardEan, Mode=OneTime}"/>
+                                        <Run Text=" ("/><Run Text="{x:Bind RedeemedAmount, Mode=OneTime}"/><Run Text=" Kč)"/>
                                     </TextBlock>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
