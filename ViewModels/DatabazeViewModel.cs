@@ -282,9 +282,18 @@ namespace Sklad_2.ViewModels
         {
             if (product == null) return;
 
+            // Save current selection EAN
+            var selectedEan = product.Ean;
+
             // Product is updated by the dialog, just save it
             await _dataService.UpdateProductAsync(product);
             await LoadProductsAsync(); // Refresh list
+
+            // Re-select the updated product from the new list
+            SelectedProduct = FilteredProducts.FirstOrDefault(p => p.Ean == selectedEan);
+
+            // Force image refresh by notifying property changed
+            OnPropertyChanged(nameof(SelectedProductImage));
         }
 
         // Method to refresh command states after role change

@@ -103,20 +103,20 @@
                 <Grid Grid.Row="0" Padding="12,8,12,8" ColumnSpacing="8" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
-                        <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- EAN: 3 -->
+                        <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
                         <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
                         <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
                         <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
-                        <ColumnDefinition Width="2*" MinWidth="60"/>   <!-- Sklad: 2 -->
-                        <ColumnDefinition Width="2*" MinWidth="80"/>   <!-- Cena: 2 -->
+                        <ColumnDefinition Width="2*" MinWidth="90"/>   <!-- Sklad: 2 -->
+                        <ColumnDefinition Width="2*" MinWidth="110"/>   <!-- Cena: 2 -->
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="#" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="EAN" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="2" Content="Název ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="3" Text="Značka" FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="4" Text="Kategorie" FontWeight="Bold" VerticalAlignment="Center"/>
                     <Button Grid.Column="5" Content="Sklad ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="StockQuantity" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Button Grid.Column="6" Content="Cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Button Grid.Column="6" Content="Cena ▲▼" Command="{x:Bind ViewModel.SortByCommand}" CommandParameter="SalePrice" Style="{ThemeResource TextBlockButtonStyle}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
 
                 <!-- ListView without header -->
@@ -130,12 +130,12 @@
                         <Grid Padding="0,6" ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44"/>              <!-- Obrázek: fixní -->
-                                <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- EAN: 3 -->
+                                <ColumnDefinition Width="4*" MinWidth="80"/>   <!-- EAN: 4 -->
                                 <ColumnDefinition Width="5*" MinWidth="100"/>  <!-- Název: 5 (nejširší) -->
                                 <ColumnDefinition Width="3*" MinWidth="80"/>   <!-- Značka: 3 -->
                                 <ColumnDefinition Width="3*" MinWidth="90"/>   <!-- Kategorie: 3 -->
-                                <ColumnDefinition Width="2*" MinWidth="60"/>   <!-- Sklad: 2 -->
-                                <ColumnDefinition Width="2*" MinWidth="80"/>   <!-- Cena: 2 -->
+                                <ColumnDefinition Width="2*" MinWidth="90"/>   <!-- Sklad: 2 -->
+                                <ColumnDefinition Width="2*" MinWidth="110"/>   <!-- Cena: 2 -->
                             </Grid.ColumnDefinitions>
 
                             <!-- Thumbnail -->
@@ -166,10 +166,10 @@
                             <!-- Category -->
                             <TextBlock Grid.Column="4" Text="{x:Bind CategoryName}" VerticalAlignment="Center" FontSize="12" Foreground="#FF0078D7" TextTrimming="CharacterEllipsis"/>
 
-                            <TextBlock Grid.Column="5" Text="{x:Bind StockQuantity}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="5" Text="{x:Bind StockQuantity}" VerticalAlignment="Center" MinWidth="60" HorizontalAlignment="Center"/>
 
                             <!-- Price with discount indicator -->
-                            <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="4">
+                                <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="4">
                                 <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
                                         CornerRadius="8"
                                         Padding="4,1"
@@ -180,8 +180,8 @@
                                                FontWeight="Bold"
                                                Foreground="White"/>
                                 </Border>
-                                <TextBlock Text="{x:Bind FinalPriceFormatted, Mode=OneWay}"
-                                           FontWeight="SemiBold"
+                                    <TextBlock Text="{x:Bind FinalPriceFormatted, Mode=OneWay}"
+                                           FontWeight="SemiBold"                         
                                            Foreground="{x:Bind IsDiscounted, Mode=OneWay, Converter={StaticResource BooleanToDiscountColorConverter}}"/>
                             </StackPanel>
                         </Grid>
@@ -213,22 +213,28 @@
                     <StackPanel Spacing="16">
 
                         <!-- Product Image -->
-                        <Viewbox MaxWidth="2000" MaxHeight="2000" Stretch="Uniform">
+                        <Viewbox MaxWidth="2000" MaxHeight="2000" Stretch="Uniform" HorizontalAlignment="Center"
+                                 Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                     CornerRadius="8"
-                                    Width="2000"
-                                    Height="2000">
-                                <Grid>
-                                    <FontIcon Glyph="&#xE91B;"
-                                              FontSize="512"
-                                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                                    <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
-                                           Stretch="Uniform"
-                                           Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                </Grid>
+                                    Padding="2">
+                                <Image Source="{Binding SelectedProductImage, Mode=OneWay}"
+                                       Stretch="None"/>
+                            </Border>
+                        </Viewbox>
+
+                        <!-- No Image Placeholder -->
+                        <Viewbox MaxWidth="600" MaxHeight="600" Stretch="Uniform" HorizontalAlignment="Center"
+                                 Visibility="{Binding SelectedProduct.HasImage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                            <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                    CornerRadius="8"
+                                    Width="600"
+                                    Height="600">
+                                <FontIcon Glyph="&#xE91B;"
+                                          FontSize="128"
+                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
                             </Border>
                         </Viewbox>
 
@@ -390,5 +396,12 @@
                 </Grid>
             </Border>
         </Grid>
+
+        <!-- EAN Copy Success Notification -->
+        <TeachingTip x:Name="EanCopiedTeachingTip"
+                     Title="✓ Zkopírováno"
+                     Subtitle=""
+                     IsLightDismissEnabled="True"
+                     PreferredPlacement="Auto"/>
     </Grid>
 </Page>

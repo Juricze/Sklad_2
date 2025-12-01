@@ -106,35 +106,27 @@ namespace Sklad_2.Views
             }
         }
 
-        private async void EanButton_Click(object sender, RoutedEventArgs e)
+        private void EanButton_Click(object sender, RoutedEventArgs e)
         {
             // Get EAN from HyperlinkButton content or from data context
             string ean = null;
             if (sender is HyperlinkButton button)
             {
                 ean = button.Content?.ToString();
+
+                // Copy to clipboard
+                if (!string.IsNullOrEmpty(ean))
+                {
+                    var dataPackage = new DataPackage();
+                    dataPackage.SetText(ean);
+                    Clipboard.SetContent(dataPackage);
+
+                    // Show subtle notification
+                    EanCopiedTeachingTip.Subtitle = $"EAN {ean}";
+                    EanCopiedTeachingTip.Target = button;
+                    EanCopiedTeachingTip.IsOpen = true;
+                }
             }
-
-            if (string.IsNullOrEmpty(ean))
-            {
-                return;
-            }
-
-            // Copy to clipboard
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(ean);
-            Clipboard.SetContent(dataPackage);
-
-            // Show success notification
-            var successDialog = new ContentDialog
-            {
-                Title = "EAN zkopírován",
-                Content = $"EAN {ean} byl zkopírován do schránky.",
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
-            };
-
-            await successDialog.ShowAsync();
         }
     }
 }

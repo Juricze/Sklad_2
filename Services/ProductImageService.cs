@@ -144,6 +144,8 @@ namespace Sklad_2.Services
                 }
 
                 var bitmap = new BitmapImage();
+                // Disable cache to ensure updated images are loaded
+                bitmap.CreateOptions = Microsoft.UI.Xaml.Media.Imaging.BitmapCreateOptions.IgnoreImageCache;
                 bitmap.UriSource = new Uri(path);
                 return bitmap;
             }

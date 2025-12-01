@@ -17,7 +17,62 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 30. listopad 2025 (pokračování 6)**
+## 📅 **Poslední session: 1. prosinec 2025 (pokračování 7)**
+
+### ✅ Hotovo:
+**Release v1.0.19: Fix responzivity obrázků + Změna obrázku produktu + UX polish**
+
+**1. KRITICKÁ OPRAVA: Responzivita obrázku v detail panelu**
+- **Problém**: Obrázek měl MaxWidth/MaxHeight 2000, ale NEREAGOVAL na zmenšení okna (Win10 malé rozlišení)
+- **Příčina**: Border s MaxWidth nezajišťuje automatické škálování obsahu
+- **Řešení**: Použit **Viewbox** s MaxWidth/MaxHeight 2000
+  - Viewbox automaticky zmenší obsah když je méně prostoru
+  - Border uvnitř Viewbox s `Stretch="None"` zobrazí obrázek v plné kvalitě
+  - Na velkých obrazovkách: až 2000×2000 px
+  - Na malých obrazovkách (Win10): automaticky proporcionálně menší
+- **Placeholder**: Také změněn na Viewbox (600×600) pro konzistentní responzivní chování
+
+**2. KRITICKÁ OPRAVA: Změna obrázku produktu**
+- **Problém**: Když uživatel změnil obrázek produktu v EditProductDialog, UI nezobrazilo nový obrázek
+- **Příčina**:
+  - WinUI cachuje BitmapImage podle URI (stejný path = cachovaný obrázek)
+  - Po `LoadProductsAsync` zůstal `SelectedProduct` ukazovat na STARÝ objekt
+- **Řešení 1 - Image cache invalidation**:
+  - `ProductImageService.LoadBitmapImage`: Přidán `BitmapCreateOptions.IgnoreImageCache`
+  - Zakáže WinUI cache → vždy načte aktuální soubor z disku
+- **Řešení 2 - Re-select product**:
+  - `DatabazeViewModel.EditProductAsync`: Po reload seznamu znovu vybere produkt z nové kolekce
+  - Explicitně vyvolá `OnPropertyChanged(nameof(SelectedProductImage))`
+  - ListView se aktualizuje s novými instancemi → miniaturky se překreslí
+- **Výsledek**: Změna obrázku funguje bez nutnosti "Odstranit → Uložit → Znovu přidat"
+
+**3. UX: TeachingTip místo ContentDialog pro EAN kopírování**
+- **Problém**: ContentDialog po kliku na EAN byl příliš rušivý (modální, vyžadoval potvrzení)
+- **Řešení**: Nahrazeno **TeachingTip**
+  - Zobrazí se přímo u kliknutého EAN tlačítka
+  - Automaticky zmizí po kliknutí kamkoliv (IsLightDismissEnabled)
+  - Nenápadný popup: "✓ Zkopírováno" + číslo EAN
+  - Nepotřebuje potvrzení tlačítkem
+- **Výsledek**: Rychlejší workflow, méně klikání
+
+**4. User adjustments - MinWidth sloupců**
+- Sklad: MinWidth 60 → **90**
+- Cena: MinWidth 80 → **110**
+- Lepší čitelnost na nižších rozlišeních (Win10)
+
+**Upravené soubory:**
+- `Views/DatabazePage.xaml` - Viewbox pro obrázek/placeholder, TeachingTip, MinWidth úpravy
+- `Views/DatabazePage.xaml.cs` - TeachingTip místo ContentDialog
+- `ViewModels/DatabazeViewModel.cs` - Re-select product + OnPropertyChanged
+- `Services/ProductImageService.cs` - IgnoreImageCache
+
+**Git:**
+- Commit: (připraveno)
+- Release: v1.0.19 (self-contained)
+
+---
+
+## 📅 **Předchozí session: 30. listopad 2025 (pokračování 6)**
 
 ### ✅ Hotovo:
 **Release v1.0.18: UI Polishing DatabazePage - Responzivní detail + Robustní layout**
@@ -296,8 +351,8 @@ Clipboard.SetContent(dataPackage);
 14. **Tisk účtenek** (ESC/POS, české znaky CP852, Epson TM-T20III, **logo**)
 15. **Single-instance ochrana** (Mutex, Win32 MessageBox)
 16. **Marže produktů** (bidirektionální výpočet, editace pro admin)
-17. **Obrázky produktů** (upload, thumbnail, resize, backup, **2000px kvalita**, **responzivní zobrazení**, **MinWidth constraints**)
-18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit, **robustní layout**)
+17. **Obrázky produktů** (upload, thumbnail, resize, backup, **2000px kvalita**, **responzivní Viewbox**, **image cache fix**, **změna obrázku funguje**)
+18. **Popis produktů + Master-Detail DatabazePage** (description, role-based edit, **TeachingTip EAN copy**)
 19. **Export inventurního soupisu** (tisknutelná HTML + Excel CSV)
 20. **Brand & Category management** (UI dialogy, schema V21, **profesionální filtry**)
 
@@ -306,5 +361,5 @@ Clipboard.SetContent(dataPackage);
 
 ---
 
-**Poslední aktualizace:** 30. listopad 2025
-**Aktuální verze:** v1.0.18 (schema V21)
+**Poslední aktualizace:** 1. prosinec 2025
+**Aktuální verze:** v1.0.19 (schema V21)
