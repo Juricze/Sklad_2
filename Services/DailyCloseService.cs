@@ -132,10 +132,8 @@ namespace Sklad_2.Services
                 var normalReceipts = allReceipts.Where(r => !r.IsStorno).ToList();
                 var stornoReceipts = allReceipts.Where(r => r.IsStorno).ToList();
 
-                if (normalReceipts.Count == 0)
-                {
-                    return (false, $"Nelze uzavřít den {sessionDate:dd.MM.yyyy} bez účtenek.", null);
-                }
+                // POVOLENO: Uzavřít den bez účtenek (zavřená prodejna, volno, nemoc)
+                // Legitimní situace: 0 prodejů nebo pouze vratky
 
                 // Vypočítat tržby - normální účtenky přičíst, stornované přičíst (záporné hodnoty)
                 var cashSales = normalReceipts.Sum(r => r.CashAmount);
@@ -180,9 +178,18 @@ namespace Sklad_2.Services
                 }
 
                 // Rozmezí účtenek - první a poslední VŠECH účtenek (včetně storno)
-                // allReceipts jsou už seřazené podle ReceiptSequence
-                var firstReceipt = allReceipts.First();
-                var lastReceipt = allReceipts.Last();
+                // Pokud nejsou žádné účtenky, zobrazit "—"
+                string receiptNumberFrom = "—";
+                string receiptNumberTo = "—";
+
+                if (allReceipts.Count > 0)
+                {
+                    // allReceipts jsou už seřazené podle ReceiptSequence
+                    var firstReceipt = allReceipts.First();
+                    var lastReceipt = allReceipts.Last();
+                    receiptNumberFrom = firstReceipt.FormattedReceiptNumber;
+                    receiptNumberTo = lastReceipt.FormattedReceiptNumber;
+                }
 
                 // Vytvořit uzavírku s datem SESSION (ne Today!)
                 var dailyClose = new DailyClose
@@ -193,8 +200,8 @@ namespace Sklad_2.Services
                     TotalSales = totalSales,
                     VatAmount = vatAmount,
                     SellerName = sellerName,
-                    ReceiptNumberFrom = firstReceipt.FormattedReceiptNumber,
-                    ReceiptNumberTo = lastReceipt.FormattedReceiptNumber,
+                    ReceiptNumberFrom = receiptNumberFrom,
+                    ReceiptNumberTo = receiptNumberTo,
                     ClosedAt = DateTime.Now
                 };
 
@@ -359,15 +366,46 @@ namespace Sklad_2.Services
                     .OrderByDescending(dc => dc.Date)
                     .ToListAsync();
 
-                var summaries = dailyCloses.Select(dc => new DailySalesSummary
+                // Načíst vratky pro uzavřené dny
+                var closedDates = dailyCloses.Select(c => c.Date.Date).ToHashSet();
+                var returns = await context.Returns
+                    .AsNoTracking()
+                    .Where(r => closedDates.Contains(r.ReturnDate.Date))
+                    .OrderBy(r => r.ReturnYear).ThenBy(r => r.ReturnSequence)
+                    .ToListAsync();
+
+                // Seskupit vratky podle data
+                var returnsByDate = returns
+                    .GroupBy(r => r.ReturnDate.Date)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.OrderBy(r => r.ReturnYear).ThenBy(r => r.ReturnSequence).ToList()
+                    );
+
+                var summaries = dailyCloses.Select(dc =>
                 {
-                    Date = dc.Date,
-                    ReceiptRangeFrom = dc.ReceiptNumberFrom ?? "",
-                    ReceiptRangeTo = dc.ReceiptNumberTo ?? "",
-                    CashSales = dc.CashSales,
-                    CardSales = dc.CardSales,
-                    TotalSales = dc.TotalSales,
-                    ReceiptCount = 0 // DailyClose nemá počet účtenek, můžeme přidat později
+                    // Získat vratky pro tento den
+                    string returnRangeFrom = null;
+                    string returnRangeTo = null;
+
+                    if (returnsByDate.TryGetValue(dc.Date.Date, out var dayReturns) && dayReturns.Count > 0)
+                    {
+                        returnRangeFrom = dayReturns.First().FormattedReturnNumber;
+                        returnRangeTo = dayReturns.Last().FormattedReturnNumber;
+                    }
+
+                    return new DailySalesSummary
+                    {
+                        Date = dc.Date,
+                        ReceiptRangeFrom = dc.ReceiptNumberFrom ?? "",
+                        ReceiptRangeTo = dc.ReceiptNumberTo ?? "",
+                        ReturnRangeFrom = returnRangeFrom,
+                        ReturnRangeTo = returnRangeTo,
+                        CashSales = dc.CashSales,
+                        CardSales = dc.CardSales,
+                        TotalSales = dc.TotalSales,
+                        ReceiptCount = 0 // DailyClose nemá počet účtenek, můžeme přidat později
+                    };
                 }).ToList();
 
                 Debug.WriteLine($"DailyCloseService: Retrieved {summaries.Count} closed days for {today:MMMM yyyy}");
@@ -479,6 +517,7 @@ namespace Sklad_2.Services
             sb.AppendLine(".summary { margin-top: 30px; padding: 20px; background-color: #f0f7ff; border: 2px solid #0078d4; border-radius: 5px; }");
             sb.AppendLine(".summary-row { display: flex; justify-content: space-between; margin: 15px 0; font-size: 18px; }");
             sb.AppendLine(".summary-row.total { font-size: 24px; font-weight: bold; color: #0078d4; border-top: 2px solid #0078d4; padding-top: 15px; margin-top: 20px; }");
+            sb.AppendLine(".negative { color: #D32F2F; font-weight: bold; }");
             sb.AppendLine("@media print { body { margin: 0; background-color: white; } .container { box-shadow: none; } }");
             sb.AppendLine("</style>");
             sb.AppendLine("</head>");
@@ -528,24 +567,24 @@ namespace Sklad_2.Services
             sb.AppendLine("<h2 style='margin-top: 0;'>Souhrn tržeb</h2>");
             sb.AppendLine("<div class='summary-row'>");
             sb.AppendLine("<span>Tržba hotovost:</span>");
-            sb.AppendLine($"<span>{totalCash:N2} Kč</span>");
+            sb.AppendLine($"<span class='{(totalCash < 0 ? "negative" : "")}'>{totalCash:N2} Kč</span>");
             sb.AppendLine("</div>");
             sb.AppendLine("<div class='summary-row'>");
             sb.AppendLine("<span>Tržba karta:</span>");
-            sb.AppendLine($"<span>{totalCard:N2} Kč</span>");
+            sb.AppendLine($"<span class='{(totalCard < 0 ? "negative" : "")}'>{totalCard:N2} Kč</span>");
             sb.AppendLine("</div>");
 
             if (isVatPayer)
             {
                 sb.AppendLine("<div class='summary-row'>");
                 sb.AppendLine("<span>DPH celkem:</span>");
-                sb.AppendLine($"<span>{totalVat:N2} Kč</span>");
+                sb.AppendLine($"<span class='{(totalVat < 0 ? "negative" : "")}'>{totalVat:N2} Kč</span>");
                 sb.AppendLine("</div>");
             }
 
             sb.AppendLine("<div class='summary-row total'>");
             sb.AppendLine("<span>Celková tržba:</span>");
-            sb.AppendLine($"<span>{totalSales:N2} Kč</span>");
+            sb.AppendLine($"<span class='{(totalSales < 0 ? "negative" : "")}'>{totalSales:N2} Kč</span>");
             sb.AppendLine("</div>");
             sb.AppendLine("</div>");
 

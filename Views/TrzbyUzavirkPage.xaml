@@ -5,7 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Sklad_2.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:AmountToBrushConverter x:Key="AmountToBrushConverter"/>
+    </Page.Resources>
 
     <ScrollViewer>
         <StackPanel Padding="20" Spacing="20">
@@ -91,15 +96,17 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="160"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Datum" FontWeight="SemiBold" FontSize="12"/>
                         <TextBlock Grid.Column="1" Text="Účtenky" FontWeight="SemiBold" FontSize="12"/>
-                        <TextBlock Grid.Column="2" Text="Hotovost" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="Karta" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="Celkem" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="Vratky" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Grid.Column="3" Text="Hotovost" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="Karta" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="Celkem" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <!-- Seznam denních tržeb -->
@@ -121,15 +128,17 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="90"/>
                                             <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="160"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding DateFormatted}" FontSize="13" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding ReceiptRange}" FontSize="12" Opacity="0.8" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding CashSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#34C759"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding CardSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#007AFF"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding TotalSalesFormatted}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#FF9500"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding ReturnRange}" FontSize="12" Opacity="0.8" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding CashSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{Binding CashSales, Converter={StaticResource AmountToBrushConverter}}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding CardSalesFormatted}" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{Binding CardSales, Converter={StaticResource AmountToBrushConverter}}"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding TotalSalesFormatted}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{Binding TotalSales, Converter={StaticResource AmountToBrushConverter}}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
