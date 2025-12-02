@@ -390,16 +390,30 @@ namespace Sklad_2.ViewModels
             }
         }
 
-        private void SetError(string message)
+        private async void SetError(string message)
         {
             StatusMessage = message;
             IsError = true;
+
+            // Automaticky zavřít po 5 sekundách (chyba - déle než úspěch)
+            await Task.Delay(5000);
+            if (StatusMessage == message) // Zavřít pouze pokud se nezměnila zpráva
+            {
+                ClearStatus();
+            }
         }
 
-        private void SetSuccess(string message)
+        private async void SetSuccess(string message)
         {
             StatusMessage = message;
             IsError = false;
+
+            // Automaticky zavřít po 3 sekundách (úspěch)
+            await Task.Delay(3000);
+            if (StatusMessage == message) // Zavřít pouze pokud se nezměnila zpráva
+            {
+                ClearStatus();
+            }
         }
 
         public void ClearStatus()
