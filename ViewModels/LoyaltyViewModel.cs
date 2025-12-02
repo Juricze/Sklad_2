@@ -136,14 +136,28 @@ namespace Sklad_2.ViewModels
                     SetError("Příjmení je povinné.");
                     return;
                 }
-                // Validace: alespoň Email NEBO Telefon
-                if (string.IsNullOrWhiteSpace(NewEmail) && string.IsNullOrWhiteSpace(NewPhoneNumber))
+                if (string.IsNullOrWhiteSpace(NewPhoneNumber))
                 {
-                    SetError("Musí být vyplněn alespoň email nebo telefon.");
+                    SetError("Telefon je povinný.");
                     return;
                 }
 
                 using var context = await _contextFactory.CreateDbContextAsync();
+
+                // Přidat +420 prefix k telefonu
+                var phoneNumber = NewPhoneNumber.Trim();
+                phoneNumber = phoneNumber.StartsWith("+420") ? phoneNumber : $"+420{phoneNumber}";
+
+                // Kontrola unikátnosti telefonu (povinný, musí být unikátní)
+                var phoneExists = await context.LoyaltyCustomers
+                    .AsNoTracking()
+                    .AnyAsync(c => c.PhoneNumber == phoneNumber);
+
+                if (phoneExists)
+                {
+                    SetError("Tento telefon již existuje.");
+                    return;
+                }
 
                 // Kontrola unikátnosti emailu (pouze pokud je vyplněn)
                 if (!string.IsNullOrWhiteSpace(NewEmail))
@@ -171,15 +185,6 @@ namespace Sklad_2.ViewModels
                         SetError("Tato kartička již existuje.");
                         return;
                     }
-                }
-
-                // Přidat +420 prefix k telefonu pokud není prázdný
-                var phoneNumber = string.Empty;
-                if (!string.IsNullOrWhiteSpace(NewPhoneNumber))
-                {
-                    var phone = NewPhoneNumber.Trim();
-                    // Přidat +420 pokud tam ještě není
-                    phoneNumber = phone.StartsWith("+420") ? phone : $"+420{phone}";
                 }
 
                 var customer = new LoyaltyCustomer
@@ -304,11 +309,35 @@ namespace Sklad_2.ViewModels
 
                 if (customer != null)
                 {
-                    // Validace: alespoň Email NEBO Telefon
-                    if (string.IsNullOrWhiteSpace(updatedCustomer.Email) && string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber))
+                    // Validace povinných polí
+                    if (string.IsNullOrWhiteSpace(updatedCustomer.FirstName))
                     {
-                        SetError("Musí být vyplněn alespoň email nebo telefon.");
+                        SetError("Jméno je povinné.");
                         return;
+                    }
+                    if (string.IsNullOrWhiteSpace(updatedCustomer.LastName))
+                    {
+                        SetError("Příjmení je povinné.");
+                        return;
+                    }
+                    if (string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber))
+                    {
+                        SetError("Telefon je povinný.");
+                        return;
+                    }
+
+                    // Kontrola unikátnosti telefonu (pokud se změnil)
+                    if (customer.PhoneNumber != updatedCustomer.PhoneNumber)
+                    {
+                        var phoneExists = await context.LoyaltyCustomers
+                            .AsNoTracking()
+                            .AnyAsync(c => c.PhoneNumber == updatedCustomer.PhoneNumber && c.Id != updatedCustomer.Id);
+
+                        if (phoneExists)
+                        {
+                            SetError("Tento telefon již existuje.");
+                            return;
+                        }
                     }
 
                     // Kontrola unikátnosti emailu (pokud je vyplněn a změnil se)
