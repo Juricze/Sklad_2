@@ -18,6 +18,15 @@
         <!-- Header -->
         <TextBlock Grid.Row="0" Text="Věrnostní program" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,20"/>
 
+        <!-- InfoBar pro zprávy -->
+        <InfoBar Grid.Row="0"
+                 Margin="0,50,0,0"
+                 IsOpen="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToBoolConverter}}"
+                 Severity="{x:Bind ViewModel.IsError, Mode=OneWay, Converter={StaticResource BooleanToInfoBarSeverityConverter}}"
+                 Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                 IsClosable="True"
+                 Closed="InfoBar_Closed"/>
+
         <!-- Přidat člena + Vyhledávání -->
         <Grid Grid.Row="1" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
@@ -176,13 +185,5 @@
                 </TextBlock>
             </StackPanel>
         </Grid>
-
-        <!-- Status Message -->
-        <Border Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,-30"
-                Visibility="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
-                Background="{x:Bind ViewModel.IsError, Mode=OneWay, Converter={StaticResource BooleanToColorConverter}}"
-                CornerRadius="4" Padding="15,8">
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Foreground="White"/>
-        </Border>
     </Grid>
 </Page>

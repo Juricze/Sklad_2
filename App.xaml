@@ -33,6 +33,8 @@
             <converters:DayClosedConverter x:Key="DayClosedConverter"/>
             <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
             <converters:EanToThumbnailConverter x:Key="EanToThumbnailConverter"/>
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
+            <converters:BooleanToInfoBarSeverityConverter x:Key="BooleanToInfoBarSeverityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

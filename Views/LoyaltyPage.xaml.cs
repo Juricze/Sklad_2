@@ -37,7 +37,7 @@ namespace Sklad_2.Views
                 {
                     phoneDisplay = phoneDisplay.Substring(4); // Odstranit "+420"
                 }
-                var phoneNumberBox = new TextBox { Text = phoneDisplay, PlaceholderText = "Tel. číslo", Margin = new Thickness(0, 0, 0, 10) };
+                var phoneNumberBox = new TextBox { Text = phoneDisplay, PlaceholderText = "Tel. číslo *", Margin = new Thickness(0, 0, 0, 10) };
                 var cardEanBox = new TextBox { Text = customer.CardEan ?? "", PlaceholderText = "EAN kartičky", Margin = new Thickness(0, 0, 0, 10) };
                 var discountBox = new TextBox { Text = customer.DiscountPercent.ToString("0"), PlaceholderText = "Sleva 0-30%", Margin = new Thickness(0, 0, 0, 10) };
 
@@ -69,30 +69,6 @@ namespace Sklad_2.Views
                 panel.Children.Add(phonePanel);
                 panel.Children.Add(new TextBlock { Text = "EAN kartičky:", Margin = new Thickness(0, 0, 0, 5) });
                 panel.Children.Add(cardEanBox);
-
-                // Hint pro prodavačku
-                var hintPanel = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Spacing = 5,
-                    Margin = new Thickness(0, 10, 0, 10)
-                };
-                var icon = new FontIcon
-                {
-                    Glyph = "\uE946", // Info icon
-                    FontSize = 12,
-                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange)
-                };
-                var hintText = new TextBlock
-                {
-                    Text = "Vyplňte alespoň email nebo telefon",
-                    FontSize = 12,
-                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange),
-                    FontStyle = Windows.UI.Text.FontStyle.Italic
-                };
-                hintPanel.Children.Add(icon);
-                hintPanel.Children.Add(hintText);
-                panel.Children.Add(hintPanel);
 
                 // Sleva - pouze pro admina
                 if (ViewModel.IsAdmin)
@@ -129,14 +105,13 @@ namespace Sklad_2.Views
                         return;
                     }
 
-                    // Validace: alespoň email NEBO telefon
-                    if (string.IsNullOrWhiteSpace(emailBox.Text) &&
-                        string.IsNullOrWhiteSpace(phoneNumberBox.Text))
+                    // Validace telefonu (povinný)
+                    if (string.IsNullOrWhiteSpace(phoneNumberBox.Text))
                     {
                         var errorDialog = new ContentDialog
                         {
                             Title = "Chyba",
-                            Content = "Musí být vyplněn alespoň email nebo telefon.",
+                            Content = "Telefon je povinný.",
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
                         };
@@ -223,6 +198,12 @@ namespace Sklad_2.Views
                     await ViewModel.DeleteCustomerCommand.ExecuteAsync(null);
                 }
             }
+        }
+
+        private void InfoBar_Closed(InfoBar sender, InfoBarClosedEventArgs args)
+        {
+            // Vyčistit status message ve ViewModelu
+            ViewModel.ClearStatus();
         }
     }
 }
