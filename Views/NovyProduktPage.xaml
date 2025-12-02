@@ -10,7 +10,21 @@
     Loaded="Page_Loaded">
 
     <Grid Padding="24">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- InfoBar pro zprávy -->
+        <InfoBar Grid.Row="0"
+                 Margin="0,0,0,12"
+                 IsOpen="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToBoolConverter}}"
+                 Severity="{x:Bind ViewModel.IsError, Mode=OneWay, Converter={StaticResource BooleanToInfoBarSeverityConverter}}"
+                 Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                 IsClosable="True"
+                 Closed="InfoBar_Closed"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="24" MaxWidth="600">
             <!-- Product Info Card -->
             <Border Style="{StaticResource CardBorderStyle}" Shadow="{ThemeResource CardShadow}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
@@ -229,7 +243,6 @@
                 </Expander>
             </Border>
 
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Margin="0,12,0,0" Foreground="{ThemeResource AccentFillColorDefaultBrush}" TextWrapping="Wrap" FontWeight="Bold"/>
             <Button Content="Přidat nový produkt" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.AddNewProductCommand}" IsEnabled="{x:Bind ViewModel.IsSalesRole, Mode=OneWay, Converter={StaticResource BooleanToEnabledConverter}, ConverterParameter=Inverse}"/>
             </StackPanel>
         </ScrollViewer>

@@ -279,5 +279,11 @@ namespace Sklad_2.Views
             };
             await dialog.ShowAsync();
         }
+
+        private void InfoBar_Closed(InfoBar sender, InfoBarClosedEventArgs args)
+        {
+            // Vyčistit status message ve ViewModelu
+            ViewModel.ClearStatus();
+        }
     }
 }

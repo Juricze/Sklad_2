@@ -72,6 +72,9 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string statusMessage = string.Empty;
 
+        [ObservableProperty]
+        private bool isError = false;
+
         // Image properties
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasPendingImage))]
@@ -312,35 +315,35 @@ namespace Sklad_2.ViewModels
         [RelayCommand]
         private async Task AddNewProductAsync()
         {
-            StatusMessage = string.Empty;
+            ClearStatus();
 
             if (string.IsNullOrWhiteSpace(Ean) || string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(SalePrice) || string.IsNullOrWhiteSpace(PurchasePrice))
             {
-                StatusMessage = "Všechna pole kromě počtu kusů musí být vyplněna.";
+                SetError("Všechna pole kromě počtu kusů musí být vyplněna.");
                 return;
             }
 
             if (!decimal.TryParse(SalePrice, out decimal salePriceValue) || !decimal.TryParse(PurchasePrice, out decimal purchasePriceValue))
             {
-                StatusMessage = "Cena musí být platné číslo.";
+                SetError("Cena musí být platné číslo.");
                 return;
             }
 
             if (salePriceValue <= 0 || purchasePriceValue <= 0)
             {
-                StatusMessage = "Ceny musí být větší než 0.";
+                SetError("Ceny musí být větší než 0.");
                 return;
             }
 
             if (salePriceValue > 1000000 || purchasePriceValue > 1000000)
             {
-                StatusMessage = "Cena je příliš vysoká (maximum 1 000 000 Kč).";
+                SetError("Cena je příliš vysoká (maximum 1 000 000 Kč).");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Ean) || Ean.Length < 3)
             {
-                StatusMessage = "EAN kód musí obsahovat alespoň 3 znaky.";
+                SetError("EAN kód musí obsahovat alespoň 3 znaky.");
                 return;
             }
 
@@ -353,7 +356,7 @@ namespace Sklad_2.ViewModels
                 var vatConfig = _vatConfigs?.FirstOrDefault(c => c.CategoryName == categoryName);
                 if (vatConfig == null || vatConfig.Rate == 0)
                 {
-                    StatusMessage = $"Pro kategorii '{categoryName}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.";
+                    SetError($"Pro kategorii '{categoryName}' není nastavena platná sazba DPH (nesmí být 0 %). Prosím, nastavte ji v menu Nastavení -> Sazby DPH.");
                     return;
                 }
                 vatRateToUse = (decimal)vatConfig.Rate;
@@ -397,7 +400,7 @@ namespace Sklad_2.ViewModels
                 var existingProduct = await _dataService.GetProductAsync(newProduct.Ean);
                 if (existingProduct != null)
                 {
-                    StatusMessage = $"Produkt s EAN kódem '{newProduct.Ean}' již existuje. Použijte prosím stránku Příjem zboží pro naskladnění.";
+                    SetError($"Produkt s EAN kódem '{newProduct.Ean}' již existuje. Použijte prosím stránku Příjem zboží pro naskladnění.");
                 }
                 else
                 {
@@ -428,7 +431,7 @@ namespace Sklad_2.ViewModels
                     };
                     await _dataService.AddStockMovementAsync(stockMovement);
 
-                    StatusMessage = "Nový produkt byl úspěšně přidán do databáze!";
+                    SetSuccess("Nový produkt byl úspěšně přidán do databáze!");
 
                     // Clear fields
                     ClearFields();
@@ -436,7 +439,7 @@ namespace Sklad_2.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Chyba při přidávání produktu: {ex.Message}";
+                SetError($"Chyba při přidávání produktu: {ex.Message}");
             }
         }
 
@@ -496,6 +499,38 @@ namespace Sklad_2.ViewModels
         {
             _pendingImageFile = null;
             PreviewImage = null;
+        }
+
+        private async void SetError(string message)
+        {
+            StatusMessage = message;
+            IsError = true;
+
+            // Automaticky zavřít po 5 sekundách
+            await Task.Delay(5000);
+            if (StatusMessage == message)
+            {
+                ClearStatus();
+            }
+        }
+
+        private async void SetSuccess(string message)
+        {
+            StatusMessage = message;
+            IsError = false;
+
+            // Automaticky zavřít po 3 sekundách
+            await Task.Delay(3000);
+            if (StatusMessage == message)
+            {
+                ClearStatus();
+            }
+        }
+
+        public void ClearStatus()
+        {
+            StatusMessage = string.Empty;
+            IsError = false;
         }
     }
 }
