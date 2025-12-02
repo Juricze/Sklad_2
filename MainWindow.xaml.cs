@@ -551,21 +551,9 @@ namespace Sklad_2
             }
 
             Log("AppWindow_Closing: Performing backup...");
-            // Perform backup in background
-            await System.Threading.Tasks.Task.Run(() => PerformDatabaseSync());
 
-            Log("AppWindow_Closing: Showing completion dialog...");
-            // Show completion dialog
-            var completionDialog = new ContentDialog
-            {
-                Title = "Záloha dokončena",
-                Content = "Databáze byla úspěšně zálohována.\n\nAplikace bude nyní zavřena.",
-                CloseButtonText = "OK",
-                DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.Content.XamlRoot
-            };
-
-            await completionDialog.ShowAsync();
+            // Perform backup and show dialog
+            await PerformBackupWithDialogAsync("Aplikace bude nyní zavřena.");
 
             Log("AppWindow_Closing: Exiting application...");
             // Exit application with success code
@@ -579,31 +567,203 @@ namespace Sklad_2
             // Keep this as fallback
         }
 
+        private async Task<bool> PerformBackupWithDialogAsync(string additionalMessage)
+        {
+            var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+            var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
+            var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
+
+            // CRITICAL: Check database size before backup to prevent overwriting good backups with corrupted/empty DB
+            if (System.IO.File.Exists(sourceDbPath))
+            {
+                var sourceDbInfo = new System.IO.FileInfo(sourceDbPath);
+                long currentDbSize = sourceDbInfo.Length;
+
+                // Check if database is suspiciously small (< 50 KB = likely empty/corrupted)
+                const long MIN_DB_SIZE = 50 * 1024; // 50 KB
+                if (currentDbSize < MIN_DB_SIZE)
+                {
+                    var warningDialog = new ContentDialog
+                    {
+                        Title = "⚠️ VAROVÁNÍ: Podezřelá databáze",
+                        Content = $"Aktuální databáze je neobvykle malá ({currentDbSize:N0} bytů).\n\n" +
+                                 "To může znamenat:\n" +
+                                 "• Prázdná nebo poškozená databáze\n" +
+                                 "• Ztráta dat\n\n" +
+                                 "Pokud provedete zálohu, PŘEPÍŠETE existující zálohy touto malou databází " +
+                                 "a ZTRATÍTE všechna uložená data!\n\n" +
+                                 "Co chcete udělat?",
+                        PrimaryButtonText = "⚠️ Zálohovat stejně (NEBEZPEČNÉ)",
+                        SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                        CloseButtonText = "Zrušit",
+                        DefaultButton = ContentDialogButton.Secondary,
+                        XamlRoot = this.Content.XamlRoot
+                    };
+
+                    var result = await warningDialog.ShowAsync();
+
+                    if (result != ContentDialogResult.Primary)
+                    {
+                        // User chose not to backup or cancelled
+                        if (result == ContentDialogResult.Secondary)
+                        {
+                            // Show info that backup was skipped
+                            var skipDialog = new ContentDialog
+                            {
+                                Title = "Záloha přeskočena",
+                                Content = "Záloha nebyla provedena.\n\n" +
+                                         "Existující zálohy zůstávají nedotčené.\n\n" +
+                                         additionalMessage,
+                                CloseButtonText = "OK",
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            await skipDialog.ShowAsync();
+                        }
+                        return false; // Backup was skipped
+                    }
+                    // If Primary was clicked, continue with backup (user explicitly confirmed)
+                }
+                else
+                {
+                    // Additional check: compare with existing backup size
+                    var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
+                    if (System.IO.File.Exists(settingsPath))
+                    {
+                        try
+                        {
+                            var json = System.IO.File.ReadAllText(settingsPath);
+                            var settings = System.Text.Json.JsonSerializer.Deserialize<Models.Settings.AppSettings>(json);
+                            string primaryBackupPath = settings?.BackupPath;
+
+                            if (!string.IsNullOrWhiteSpace(primaryBackupPath))
+                            {
+                                var backupDbPath = System.IO.Path.Combine(primaryBackupPath, "Sklad_2_Data", "sklad.db");
+                                if (System.IO.File.Exists(backupDbPath))
+                                {
+                                    var backupDbInfo = new System.IO.FileInfo(backupDbPath);
+                                    long backupDbSize = backupDbInfo.Length;
+
+                                    // Check if current DB is less than 50% of backup size (suspicious data loss)
+                                    if (currentDbSize < backupDbSize * 0.5)
+                                    {
+                                        var sizeWarningDialog = new ContentDialog
+                                        {
+                                            Title = "⚠️ VAROVÁNÍ: Databáze zmenšena",
+                                            Content = $"Aktuální databáze ({currentDbSize:N0} bytů) je výrazně menší\n" +
+                                                     $"než existující záloha ({backupDbSize:N0} bytů).\n\n" +
+                                                     "To může znamenat:\n" +
+                                                     "• Ztrátu dat\n" +
+                                                     "• Poškození databáze\n" +
+                                                     "• Neúmyslné smazání produktů\n\n" +
+                                                     "Pokud provedete zálohu, PŘEPÍŠETE dobrou zálohu touto menší databází!\n\n" +
+                                                     "Co chcete udělat?",
+                                            PrimaryButtonText = "⚠️ Zálohovat stejně (NEBEZPEČNÉ)",
+                                            SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                                            CloseButtonText = "Zrušit",
+                                            DefaultButton = ContentDialogButton.Secondary,
+                                            XamlRoot = this.Content.XamlRoot
+                                        };
+
+                                        var result = await sizeWarningDialog.ShowAsync();
+
+                                        if (result != ContentDialogResult.Primary)
+                                        {
+                                            if (result == ContentDialogResult.Secondary)
+                                            {
+                                                var skipDialog = new ContentDialog
+                                                {
+                                                    Title = "Záloha přeskočena",
+                                                    Content = "Záloha nebyla provedena.\n\n" +
+                                                             "Existující zálohy zůstávají nedotčené.\n\n" +
+                                                             "DOPORUČENÍ: Použijte 'Obnovit ze zálohy' v Nastavení → Systém.\n\n" +
+                                                             additionalMessage,
+                                                    CloseButtonText = "OK",
+                                                    XamlRoot = this.Content.XamlRoot
+                                                };
+                                                await skipDialog.ShowAsync();
+                                            }
+                                            return false; // Backup was skipped
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch { /* Ignore errors in size comparison */ }
+                    }
+                }
+            }
+
+            // Perform backup in background
+            await System.Threading.Tasks.Task.Run(() => PerformDatabaseSync());
+
+            // Read backup status from file
+            var statusPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data", "backup_status.txt");
+            string backupStatus = "Záloha byla provedena.";
+
+            if (System.IO.File.Exists(statusPath))
+            {
+                try
+                {
+                    backupStatus = System.IO.File.ReadAllText(statusPath);
+                }
+                catch
+                {
+                    backupStatus = "Záloha byla provedena.\n\nNepodařilo se načíst detailní stav.";
+                }
+            }
+
+            // Show completion dialog with backup status
+            var completionDialog = new ContentDialog
+            {
+                Title = "Záloha dokončena",
+                Content = backupStatus + "\n\n" + additionalMessage,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            await completionDialog.ShowAsync();
+            return true; // Backup was performed
+        }
+
         private void PerformDatabaseSync()
         {
-            var logPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Sklad_2_Data", "backup_log.txt");
+            var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+            var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
+            var logPath = System.IO.Path.Combine(sourceFolderPath, "backup_log.txt");
+            var statusPath = System.IO.Path.Combine(sourceFolderPath, "backup_status.txt");
+
             void Log(string msg)
             {
                 try { System.IO.File.AppendAllText(logPath, $"{DateTime.Now:HH:mm:ss} - {msg}\n"); } catch { }
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
+            bool primarySuccess = false;
+            bool secondarySuccess = false;
+            bool primaryConfigured = false;
+            bool secondaryConfigured = false;
+
             try
             {
-                var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
-                var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
                 var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
 
-                Log("PerformDatabaseSync: Starting backup...");
+                Log("PerformDatabaseSync: Starting dual backup...");
                 Log($"PerformDatabaseSync: Source folder: {sourceFolderPath}");
                 Log($"PerformDatabaseSync: Source DB exists: {System.IO.File.Exists(sourceDbPath)}");
 
-                // Determine backup path with inline logic (avoid service calls during disposal)
-                string backupFolderPath;
+                if (!System.IO.File.Exists(sourceDbPath))
+                {
+                    Log($"PerformDatabaseSync: Source database not found - skipping backup");
+                    // Write status file
+                    System.IO.File.WriteAllText(statusPath, "CHYBA: Zdrojová databáze nebyla nalezena.");
+                    return;
+                }
 
-                // Try to read custom path from settings file directly
+                // Read backup paths from settings file directly (avoid service calls during disposal)
                 var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
-                string customBackupPath = null;
+                string primaryBackupPath = null;
+                string secondaryBackupPath = null;
 
                 Log($"PerformDatabaseSync: Settings file path: {settingsPath}");
                 Log($"PerformDatabaseSync: Settings file exists: {System.IO.File.Exists(settingsPath)}");
@@ -613,10 +773,11 @@ namespace Sklad_2
                     try
                     {
                         var json = System.IO.File.ReadAllText(settingsPath);
-                        Log($"PerformDatabaseSync: Settings JSON loaded, length: {json.Length}");
                         var settings = System.Text.Json.JsonSerializer.Deserialize<Models.Settings.AppSettings>(json);
-                        customBackupPath = settings?.BackupPath;
-                        Log($"PerformDatabaseSync: BackupPath from settings: '{customBackupPath}'");
+                        primaryBackupPath = settings?.BackupPath;
+                        secondaryBackupPath = settings?.SecondaryBackupPath;
+                        Log($"PerformDatabaseSync: Primary BackupPath: '{primaryBackupPath}'");
+                        Log($"PerformDatabaseSync: Secondary BackupPath: '{secondaryBackupPath}'");
                     }
                     catch (Exception ex)
                     {
@@ -624,61 +785,253 @@ namespace Sklad_2
                     }
                 }
 
-                // Only backup if custom backup path is configured
-                if (!string.IsNullOrWhiteSpace(customBackupPath))
+                // Backup to primary path
+                if (!string.IsNullOrWhiteSpace(primaryBackupPath))
                 {
-                    backupFolderPath = System.IO.Path.Combine(customBackupPath, "Sklad_2_Data");
-                    Log($"PerformDatabaseSync: Backup folder path: {backupFolderPath}");
+                    primaryConfigured = true;
+                    primarySuccess = BackupToPath(sourceFolderPath, primaryBackupPath, "Primary", Log);
                 }
                 else
                 {
-                    // No backup path configured - skip backup
-                    Log("PerformDatabaseSync: Backup path not configured - skipping backup on close");
-                    return;
+                    Log("PerformDatabaseSync: Primary backup path not configured - skipping");
                 }
 
-                System.IO.Directory.CreateDirectory(backupFolderPath);
-                var backupFilePath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
-
-                if (System.IO.File.Exists(sourceDbPath))
+                // Backup to secondary path (if configured)
+                if (!string.IsNullOrWhiteSpace(secondaryBackupPath))
                 {
-                    System.IO.File.Copy(sourceDbPath, backupFilePath, true);
-                    Log($"PerformDatabaseSync: Database copied to {backupFilePath}");
-
-                    var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
-                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
-                    if (System.IO.File.Exists(sourceSettingsPath))
-                    {
-                        System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
-                        Log($"PerformDatabaseSync: Settings copied to {backupSettingsPath}");
-                    }
-
-                    // Copy ProductImages folder
-                    var sourceImagesPath = System.IO.Path.Combine(sourceFolderPath, "ProductImages");
-                    var backupImagesPath = System.IO.Path.Combine(backupFolderPath, "ProductImages");
-                    if (System.IO.Directory.Exists(sourceImagesPath))
-                    {
-                        System.IO.Directory.CreateDirectory(backupImagesPath);
-                        var imageFiles = System.IO.Directory.GetFiles(sourceImagesPath);
-                        foreach (var file in imageFiles)
-                        {
-                            var fileName = System.IO.Path.GetFileName(file);
-                            System.IO.File.Copy(file, System.IO.Path.Combine(backupImagesPath, fileName), true);
-                        }
-                        Log($"PerformDatabaseSync: ProductImages folder copied ({imageFiles.Length} files)");
-                    }
-
-                    Log("PerformDatabaseSync: Backup completed successfully!");
+                    secondaryConfigured = true;
+                    secondarySuccess = BackupToPath(sourceFolderPath, secondaryBackupPath, "Secondary", Log);
                 }
                 else
                 {
-                    Log($"PerformDatabaseSync: Source database not found at {sourceDbPath}");
+                    Log("PerformDatabaseSync: Secondary backup path not configured - skipping");
                 }
+
+                // Write status summary
+                var statusBuilder = new System.Text.StringBuilder();
+                statusBuilder.AppendLine($"Záloha dokončena: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
+                statusBuilder.AppendLine();
+
+                if (primaryConfigured)
+                {
+                    statusBuilder.AppendLine($"{(primarySuccess ? "✅" : "❌")} Primární záloha: {(primarySuccess ? "OK" : "CHYBA")}");
+                }
+                else
+                {
+                    statusBuilder.AppendLine("❌ Primární záloha: Není nakonfigurována");
+                }
+
+                if (secondaryConfigured)
+                {
+                    statusBuilder.AppendLine($"{(secondarySuccess ? "✅" : "❌")} Sekundární záloha: {(secondarySuccess ? "OK" : "CHYBA")}");
+                }
+                else
+                {
+                    statusBuilder.AppendLine("❌ Sekundární záloha: Není nakonfigurována");
+                }
+
+                statusBuilder.AppendLine();
+
+                // Overall status
+                bool hasAnyConfigured = primaryConfigured || secondaryConfigured;
+                bool allConfiguredSuccess = (!primaryConfigured || primarySuccess) && (!secondaryConfigured || secondarySuccess);
+
+                if (!hasAnyConfigured)
+                {
+                    // No backup paths configured at all
+                    statusBuilder.AppendLine("Stav: ⚠️ Žádné zálohy nebyly nakonfigurovány.");
+                    statusBuilder.AppendLine("Databáze zůstává pouze v lokálním úložišti.");
+                    statusBuilder.AppendLine();
+                    statusBuilder.AppendLine("DOPORUČENÍ: Nastavte cestu pro zálohy v Nastavení → Systém.");
+                }
+                else if (allConfiguredSuccess)
+                {
+                    // All configured backups succeeded
+                    if (primaryConfigured && secondaryConfigured)
+                    {
+                        statusBuilder.AppendLine("Stav: ✅ Obě zálohy proběhly úspěšně");
+                    }
+                    else
+                    {
+                        statusBuilder.AppendLine("Stav: ✅ Záloha proběhla úspěšně");
+                    }
+                }
+                else
+                {
+                    // Some configured backups failed
+                    statusBuilder.AppendLine("Stav: ⚠️ Některé zálohy selhaly - zkontrolujte backup_log.txt");
+                }
+
+                System.IO.File.WriteAllText(statusPath, statusBuilder.ToString());
+                Log("PerformDatabaseSync: Dual backup completed!");
             }
             catch (Exception ex)
             {
                 Log($"PerformDatabaseSync: ERROR - {ex.Message}");
                 Log($"PerformDatabaseSync: Stack trace - {ex.StackTrace}");
+
+                // Write error status
+                try
+                {
+                    System.IO.File.WriteAllText(statusPath, $"KRITICKÁ CHYBA: {ex.Message}\n\nZkontrolujte backup_log.txt pro detaily.");
+                }
+                catch { }
+            }
+        }
+
+        private bool BackupToPath(string sourceFolderPath, string backupBasePath, string label, Action<string> log)
+        {
+            try
+            {
+                var backupFolderPath = System.IO.Path.Combine(backupBasePath, "Sklad_2_Data");
+                log($"{label} backup: Target folder: {backupFolderPath}");
+
+                System.IO.Directory.CreateDirectory(backupFolderPath);
+
+                bool hasErrors = false;
+
+                // Copy database (Win10 compatible - with flush + verification)
+                var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
+                var backupDbPath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
+
+                var sourceDbInfo = new System.IO.FileInfo(sourceDbPath);
+                log($"{label} backup: Database source size: {sourceDbInfo.Length:N0} bytes");
+
+                System.IO.File.Copy(sourceDbPath, backupDbPath, true);
+                // Win10: Force OS buffer flush
+                using (var fs = new System.IO.FileStream(backupDbPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
+                {
+                    fs.Flush(true);
+                }
+
+                // Verify database backup
+                if (System.IO.File.Exists(backupDbPath))
+                {
+                    var backupDbInfo = new System.IO.FileInfo(backupDbPath);
+                    if (backupDbInfo.Length == sourceDbInfo.Length)
+                    {
+                        log($"{label} backup: Database copied and verified OK ({backupDbInfo.Length:N0} bytes)");
+                    }
+                    else
+                    {
+                        log($"{label} backup: Database copied but SIZE MISMATCH (source: {sourceDbInfo.Length:N0}, backup: {backupDbInfo.Length:N0})");
+                        hasErrors = true;
+                    }
+                }
+                else
+                {
+                    log($"{label} backup: Database VERIFICATION FAILED - file does not exist after copy!");
+                    hasErrors = true;
+                }
+
+                // Copy settings.json (Win10 compatible - with flush + verification)
+                var sourceSettingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
+                var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
+                if (System.IO.File.Exists(sourceSettingsPath))
+                {
+                    var sourceSettingsInfo = new System.IO.FileInfo(sourceSettingsPath);
+                    log($"{label} backup: Settings source size: {sourceSettingsInfo.Length:N0} bytes");
+
+                    System.IO.File.Copy(sourceSettingsPath, backupSettingsPath, true);
+                    // Win10: Force OS buffer flush
+                    using (var fs = new System.IO.FileStream(backupSettingsPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
+                    {
+                        fs.Flush(true);
+                    }
+
+                    // Verify settings backup
+                    if (System.IO.File.Exists(backupSettingsPath))
+                    {
+                        var backupSettingsInfo = new System.IO.FileInfo(backupSettingsPath);
+                        if (backupSettingsInfo.Length == sourceSettingsInfo.Length)
+                        {
+                            log($"{label} backup: Settings copied and verified OK ({backupSettingsInfo.Length:N0} bytes)");
+                        }
+                        else
+                        {
+                            log($"{label} backup: Settings copied but SIZE MISMATCH (source: {sourceSettingsInfo.Length:N0}, backup: {backupSettingsInfo.Length:N0})");
+                            hasErrors = true;
+                        }
+                    }
+                    else
+                    {
+                        log($"{label} backup: Settings VERIFICATION FAILED - file does not exist after copy!");
+                        hasErrors = true;
+                    }
+                }
+
+                // Copy ProductImages folder (Win10 compatible - with flush + verification)
+                var sourceImagesPath = System.IO.Path.Combine(sourceFolderPath, "ProductImages");
+                var backupImagesPath = System.IO.Path.Combine(backupFolderPath, "ProductImages");
+                if (System.IO.Directory.Exists(sourceImagesPath))
+                {
+                    System.IO.Directory.CreateDirectory(backupImagesPath);
+                    var imageFiles = System.IO.Directory.GetFiles(sourceImagesPath);
+                    int verifiedCount = 0;
+                    int failedCount = 0;
+                    long totalBytes = 0;
+
+                    foreach (var file in imageFiles)
+                    {
+                        var fileName = System.IO.Path.GetFileName(file);
+                        var destPath = System.IO.Path.Combine(backupImagesPath, fileName);
+
+                        var sourceFileInfo = new System.IO.FileInfo(file);
+                        System.IO.File.Copy(file, destPath, true);
+                        // Win10: Force OS buffer flush for each image
+                        using (var fs = new System.IO.FileStream(destPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
+                        {
+                            fs.Flush(true);
+                        }
+
+                        // Verify each image
+                        if (System.IO.File.Exists(destPath))
+                        {
+                            var destFileInfo = new System.IO.FileInfo(destPath);
+                            if (destFileInfo.Length == sourceFileInfo.Length)
+                            {
+                                verifiedCount++;
+                                totalBytes += destFileInfo.Length;
+                            }
+                            else
+                            {
+                                failedCount++;
+                                log($"{label} backup: Image '{fileName}' SIZE MISMATCH (source: {sourceFileInfo.Length:N0}, backup: {destFileInfo.Length:N0})");
+                            }
+                        }
+                        else
+                        {
+                            failedCount++;
+                            log($"{label} backup: Image '{fileName}' VERIFICATION FAILED - file does not exist after copy!");
+                        }
+                    }
+
+                    if (failedCount == 0)
+                    {
+                        log($"{label} backup: ProductImages copied and verified OK ({verifiedCount} files, {totalBytes:N0} bytes total)");
+                    }
+                    else
+                    {
+                        log($"{label} backup: ProductImages copied with ERRORS (OK: {verifiedCount}, FAILED: {failedCount})");
+                        hasErrors = true;
+                    }
+                }
+
+                if (!hasErrors)
+                {
+                    log($"{label} backup: Completed successfully!");
+                    return true;
+                }
+                else
+                {
+                    log($"{label} backup: Completed with ERRORS!");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                log($"{label} backup: ERROR - {ex.Message}");
+                return false;
             }
         }
 
@@ -892,6 +1245,9 @@ namespace Sklad_2
         {
             try
             {
+                // Perform backup before logout
+                await PerformBackupWithDialogAsync("Budete odhlášeni.");
+
                 var authService = (Application.Current as App).Services.GetService<IAuthService>();
                 authService.Logout();
 

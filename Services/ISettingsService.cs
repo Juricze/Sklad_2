@@ -11,5 +11,7 @@ namespace Sklad_2.Services
         Task SaveSettingsAsync();
         bool IsBackupPathConfigured();
         string GetBackupFolderPath();
+        bool IsSecondaryBackupPathConfigured();
+        string GetSecondaryBackupFolderPath();
     }
 }

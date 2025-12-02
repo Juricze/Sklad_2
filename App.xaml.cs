@@ -82,7 +82,7 @@ namespace Sklad_2
             // Run database migrations BEFORE anything else
             var migrationService = Services.GetRequiredService<IDatabaseMigrationService>();
             var migrationSuccess = await migrationService.MigrateToLatestAsync();
-            
+
             if (!migrationSuccess)
             {
                 // Show error dialog and exit
@@ -92,19 +92,16 @@ namespace Sklad_2
                     Content = "Nepodařilo se aktualizovat databázi na nejnovější verzi. Aplikace se ukončí.",
                     CloseButtonText = "OK"
                 };
-                
+
                 // Create a temporary window to show the dialog
                 var tempWindow = new Microsoft.UI.Xaml.Window();
                 tempWindow.Activate();
                 errorDialog.XamlRoot = tempWindow.Content.XamlRoot;
                 await errorDialog.ShowAsync();
-                
+
                 Environment.Exit(1);
                 return;
             }
-
-            // Restore from backup if newer version exists
-            await RestoreFromBackupIfNewerAsync(settingsService);
 
             // Show the LoginWindow first
             m_window = new LoginWindow();
@@ -112,70 +109,6 @@ namespace Sklad_2
 
             // m_window = new MainWindow();
             // m_window.Activate();
-        }
-
-        private async Task RestoreFromBackupIfNewerAsync(ISettingsService settingsService)
-        {
-            try
-            {
-                var appDataPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
-                var localFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
-                var localDbPath = System.IO.Path.Combine(localFolderPath, "sklad.db");
-
-                // Only check backup if backup path is configured
-                if (!settingsService.IsBackupPathConfigured())
-                {
-                    return; // No backup path configured
-                }
-
-                var backupFolderPath = settingsService.GetBackupFolderPath();
-                var backupDbPath = System.IO.Path.Combine(backupFolderPath, "sklad.db");
-
-                if (!System.IO.File.Exists(backupDbPath))
-                {
-                    return; // No backup exists yet
-                }
-
-                // Compare modification times
-                var localLastWrite = System.IO.File.Exists(localDbPath)
-                    ? System.IO.File.GetLastWriteTime(localDbPath)
-                    : DateTime.MinValue;
-                var backupLastWrite = System.IO.File.GetLastWriteTime(backupDbPath);
-
-                // If backup version is newer, restore it
-                if (backupLastWrite > localLastWrite)
-                {
-                    System.IO.Directory.CreateDirectory(localFolderPath);
-                    System.IO.File.Copy(backupDbPath, localDbPath, true);
-
-                    // Also restore settings if they exist
-                    var backupSettingsPath = System.IO.Path.Combine(backupFolderPath, "settings.json");
-                    var localSettingsPath = System.IO.Path.Combine(localFolderPath, "settings.json");
-                    if (System.IO.File.Exists(backupSettingsPath))
-                    {
-                        System.IO.File.Copy(backupSettingsPath, localSettingsPath, true);
-                    }
-
-                    // Also restore ProductImages folder if it exists
-                    var backupImagesPath = System.IO.Path.Combine(backupFolderPath, "ProductImages");
-                    var localImagesPath = System.IO.Path.Combine(localFolderPath, "ProductImages");
-                    if (System.IO.Directory.Exists(backupImagesPath))
-                    {
-                        System.IO.Directory.CreateDirectory(localImagesPath);
-                        foreach (var file in System.IO.Directory.GetFiles(backupImagesPath))
-                        {
-                            var fileName = System.IO.Path.GetFileName(file);
-                            System.IO.File.Copy(file, System.IO.Path.Combine(localImagesPath, fileName), true);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Silent fail - don't block app startup
-            }
-
-            await Task.CompletedTask;
         }
 
         private static IServiceProvider ConfigureServices()

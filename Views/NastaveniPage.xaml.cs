@@ -252,9 +252,95 @@ namespace Sklad_2.Views
             var folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
             {
-                ViewModel.Settings.BackupPath = folder.Path;
-                // Update preview of active path (not saved yet, but shows what it will be)
+                ViewModel.BackupPath = folder.Path;
+                // Update preview and save
                 await ViewModel.SaveBackupPathCommand.ExecuteAsync(null);
+            }
+        }
+
+        private async void BrowseSecondaryBackupFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            folderPicker.FileTypeFilter.Add("*");
+
+            // Get the window handle from current app window
+            var app = Application.Current as App;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
+
+            var folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                ViewModel.SecondaryBackupPath = folder.Path;
+                // Save and update preview
+                await ViewModel.SaveSecondaryBackupPathCommand.ExecuteAsync(null);
+            }
+        }
+
+        private async void RestoreFromBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show warning dialog first
+            var warningDialog = new ContentDialog
+            {
+                Title = "⚠️ VAROVÁNÍ: Obnovení ze zálohy",
+                Content = "Tato akce PŘEPÍŠE aktuální databázi daty ze zálohy.\n\n" +
+                         "Použijte pouze pokud:\n" +
+                         "• Ztratili jste data\n" +
+                         "• Databáze je corrupted\n" +
+                         "• Chcete vrátit starší verzi\n\n" +
+                         "Po obnově MUSÍTE restartovat aplikaci!\n\n" +
+                         "Pokračovat?",
+                PrimaryButtonText = "Ano, obnovit",
+                CloseButtonText = "Zrušit",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            var warningResult = await warningDialog.ShowAsync();
+            if (warningResult != ContentDialogResult.Primary)
+            {
+                return; // User cancelled
+            }
+
+            // Show folder picker
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            folderPicker.FileTypeFilter.Add("*");
+
+            // Get the window handle from current app window
+            var app = Application.Current as App;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
+
+            var folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                // Call ViewModel method
+                bool success = await ViewModel.RestoreFromBackupAsync(folder.Path);
+
+                if (success)
+                {
+                    // Show success dialog with restart reminder
+                    var successDialog = new ContentDialog
+                    {
+                        Title = "✅ Obnova dokončena",
+                        Content = "Databáze byla úspěšně obnovena ze zálohy.\n\n" +
+                                 "⚠️ DŮLEŽITÉ: Pro načtení nových dat MUSÍTE restartovat aplikaci!\n\n" +
+                                 "Chcete restartovat nyní?",
+                        PrimaryButtonText = "Restartovat aplikaci",
+                        CloseButtonText = "Později",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.XamlRoot
+                    };
+
+                    var restartResult = await successDialog.ShowAsync();
+                    if (restartResult == ContentDialogResult.Primary)
+                    {
+                        // Restart application
+                        System.Environment.Exit(0);
+                    }
+                }
             }
         }
     }

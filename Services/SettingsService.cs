@@ -93,5 +93,20 @@ namespace Sklad_2.Services
             // No fallback - force user to configure backup path
             throw new InvalidOperationException("Backup path is not configured. Please set backup path in Settings.");
         }
+
+        public bool IsSecondaryBackupPathConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(CurrentSettings.SecondaryBackupPath);
+        }
+
+        public string GetSecondaryBackupFolderPath()
+        {
+            if (IsSecondaryBackupPathConfigured())
+            {
+                return Path.Combine(CurrentSettings.SecondaryBackupPath, "Sklad_2_Data");
+            }
+
+            throw new InvalidOperationException("Secondary backup path is not configured.");
+        }
     }
 }

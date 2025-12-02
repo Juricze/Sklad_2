@@ -126,6 +126,15 @@
                                         <Run Text="{x:Bind StatusBarVM.DayCloseStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.DayCloseStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </StackPanel>
+
+                                <!-- OneDrive / Secondary Backup -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE753;" FontSize="12" Foreground="{x:Bind StatusBarVM.SecondaryBackupStatusColor, Mode=OneWay}"/>
+                                    <TextBlock FontSize="11" Foreground="#666666">
+                                        <Run Text="OneDrive:"/>
+                                        <Run Text="{x:Bind StatusBarVM.SecondaryBackupStatusText, Mode=OneWay}" Foreground="{x:Bind StatusBarVM.SecondaryBackupStatusColor, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -30,6 +30,13 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private AppSettings settings;
 
+        // Explicit properties for backup paths (to avoid TwoWay binding issues with non-observable Settings)
+        [ObservableProperty]
+        private string backupPath;
+
+        [ObservableProperty]
+        private string secondaryBackupPath;
+
         [ObservableProperty]
         private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.5";
 
@@ -60,7 +67,12 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private string activeBackupPath;
 
+        [ObservableProperty]
+        private string activeSecondaryBackupPath;
+
         public bool IsBackupPathConfigured => _settingsService.IsBackupPathConfigured();
+
+        public bool IsSecondaryBackupPathConfigured => _settingsService.IsSecondaryBackupPathConfigured();
 
         [ObservableProperty]
         private string testPrintStatusMessage;
@@ -111,8 +123,13 @@ namespace Sklad_2.ViewModels
             _authService = authService;
             Settings = _settingsService.CurrentSettings;
 
+            // Initialize backup path properties from settings
+            BackupPath = Settings.BackupPath ?? string.Empty;
+            SecondaryBackupPath = Settings.SecondaryBackupPath ?? string.Empty;
+
             LoadVatConfigsCommand.Execute(null);
             UpdateActiveBackupPath();
+            UpdateActiveSecondaryBackupPath();
 
             // Listen for category changes
             _messenger.Register<VatConfigsChangedMessage>(this, async (r, m) =>
@@ -254,24 +271,36 @@ namespace Sklad_2.ViewModels
         {
             try
             {
+                // Copy from ViewModel property to Settings
+                Settings.BackupPath = BackupPath;
+
+                // Save settings
                 await _settingsService.SaveSettingsAsync();
+                await Task.Delay(100); // Win10: File system flush
+
+                // Update active path display
                 UpdateActiveBackupPath();
-                
-                // Notify status bar changes
+
+                // Notify all interested parties
                 _messenger.Send(new SettingsChangedMessage());
-                
+                await Task.Delay(200); // Win10: UI refresh
+
+                // Show success message
                 BackupStatusMessage = "Cesta pro zálohy byla úspěšně uložena.";
-                
-                // Small delay to allow UI to update, then refresh animation state
-                await Task.Delay(100);
+                BackupStatusColor = "#34C759"; // Green
+
+                // Explicitly notify property changes
                 OnPropertyChanged(nameof(IsBackupPathConfigured));
-                
+                OnPropertyChanged(nameof(ActiveBackupPath));
+                OnPropertyChanged(nameof(Settings));
+
                 await Task.Delay(3000);
                 BackupStatusMessage = string.Empty;
             }
             catch (Exception ex)
             {
                 BackupStatusMessage = $"Chyba při ukládání cesty: {ex.Message}";
+                BackupStatusColor = "#FF3B30"; // Red
             }
         }
 
@@ -287,6 +316,58 @@ namespace Sklad_2.ViewModels
                 ActiveBackupPath = "Aktivní cesta: NENÍ NASTAVENA - nastavte cestu pro zálohy";
             }
             OnPropertyChanged(nameof(IsBackupPathConfigured));
+        }
+
+        [RelayCommand]
+        private async Task SaveSecondaryBackupPathAsync()
+        {
+            try
+            {
+                // Copy from ViewModel property to Settings
+                Settings.SecondaryBackupPath = SecondaryBackupPath;
+
+                // Save settings
+                await _settingsService.SaveSettingsAsync();
+                await Task.Delay(100); // Win10: File system flush
+
+                // Update active path display
+                UpdateActiveSecondaryBackupPath();
+
+                // Notify all interested parties
+                _messenger.Send(new SettingsChangedMessage());
+                await Task.Delay(200); // Win10: UI refresh
+
+                // Show success message
+                BackupStatusMessage = "Sekundární cesta pro zálohy byla úspěšně uložena.";
+                BackupStatusColor = "#34C759"; // Green
+
+                // Explicitly notify property changes
+                OnPropertyChanged(nameof(IsSecondaryBackupPathConfigured));
+                OnPropertyChanged(nameof(ActiveSecondaryBackupPath));
+                OnPropertyChanged(nameof(Settings));
+
+                await Task.Delay(3000);
+                BackupStatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                BackupStatusMessage = $"Chyba při ukládání sekundární cesty: {ex.Message}";
+                BackupStatusColor = "#FF3B30"; // Red
+            }
+        }
+
+        private void UpdateActiveSecondaryBackupPath()
+        {
+            if (_settingsService.IsSecondaryBackupPathConfigured())
+            {
+                var path = _settingsService.GetSecondaryBackupFolderPath();
+                ActiveSecondaryBackupPath = $"Aktivní sekundární cesta: {path}";
+            }
+            else
+            {
+                ActiveSecondaryBackupPath = "Aktivní sekundární cesta: NENÍ NASTAVENA (volitelné)";
+            }
+            OnPropertyChanged(nameof(IsSecondaryBackupPathConfigured));
         }
 
         [RelayCommand]
@@ -371,6 +452,190 @@ namespace Sklad_2.ViewModels
                 BackupStatusColor = "#FF3B30"; // Red for error
             }
             await Task.CompletedTask;
+        }
+
+        public async Task<bool> RestoreFromBackupAsync(string backupFolderPath)
+        {
+            await Task.CompletedTask; // Suppress CS1998 warning
+
+            BackupStatusMessage = string.Empty;
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sklad_2_Data", "restore_log.txt");
+            void Log(string msg)
+            {
+                try { File.AppendAllText(logPath, $"{DateTime.Now:HH:mm:ss} - {msg}\n"); } catch { }
+            }
+
+            try
+            {
+                Log("RestoreFromBackupAsync: Starting restore operation...");
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var localFolderPath = Path.Combine(appDataPath, "Sklad_2_Data");
+
+                // Flexible path validation - try both possibilities:
+                // 1. User selected backup root (e.g., C:/BackupFolder) -> look for Sklad_2_Data subfolder
+                // 2. User selected Sklad_2_Data directly (e.g., C:/BackupFolder/Sklad_2_Data)
+                string backupDataFolderPath = null;
+                string backupDbPath = null;
+
+                // Try option 1: backupFolderPath/Sklad_2_Data/sklad.db
+                var option1 = Path.Combine(backupFolderPath, "Sklad_2_Data", "sklad.db");
+                if (File.Exists(option1))
+                {
+                    backupDataFolderPath = Path.Combine(backupFolderPath, "Sklad_2_Data");
+                    backupDbPath = option1;
+                    Log($"RestoreFromBackupAsync: Found backup in subfolder (Option 1): {backupDbPath}");
+                }
+                else
+                {
+                    // Try option 2: backupFolderPath/sklad.db (user selected Sklad_2_Data directly)
+                    var option2 = Path.Combine(backupFolderPath, "sklad.db");
+                    if (File.Exists(option2))
+                    {
+                        backupDataFolderPath = backupFolderPath;
+                        backupDbPath = option2;
+                        Log($"RestoreFromBackupAsync: Found backup in selected folder (Option 2): {backupDbPath}");
+                    }
+                    else
+                    {
+                        Log("RestoreFromBackupAsync: ERROR - Backup database not found in either location");
+                        Log($"RestoreFromBackupAsync: Checked option 1: {option1}");
+                        Log($"RestoreFromBackupAsync: Checked option 2: {option2}");
+                        BackupStatusMessage = $"Chyba: Záložní databáze nebyla nalezena.\n\n" +
+                                             $"Vyberte složku obsahující 'Sklad_2_Data' podsložku\n" +
+                                             $"nebo přímo složku 'Sklad_2_Data' se souborem 'sklad.db'.\n\n" +
+                                             $"Vybraná cesta: {backupFolderPath}";
+                        BackupStatusColor = "#FF3B30";
+                        return false;
+                    }
+                }
+
+                // Restore database (Win10 compatible - NO FLUSH for DB as it's locked by EF Core)
+                var localDbPath = Path.Combine(localFolderPath, "sklad.db");
+                var backupDbInfo = new FileInfo(backupDbPath);
+                Log($"RestoreFromBackupAsync: Backup DB size: {backupDbInfo.Length:N0} bytes");
+
+                // Copy database - overwrite even if locked (File.Copy with overwrite=true handles this)
+                File.Copy(backupDbPath, localDbPath, true);
+                // NOTE: No flush for database - file is locked by EF Core, flush would fail
+                // Database will be properly written by OS, and app restart is required anyway
+
+                // Verify database restore (just check size, no file access)
+                var localDbInfo = new FileInfo(localDbPath);
+                if (localDbInfo.Length == backupDbInfo.Length)
+                {
+                    Log($"RestoreFromBackupAsync: Database restored and verified OK ({localDbInfo.Length:N0} bytes)");
+                }
+                else
+                {
+                    Log($"RestoreFromBackupAsync: Database restored but SIZE MISMATCH (backup: {backupDbInfo.Length:N0}, local: {localDbInfo.Length:N0})");
+                    BackupStatusMessage = "Chyba: Databáze byla obnovena, ale velikost nesouhlasí. Zkuste znovu.";
+                    BackupStatusColor = "#FF3B30";
+                    return false;
+                }
+
+                // Restore settings.json (Win10 compatible - with flush + verification)
+                var backupSettingsPath = Path.Combine(backupDataFolderPath, "settings.json");
+                var localSettingsPath = Path.Combine(localFolderPath, "settings.json");
+                if (File.Exists(backupSettingsPath))
+                {
+                    var backupSettingsInfo = new FileInfo(backupSettingsPath);
+                    Log($"RestoreFromBackupAsync: Backup settings size: {backupSettingsInfo.Length:N0} bytes");
+
+                    File.Copy(backupSettingsPath, localSettingsPath, true);
+                    // Win10: Force OS buffer flush
+                    using (var fs = new FileStream(localSettingsPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        fs.Flush(true);
+                    }
+
+                    // Verify settings restore
+                    if (File.Exists(localSettingsPath))
+                    {
+                        var localSettingsInfo = new FileInfo(localSettingsPath);
+                        if (localSettingsInfo.Length == backupSettingsInfo.Length)
+                        {
+                            Log($"RestoreFromBackupAsync: Settings restored and verified OK ({localSettingsInfo.Length:N0} bytes)");
+                        }
+                        else
+                        {
+                            Log($"RestoreFromBackupAsync: Settings restored but SIZE MISMATCH (backup: {backupSettingsInfo.Length:N0}, local: {localSettingsInfo.Length:N0})");
+                        }
+                    }
+                    else
+                    {
+                        Log("RestoreFromBackupAsync: Settings VERIFICATION FAILED - file does not exist after restore!");
+                    }
+                }
+
+                // Restore ProductImages folder (Win10 compatible - with flush + verification)
+                var backupImagesPath = Path.Combine(backupDataFolderPath, "ProductImages");
+                var localImagesPath = Path.Combine(localFolderPath, "ProductImages");
+                if (Directory.Exists(backupImagesPath))
+                {
+                    Directory.CreateDirectory(localImagesPath);
+                    var imageFiles = Directory.GetFiles(backupImagesPath);
+                    int verifiedCount = 0;
+                    int failedCount = 0;
+                    long totalBytes = 0;
+
+                    foreach (var file in imageFiles)
+                    {
+                        var fileName = Path.GetFileName(file);
+                        var destPath = Path.Combine(localImagesPath, fileName);
+
+                        var backupFileInfo = new FileInfo(file);
+                        File.Copy(file, destPath, true);
+                        // Win10: Force OS buffer flush for each image
+                        using (var fs = new FileStream(destPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        {
+                            fs.Flush(true);
+                        }
+
+                        // Verify each image
+                        if (File.Exists(destPath))
+                        {
+                            var localFileInfo = new FileInfo(destPath);
+                            if (localFileInfo.Length == backupFileInfo.Length)
+                            {
+                                verifiedCount++;
+                                totalBytes += localFileInfo.Length;
+                            }
+                            else
+                            {
+                                failedCount++;
+                                Log($"RestoreFromBackupAsync: Image '{fileName}' SIZE MISMATCH (backup: {backupFileInfo.Length:N0}, local: {localFileInfo.Length:N0})");
+                            }
+                        }
+                        else
+                        {
+                            failedCount++;
+                            Log($"RestoreFromBackupAsync: Image '{fileName}' VERIFICATION FAILED - file does not exist after restore!");
+                        }
+                    }
+
+                    if (failedCount == 0)
+                    {
+                        Log($"RestoreFromBackupAsync: ProductImages restored and verified OK ({verifiedCount} files, {totalBytes:N0} bytes total)");
+                    }
+                    else
+                    {
+                        Log($"RestoreFromBackupAsync: ProductImages restored with ERRORS (OK: {verifiedCount}, FAILED: {failedCount})");
+                    }
+                }
+
+                Log("RestoreFromBackupAsync: Restore completed successfully!");
+                BackupStatusMessage = "Databáze byla úspěšně obnovena ze zálohy. Pro načtení nových dat restartujte aplikaci.";
+                BackupStatusColor = "#34C759"; // Green
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log($"RestoreFromBackupAsync: ERROR - {ex.Message}");
+                BackupStatusMessage = $"Chyba při obnovování databáze: {ex.Message}";
+                BackupStatusColor = "#FF3B30"; // Red
+                return false;
+            }
         }
 
         [RelayCommand]

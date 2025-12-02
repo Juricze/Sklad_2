@@ -44,6 +44,10 @@ namespace Sklad_2.ViewModels
         [NotifyPropertyChangedFor(nameof(BackupPathStatusText), nameof(BackupPathStatusColor))]
         private bool isBackupPathConfigured;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SecondaryBackupStatusText), nameof(SecondaryBackupStatusColor))]
+        private bool isSecondaryBackupConfigured;
+
         // Status texts
         public string PrinterStatusText => IsPrinterConnected ? "Připojena" : "Odpojena";
         public string DayCloseStatusText => IsDayClosedToday ? "Provedena" : "Neprovedena";
@@ -52,11 +56,13 @@ namespace Sklad_2.ViewModels
         public string VatConfigStatusText => IsVatConfigComplete ? "Nastaveno" : "Nenastaveno";
         public string DatabaseStatusText => IsDatabaseOk ? "OK" : "Chyba";
         public string BackupPathStatusText => IsBackupPathConfigured ? "Nastavena" : "CHYBA";
+        public string SecondaryBackupStatusText => IsSecondaryBackupConfigured ? "OK" : "Není nastavena";
 
         // Status colors
         public string PrinterStatusColor => IsPrinterConnected ? "#34C759" : "#FF3B30";
         public string DayCloseStatusColor => IsDayClosedToday ? "#34C759" : "#FF9500";
         public string BackupPathStatusColor => IsBackupPathConfigured ? "#34C759" : "#FF3B30";
+        public string SecondaryBackupStatusColor => IsSecondaryBackupConfigured ? "#34C759" : "#999999";
         public string VatPayerStatusColor => "#007AFF";
         public string CompanyInfoStatusColor => IsCompanyInfoComplete ? "#34C759" : "#FF9500";
         public string VatConfigStatusColor => IsVatConfigComplete ? "#34C759" : "#FF9500";
@@ -108,6 +114,9 @@ namespace Sklad_2.ViewModels
 
             // Check backup path status
             IsBackupPathConfigured = _settingsService.IsBackupPathConfigured();
+
+            // Check secondary backup path status (OneDrive)
+            IsSecondaryBackupConfigured = _settingsService.IsSecondaryBackupPathConfigured();
 
             // Check database status
             try

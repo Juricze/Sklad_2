@@ -290,12 +290,20 @@
                             </StackPanel>
 
                             <!-- Backup Path Configuration -->
-                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Nastavení cesty pro zálohy a exporty" FontWeight="SemiBold"/>
+                            <StackPanel Spacing="8" BorderBrush="#4CAF50" BorderThickness="2" Padding="12" CornerRadius="4" Background="#F1F8F4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="💾" FontSize="20" VerticalAlignment="Center"/>
+                                    <TextBlock Text="PRIMÁRNÍ ZÁLOHA (Lokální)" FontWeight="Bold" FontSize="14" Foreground="#2E7D32" VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Nastavte vlastní složku pro ukládání záloh databáze a exportů pro FÚ.
-                                    Pokud cestu nenastavíte, použije se OneDrive (pokud je dostupný) nebo složka Dokumenty.
+                                    Hlavní záloha databáze - ukládá se na lokální disk nebo síťové úložiště.
+                                    Automaticky se zálohuje při zavření aplikace a odhlášení.
                                 </TextBlock>
+                                <Border Background="#FFF9C4" BorderBrush="#FBC02D" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,4,0,0">
+                                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#F57F17">
+                                        ⚠️ DŮLEŽITÉ: Nastavte cestu pro primární zálohu! Bez ní mohou být data ztracena.
+                                    </TextBlock>
+                                </Border>
 
                                 <!-- Active Backup Path Display -->
                                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -326,7 +334,7 @@
                                 </Border>
 
                                 <TextBox Header="Cesta k záložní složce"
-                                         Text="{x:Bind ViewModel.Settings.BackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Text="{x:Bind ViewModel.BackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          PlaceholderText="Např. C:\Zálohy nebo prázdné pro automatickou detekci"
                                          IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                                 <Button Content="Procházet složky..."
@@ -355,32 +363,76 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Database Sync Section -->
-                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
-                                <TextBlock Text="Synchronizace databáze" FontWeight="SemiBold"/>
+                            <!-- Secondary Backup Path Section -->
+                            <StackPanel Spacing="8" BorderBrush="#2196F3" BorderThickness="2" Padding="12" CornerRadius="4" Background="#E3F2FD">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="☁️" FontSize="20" VerticalAlignment="Center"/>
+                                    <TextBlock Text="SEKUNDÁRNÍ ZÁLOHA (Cloud/OneDrive)" FontWeight="Bold" FontSize="14" Foreground="#1565C0" VerticalAlignment="Center"/>
+                                    <Border Background="#FF9800" CornerRadius="3" Padding="4,2" Margin="4,0,0,0">
+                                        <TextBlock Text="VOLITELNÉ" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    </Border>
+                                </StackPanel>
                                 <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    Databáze se automaticky zálohuje při zavření aplikace do nastavené složky.
-                                    Tlačítko níže provede okamžitou synchronizaci.
+                                    Dodatečná záloha pro extra bezpečnost - doporučeno pro OneDrive, Google Drive nebo externí disk.
+                                    Automaticky se zálohuje společně s primární zálohou.
                                 </TextBlock>
-                                <Button Content="Synchronizovat nyní"
-                                        Command="{x:Bind ViewModel.BackupDatabaseCommand}"
-                                        Style="{StaticResource AccentButtonStyle}"
-                                        HorizontalAlignment="Stretch"
-                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Border Background="#E8F5E9" BorderBrush="#4CAF50" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,4,0,0">
+                                    <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#2E7D32">
+                                        💡 TIP: Použijte OneDrive složku pro automatickou synchronizaci do cloudu.
+                                    </TextBlock>
+                                </Border>
 
-                                <!-- Database Status -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                <!-- Active Secondary Backup Path Display -->
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         CornerRadius="4"
-                                        Padding="8"
-                                        Margin="0,8,0,0"
-                                        Visibility="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}">
-                                    <TextBlock Text="{x:Bind ViewModel.BackupStatusMessage, Mode=OneWay}"
-                                               TextWrapping="Wrap"
-                                               FontSize="13"
-                                               Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                        Padding="12"
+                                        Margin="0,4,0,4">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="📁 Aktuálně používaná sekundární cesta" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{x:Bind ViewModel.ActiveSecondaryBackupPath, Mode=OneWay}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="11"
+                                                   FontFamily="Consolas"/>
+                                    </StackPanel>
                                 </Border>
+
+                                <TextBox Header="Sekundární cesta k záložní složce"
+                                         Text="{x:Bind ViewModel.SecondaryBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PlaceholderText="Např. C:\Users\{User}\OneDrive\Sklad_Backup"
+                                         IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Button Content="Procházet složky..."
+                                        Click="BrowseSecondaryBackupFolderButton_Click"
+                                        HorizontalAlignment="Left"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                                <Button Content="Uložit sekundární cestu"
+                                        Command="{x:Bind ViewModel.SaveSecondaryBackupPathCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,8,0,0"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
+                            </StackPanel>
+
+                            <!-- Restore from Backup Section -->
+                            <StackPanel Spacing="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4" Background="#FFF5F5">
+                                <TextBlock Text="⚠️ Obnovit databázi ze zálohy" FontWeight="SemiBold" Foreground="#FF3B30"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    Obnoví databázi ze záložní složky. VAROVÁNÍ: Přepíše aktuální databázi! Používejte pouze v případě ztráty dat nebo corrupted databáze. Po obnově RESTARTUJTE aplikaci.
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#FF9500" FontWeight="SemiBold" Margin="0,4,0,0">
+                                    📂 JAK VYBRAT SPRÁVNOU SLOŽKU:
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4">
+                                    Vyberte buď:<LineBreak/>
+                                    • Složku obsahující podsložku "Sklad_2_Data" (např. C:\Zálohy)<LineBreak/>
+                                    • NEBO přímo složku "Sklad_2_Data" (např. C:\Zálohy\Sklad_2_Data)<LineBreak/>
+                                    Aplikace automaticky najde soubor "sklad.db".
+                                </TextBlock>
+                                <Button Content="🔄 Obnovit ze zálohy..."
+                                        Click="RestoreFromBackupButton_Click"
+                                        HorizontalAlignment="Stretch"
+                                        IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"/>
                             </StackPanel>
 
                             <!-- Manual Discounts Section -->

@@ -14,6 +14,7 @@ namespace Sklad_2.Models.Settings
         public string PrinterPath { get; set; }
         public string ScannerPath { get; set; }
         public string BackupPath { get; set; } = null; // Explicitly null - must be set by user
+        public string SecondaryBackupPath { get; set; } = null; // Optional secondary backup (e.g., OneDrive)
         public bool AllowManualDiscounts { get; set; }
         public DateTime? LastSaleLoginDate { get; set; }
         public DateTime? LastDayCloseDate { get; set; }
