@@ -641,8 +641,8 @@ namespace Sklad_2
                                  "• Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
                                  "Zálohovat POUZE pokud VÍTE, že databáze je správně prázdná!\n\n" +
                                  additionalMessage,
-                        PrimaryButtonText = "⚠️ Zálohovat prázdnou DB (POTVRZUJI)",
-                        SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                        PrimaryButtonText = "Ano, zálohovat",
+                        SecondaryButtonText = "Ne, nezálohovat",
                         CloseButtonText = "Zrušit",
                         DefaultButton = ContentDialogButton.Secondary,
                         XamlRoot = this.Content.XamlRoot
@@ -698,8 +698,8 @@ namespace Sklad_2
                                                      "• Obnovte ze zálohy, pokud jsou data chybná\n" +
                                                      "• Zálohujte POUZE pokud VÍTE, že změna je správná!\n\n" +
                                                      additionalMessage,
-                                            PrimaryButtonText = "✅ Zálohovat stejně (POTVRZUJI)",
-                                            SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                                            PrimaryButtonText = "Ano, zálohovat",
+                                            SecondaryButtonText = "Ne, nezálohovat",
                                             CloseButtonText = "Zrušit",
                                             DefaultButton = ContentDialogButton.Secondary,
                                             XamlRoot = this.Content.XamlRoot
@@ -768,8 +768,8 @@ namespace Sklad_2
                                                          "• Pokud je smazání ZÁMĚRNÉ → Zálohujte\n" +
                                                          "• Pokud je smazání CHYBA → Obnovte ze zálohy\n\n" +
                                                          additionalMessage,
-                                                PrimaryButtonText = "✅ Zálohovat (změna je OK)",
-                                                SecondaryButtonText = "❌ Nezálohovat (nejprve zkontrolovat)",
+                                                PrimaryButtonText = "Ano, zálohovat",
+                                                SecondaryButtonText = "Ne, nezálohovat",
                                                 CloseButtonText = "Zrušit",
                                                 DefaultButton = ContentDialogButton.Secondary,
                                                 XamlRoot = this.Content.XamlRoot
@@ -855,8 +855,8 @@ namespace Sklad_2
                                      "• Obnovte správnou (nejnovější) zálohu, pokud je to chyba\n" +
                                      "• Zálohujte POUZE pokud VÍTE, že starší data jsou správná!\n\n" +
                                      additionalMessage,
-                            PrimaryButtonText = "✅ Zálohovat (starší data jsou OK)",
-                            SecondaryButtonText = "❌ Nezálohovat (nejprve zkontrolovat)",
+                            PrimaryButtonText = "Ano, zálohovat",
+                            SecondaryButtonText = "Ne, nezálohovat",
                             CloseButtonText = "Zrušit",
                             DefaultButton = ContentDialogButton.Secondary,
                             XamlRoot = this.Content.XamlRoot
