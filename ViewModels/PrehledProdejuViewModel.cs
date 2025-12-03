@@ -179,8 +179,10 @@ namespace Sklad_2.ViewModels
 
         private void CalculateTotals()
         {
-            // DRY: Use AmountToPay (after discounts) instead of TotalAmount (before discounts)
-            TotalSalesAmount = Sales.Sum(r => r.AmountToPay);
+            // KRITICKÉ: Use FinalAmountRounded (zaokrouhlená částka) místo AmountToPay (přesná)
+            // Důvod: Denní uzávěrka a pokladna počítají se zaokrouhlenými částkami
+            // DRY: Delegace na Receipt.FinalAmountRounded computed property
+            TotalSalesAmount = Sales.Sum(r => r.FinalAmountRounded);
             TotalSalesAmountWithoutVat = Sales.Sum(r => r.TotalAmountWithoutVat);
             TotalVatAmount = Sales.Sum(r => r.TotalVatAmount);
             NumberOfReceipts = Sales.Count;
@@ -265,14 +267,16 @@ namespace Sklad_2.ViewModels
         {
             PaymentMethodStats.Clear();
 
-            // DRY: Use AmountToPay (after discounts) for accurate payment statistics
+            // KRITICKÉ: Use FinalAmountRounded (zaokrouhlená částka) místo AmountToPay (přesná)
+            // Důvod: Skutečná částka v pokladně je zaokrouhlená (CashAmount/CardAmount)
+            // DRY: Delegace na Receipt.FinalAmountRounded computed property
             var paymentStats = Sales
                 .GroupBy(r => r.PaymentMethod)
                 .Select(g => new PaymentMethodStats
                 {
                     PaymentMethod = g.Key,
                     Count = g.Count(),
-                    TotalAmount = g.Sum(r => r.AmountToPay)
+                    TotalAmount = g.Sum(r => r.FinalAmountRounded)
                 })
                 .ToList();
 
