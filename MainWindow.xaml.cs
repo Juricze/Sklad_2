@@ -651,8 +651,8 @@ namespace Sklad_2
                 }
                 else
                 {
-                    // Check 2: Výrazný pokles velikosti databáze (možná ztráta dat)
-                    // KRITICKÉ: I když DB není prázdná, můžeme ztratit většinu dat!
+                    // Check 2 & 4: Porovnání s existující zálohou (velikost + počet záznamů)
+                    // KRITICKÉ: I když DB není prázdná, můžeme ztratit část dat!
                     var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                     if (System.IO.File.Exists(settingsPath))
                     {
@@ -670,10 +670,9 @@ namespace Sklad_2
                                     var backupDbInfo = new System.IO.FileInfo(backupDbPath);
                                     long backupDbSize = backupDbInfo.Length;
 
-                                    // KRITICKÉ: DB je < 50% zálohy → pravděpodobná ztráta dat
+                                    // Check 2: Výrazný pokles velikosti (> 50%)
                                     if (currentDbSize < backupDbSize * 0.5)
                                     {
-                                        // ZPŘÍSNĚNO: ŽÁDNÁ možnost "Zálohovat stejně"
                                         var sizeWarningDialog = new ContentDialog
                                         {
                                             Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
@@ -695,6 +694,76 @@ namespace Sklad_2
 
                                         await sizeWarningDialog.ShowAsync();
                                         return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                                    }
+
+                                    // Check 4: Porovnání POČTU ZÁZNAMŮ se zálohou
+                                    // KRITICKÉ: Malé ztráty (10 účtenek) mají malý dopad na velikost,
+                                    // ale můžou znamenat ztrátu důležitých dat!
+                                    try
+                                    {
+                                        // Otevři zálohu jako SQLite databázi (read-only)
+                                        var backupConnectionString = $"Data Source={backupDbPath};Mode=ReadOnly";
+                                        var backupOptions = new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<DatabaseContext>()
+                                            .UseSqlite(backupConnectionString)
+                                            .Options;
+
+                                        int backupProductCount = 0;
+                                        int backupReceiptCount = 0;
+
+                                        using (var backupContext = new DatabaseContext(backupOptions))
+                                        {
+                                            backupProductCount = await backupContext.Products.AsNoTracking().CountAsync();
+                                            backupReceiptCount = await backupContext.Receipts.AsNoTracking().CountAsync();
+                                        }
+
+                                        // Porovnej počty - pokud pokles > 5% → VAROVÁNÍ!
+                                        bool hasProductLoss = backupProductCount > 0 && productCount < backupProductCount * 0.95;
+                                        bool hasReceiptLoss = backupReceiptCount > 0 && receiptCount < backupReceiptCount * 0.95;
+
+                                        if (hasProductLoss || hasReceiptLoss)
+                                        {
+                                            int productDiff = backupProductCount - productCount;
+                                            int receiptDiff = backupReceiptCount - receiptCount;
+                                            double productLossPercent = backupProductCount > 0 ? ((double)productDiff / backupProductCount * 100) : 0;
+                                            double receiptLossPercent = backupReceiptCount > 0 ? ((double)receiptDiff / backupReceiptCount * 100) : 0;
+
+                                            var dataLossDialog = new ContentDialog
+                                            {
+                                                Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                                                Content = $"⚠️ DETEKOVÁNA ČÁSTEČNÁ ZTRÁTA DAT!\n\n" +
+                                                         $"Aktuální databáze vs Záloha:\n\n" +
+                                                         $"📦 Produkty:\n" +
+                                                         $"   • Aktuální: {productCount}\n" +
+                                                         $"   • Záloha: {backupProductCount}\n" +
+                                                         (hasProductLoss ? $"   • ❌ Chybí: {productDiff} ({productLossPercent:F1}%)\n\n" : "\n") +
+                                                         $"🧾 Účtenky:\n" +
+                                                         $"   • Aktuální: {receiptCount}\n" +
+                                                         $"   • Záloha: {backupReceiptCount}\n" +
+                                                         (hasReceiptLoss ? $"   • ❌ Chybí: {receiptDiff} ({receiptLossPercent:F1}%)\n\n" : "\n") +
+                                                         "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
+                                                         "Důvod: Databáze obsahuje MÉNĚ záznamů než záloha.\n" +
+                                                         "Možné příčiny:\n" +
+                                                         "• Corrupted databáze (poškozený soubor)\n" +
+                                                         "• Rollback / obnovení staré verze\n" +
+                                                         "• Neúmyslné smazání záznamů\n\n" +
+                                                         "Co dělat dál:\n" +
+                                                         "1. DŮRAZNĚ DOPORUČENO: Obnovte ze zálohy\n" +
+                                                         "2. Zkontrolujte, zda data nejsou jen dočasně nedostupná\n" +
+                                                         "3. Pokračujte BEZ zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                                         additionalMessage,
+                                                CloseButtonText = "OK, rozumím",
+                                                DefaultButton = ContentDialogButton.Close,
+                                                XamlRoot = this.Content.XamlRoot
+                                            };
+
+                                            await dataLossDialog.ShowAsync();
+                                            return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Pokud nelze otevřít zálohu, pokračuj (lepší než blokovat)
+                                        Debug.WriteLine($"Backup comparison failed: {ex.Message}");
                                     }
                                 }
                             }
