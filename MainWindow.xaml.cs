@@ -627,27 +627,35 @@ namespace Sklad_2
                 // Check 1: Prázdná databáze (0 produktů a 0 účtenek)
                 if (isDatabaseEmpty)
                 {
-                    // KRITICKÉ: ŽÁDNÁ MOŽNOST ZÁLOHY! Pouze informace.
+                    // KRITICKÉ VAROVÁNÍ: Prázdná databáze je velmi podezřelá!
                     var emptyDbDialog = new ContentDialog
                     {
-                        Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                        Title = "⚠️ KRITICKÉ VAROVÁNÍ",
                         Content = $"Databáze je prázdná!\n\n" +
                                  $"• Počet produktů: {productCount}\n" +
                                  $"• Počet účtenek: {receiptCount}\n" +
                                  $"• Velikost souboru: {currentDbSize:N0} bytů\n\n" +
-                                 "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
-                                 "Důvod: Prázdná databáze by přepsala všechna uložená data.\n\n" +
+                                 "⚠️ VAROVÁNÍ: Prázdná databáze přepíše všechna uložená data v zálohách!\n\n" +
                                  "Co dělat dál:\n" +
-                                 "1. Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
-                                 "2. Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                 "• DOPORUČENO: Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
+                                 "• Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                 "Zálohovat POUZE pokud VÍTE, že databáze je správně prázdná!\n\n" +
                                  additionalMessage,
-                        CloseButtonText = "OK, rozumím",
-                        DefaultButton = ContentDialogButton.Close,
+                        PrimaryButtonText = "⚠️ Zálohovat prázdnou DB (POTVRZUJI)",
+                        SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                        CloseButtonText = "Zrušit",
+                        DefaultButton = ContentDialogButton.Secondary,
                         XamlRoot = this.Content.XamlRoot
                     };
 
-                    await emptyDbDialog.ShowAsync();
-                    return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                    var result = await emptyDbDialog.ShowAsync();
+
+                    if (result != ContentDialogResult.Primary)
+                    {
+                        // User chose not to backup
+                        return false; // ŽÁDNÁ ZÁLOHA
+                    }
+                    // else: User explicitly confirmed → continue with backup
                 }
                 else
                 {
@@ -675,25 +683,36 @@ namespace Sklad_2
                                     {
                                         var sizeWarningDialog = new ContentDialog
                                         {
-                                            Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
-                                            Content = $"Databáze výrazně zmenšena - pravděpodobná ztráta dat!\n\n" +
+                                            Title = "⚠️ VAROVÁNÍ: Výrazný pokles velikosti databáze",
+                                            Content = $"Databáze je výrazně menší než záloha!\n\n" +
                                                      $"• Aktuální DB: {currentDbSize:N0} bytů ({productCount} produktů, {receiptCount} účtenek)\n" +
                                                      $"• Záloha: {backupDbSize:N0} bytů\n" +
                                                      $"• Rozdíl: {((1 - (double)currentDbSize / backupDbSize) * 100):F0}% menší\n\n" +
-                                                     "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
-                                                     "Důvod: Databáze je podezřele malá - možná ztráta dat.\n\n" +
-                                                     "Co dělat dál:\n" +
-                                                     "1. Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
-                                                     "2. Zkontrolujte, zda nedošlo ke smazání produktů\n" +
-                                                     "3. Pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                                     "⚠️ VAROVÁNÍ: Toto může znamenat ztrátu dat!\n\n" +
+                                                     "Možné příčiny:\n" +
+                                                     "• Poškozená databáze\n" +
+                                                     "• Smazání velkého množství dat\n" +
+                                                     "• Obnovení staré zálohy\n\n" +
+                                                     "Co dělat:\n" +
+                                                     "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
+                                                     "• Obnovte ze zálohy, pokud jsou data chybná\n" +
+                                                     "• Zálohujte POUZE pokud VÍTE, že změna je správná!\n\n" +
                                                      additionalMessage,
-                                            CloseButtonText = "OK, rozumím",
-                                            DefaultButton = ContentDialogButton.Close,
+                                            PrimaryButtonText = "✅ Zálohovat stejně (POTVRZUJI)",
+                                            SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
+                                            CloseButtonText = "Zrušit",
+                                            DefaultButton = ContentDialogButton.Secondary,
                                             XamlRoot = this.Content.XamlRoot
                                         };
 
-                                        await sizeWarningDialog.ShowAsync();
-                                        return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                                        var result = await sizeWarningDialog.ShowAsync();
+
+                                        if (result != ContentDialogResult.Primary)
+                                        {
+                                            // User chose not to backup
+                                            return false;
+                                        }
+                                        // else: User explicitly confirmed → continue with backup
                                     }
 
                                     // Check 4: Porovnání POČTU ZÁZNAMŮ se zálohou
@@ -729,35 +748,41 @@ namespace Sklad_2
 
                                             var dataLossDialog = new ContentDialog
                                             {
-                                                Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
-                                                Content = $"⚠️ DETEKOVÁNA ČÁSTEČNÁ ZTRÁTA DAT!\n\n" +
+                                                Title = "⚠️ VAROVÁNÍ: Pokles počtu záznamů",
+                                                Content = $"Databáze obsahuje MÉNĚ záznamů než záloha!\n\n" +
                                                          $"Aktuální databáze vs Záloha:\n\n" +
                                                          $"📦 Produkty:\n" +
                                                          $"   • Aktuální: {productCount}\n" +
                                                          $"   • Záloha: {backupProductCount}\n" +
-                                                         (hasProductLoss ? $"   • ❌ Chybí: {productDiff} ({productLossPercent:F1}%)\n\n" : "\n") +
+                                                         (hasProductLoss ? $"   • ⚠️ Rozdíl: -{productDiff} ({productLossPercent:F1}%)\n\n" : "   • ✅ Stejně\n\n") +
                                                          $"🧾 Účtenky:\n" +
                                                          $"   • Aktuální: {receiptCount}\n" +
                                                          $"   • Záloha: {backupReceiptCount}\n" +
-                                                         (hasReceiptLoss ? $"   • ❌ Chybí: {receiptDiff} ({receiptLossPercent:F1}%)\n\n" : "\n") +
-                                                         "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
-                                                         "Důvod: Databáze obsahuje MÉNĚ záznamů než záloha.\n" +
+                                                         (hasReceiptLoss ? $"   • ⚠️ Rozdíl: -{receiptDiff} ({receiptLossPercent:F1}%)\n\n" : "   • ✅ Stejně\n\n") +
+                                                         "⚠️ VAROVÁNÍ: Pokles může znamenat ztrátu dat!\n\n" +
                                                          "Možné příčiny:\n" +
-                                                         "• Corrupted databáze (poškozený soubor)\n" +
-                                                         "• Rollback / obnovení staré verze\n" +
-                                                         "• Neúmyslné smazání záznamů\n\n" +
-                                                         "Co dělat dál:\n" +
-                                                         "1. DŮRAZNĚ DOPORUČENO: Obnovte ze zálohy\n" +
-                                                         "2. Zkontrolujte, zda data nejsou jen dočasně nedostupná\n" +
-                                                         "3. Pokračujte BEZ zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                                         "• Běžné: Smazání produktů/storno účtenek (normální provoz)\n" +
+                                                         "• Problém: Corrupted databáze nebo rollback\n\n" +
+                                                         "Co dělat:\n" +
+                                                         "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
+                                                         "• Pokud je smazání ZÁMĚRNÉ → Zálohujte\n" +
+                                                         "• Pokud je smazání CHYBA → Obnovte ze zálohy\n\n" +
                                                          additionalMessage,
-                                                CloseButtonText = "OK, rozumím",
-                                                DefaultButton = ContentDialogButton.Close,
+                                                PrimaryButtonText = "✅ Zálohovat (změna je OK)",
+                                                SecondaryButtonText = "❌ Nezálohovat (nejprve zkontrolovat)",
+                                                CloseButtonText = "Zrušit",
+                                                DefaultButton = ContentDialogButton.Secondary,
                                                 XamlRoot = this.Content.XamlRoot
                                             };
 
-                                            await dataLossDialog.ShowAsync();
-                                            return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                                            var result = await dataLossDialog.ShowAsync();
+
+                                            if (result != ContentDialogResult.Primary)
+                                            {
+                                                // User chose not to backup
+                                                return false;
+                                            }
+                                            // else: User explicitly confirmed → continue with backup
                                         }
                                     }
                                     catch (Exception ex)
@@ -817,25 +842,34 @@ namespace Sklad_2
                     {
                         var timeWarpDialog = new ContentDialog
                         {
-                            Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                            Title = "⚠️ VAROVÁNÍ: Časový posun v datech",
                             Content = timeTravelMessage +
-                                     "PRAVDĚPODOBNĚ BYLA OBNOVENA STARÁ ZÁLOHA!\n\n" +
+                                     "⚠️ VAROVÁNÍ: Pravděpodobně byla obnovena stará záloha!\n\n" +
                                      "Důvod: Data v databázi jsou výrazně starší než očekávané datum.\n\n" +
-                                     "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
-                                     "Pokud toto je chyba:\n" +
-                                     "• Zkontrolujte systémové datum\n" +
-                                     "• Zkontrolujte, zda jste neobnovili starou zálohu\n\n" +
-                                     "Co dělat dál:\n" +
-                                     "1. Obnovte správnou (nejnovější) zálohu\n" +
-                                     "2. Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                     "Možné příčiny:\n" +
+                                     "• Obnovení staré zálohy (nečekané)\n" +
+                                     "• Špatné systémové datum při záloze\n" +
+                                     "• Záměrný rollback\n\n" +
+                                     "Co dělat:\n" +
+                                     "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
+                                     "• Obnovte správnou (nejnovější) zálohu, pokud je to chyba\n" +
+                                     "• Zálohujte POUZE pokud VÍTE, že starší data jsou správná!\n\n" +
                                      additionalMessage,
-                            CloseButtonText = "OK, rozumím",
-                            DefaultButton = ContentDialogButton.Close,
+                            PrimaryButtonText = "✅ Zálohovat (starší data jsou OK)",
+                            SecondaryButtonText = "❌ Nezálohovat (nejprve zkontrolovat)",
+                            CloseButtonText = "Zrušit",
+                            DefaultButton = ContentDialogButton.Secondary,
                             XamlRoot = this.Content.XamlRoot
                         };
 
-                        await timeWarpDialog.ShowAsync();
-                        return false; // ŽÁDNÁ ZÁLOHA - KONEC!
+                        var result = await timeWarpDialog.ShowAsync();
+
+                        if (result != ContentDialogResult.Primary)
+                        {
+                            // User chose not to backup
+                            return false;
+                        }
+                        // else: User explicitly confirmed → continue with backup
                     }
                 }
             }
