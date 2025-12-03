@@ -167,7 +167,11 @@ namespace Sklad_2.ViewModels
                     Sales.Add(receipt);
                 }
 
-                CalculateTotals();
+                // KRITICKÉ: Načíst vratky pro stejný časový rozsah
+                var allReturns = await _dataService.GetReturnsAsync(StartDate.DateTime, EndDate.DateTime);
+                System.Diagnostics.Debug.WriteLine($"LoadSalesDataAsync: Loaded {allReturns.Count()} returns");
+
+                CalculateTotals(allReturns);
 
                 System.Diagnostics.Debug.WriteLine($"LoadSalesDataAsync: Completed. Total={TotalSalesAmount:C}, Count={NumberOfReceipts}");
             }
@@ -177,12 +181,22 @@ namespace Sklad_2.ViewModels
             }
         }
 
-        private void CalculateTotals()
+        private void CalculateTotals(IEnumerable<Return> returns)
         {
             // KRITICKÉ: Use FinalAmountRounded (zaokrouhlená částka) místo AmountToPay (přesná)
-            // Důvod: Denní uzávěrka a pokladna počítají se zaokrouhlenými částkami
+            // Důvod: Denní uzávěrka počítá se zaokrouhlenými částkami
             // DRY: Delegace na Receipt.FinalAmountRounded computed property
-            TotalSalesAmount = Sales.Sum(r => r.FinalAmountRounded);
+
+            // 1. Sečíst všechny účtenky (storno účtenky mají záporný FinalAmountRounded)
+            var receiptTotal = Sales.Sum(r => r.FinalAmountRounded);
+
+            // 2. KRITICKÉ: Odečíst vratky (stejně jako DailyCloseService!)
+            // DRY: Delegace na Return.FinalRefundRounded computed property
+            var returnTotal = returns.Sum(r => r.FinalRefundRounded);
+
+            // 3. Celková tržba = účtenky - vratky
+            TotalSalesAmount = receiptTotal - returnTotal;
+
             TotalSalesAmountWithoutVat = Sales.Sum(r => r.TotalAmountWithoutVat);
             TotalVatAmount = Sales.Sum(r => r.TotalVatAmount);
             NumberOfReceipts = Sales.Count;
@@ -195,6 +209,8 @@ namespace Sklad_2.ViewModels
             CalculateTopProducts();
             CalculateWorstProducts();
             CalculatePaymentMethodStats();
+
+            System.Diagnostics.Debug.WriteLine($"CalculateTotals: Receipts={receiptTotal:C}, Returns={returnTotal:C}, Final={TotalSalesAmount:C}");
         }
 
         private int CalculateNumberOfDays()
