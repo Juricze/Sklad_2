@@ -17,7 +17,85 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 1. prosinec 2025 (pokračování 8)**
+## 📅 **Poslední session: 4. prosinec 2025 (pokračování 9)**
+
+### ✅ Hotovo:
+**Release v1.0.21: Telefon do věrnostního programu + Maskování kontaktů + UI prefix +420**
+
+**1. Telefon do věrnostního programu**
+- **LoyaltyCustomer model**: Přidán `PhoneNumber` property
+- **Validace**: Alespoň Email NEBO Telefon je povinný (ne oba optional)
+- **UI prefix**: Viditelný "+420" prefix před inputem (prodavačka zadává jen 9 číslic)
+- **Automatické ukládání**: Systém přidá "+420" k zadanému číslu
+- **Vyhledávání**: Funguje podle telefonu v ProdejPage i LoyaltyPage
+- **Databázová migrace V22**: ADD COLUMN PhoneNumber
+
+**2. Maskování kontaktů na účtenkách a zobrazení**
+- **Email maskování**: `pavel@example.cz` → `pav***@***.cz`
+  - První 3 znaky lokální části
+  - "***@***"
+  - Poslední 3 znaky domény (.cz, .com, atd.)
+- **Telefon maskování**: `+420739612345` → `+420 7396*****`
+  - Předvolba +420 viditelná
+  - První 4 čísla
+  - Zbytek hvězdičky
+- **Priorita zobrazení**: Email > Telefon (pokud oba vyplněny)
+- **Model properties**:
+  - `LoyaltyCustomer.MaskedEmail` - maskovaný email
+  - `LoyaltyCustomer.MaskedPhone` - maskovaný telefon
+  - `LoyaltyCustomer.MaskedContact` - email > telefon s prioritou
+
+**3. Receipt model změny (databázová migrace V23)**
+- **Přejmenování**: `LoyaltyCustomerEmail` → `LoyaltyCustomerContact`
+- **Důvod**: Nyní ukládá email NEBO telefon (ne jen email)
+- **Migration**: ALTER TABLE Receipts RENAME COLUMN
+- **Schema version**: 22 → 23
+
+**4. UI změny - "Člen" → "Uživatel"**
+- **ProdejPage**: Zobrazuje `MaskedContact` (již ne surový email!)
+- **ReceiptPreviewDialog**: Label změněn z "Člen:" na "Uživatel:"
+- **EscPosPrintService** (tisk účtenek): "Člen:" → "Uživatel:"
+- **EscPosPrintService** (textový náhled): "Člen:" → "Uživatel:"
+- **LoyaltyPage**: Admin view zůstává s surovým emailem (pro správu kontaktů)
+
+**5. UI pro telefon - prefix +420**
+- **LoyaltyPage.xaml**:
+  - StackPanel s TextBlock "+420" + TextBox pro číslo
+  - TextBlock: FontWeight SemiBold, šedá barva (#666)
+  - Width: 100px (bez prefixu)
+- **Edit dialog** (LoyaltyPage.xaml.cs):
+  - Stejný prefix panel v edit dialogu
+  - Automatické odstranění "+420" při zobrazení (pro editaci)
+  - Automatické přidání "+420" při uložení
+- **LoyaltyViewModel**:
+  - Přidání "+420" v AddCustomerCommand
+  - Přidání "+420" v UpdateCustomerCommand (pokud tam ještě není)
+
+**6. Vyhledávání podle telefonu**
+- **Fix**: ProdejViewModel.SearchLoyaltyCustomersAsync přidána podmínka pro PhoneNumber
+- **Funguje**: AutoSuggestBox v ProdejPage nyní hledá i podle telefonu
+- **Formát**: Lze zadat s "+420" nebo bez (najde oba)
+
+**Upravené soubory:**
+- `Models/LoyaltyCustomer.cs` - PhoneNumber, MaskedEmail, MaskedPhone, MaskedContact, SearchText
+- `Models/Receipt.cs` - LoyaltyCustomerEmail → LoyaltyCustomerContact, HasLoyaltyCustomerContact
+- `Services/DatabaseMigrationService.cs` - V22 (PhoneNumber), V23 (rename), CURRENT_SCHEMA_VERSION 23
+- `Views/LoyaltyPage.xaml` - UI prefix "+420", phone column v tabulce
+- `Views/LoyaltyPage.xaml.cs` - Edit dialog s prefix panelem, +420 logika
+- `ViewModels/LoyaltyViewModel.cs` - NewPhoneNumber, +420 při ukládání, validace Email/Phone
+- `Views/ProdejPage.xaml` - Email → MaskedContact
+- `Views/Dialogs/ReceiptPreviewDialog.xaml` - Email → Contact, "Člen" → "Uživatel"
+- `Services/EscPosPrintService.cs` - "Člen" → "Uživatel", LoyaltyCustomerContact (2× tisk + náhled)
+- `ViewModels/ProdejViewModel.cs` - MaskedContact místo MaskedEmail, PhoneNumber vyhledávání
+- `Scripts/CheckDatabaseChanges.ps1` - loyaltyCustomerContact
+
+**Git:**
+- Commit: (připraveno)
+- Release: v1.0.21 (self-contained)
+
+---
+
+## 📅 **Předchozí session: 1. prosinec 2025 (pokračování 8)**
 
 ### ✅ Hotovo:
 **Release v1.0.20: Zaokrouhlování na celé koruny + Opravy denní uzavírky + F1 shortcut**
@@ -429,5 +507,5 @@ Clipboard.SetContent(dataPackage);
 
 ---
 
-**Poslední aktualizace:** 1. prosinec 2025
-**Aktuální verze:** v1.0.20 (schema V21)
+**Poslední aktualizace:** 4. prosinec 2025
+**Aktuální verze:** v1.0.21 (schema V23)

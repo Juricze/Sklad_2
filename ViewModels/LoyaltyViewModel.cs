@@ -45,6 +45,9 @@ namespace Sklad_2.ViewModels
         private string newEmail = string.Empty;
 
         [ObservableProperty]
+        private string newPhoneNumber = string.Empty;
+
+        [ObservableProperty]
         private string newCardEan = string.Empty;
 
         // Editace slevy (pouze admin)
@@ -89,6 +92,7 @@ namespace Sklad_2.ViewModels
                         c.FirstName.ToLower().Contains(searchLower) ||
                         c.LastName.ToLower().Contains(searchLower) ||
                         c.Email.ToLower().Contains(searchLower) ||
+                        (c.PhoneNumber != null && c.PhoneNumber.Contains(searchLower)) ||
                         (c.CardEan != null && c.CardEan.Contains(searchLower)));
                 }
 
@@ -132,23 +136,27 @@ namespace Sklad_2.ViewModels
                     SetError("Příjmení je povinné.");
                     return;
                 }
-                if (string.IsNullOrWhiteSpace(NewEmail))
+                // Validace: alespoň Email NEBO Telefon
+                if (string.IsNullOrWhiteSpace(NewEmail) && string.IsNullOrWhiteSpace(NewPhoneNumber))
                 {
-                    SetError("Email je povinný.");
+                    SetError("Musí být vyplněn alespoň email nebo telefon.");
                     return;
                 }
 
                 using var context = await _contextFactory.CreateDbContextAsync();
 
-                // Kontrola unikátnosti emailu
-                var emailExists = await context.LoyaltyCustomers
-                    .AsNoTracking()
-                    .AnyAsync(c => c.Email.ToLower() == NewEmail.ToLower());
-
-                if (emailExists)
+                // Kontrola unikátnosti emailu (pouze pokud je vyplněn)
+                if (!string.IsNullOrWhiteSpace(NewEmail))
                 {
-                    SetError("Tento email již existuje.");
-                    return;
+                    var emailExists = await context.LoyaltyCustomers
+                        .AsNoTracking()
+                        .AnyAsync(c => c.Email.ToLower() == NewEmail.ToLower());
+
+                    if (emailExists)
+                    {
+                        SetError("Tento email již existuje.");
+                        return;
+                    }
                 }
 
                 // Kontrola unikátnosti EAN (pokud je vyplněn)
@@ -165,11 +173,21 @@ namespace Sklad_2.ViewModels
                     }
                 }
 
+                // Přidat +420 prefix k telefonu pokud není prázdný
+                var phoneNumber = string.Empty;
+                if (!string.IsNullOrWhiteSpace(NewPhoneNumber))
+                {
+                    var phone = NewPhoneNumber.Trim();
+                    // Přidat +420 pokud tam ještě není
+                    phoneNumber = phone.StartsWith("+420") ? phone : $"+420{phone}";
+                }
+
                 var customer = new LoyaltyCustomer
                 {
                     FirstName = NewFirstName.Trim(),
                     LastName = NewLastName.Trim(),
-                    Email = NewEmail.Trim(),
+                    Email = string.IsNullOrWhiteSpace(NewEmail) ? string.Empty : NewEmail.Trim(),
+                    PhoneNumber = phoneNumber,
                     CardEan = string.IsNullOrWhiteSpace(NewCardEan) ? string.Empty : NewCardEan.Trim(),
                     DiscountPercent = 0,
                     TotalPurchases = 0,
@@ -183,6 +201,7 @@ namespace Sklad_2.ViewModels
                 NewFirstName = string.Empty;
                 NewLastName = string.Empty;
                 NewEmail = string.Empty;
+                NewPhoneNumber = string.Empty;
                 NewCardEan = string.Empty;
 
                 SetSuccess($"Člen {customer.FullName} byl přidán.");
@@ -285,8 +304,16 @@ namespace Sklad_2.ViewModels
 
                 if (customer != null)
                 {
-                    // Kontrola unikátnosti emailu (pokud se změnil)
-                    if (customer.Email.ToLower() != updatedCustomer.Email.ToLower())
+                    // Validace: alespoň Email NEBO Telefon
+                    if (string.IsNullOrWhiteSpace(updatedCustomer.Email) && string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber))
+                    {
+                        SetError("Musí být vyplněn alespoň email nebo telefon.");
+                        return;
+                    }
+
+                    // Kontrola unikátnosti emailu (pokud je vyplněn a změnil se)
+                    if (!string.IsNullOrWhiteSpace(updatedCustomer.Email) &&
+                        customer.Email.ToLower() != updatedCustomer.Email.ToLower())
                     {
                         var emailExists = await context.LoyaltyCustomers
                             .AsNoTracking()
@@ -316,7 +343,8 @@ namespace Sklad_2.ViewModels
 
                     customer.FirstName = updatedCustomer.FirstName;
                     customer.LastName = updatedCustomer.LastName;
-                    customer.Email = updatedCustomer.Email;
+                    customer.Email = string.IsNullOrWhiteSpace(updatedCustomer.Email) ? string.Empty : updatedCustomer.Email;
+                    customer.PhoneNumber = string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber) ? string.Empty : updatedCustomer.PhoneNumber;
                     customer.CardEan = string.IsNullOrWhiteSpace(updatedCustomer.CardEan) ? string.Empty : updatedCustomer.CardEan;
                     customer.DiscountPercent = updatedCustomer.DiscountPercent;
 

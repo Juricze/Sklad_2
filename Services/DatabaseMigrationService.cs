@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 21; // Version 21: Brand and ProductCategory tables
+        private const int CURRENT_SCHEMA_VERSION = 23; // Version 23: Rename LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -204,6 +204,10 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V20_CreateGiftCardRedemptionTable(context);
                     case 21:
                         return await ApplyMigration_V21_CreateBrandAndCategoryTables(context);
+                    case 22:
+                        return await ApplyMigration_V22_AddPhoneNumberToLoyaltyCustomer(context);
+                    case 23:
+                        return await ApplyMigration_V23_RenameEmailToContact(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -1243,6 +1247,81 @@ namespace Sklad_2.Services
             }
         }
 
+        private async Task<bool> ApplyMigration_V22_AddPhoneNumberToLoyaltyCustomer(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V22 - Add PhoneNumber to LoyaltyCustomer");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // 1. Add PhoneNumber column to LoyaltyCustomers table
+                var addColumnSql = "ALTER TABLE LoyaltyCustomers ADD COLUMN PhoneNumber TEXT NULL DEFAULT ''";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = addColumnSql;
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                Debug.WriteLine("DatabaseMigrationService: Added PhoneNumber column to LoyaltyCustomers");
+
+                // 2. Fix NULL values - set empty string for all NULL PhoneNumbers
+                var fixNullsSql = "UPDATE LoyaltyCustomers SET PhoneNumber = '' WHERE PhoneNumber IS NULL";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = fixNullsSql;
+                    var rowsAffected = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Fixed {rowsAffected} NULL PhoneNumber values");
+                }
+
+                Debug.WriteLine("DatabaseMigrationService: V22 migration completed successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V22 migration: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task<bool> ApplyMigration_V23_RenameEmailToContact(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V23 - Rename LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // SQLite 3.25.0+ supports ALTER TABLE RENAME COLUMN
+                var renameColumnSql = "ALTER TABLE Receipts RENAME COLUMN LoyaltyCustomerEmail TO LoyaltyCustomerContact";
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = renameColumnSql;
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                Debug.WriteLine("DatabaseMigrationService: Renamed LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts table");
+                Debug.WriteLine("DatabaseMigrationService: V23 migration completed successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V23 migration: {ex.Message}");
+                throw;
+            }
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -1299,6 +1378,8 @@ namespace Sklad_2.Services
                 19 => "Add Description to Products for product descriptions",
                 20 => "Create ReceiptGiftCardRedemptions table for multiple gift cards per receipt",
                 21 => "Create Brand and ProductCategory tables for product classification",
+                22 => "Add PhoneNumber to LoyaltyCustomer table for customer contact information",
+                23 => "Rename LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts table",
                 _ => $"Unknown migration version {version}"
             };
         }

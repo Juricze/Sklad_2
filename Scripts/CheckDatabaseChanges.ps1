@@ -70,10 +70,10 @@ foreach ($file in $modelFiles) {
             "date", "cashSales", "cardSales", "totalSales", "vatAmount", "receiptNumberFrom", "receiptNumberTo", "closedAt",
             # Receipt payment breakdown (V10 migration)
             "cashAmount", "cardAmount",
-            # LoyaltyCustomer (V11 migration)
-            "firstName", "lastName", "email", "cardEan", "discountPercent", "totalPurchases", "createdAt",
-            # Receipt loyalty fields (V12 migration)
-            "hasLoyaltyDiscount", "loyaltyCustomerEmail", "loyaltyDiscountPercent", "loyaltyDiscountAmount",
+            # LoyaltyCustomer (V11 migration, V22 adds phoneNumber)
+            "firstName", "lastName", "email", "phoneNumber", "cardEan", "discountPercent", "totalPurchases", "createdAt",
+            # Receipt loyalty fields (V12 migration, V23 renames loyaltyCustomerEmail to loyaltyCustomerContact)
+            "hasLoyaltyDiscount", "loyaltyCustomerContact", "loyaltyDiscountPercent", "loyaltyDiscountAmount",
             # Product Brand/Category FK (V21 migration)
             "brandId", "productCategoryId"
         )

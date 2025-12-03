@@ -43,9 +43,16 @@
                                  Text="{x:Bind ViewModel.NewLastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Width="120"/>
                         <TextBox x:Name="EmailBox"
-                                 PlaceholderText="Email *"
+                                 PlaceholderText="Email"
                                  Text="{x:Bind ViewModel.NewEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Width="180"/>
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="+420" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#666"/>
+                            <TextBox x:Name="PhoneNumberBox"
+                                     PlaceholderText="Tel. číslo"
+                                     Text="{x:Bind ViewModel.NewPhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="100"/>
+                        </StackPanel>
                         <TextBox x:Name="CardEanBox"
                                  PlaceholderText="EAN kartičky"
                                  Text="{x:Bind ViewModel.NewCardEan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -54,12 +61,20 @@
                                 Command="{x:Bind ViewModel.AddCustomerCommand}"
                                 Style="{StaticResource AccentButtonStyle}"/>
                     </StackPanel>
+                    <!-- Hint pro prodavačku -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,8,0,0">
+                        <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="#FF9500"/>
+                        <TextBlock Text="Vyplňte alespoň email nebo telefon"
+                                   FontSize="12"
+                                   Foreground="#FF9500"
+                                   FontStyle="Italic"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- Vyhledávání -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBox PlaceholderText="Hledat (jméno, email, EAN)..."
+                <TextBox PlaceholderText="Hledat (jméno, email, telefon, EAN)..."
                          Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Width="250"/>
             </StackPanel>
@@ -79,10 +94,11 @@
                 <!-- Hlavička tabulky -->
                 <Grid Grid.Row="0" Padding="10,5" Background="#F0F0F0" CornerRadius="4" Margin="0,0,0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="*"/>
@@ -90,10 +106,11 @@
                     <TextBlock Grid.Column="0" Text="Jméno" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="1" Text="Příjmení" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="2" Text="Email" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="3" Text="Kartička" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="4" Text="Sleva" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="5" Text="Celkem nakoupil" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="6" Text="Akce" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="Telefon" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="4" Text="Kartička" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="5" Text="Sleva" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="6" Text="Celkem nakoupil" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="7" Text="Akce" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center"/>
                 </Grid>
 
                 <!-- Seznam -->
@@ -113,10 +130,11 @@
                         <DataTemplate>
                             <Grid Padding="10,8" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="120"/>
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="120"/>
                                     <ColumnDefinition Width="*"/>
@@ -124,13 +142,14 @@
                                 <TextBlock Grid.Column="0" Text="{Binding FirstName}" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="{Binding LastName}" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="2" Text="{Binding Email}" VerticalAlignment="Center" Opacity="0.8" FontSize="12"/>
-                                <TextBlock Grid.Column="3" Text="{Binding CardEanFormatted}" VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
-                                <TextBlock Grid.Column="4" Text="{Binding DiscountFormatted}" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="3" Text="{Binding PhoneNumberFormatted}" VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
+                                <TextBlock Grid.Column="4" Text="{Binding CardEanFormatted}" VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
+                                <TextBlock Grid.Column="5" Text="{Binding DiscountFormatted}" VerticalAlignment="Center"
                                            HorizontalAlignment="Right" FontWeight="SemiBold"
                                            Foreground="#007AFF"/>
-                                <TextBlock Grid.Column="5" Text="{Binding TotalPurchasesFormatted}" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="6" Text="{Binding TotalPurchasesFormatted}" VerticalAlignment="Center"
                                            HorizontalAlignment="Right" Foreground="#34C759"/>
-                                <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+                                <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
                                     <Button Content="Upravit" Click="EditButton_Click" FontSize="11" Padding="8,4"/>
                                     <Button Content="Smazat" Click="DeleteButton_Click" FontSize="11" Padding="8,4"
                                             Background="#FF3B30" Foreground="White"/>

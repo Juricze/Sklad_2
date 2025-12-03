@@ -548,6 +548,7 @@ namespace Sklad_2.ViewModels
                         c.FirstName.ToLower().Contains(searchLower) ||
                         c.LastName.ToLower().Contains(searchLower) ||
                         c.Email.ToLower().Contains(searchLower) ||
+                        (c.PhoneNumber != null && c.PhoneNumber.Contains(searchText)) ||
                         (c.CardEan != null && c.CardEan.Contains(searchText)))
                     .Take(10)
                     .ToListAsync();
@@ -739,7 +740,7 @@ namespace Sklad_2.ViewModels
 
                 // Calculate loyalty discount (if customer is loaded)
                 decimal loyaltyDiscountAmount = LoyaltyDiscountAmount;
-                string loyaltyCustomerMaskedEmail = SelectedLoyaltyCustomer?.MaskedEmail ?? string.Empty;
+                string loyaltyCustomerMaskedContact = SelectedLoyaltyCustomer?.MaskedContact ?? string.Empty;
                 decimal loyaltyDiscountPercent = SelectedLoyaltyCustomer?.DiscountPercent ?? 0;
 
                 // Calculate gift card redemption amount (if gift cards are loaded)
@@ -817,7 +818,7 @@ namespace Sklad_2.ViewModels
                     // Loyalty program fields
                     HasLoyaltyDiscount = loyaltyDiscountAmount > 0,
                     LoyaltyCustomerId = SelectedLoyaltyCustomer?.Id,  // Store ID for storno TotalPurchases update
-                    LoyaltyCustomerEmail = loyaltyCustomerMaskedEmail,
+                    LoyaltyCustomerContact = loyaltyCustomerMaskedContact,
                     LoyaltyDiscountPercent = loyaltyDiscountPercent,
                     LoyaltyDiscountAmount = loyaltyDiscountAmount
                 };
@@ -1113,7 +1114,7 @@ namespace Sklad_2.ViewModels
                     // Loyalty fields (for storno, negate amounts)
                     HasLoyaltyDiscount = originalReceipt.HasLoyaltyDiscount,
                     LoyaltyCustomerId = originalReceipt.LoyaltyCustomerId,  // Keep reference for consistency
-                    LoyaltyCustomerEmail = originalReceipt.LoyaltyCustomerEmail ?? string.Empty,
+                    LoyaltyCustomerContact = originalReceipt.LoyaltyCustomerContact ?? string.Empty,
                     LoyaltyDiscountPercent = originalReceipt.LoyaltyDiscountPercent,
                     LoyaltyDiscountAmount = -originalReceipt.LoyaltyDiscountAmount  // NEGATIVE for storno
                 };

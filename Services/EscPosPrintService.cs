@@ -627,10 +627,10 @@ namespace Sklad_2.Services
                     // Bold OFF: ESC E 0
                     commands.AddRange(new byte[] { 0x1B, 0x45, 0x00 });
 
-                    // Show member email
-                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerEmail))
+                    // Show member contact (email or phone)
+                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerContact))
                     {
-                        commands.AddRange(Cp852.GetBytes($"{INDENT}Člen: {receipt.LoyaltyCustomerEmail}"));
+                        commands.AddRange(Cp852.GetBytes($"{INDENT}Uživatel: {receipt.LoyaltyCustomerContact}"));
                         commands.AddRange(new byte[] { 0x0A });
                     }
                 }
@@ -1295,9 +1295,9 @@ namespace Sklad_2.Services
                 if (receipt.HasLoyaltyDiscount && receipt.LoyaltyDiscountAmount > 0)
                 {
                     sb.AppendLine(FormatLineWithPrice($"Věrn. sleva ({receipt.LoyaltyDiscountPercent:N0}%):", $"-{receipt.LoyaltyDiscountAmount:N2} Kč", bold: true));
-                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerEmail))
+                    if (!string.IsNullOrWhiteSpace(receipt.LoyaltyCustomerContact))
                     {
-                        sb.AppendLine(FormatLine($"Člen: {receipt.LoyaltyCustomerEmail}", TextAlign.Left));
+                        sb.AppendLine(FormatLine($"Uživatel: {receipt.LoyaltyCustomerContact}", TextAlign.Left));
                     }
                 }
 

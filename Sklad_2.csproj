@@ -12,9 +12,9 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
     <!-- Version for auto-update -->
-    <Version>1.0.20</Version>
-    <AssemblyVersion>1.0.20.0</AssemblyVersion>
-    <FileVersion>1.0.20.0</FileVersion>
+    <Version>1.0.21</Version>
+    <AssemblyVersion>1.0.21.0</AssemblyVersion>
+    <FileVersion>1.0.21.0</FileVersion>
     <!-- Application icon -->
     <ApplicationIcon>essets\app_icon.ico</ApplicationIcon>
     <!-- Only include en-US and cs-CZ language resources (removes 100+ unused language folders) -->

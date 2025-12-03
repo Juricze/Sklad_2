@@ -145,8 +145,8 @@
                                        FontSize="12" FontWeight="SemiBold" Foreground="#007AFF"/>
                         </Grid>
                         <TextBlock FontSize="10" Foreground="#666666" Margin="0,2,0,0"
-                                   Visibility="{x:Bind Receipt.HasLoyaltyCustomerEmail, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Run Text="Člen: "/><Run Text="{x:Bind Receipt.LoyaltyCustomerEmail, Mode=OneWay}"/>
+                                   Visibility="{x:Bind Receipt.HasLoyaltyCustomerContact, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Run Text="Uživatel: "/><Run Text="{x:Bind Receipt.LoyaltyCustomerContact, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
 

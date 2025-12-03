@@ -30,6 +30,14 @@ namespace Sklad_2.Views
                 var firstNameBox = new TextBox { Text = customer.FirstName, PlaceholderText = "Jméno", Margin = new Thickness(0, 0, 0, 10) };
                 var lastNameBox = new TextBox { Text = customer.LastName, PlaceholderText = "Příjmení", Margin = new Thickness(0, 0, 0, 10) };
                 var emailBox = new TextBox { Text = customer.Email, PlaceholderText = "Email", Margin = new Thickness(0, 0, 0, 10) };
+
+                // Telefon - odstranit +420 prefix pro zobrazení
+                var phoneDisplay = customer.PhoneNumber ?? "";
+                if (phoneDisplay.StartsWith("+420"))
+                {
+                    phoneDisplay = phoneDisplay.Substring(4); // Odstranit "+420"
+                }
+                var phoneNumberBox = new TextBox { Text = phoneDisplay, PlaceholderText = "Tel. číslo", Margin = new Thickness(0, 0, 0, 10) };
                 var cardEanBox = new TextBox { Text = customer.CardEan ?? "", PlaceholderText = "EAN kartičky", Margin = new Thickness(0, 0, 0, 10) };
                 var discountBox = new TextBox { Text = customer.DiscountPercent.ToString("0"), PlaceholderText = "Sleva 0-30%", Margin = new Thickness(0, 0, 0, 10) };
 
@@ -40,8 +48,51 @@ namespace Sklad_2.Views
                 panel.Children.Add(lastNameBox);
                 panel.Children.Add(new TextBlock { Text = "Email:", Margin = new Thickness(0, 0, 0, 5) });
                 panel.Children.Add(emailBox);
+                panel.Children.Add(new TextBlock { Text = "Tel. číslo:", Margin = new Thickness(0, 0, 0, 5) });
+
+                // Telefon s viditelným +420 prefixem
+                var phonePanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = 3,
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+                var phonePrefix = new TextBlock
+                {
+                    Text = "+420",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 102, 102, 102)) // #666
+                };
+                phonePanel.Children.Add(phonePrefix);
+                phonePanel.Children.Add(phoneNumberBox);
+                panel.Children.Add(phonePanel);
                 panel.Children.Add(new TextBlock { Text = "EAN kartičky:", Margin = new Thickness(0, 0, 0, 5) });
                 panel.Children.Add(cardEanBox);
+
+                // Hint pro prodavačku
+                var hintPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = 5,
+                    Margin = new Thickness(0, 10, 0, 10)
+                };
+                var icon = new FontIcon
+                {
+                    Glyph = "\uE946", // Info icon
+                    FontSize = 12,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange)
+                };
+                var hintText = new TextBlock
+                {
+                    Text = "Vyplňte alespoň email nebo telefon",
+                    FontSize = 12,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange),
+                    FontStyle = Windows.UI.Text.FontStyle.Italic
+                };
+                hintPanel.Children.Add(icon);
+                hintPanel.Children.Add(hintText);
+                panel.Children.Add(hintPanel);
 
                 // Sleva - pouze pro admina
                 if (ViewModel.IsAdmin)
@@ -63,15 +114,29 @@ namespace Sklad_2.Views
 
                 if (result == ContentDialogResult.Primary)
                 {
-                    // Validace
+                    // Validace jména a příjmení
                     if (string.IsNullOrWhiteSpace(firstNameBox.Text) ||
-                        string.IsNullOrWhiteSpace(lastNameBox.Text) ||
-                        string.IsNullOrWhiteSpace(emailBox.Text))
+                        string.IsNullOrWhiteSpace(lastNameBox.Text))
                     {
                         var errorDialog = new ContentDialog
                         {
                             Title = "Chyba",
-                            Content = "Jméno, příjmení a email jsou povinné.",
+                            Content = "Jméno a příjmení jsou povinné.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await errorDialog.ShowAsync();
+                        return;
+                    }
+
+                    // Validace: alespoň email NEBO telefon
+                    if (string.IsNullOrWhiteSpace(emailBox.Text) &&
+                        string.IsNullOrWhiteSpace(phoneNumberBox.Text))
+                    {
+                        var errorDialog = new ContentDialog
+                        {
+                            Title = "Chyba",
+                            Content = "Musí být vyplněn alespoň email nebo telefon.",
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
                         };
@@ -97,13 +162,23 @@ namespace Sklad_2.Views
                         }
                     }
 
+                    // Přidat +420 prefix k telefonu pokud není prázdný
+                    var phoneNumber = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(phoneNumberBox.Text))
+                    {
+                        var phone = phoneNumberBox.Text.Trim();
+                        // Přidat +420 pokud tam ještě není
+                        phoneNumber = phone.StartsWith("+420") ? phone : $"+420{phone}";
+                    }
+
                     // Aktualizovat
                     var updatedCustomer = new LoyaltyCustomer
                     {
                         Id = customer.Id,
                         FirstName = firstNameBox.Text.Trim(),
                         LastName = lastNameBox.Text.Trim(),
-                        Email = emailBox.Text.Trim(),
+                        Email = string.IsNullOrWhiteSpace(emailBox.Text) ? string.Empty : emailBox.Text.Trim(),
+                        PhoneNumber = phoneNumber,
                         CardEan = string.IsNullOrWhiteSpace(cardEanBox.Text) ? string.Empty : cardEanBox.Text.Trim(),
                         DiscountPercent = discountPercent
                     };

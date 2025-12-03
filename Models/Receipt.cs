@@ -134,7 +134,7 @@ namespace Sklad_2.Models
         private int? loyaltyCustomerId; // ID of the loyalty customer (for storno TotalPurchases update)
 
         [ObservableProperty]
-        private string loyaltyCustomerEmail = string.Empty; // Masked email (e.g., pavel@********)
+        private string loyaltyCustomerContact = string.Empty; // Masked contact (email NEBO telefon, např. pav***@***.cz nebo +420 7396*****)
 
         [ObservableProperty]
         private decimal loyaltyDiscountPercent; // Percent of discount applied (0-30)
@@ -148,9 +148,9 @@ namespace Sklad_2.Models
         public string LoyaltyDiscountAmountFormatted => LoyaltyDiscountAmount > 0 ? $"-{LoyaltyDiscountAmount:C}" : string.Empty;
 
         /// <summary>
-        /// True pokud je vyplněn email věrnostního zákazníka
+        /// True pokud je vyplněn kontakt věrnostního zákazníka (email nebo telefon)
         /// </summary>
-        public bool HasLoyaltyCustomerEmail => !string.IsNullOrEmpty(LoyaltyCustomerEmail);
+        public bool HasLoyaltyCustomerContact => !string.IsNullOrEmpty(LoyaltyCustomerContact);
 
         /// <summary>
         /// True pokud byla aplikována jakákoliv sleva (věrnostní nebo poukaz)
