@@ -15,6 +15,8 @@ using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Windowing;
+using Microsoft.EntityFrameworkCore;
+using Sklad_2.Data;
 
 namespace Sklad_2
 {
@@ -26,6 +28,7 @@ namespace Sklad_2
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
         private readonly IDailyCloseService _dailyCloseService;
+        private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         private readonly bool IsSalesRole;
         private readonly bool IsAdmin;
         private bool _isClosing;
@@ -40,6 +43,7 @@ namespace Sklad_2
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
             _dailyCloseService = serviceProvider.GetRequiredService<IDailyCloseService>();
+            _contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
             StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
             IsSalesRole = _authService.CurrentUser?.Role == "Cashier";
             IsAdmin = _authService.CurrentUser?.Role == "Admin";
@@ -573,59 +577,60 @@ namespace Sklad_2
             var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
             var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
 
-            // CRITICAL: Check database size before backup to prevent overwriting good backups with corrupted/empty DB
+            // CRITICAL: Check database content before backup to prevent overwriting good backups with empty DB
             if (System.IO.File.Exists(sourceDbPath))
             {
                 var sourceDbInfo = new System.IO.FileInfo(sourceDbPath);
                 long currentDbSize = sourceDbInfo.Length;
 
-                // Check if database is suspiciously small (< 50 KB = likely empty/corrupted)
-                const long MIN_DB_SIZE = 50 * 1024; // 50 KB
-                if (currentDbSize < MIN_DB_SIZE)
+                // KRITICKÉ: Kontrola obsahu databáze (ne jen velikosti!)
+                // Prázdná SQLite databáze s tabulkami má ~140 KB, takže size check nefunguje
+                bool isDatabaseEmpty = false;
+                int productCount = 0;
+                int receiptCount = 0;
+
+                try
                 {
-                    var warningDialog = new ContentDialog
+                    using var context = await _contextFactory.CreateDbContextAsync();
+                    productCount = await context.Products.CountAsync();
+                    receiptCount = await context.Receipts.CountAsync();
+                    isDatabaseEmpty = (productCount == 0 && receiptCount == 0);
+                }
+                catch
+                {
+                    // Pokud nelze otevřít DB, považuj ji za corrupted
+                    isDatabaseEmpty = true;
+                }
+
+                // Check 1: Prázdná databáze (0 produktů a 0 účtenek)
+                if (isDatabaseEmpty)
+                {
+                    // KRITICKÉ: ŽÁDNÁ MOŽNOST ZÁLOHY! Pouze informace.
+                    var emptyDbDialog = new ContentDialog
                     {
-                        Title = "⚠️ VAROVÁNÍ: Podezřelá databáze",
-                        Content = $"Aktuální databáze je neobvykle malá ({currentDbSize:N0} bytů).\n\n" +
-                                 "To může znamenat:\n" +
-                                 "• Prázdná nebo poškozená databáze\n" +
-                                 "• Ztráta dat\n\n" +
-                                 "Pokud provedete zálohu, PŘEPÍŠETE existující zálohy touto malou databází " +
-                                 "a ZTRATÍTE všechna uložená data!\n\n" +
-                                 "Co chcete udělat?",
-                        PrimaryButtonText = "⚠️ Zálohovat stejně (NEBEZPEČNÉ)",
-                        SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
-                        CloseButtonText = "Zrušit",
-                        DefaultButton = ContentDialogButton.Secondary,
+                        Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                        Content = $"Databáze je prázdná!\n\n" +
+                                 $"• Počet produktů: {productCount}\n" +
+                                 $"• Počet účtenek: {receiptCount}\n" +
+                                 $"• Velikost souboru: {currentDbSize:N0} bytů\n\n" +
+                                 "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
+                                 "Důvod: Prázdná databáze by přepsala všechna uložená data.\n\n" +
+                                 "Co dělat dál:\n" +
+                                 "1. Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
+                                 "2. Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                 additionalMessage,
+                        CloseButtonText = "OK, rozumím",
+                        DefaultButton = ContentDialogButton.Close,
                         XamlRoot = this.Content.XamlRoot
                     };
 
-                    var result = await warningDialog.ShowAsync();
-
-                    if (result != ContentDialogResult.Primary)
-                    {
-                        // User chose not to backup or cancelled
-                        if (result == ContentDialogResult.Secondary)
-                        {
-                            // Show info that backup was skipped
-                            var skipDialog = new ContentDialog
-                            {
-                                Title = "Záloha přeskočena",
-                                Content = "Záloha nebyla provedena.\n\n" +
-                                         "Existující zálohy zůstávají nedotčené.\n\n" +
-                                         additionalMessage,
-                                CloseButtonText = "OK",
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            await skipDialog.ShowAsync();
-                        }
-                        return false; // Backup was skipped
-                    }
-                    // If Primary was clicked, continue with backup (user explicitly confirmed)
+                    await emptyDbDialog.ShowAsync();
+                    return false; // ŽÁDNÁ ZÁLOHA - KONEC!
                 }
                 else
                 {
-                    // Additional check: compare with existing backup size
+                    // Check 2: Výrazný pokles velikosti databáze (možná ztráta dat)
+                    // KRITICKÉ: I když DB není prázdná, můžeme ztratit většinu dat!
                     var settingsPath = System.IO.Path.Combine(sourceFolderPath, "settings.json");
                     if (System.IO.File.Exists(settingsPath))
                     {
@@ -643,47 +648,31 @@ namespace Sklad_2
                                     var backupDbInfo = new System.IO.FileInfo(backupDbPath);
                                     long backupDbSize = backupDbInfo.Length;
 
-                                    // Check if current DB is less than 50% of backup size (suspicious data loss)
+                                    // KRITICKÉ: DB je < 50% zálohy → pravděpodobná ztráta dat
                                     if (currentDbSize < backupDbSize * 0.5)
                                     {
+                                        // ZPŘÍSNĚNO: ŽÁDNÁ možnost "Zálohovat stejně"
                                         var sizeWarningDialog = new ContentDialog
                                         {
-                                            Title = "⚠️ VAROVÁNÍ: Databáze zmenšena",
-                                            Content = $"Aktuální databáze ({currentDbSize:N0} bytů) je výrazně menší\n" +
-                                                     $"než existující záloha ({backupDbSize:N0} bytů).\n\n" +
-                                                     "To může znamenat:\n" +
-                                                     "• Ztrátu dat\n" +
-                                                     "• Poškození databáze\n" +
-                                                     "• Neúmyslné smazání produktů\n\n" +
-                                                     "Pokud provedete zálohu, PŘEPÍŠETE dobrou zálohu touto menší databází!\n\n" +
-                                                     "Co chcete udělat?",
-                                            PrimaryButtonText = "⚠️ Zálohovat stejně (NEBEZPEČNÉ)",
-                                            SecondaryButtonText = "❌ Nezálohovat (DOPORUČENO)",
-                                            CloseButtonText = "Zrušit",
-                                            DefaultButton = ContentDialogButton.Secondary,
+                                            Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                                            Content = $"Databáze výrazně zmenšena - pravděpodobná ztráta dat!\n\n" +
+                                                     $"• Aktuální DB: {currentDbSize:N0} bytů ({productCount} produktů, {receiptCount} účtenek)\n" +
+                                                     $"• Záloha: {backupDbSize:N0} bytů\n" +
+                                                     $"• Rozdíl: {((1 - (double)currentDbSize / backupDbSize) * 100):F0}% menší\n\n" +
+                                                     "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
+                                                     "Důvod: Databáze je podezřele malá - možná ztráta dat.\n\n" +
+                                                     "Co dělat dál:\n" +
+                                                     "1. Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
+                                                     "2. Zkontrolujte, zda nedošlo ke smazání produktů\n" +
+                                                     "3. Pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                                     additionalMessage,
+                                            CloseButtonText = "OK, rozumím",
+                                            DefaultButton = ContentDialogButton.Close,
                                             XamlRoot = this.Content.XamlRoot
                                         };
 
-                                        var result = await sizeWarningDialog.ShowAsync();
-
-                                        if (result != ContentDialogResult.Primary)
-                                        {
-                                            if (result == ContentDialogResult.Secondary)
-                                            {
-                                                var skipDialog = new ContentDialog
-                                                {
-                                                    Title = "Záloha přeskočena",
-                                                    Content = "Záloha nebyla provedena.\n\n" +
-                                                             "Existující zálohy zůstávají nedotčené.\n\n" +
-                                                             "DOPORUČENÍ: Použijte 'Obnovit ze zálohy' v Nastavení → Systém.\n\n" +
-                                                             additionalMessage,
-                                                    CloseButtonText = "OK",
-                                                    XamlRoot = this.Content.XamlRoot
-                                                };
-                                                await skipDialog.ShowAsync();
-                                            }
-                                            return false; // Backup was skipped
-                                        }
+                                        await sizeWarningDialog.ShowAsync();
+                                        return false; // ŽÁDNÁ ZÁLOHA - KONEC!
                                     }
                                 }
                             }
