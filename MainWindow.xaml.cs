@@ -640,6 +640,11 @@ namespace Sklad_2
                                  "• DOPORUČENO: Obnovte databázi ze zálohy (Nastavení → Systém)\n" +
                                  "• Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
                                  "Zálohovat POUZE pokud VÍTE, že databáze je správně prázdná!\n\n" +
+                                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                 "⚠️ NEJSTE SI JISTÍ? ZAVOLEJTE!\n" +
+                                 "📞 Majitel/Admin: +420 739 639 484\n" +
+                                 "❌ NEPOKRAČUJTE bez konzultace!\n" +
+                                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                                  additionalMessage,
                         PrimaryButtonText = "Ano, zálohovat",
                         SecondaryButtonText = "Ne, nezálohovat",
@@ -650,12 +655,34 @@ namespace Sklad_2
 
                     var result = await emptyDbDialog.ShowAsync();
 
-                    if (result != ContentDialogResult.Primary)
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // EXTRA POTVRZENÍ - uživatel opravdu chce zálohovat prázdnou databázi
+                        var confirmDialog = new ContentDialog
+                        {
+                            Title = "⚠️ POSLEDNÍ POTVRZENÍ",
+                            Content = "OPRAVDU chcete zálohovat prázdnou databázi?\n\n" +
+                                     "⚠️ Tato akce PŘEPÍŠE VŠECHNA DATA v zálohách!\n\n" +
+                                     "Pokud si nejste 100% jistí, klikněte ZRUŠIT a zavolejte:\n" +
+                                     "📞 +420 739 639 484",
+                            PrimaryButtonText = "ANO, POTVRDIT ZÁLOHU",
+                            CloseButtonText = "Zrušit",
+                            DefaultButton = ContentDialogButton.Close,
+                            XamlRoot = this.Content.XamlRoot
+                        };
+
+                        var confirmResult = await confirmDialog.ShowAsync();
+                        if (confirmResult != ContentDialogResult.Primary)
+                        {
+                            return false; // ŽÁDNÁ ZÁLOHA
+                        }
+                    }
+                    else
                     {
                         // User chose not to backup
                         return false; // ŽÁDNÁ ZÁLOHA
                     }
-                    // else: User explicitly confirmed → continue with backup
+                    // User explicitly confirmed TWICE → continue with backup
                 }
                 else
                 {
@@ -697,6 +724,11 @@ namespace Sklad_2
                                                      "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
                                                      "• Obnovte ze zálohy, pokud jsou data chybná\n" +
                                                      "• Zálohujte POUZE pokud VÍTE, že změna je správná!\n\n" +
+                                                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                                     "⚠️ NEJSTE SI JISTÍ? ZAVOLEJTE!\n" +
+                                                     "📞 Majitel/Admin: +420 739 639 484\n" +
+                                                     "❌ NEPOKRAČUJTE bez konzultace!\n" +
+                                                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                                                      additionalMessage,
                                             PrimaryButtonText = "Ano, zálohovat",
                                             SecondaryButtonText = "Ne, nezálohovat",
@@ -707,12 +739,34 @@ namespace Sklad_2
 
                                         var result = await sizeWarningDialog.ShowAsync();
 
-                                        if (result != ContentDialogResult.Primary)
+                                        if (result == ContentDialogResult.Primary)
+                                        {
+                                            // EXTRA POTVRZENÍ - databáze je výrazně menší
+                                            var confirmDialog = new ContentDialog
+                                            {
+                                                Title = "⚠️ POSLEDNÍ POTVRZENÍ",
+                                                Content = "OPRAVDU chcete zálohovat menší databázi?\n\n" +
+                                                         "⚠️ Tato akce PŘEPÍŠE větší zálohu!\n\n" +
+                                                         "Pokud si nejste 100% jistí, klikněte ZRUŠIT a zavolejte:\n" +
+                                                         "📞 +420 739 639 484",
+                                                PrimaryButtonText = "ANO, POTVRDIT ZÁLOHU",
+                                                CloseButtonText = "Zrušit",
+                                                DefaultButton = ContentDialogButton.Close,
+                                                XamlRoot = this.Content.XamlRoot
+                                            };
+
+                                            var confirmResult = await confirmDialog.ShowAsync();
+                                            if (confirmResult != ContentDialogResult.Primary)
+                                            {
+                                                return false;
+                                            }
+                                        }
+                                        else
                                         {
                                             // User chose not to backup
                                             return false;
                                         }
-                                        // else: User explicitly confirmed → continue with backup
+                                        // User explicitly confirmed TWICE → continue with backup
                                     }
 
                                     // Check 4: Porovnání POČTU ZÁZNAMŮ se zálohou
@@ -767,6 +821,11 @@ namespace Sklad_2
                                                          "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
                                                          "• Pokud je smazání ZÁMĚRNÉ → Zálohujte\n" +
                                                          "• Pokud je smazání CHYBA → Obnovte ze zálohy\n\n" +
+                                                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                                         "⚠️ NEJSTE SI JISTÍ? ZAVOLEJTE!\n" +
+                                                         "📞 Majitel/Admin: +420 739 639 484\n" +
+                                                         "❌ NEPOKRAČUJTE bez konzultace!\n" +
+                                                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                                                          additionalMessage,
                                                 PrimaryButtonText = "Ano, zálohovat",
                                                 SecondaryButtonText = "Ne, nezálohovat",
@@ -777,12 +836,34 @@ namespace Sklad_2
 
                                             var result = await dataLossDialog.ShowAsync();
 
-                                            if (result != ContentDialogResult.Primary)
+                                            if (result == ContentDialogResult.Primary)
+                                            {
+                                                // EXTRA POTVRZENÍ - pokles počtu záznamů
+                                                var confirmDialog = new ContentDialog
+                                                {
+                                                    Title = "⚠️ POSLEDNÍ POTVRZENÍ",
+                                                    Content = "OPRAVDU chcete zálohovat databázi s MÉNĚ záznamy?\n\n" +
+                                                             "⚠️ Tato akce PŘEPÍŠE zálohu s VĚTŠÍM počtem dat!\n\n" +
+                                                             "Pokud si nejste 100% jistí, klikněte ZRUŠIT a zavolejte:\n" +
+                                                             "📞 +420 739 639 484",
+                                                    PrimaryButtonText = "ANO, POTVRDIT ZÁLOHU",
+                                                    CloseButtonText = "Zrušit",
+                                                    DefaultButton = ContentDialogButton.Close,
+                                                    XamlRoot = this.Content.XamlRoot
+                                                };
+
+                                                var confirmResult = await confirmDialog.ShowAsync();
+                                                if (confirmResult != ContentDialogResult.Primary)
+                                                {
+                                                    return false;
+                                                }
+                                            }
+                                            else
                                             {
                                                 // User chose not to backup
                                                 return false;
                                             }
-                                            // else: User explicitly confirmed → continue with backup
+                                            // User explicitly confirmed TWICE → continue with backup
                                         }
                                     }
                                     catch (Exception ex)
@@ -854,6 +935,11 @@ namespace Sklad_2
                                      "• DOPORUČENO: Zkontrolujte databázi (SQLite Browser)\n" +
                                      "• Obnovte správnou (nejnovější) zálohu, pokud je to chyba\n" +
                                      "• Zálohujte POUZE pokud VÍTE, že starší data jsou správná!\n\n" +
+                                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                     "⚠️ NEJSTE SI JISTÍ? ZAVOLEJTE!\n" +
+                                     "📞 Majitel/Admin: +420 739 639 484\n" +
+                                     "❌ NEPOKRAČUJTE bez konzultace!\n" +
+                                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                                      additionalMessage,
                             PrimaryButtonText = "Ano, zálohovat",
                             SecondaryButtonText = "Ne, nezálohovat",
@@ -864,12 +950,34 @@ namespace Sklad_2
 
                         var result = await timeWarpDialog.ShowAsync();
 
-                        if (result != ContentDialogResult.Primary)
+                        if (result == ContentDialogResult.Primary)
+                        {
+                            // EXTRA POTVRZENÍ - stará data v databázi
+                            var confirmDialog = new ContentDialog
+                            {
+                                Title = "⚠️ POSLEDNÍ POTVRZENÍ",
+                                Content = "OPRAVDU chcete zálohovat STARŠÍ data?\n\n" +
+                                         "⚠️ Tato akce může PŘEPSAT NOVĚJŠÍ zálohy!\n\n" +
+                                         "Pokud si nejste 100% jistí, klikněte ZRUŠIT a zavolejte:\n" +
+                                         "📞 +420 739 639 484",
+                                PrimaryButtonText = "ANO, POTVRDIT ZÁLOHU",
+                                CloseButtonText = "Zrušit",
+                                DefaultButton = ContentDialogButton.Close,
+                                XamlRoot = this.Content.XamlRoot
+                            };
+
+                            var confirmResult = await confirmDialog.ShowAsync();
+                            if (confirmResult != ContentDialogResult.Primary)
+                            {
+                                return false;
+                            }
+                        }
+                        else
                         {
                             // User chose not to backup
                             return false;
                         }
-                        // else: User explicitly confirmed → continue with backup
+                        // User explicitly confirmed TWICE → continue with backup
                     }
                 }
             }
