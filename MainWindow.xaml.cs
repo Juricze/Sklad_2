@@ -588,6 +588,9 @@ namespace Sklad_2
                 bool isDatabaseEmpty = false;
                 int productCount = 0;
                 int receiptCount = 0;
+                DateTime? lastReceiptDate = null;
+                DateTime? lastReturnDate = null;
+                DateTime? lastDailyCloseDate = null;
 
                 try
                 {
@@ -595,6 +598,25 @@ namespace Sklad_2
                     productCount = await context.Products.CountAsync();
                     receiptCount = await context.Receipts.CountAsync();
                     isDatabaseEmpty = (productCount == 0 && receiptCount == 0);
+
+                    // KRITICKÉ: Kontrola časového posunu - detekce obnovení staré zálohy
+                    lastReceiptDate = await context.Receipts
+                        .AsNoTracking()
+                        .OrderByDescending(r => r.SaleDate)
+                        .Select(r => (DateTime?)r.SaleDate)
+                        .FirstOrDefaultAsync();
+
+                    lastReturnDate = await context.Returns
+                        .AsNoTracking()
+                        .OrderByDescending(r => r.ReturnDate)
+                        .Select(r => (DateTime?)r.ReturnDate)
+                        .FirstOrDefaultAsync();
+
+                    lastDailyCloseDate = await context.DailyCloses
+                        .AsNoTracking()
+                        .OrderByDescending(dc => dc.Date)
+                        .Select(dc => (DateTime?)dc.Date)
+                        .FirstOrDefaultAsync();
                 }
                 catch
                 {
@@ -678,6 +700,73 @@ namespace Sklad_2
                             }
                         }
                         catch { /* Ignore errors in size comparison */ }
+                    }
+
+                    // Check 3: Časový posun - detekce obnovení staré zálohy
+                    // KRITICKÉ: Pokud poslední data v DB jsou výrazně starší než očekávané → stará záloha!
+                    var settingsLastDayClose = _settingsService.CurrentSettings.LastDayCloseDate;
+                    var settingsLastSaleLogin = _settingsService.CurrentSettings.LastSaleLoginDate;
+
+                    // Najdi nejnovější aktivitu v databázi
+                    DateTime? lastActivity = null;
+                    if (lastReceiptDate.HasValue || lastReturnDate.HasValue || lastDailyCloseDate.HasValue)
+                    {
+                        lastActivity = new[] { lastReceiptDate, lastReturnDate, lastDailyCloseDate }
+                            .Where(d => d.HasValue)
+                            .Select(d => d.Value)
+                            .DefaultIfEmpty(DateTime.MinValue)
+                            .Max();
+                    }
+
+                    // Pokud settings má novější LastDayCloseDate než DB → JISTĚ stará záloha!
+                    bool isOldBackupRestored = false;
+                    string timeTravelMessage = "";
+
+                    if (settingsLastDayClose.HasValue && lastDailyCloseDate.HasValue &&
+                        settingsLastDayClose.Value.Date > lastDailyCloseDate.Value.Date)
+                    {
+                        isOldBackupRestored = true;
+                        var daysDiff = (settingsLastDayClose.Value.Date - lastDailyCloseDate.Value.Date).Days;
+                        timeTravelMessage = $"⏰ ČASOVÝ POSUN DETEKOVÁN!\n\n" +
+                                          $"• Poslední uzavírka v NASTAVENÍ: {settingsLastDayClose.Value:dd.MM.yyyy}\n" +
+                                          $"• Poslední uzavírka v DATABÁZI: {lastDailyCloseDate.Value:dd.MM.yyyy}\n" +
+                                          $"• Rozdíl: {daysDiff} dní zpět\n\n";
+                    }
+                    // Nebo pokud poslední aktivita je starší než 7 dní a settings má novější datum
+                    else if (lastActivity.HasValue && lastActivity.Value.Date < DateTime.Today.AddDays(-7) &&
+                             (settingsLastSaleLogin.HasValue && settingsLastSaleLogin.Value.Date > lastActivity.Value.Date))
+                    {
+                        isOldBackupRestored = true;
+                        var daysDiff = (DateTime.Today - lastActivity.Value.Date).Days;
+                        timeTravelMessage = $"⏰ PODEZŘELÝ ČASOVÝ POSUN!\n\n" +
+                                          $"• Poslední aktivita v DB: {lastActivity.Value:dd.MM.yyyy}\n" +
+                                          $"• Dnešní datum: {DateTime.Today:dd.MM.yyyy}\n" +
+                                          $"• Rozdíl: {daysDiff} dní\n\n";
+                    }
+
+                    if (isOldBackupRestored)
+                    {
+                        var timeWarpDialog = new ContentDialog
+                        {
+                            Title = "🚫 ZÁLOHA ZABLOKOVÁNA",
+                            Content = timeTravelMessage +
+                                     "PRAVDĚPODOBNĚ BYLA OBNOVENA STARÁ ZÁLOHA!\n\n" +
+                                     "Důvod: Data v databázi jsou výrazně starší než očekávané datum.\n\n" +
+                                     "ZÁLOHA BYLA ZABLOKOVÁNA!\n\n" +
+                                     "Pokud toto je chyba:\n" +
+                                     "• Zkontrolujte systémové datum\n" +
+                                     "• Zkontrolujte, zda jste neobnovili starou zálohu\n\n" +
+                                     "Co dělat dál:\n" +
+                                     "1. Obnovte správnou (nejnovější) zálohu\n" +
+                                     "2. Nebo pokračujte bez zálohy (zálohy zůstanou nedotčené)\n\n" +
+                                     additionalMessage,
+                            CloseButtonText = "OK, rozumím",
+                            DefaultButton = ContentDialogButton.Close,
+                            XamlRoot = this.Content.XamlRoot
+                        };
+
+                        await timeWarpDialog.ShowAsync();
+                        return false; // ŽÁDNÁ ZÁLOHA - KONEC!
                     }
                 }
             }
