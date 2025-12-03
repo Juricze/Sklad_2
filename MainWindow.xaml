@@ -13,7 +13,7 @@
                 <NavigationViewItem Content="Prodej" Tag="Prodej" Icon="Shop"/>
                 <NavigationViewItem Content="Naskladnění" Tag="Naskladneni" Icon="Add"/>
                 <NavigationViewItem Content="Vratky" Tag="Vratky" Icon="Undo"/>
-                <NavigationViewItem Content="Pokladna" Tag="Pokladna" Icon="Calculator"/>
+                <NavigationViewItem Content="Tržby / Uzavírky" Tag="TrzbyUzavirky" Icon="Calculator"/>
                 <NavigationViewItem Content="Databáze" Tag="Databaze" Icon="Folder" SelectsOnInvoked="False">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Produkty (Přehled)" Tag="Produkty" Icon="Document"/>
@@ -26,7 +26,6 @@
                         <NavigationViewItem Content="Účtenky (přehled)" Tag="Uctenky" Icon="Calculator"/>
                         <NavigationViewItem Content="Vratky (přehled)" Tag="VratkyPrehled" Icon="Calculator"/>
                         <NavigationViewItem Content="Přehled prodejů" Tag="PrehledProdeju" Icon="Calculator"/>
-                        <NavigationViewItem Content="Historie pokladny" Tag="HistoriePokladny" Icon="Calculator"/>
                         <NavigationViewItem Content="Dárkové poukazy" Tag="Poukazy">
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xE8A1;"/>

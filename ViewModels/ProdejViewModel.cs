@@ -19,7 +19,6 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
-        private readonly ICashRegisterService _cashRegisterService;
         private readonly IAuthService _authService;
         private readonly IGiftCardService _giftCardService;
         private readonly IPrintService _printService;
@@ -115,11 +114,10 @@ namespace Sklad_2.ViewModels
         public string GrandTotalWithoutVatFormatted => $"Základ: {Receipt.GrandTotalWithoutVat:C}";
         public string GrandTotalVatAmountFormatted => $"DPH: {Receipt.GrandTotalVatAmount:C}";
 
-        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IAuthService authService, IGiftCardService giftCardService, IPrintService printService)
+        public ProdejViewModel(IDataService dataService, IReceiptService receiptService, ISettingsService settingsService, IAuthService authService, IGiftCardService giftCardService, IPrintService printService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
-            _cashRegisterService = cashRegisterService;
             _authService = authService;
             _giftCardService = giftCardService;
             _printService = printService;
@@ -446,6 +444,24 @@ namespace Sklad_2.ViewModels
                     paymentMethodString = $"{paymentMethodString} + Dárkový poukaz";
                 }
 
+                // Calculate actual payment amounts (cash vs card)
+                // Amount to pay = Total - Gift card redemption (if used)
+                decimal amountToPay = Receipt.GrandTotal - giftCardRedemptionAmount;
+                decimal cashAmount = 0;
+                decimal cardAmount = 0;
+
+                // Determine payment breakdown based on payment method
+                if (paymentMethod == PaymentMethod.Card || paymentMethodString.Contains("Karta"))
+                {
+                    cardAmount = amountToPay;
+                    cashAmount = 0;
+                }
+                else // Hotové
+                {
+                    cashAmount = amountToPay;
+                    cardAmount = 0;
+                }
+
                 var newReceipt = new Sklad_2.Models.Receipt
                 {
                     SaleDate = DateTime.Now,
@@ -453,6 +469,8 @@ namespace Sklad_2.ViewModels
                     ReceiptSequence = nextSequence,
                     TotalAmount = Receipt.GrandTotal,
                     PaymentMethod = paymentMethodString,
+                    CashAmount = cashAmount,
+                    CardAmount = cardAmount,
                     Items = new ObservableCollection<Sklad_2.Models.ReceiptItem>(receiptItemsForDb),
                     ShopName = settings.ShopName,
                     ShopAddress = settings.ShopAddress,
@@ -496,18 +514,6 @@ namespace Sklad_2.ViewModels
                         if (!useResult.Success)
                         {
                             Debug.WriteLine($"Warning: Failed to mark gift card {ScannedGiftCard.Ean} as used: {useResult.Message}");
-                        }
-                    }
-
-                    // Record cash register entry (only actual cash received goes to register)
-                    if (paymentMethod == PaymentMethod.Cash)
-                    {
-                        // If gift card was used, only record the remaining amount paid in cash
-                        decimal cashAmount = AmountToPay;  // This is already reduced by gift card
-                        if (cashAmount > 0)
-                        {
-                            await _cashRegisterService.RecordEntryAsync(EntryType.Sale, cashAmount, $"Prodej účtenky #{newReceipt.ReceiptId}");
-                            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
                         }
                     }
 
@@ -661,6 +667,8 @@ namespace Sklad_2.ViewModels
                     ReceiptSequence = nextSequence,
                     TotalAmount = -originalReceipt.TotalAmount,  // NEGATIVE
                     PaymentMethod = originalReceipt.PaymentMethod,
+                    CashAmount = -originalReceipt.CashAmount,  // NEGATIVE - critical for daily close calculation
+                    CardAmount = -originalReceipt.CardAmount,  // NEGATIVE - critical for daily close calculation
                     Items = stornoItems,
                     ShopName = originalReceipt.ShopName,
                     ShopAddress = originalReceipt.ShopAddress,
@@ -694,17 +702,6 @@ namespace Sklad_2.ViewModels
                     if (originalReceipt.ContainsGiftCardRedemption)
                     {
                         cashAmount -= originalReceipt.GiftCardRedemptionAmount;
-                    }
-
-                    // Only record if there was actual cash received
-                    if (cashAmount > 0)
-                    {
-                        await _cashRegisterService.RecordEntryAsync(
-                            EntryType.Return,
-                            cashAmount,  // Return only actual cash amount
-                            $"Storno účtenky #{receiptId} - vráceno zákazníkovi {cashAmount:C}");
-                        CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Sklad_2.Messages.CashRegisterUpdatedMessage, string>(
-                            new Sklad_2.Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
                     }
                 }
 

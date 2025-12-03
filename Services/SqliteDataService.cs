@@ -225,23 +225,12 @@ namespace Sklad_2.Services
         {
             using var context = _contextFactory.CreateDbContext();
             return await context.ReturnItems
-                                 .Where(ri => ri.Return.OriginalReceiptId == originalReceiptId && ri.ProductEan == productEan)
-                                 .SumAsync(ri => ri.ReturnedQuantity);
-        }
-
-        public async Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync()
-        {
-            using var context = _contextFactory.CreateDbContext();
-            return await context.CashRegisterEntries.ToListAsync();
-        }
-
-        public async Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            return await context.CashRegisterEntries
-                                 .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
-                                 .OrderByDescending(e => e.Timestamp)
-                                 .ToListAsync();
+                                 .Join(context.Returns,
+                                       ri => ri.ReturnId,
+                                       r => r.ReturnId,
+                                       (ri, r) => new { ReturnItem = ri, Return = r })
+                                 .Where(x => x.Return.OriginalReceiptId == originalReceiptId && x.ReturnItem.ProductEan == productEan)
+                                 .SumAsync(x => x.ReturnItem.ReturnedQuantity);
         }
 
         public async Task<List<VatConfig>> GetVatConfigsAsync()

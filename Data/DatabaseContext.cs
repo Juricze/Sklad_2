@@ -13,11 +13,11 @@ namespace Sklad_2.Data
         public DbSet<ReceiptItem> ReceiptItems { get; set; } // New
         public DbSet<Return> Returns { get; set; }
         public DbSet<ReturnItem> ReturnItems { get; set; }
-        public DbSet<CashRegisterEntry> CashRegisterEntries { get; set; }
         public DbSet<VatConfig> VatConfigs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<GiftCard> GiftCards { get; set; }
+        public DbSet<DailyClose> DailyCloses { get; set; }
 
         public DatabaseContext()
         {

@@ -34,6 +34,13 @@ namespace Sklad_2.Models
         [ObservableProperty]
         private string paymentMethod;
 
+        // Payment breakdown for daily close tracking
+        [ObservableProperty]
+        private decimal cashAmount;  // Částka zaplacená v hotovosti
+
+        [ObservableProperty]
+        private decimal cardAmount;  // Částka zaplacená kartou
+
         // Seller info at the time of sale
         [ObservableProperty]
         private string shopName;

@@ -16,7 +16,6 @@ namespace Sklad_2.ViewModels
     {
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
-        private readonly ICashRegisterService _cashRegisterService;
         private readonly IMessenger _messenger;
         private readonly IAuthService _authService;
 
@@ -55,11 +54,10 @@ namespace Sklad_2.ViewModels
         [ObservableProperty]
         private Return lastCreatedReturn;
 
-        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, ICashRegisterService cashRegisterService, IMessenger messenger, IAuthService authService)
+        public VratkyViewModel(IDataService dataService, ISettingsService settingsService, IMessenger messenger, IAuthService authService)
         {
             _dataService = dataService;
             _settingsService = settingsService;
-            _cashRegisterService = cashRegisterService;
             _messenger = messenger;
             _authService = authService;
 
@@ -221,20 +219,22 @@ namespace Sklad_2.ViewModels
                     ShopName = settings.ShopName,
                     ShopAddress = settings.ShopAddress,
                     CompanyId = settings.CompanyId,
-                    VatId = settings.VatId,
+                    VatId = settings.VatId ?? string.Empty,  // Empty string for non-VAT payers (NOT NULL constraint)
                     IsVatPayer = settings.IsVatPayer,
                     TotalRefundAmount = TotalRefundAmount,
                     TotalRefundAmountWithoutVat = totalRefundWithoutVat,
                     TotalRefundVatAmount = totalRefundVatAmount,
-                    Items = new ObservableCollection<ReturnItem>(returnItems)
+                    Items = new ObservableCollection<ReturnItem>() // Prázdná kolekce nejprve
                 };
+
+                // Přidat items do kolekce po vytvoření entity
+                foreach (var item in returnItems)
+                {
+                    returnDocument.Items.Add(item);
+                }
 
                 // Save return document
                 await _dataService.SaveReturnAsync(returnDocument);
-
-                // Record withdrawal from cash register
-                await _cashRegisterService.RecordEntryAsync(EntryType.Return, TotalRefundAmount, $"Vratka k účtence č. {FoundReceipt.ReceiptId}");
-                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send<Messages.CashRegisterUpdatedMessage, string>(new Messages.CashRegisterUpdatedMessage(), "CashRegisterUpdateToken");
 
                 StatusMessage = $"Vratka pro účtenku č. {FoundReceipt.ReceiptId} byla úspěšně vytvořena.";
                 LastCreatedReturn = returnDocument;

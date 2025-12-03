@@ -30,6 +30,7 @@
             <converters:RoleToIconConverter x:Key="RoleToIconConverter"/>
             <converters:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
             <converters:BooleanToDiscountColorConverter x:Key="BooleanToDiscountColorConverter"/>
+            <converters:DayClosedConverter x:Key="DayClosedConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

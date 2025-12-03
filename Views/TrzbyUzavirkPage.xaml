@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Sklad_2.Views.TrzbyUzavirkPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="20" Spacing="20">
+            <TextBlock Text="Tržby / Uzavírky" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="📊 Dnešní tržba"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               FontWeight="SemiBold"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="5">
+                            <TextBlock Text="💵 Hotovost" FontSize="14" Opacity="0.7"/>
+                            <TextBlock x:Name="CashSalesText"
+                                       Text="{Binding TodayCashSalesFormatted, Mode=OneWay}"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="#34C759"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="5">
+                            <TextBlock Text="💳 Karta" FontSize="14" Opacity="0.7"/>
+                            <TextBlock x:Name="CardSalesText"
+                                       Text="{Binding TodayCardSalesFormatted, Mode=OneWay}"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="#007AFF"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="5">
+                            <TextBlock Text="💰 Celkem" FontSize="14" Opacity="0.7"/>
+                            <TextBlock x:Name="TotalSalesText"
+                                       Text="{Binding TodayTotalSalesFormatted, Mode=OneWay}"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="#FF9500"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <TextBlock x:Name="ReceiptCountText"
+                                   Text="{Binding ReceiptCountFormatted, Mode=OneWay}"/>
+                        <TextBlock x:Name="DayStatusText"
+                                   Text="{Binding DayStatusFormatted, Mode=OneWay}"
+                                   FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Button x:Name="CloseDayButton"
+                            Content="🔒 Uzavřít den"
+                            Click="CloseDayButton_Click"
+                            IsEnabled="{Binding IsCloseDayButtonEnabled, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch"
+                            Padding="12"
+                            FontSize="16"/>
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="📤 Export uzavírek pro FÚ"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               FontWeight="SemiBold"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Měsíční" Click="ExportMonth_Click"/>
+                        <Button Content="Čtvrtletní" Click="ExportQuarter_Click"/>
+                        <Button Content="Půlroční" Click="ExportHalfYear_Click"/>
+                        <Button Content="Roční" Click="ExportYear_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock x:Name="StatusMessageText"
+                       Text="{Binding StatusMessage, Mode=OneWay}"
+                       Foreground="#FF9500"
+                       FontStyle="Italic"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

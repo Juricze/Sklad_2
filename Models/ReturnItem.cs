@@ -12,9 +12,6 @@ namespace Sklad_2.Models
 
         [ObservableProperty]
         private int returnId;
-        [ForeignKey("ReturnId")]
-        [ObservableProperty]
-        private Return @return;
 
         // Info about the returned product
         [ObservableProperty]

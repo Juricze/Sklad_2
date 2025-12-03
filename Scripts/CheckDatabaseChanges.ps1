@@ -37,6 +37,8 @@ foreach ($file in $modelFiles) {
         
         # Check if this property has corresponding migration or is part of initial schema
         $hasDiscountMigration = $migrationContent -match "ALTER TABLE.*ADD COLUMN.*$propertyName"
+        $hasCreateTableMigration = $migrationContent -match "CREATE TABLE.*$($file.BaseName).*$propertyName"
+        $hasMigration = $hasDiscountMigration -or $hasCreateTableMigration
         
         # All known properties from initial schema (created by EnsureCreated)
         $initialProperties = @(
@@ -62,13 +64,17 @@ foreach ($file in $modelFiles) {
             "issuedByUser", "usedByUser", "cancelReason",
             # User
             "userId", "username", "displayName", "password", "role", "isActive", "createdDate",
-            # StockMovement  
-            "movementType", "quantityChange", "stockBefore", "stockAfter", "referenceId", "notes"
+            # StockMovement
+            "movementType", "quantityChange", "stockBefore", "stockAfter", "referenceId", "notes",
+            # DailyClose (V10 migration)
+            "date", "cashSales", "cardSales", "totalSales", "vatAmount", "receiptNumberFrom", "receiptNumberTo", "closedAt",
+            # Receipt payment breakdown (V10 migration)
+            "cashAmount", "cardAmount"
         )
         
         $hasInitialSchema = $propertyName -in $initialProperties
-        
-        if (-not $hasDiscountMigration -and -not $hasInitialSchema) {
+
+        if (-not $hasMigration -and -not $hasInitialSchema) {
             $newProperties += [PSCustomObject]@{
                 File = $file.Name
                 Property = $propertyName

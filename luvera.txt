@@ -1,0 +1,18 @@
+  Quick Start - Hyper-V s Microsoft Dev VM:
+
+  # 1. Zapnout Hyper-V (restart potřeba)
+  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+  # 2. Po restartu stáhnout Win10 Dev VM:
+  # https://aka.ms/windev_VM_hyperv
+
+  # 3. Rozbalit ZIP a importovat .vhdx do Hyper-V Manager
+
+  # 4. Spustit VM, heslo: Passw0rd!
+
+
+
+			###########TODO############
+	- Klientské učty ( Jmeno, email ) 
+		- vyhledávání/zadávání podle jména nebo emailu. - zjednodušené žádné kartičky EAN kody.
+	- Marže do Nový produkt. 

@@ -121,19 +121,35 @@ namespace Sklad_2
             return (false, null, null, null);
         }
 
-        private void HandleLoginSucceeded()
+        private async void HandleLoginSucceeded()
         {
-            Debug.WriteLine($"LoginSucceeded: User = {_authService.CurrentUser?.DisplayName}");
+            try
+            {
+                Debug.WriteLine($"LoginSucceeded: User = {_authService.CurrentUser?.DisplayName}");
 
-            // Create and show MainWindow (it will handle new day logic itself)
-            var mainWindow = new MainWindow();
+                // Create and show MainWindow (it will handle new day logic itself)
+                var mainWindow = new MainWindow();
 
-            // CRITICAL: Set CurrentWindow for FolderPicker and other dialogs to work on Win10
-            var app = Application.Current as App;
-            app.CurrentWindow = mainWindow;
+                // CRITICAL: Set CurrentWindow for FolderPicker and other dialogs to work on Win10
+                var app = Application.Current as App;
+                app.CurrentWindow = mainWindow;
 
-            mainWindow.Activate();
-            this.Close();
+                // Win11 compatibility - ensure MainWindow is fully activated before closing LoginWindow
+                mainWindow.Activate();
+                await Task.Delay(500); // Give Win11 time to fully activate the new window
+
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"LoginWindow: Error during login window switch: {ex.Message}");
+                // Ensure window closes even if there's an error
+                try
+                {
+                    this.Close();
+                }
+                catch { }
+            }
         }
 
         private void HandleLoginFailed()

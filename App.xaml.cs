@@ -178,7 +178,7 @@ namespace Sklad_2
             services.AddSingleton<IDataService, SqliteDataService>();
             services.AddSingleton<IReceiptService, ReceiptService>();
             services.AddSingleton<IPrintService, EscPosPrintService>(); // Epson TM-T20III (ESC/POS)
-            services.AddSingleton<ICashRegisterService, CashRegisterService>();
+            services.AddSingleton<IDailyCloseService, DailyCloseService>();
             services.AddSingleton<IGiftCardService, GiftCardService>();
             services.AddSingleton<IUpdateService, UpdateService>();
             services.AddSingleton<IAuthService>(sp => new AuthService(
@@ -193,7 +193,6 @@ namespace Sklad_2
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<IReceiptService>(),
                 sp.GetRequiredService<ISettingsService>(),
-                sp.GetRequiredService<ICashRegisterService>(),
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<IGiftCardService>(),
                 sp.GetRequiredService<IPrintService>()));
@@ -225,18 +224,18 @@ namespace Sklad_2
             services.AddSingleton<VratkyViewModel>(sp => new VratkyViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<ISettingsService>(),
-                sp.GetRequiredService<ICashRegisterService>(),
                 sp.GetRequiredService<IMessenger>(),
                 sp.GetRequiredService<IAuthService>()));
-            services.AddSingleton<CashRegisterViewModel>(sp => new CashRegisterViewModel(
-                sp.GetRequiredService<ICashRegisterService>(),
+            services.AddSingleton<TrzbyUzavirkViewModel>(sp => new TrzbyUzavirkViewModel(
+                sp.GetRequiredService<IDailyCloseService>(),
                 sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IMessenger>()));
-            services.AddSingleton<CashRegisterHistoryViewModel>();
             services.AddSingleton<StatusBarViewModel>(sp => new StatusBarViewModel(
                 sp.GetRequiredService<IDataService>(),
                 sp.GetRequiredService<ISettingsService>(),
                 sp.GetRequiredService<IPrintService>(),
+                sp.GetRequiredService<IDailyCloseService>(),
                 sp.GetRequiredService<IMessenger>()));
             services.AddSingleton<CategoryManagementViewModel>();
             services.AddSingleton<UserManagementViewModel>(sp => new UserManagementViewModel(

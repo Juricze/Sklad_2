@@ -7,6 +7,7 @@ using Sklad_2.ViewModels;
 using Sklad_2.Views;
 using Sklad_2.Messages;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using WinRT; // Required for Window.As<ICompositionSupportsSystemBackdrop>()
@@ -24,6 +25,7 @@ namespace Sklad_2
         SystemBackdropConfiguration m_configurationSource;
         private readonly IAuthService _authService;
         private readonly ISettingsService _settingsService;
+        private readonly IDailyCloseService _dailyCloseService;
         private readonly bool IsSalesRole;
         private readonly bool IsAdmin;
         private bool _isClosing;
@@ -37,6 +39,7 @@ namespace Sklad_2
             var serviceProvider = app.Services;
             _authService = serviceProvider.GetRequiredService<IAuthService>();
             _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+            _dailyCloseService = serviceProvider.GetRequiredService<IDailyCloseService>();
             StatusBarVM = serviceProvider.GetRequiredService<StatusBarViewModel>();
             IsSalesRole = _authService.CurrentUser?.Role == "Cashier";
             IsAdmin = _authService.CurrentUser?.Role == "Admin";
@@ -135,21 +138,39 @@ namespace Sklad_2
 
         private bool _hasHandledNewDay = false;
 
-        private void OnContentFrameLoaded(object sender, RoutedEventArgs e)
+        private async void OnContentFrameLoaded(object sender, RoutedEventArgs e)
         {
             // Unsubscribe to prevent multiple calls
             ContentFrame.Loaded -= OnContentFrameLoaded;
 
-            // The initial page will get its ViewModel in its constructor.
-            ContentFrame.Content = new ProdejPage();
+            // Check if session day is closed - if yes, navigate to TrzbyUzavirky instead of Prodej
+            var sessionDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date ?? DateTime.Today;
+            bool isDayClosed = await _dailyCloseService.IsDayClosedAsync(sessionDate);
 
-            // Set initial selected item in NavigationView
-            foreach (var item in NavView.MenuItems)
+            if (IsSalesRole && isDayClosed)
             {
-                if (item is NavigationViewItem navItem && navItem.Tag as string == "Prodej")
+                // Day is closed → navigate to TrzbyUzavirky
+                ContentFrame.Content = new Views.TrzbyUzavirkPage();
+                foreach (var item in NavView.MenuItems)
                 {
-                    NavView.SelectedItem = navItem;
-                    break;
+                    if (item is NavigationViewItem navItem && navItem.Tag as string == "TrzbyUzavirky")
+                    {
+                        NavView.SelectedItem = navItem;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // Normal flow → navigate to Prodej
+                ContentFrame.Content = new ProdejPage();
+                foreach (var item in NavView.MenuItems)
+                {
+                    if (item is NavigationViewItem navItem && navItem.Tag as string == "Prodej")
+                    {
+                        NavView.SelectedItem = navItem;
+                        break;
+                    }
                 }
             }
         }
@@ -170,72 +191,10 @@ namespace Sklad_2
                 return;
             }
 
-            // Check for new day if user is in Sales role
+            // Check for new day if user is in Cashier role (Sales role)
             if (IsSalesRole)
             {
-                var currentDate = DateTime.Today;
-                var lastLoginDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date;
-
-                bool isNewDay = false;
-                string promptMessage = "";
-
-                if (lastLoginDate == null)
-                {
-                    isNewDay = true;
-                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
-                }
-                else if (currentDate > lastLoginDate)
-                {
-                    isNewDay = true;
-                    promptMessage = "Vítejte v novém obchodním dni! Pro zahájení prosím zadejte počáteční stav pokladny.";
-                }
-                else if (currentDate < lastLoginDate)
-                {
-                    isNewDay = true;
-                    promptMessage = $"⚠️ VAROVÁNÍ: Detekována změna systémového času!\n\n" +
-                                  $"Poslední přihlášení: {lastLoginDate:dd.MM.yyyy}\n" +
-                                  $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
-                                  $"Systémový čas byl posunut zpět, což může být způsobeno chybou synchronizace nebo manipulací. " +
-                                  $"Pro zachování integrity účetních dat je nutné zahájit nový obchodní den.\n\n" +
-                                  $"Zadejte počáteční stav pokladny:";
-                }
-
-                if (isNewDay)
-                {
-                    // Ensure XamlRoot is available before showing dialog
-                    // On slower machines, window might not be fully rendered yet
-                    int retries = 0;
-                    while (this.Content?.XamlRoot == null && retries < 20)
-                    {
-                        await System.Threading.Tasks.Task.Delay(50);
-                        retries++;
-                    }
-
-                    var newDayDialog = new Views.Dialogs.NewDayConfirmationDialog();
-                    newDayDialog.SetPromptText(promptMessage);
-                    newDayDialog.XamlRoot = this.Content.XamlRoot;
-
-                    var result = await newDayDialog.ShowAsync();
-
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Set day start cash with the entered amount
-                        var cashRegisterService = (Application.Current as App).Services.GetRequiredService<ICashRegisterService>();
-                        await cashRegisterService.SetDayStartCashAsync(newDayDialog.InitialAmount);
-
-                        // Update last login date
-                        _settingsService.CurrentSettings.LastSaleLoginDate = currentDate;
-                        await _settingsService.SaveSettingsAsync();
-
-                        // Note: CashRegisterViewModel will load data when user navigates to Pokladna page
-                        // (via Loaded event in CashRegisterPage)
-                    }
-                    else
-                    {
-                        // User cancelled, close the app as initial amount is mandatory
-                        Application.Current.Exit();
-                    }
-                }
+                await HandleNewDayCheckAsync();
             }
         }
 
@@ -330,7 +289,7 @@ namespace Sklad_2
                     .FirstOrDefault(item => item.Tag?.ToString() == "Nastaveni");
                 var settingsPage = new Views.NastaveniPage();
                 ContentFrame.Content = settingsPage;
-                
+
                 // Navigate directly to System panel
                 settingsPage.NavigateToSystemPanel();
             }
@@ -338,6 +297,181 @@ namespace Sklad_2
             {
                 // Close application
                 Application.Current.Exit();
+            }
+        }
+
+        private async Task HandleNewDayCheckAsync()
+        {
+            // Wait for XamlRoot to be available
+            int attempts = 0;
+            while (this.Content?.XamlRoot == null && attempts < 20)
+            {
+                await Task.Delay(50);
+                attempts++;
+            }
+
+            if (this.Content?.XamlRoot == null)
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to get XamlRoot for new day dialog");
+                return;
+            }
+
+            var currentDate = DateTime.Today;
+            var lastLoginDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date;
+
+            // Kontrola systémového času (zda nebyl posunut zpět)
+            bool timeWarning = false;
+            if (lastLoginDate.HasValue && currentDate < lastLoginDate)
+            {
+                timeWarning = true;
+            }
+
+            // Kontrola, zda byl den uzavřen
+            bool wasDayClosed = await _dailyCloseService.IsDayClosedAsync(currentDate);
+
+            // Rozhodnout, zda zobrazit dialog
+            bool showDialog = false;
+            string dialogMessage = "";
+
+            if (timeWarning)
+            {
+                // Systémový čas byl posunut zpět - důrazné varování
+                showDialog = true;
+                dialogMessage = $"⚠️ KRITICKÉ VAROVÁNÍ: Detekována změna systémového času!\n\n" +
+                              $"Poslední přihlášení: {lastLoginDate:dd.MM.yyyy}\n" +
+                              $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
+                              $"Systémový čas byl posunut zpět. Toto může být způsobeno:\n" +
+                              $"• Chybou synchronizace času\n" +
+                              $"• Nesprávným nastavením systémového data\n\n" +
+                              $"DŮRAZNĚ DOPORUČUJEME:\n" +
+                              $"1. Zkontrolovat a opravit systémové datum\n" +
+                              $"2. Restartovat aplikaci\n\n" +
+                              $"Chcete přesto zahájit nový obchodní den?";
+            }
+            else if (wasDayClosed)
+            {
+                // Den byl uzavřen - dotaz na nový den s varováním
+                showDialog = true;
+                dialogMessage = $"🔒 Den byl již uzavřen!\n\n" +
+                              $"Pro dnešní den ({currentDate:dd.MM.yyyy}) byla již provedena uzavírka.\n\n" +
+                              $"⚠️ VAROVÁNÍ:\n" +
+                              $"Vytvoření nového obchodního dne je vhodné pouze pokud:\n" +
+                              $"• Začíná nový kalendářní den\n" +
+                              $"• Systémové datum je správné\n\n" +
+                              $"Pokud máte pochybnosti, zkontrolujte systémové datum a restartujte aplikaci.\n\n" +
+                              $"Jste si jisti, že chcete zahájit nový obchodní den?";
+            }
+            else if (!lastLoginDate.HasValue || currentDate > lastLoginDate)
+            {
+                // KRITICKÁ KONTROLA NEJDŘÍV: Je uzavřen předchozí den?
+                if (lastLoginDate.HasValue && lastLoginDate.Value < currentDate)
+                {
+                    // Zkontrolovat, zda existuje uzavírka pro lastLoginDate
+                    bool isPreviousDayClosed = await _dailyCloseService.IsDayClosedAsync(lastLoginDate.Value);
+
+                    if (!isPreviousDayClosed)
+                    {
+                        // BLOKACE: Předchozí den není uzavřen!
+                        var blockDialog = new ContentDialog
+                        {
+                            Title = "⚠️ Nelze zahájit nový den",
+                            Content = $"Nebyla provedena uzavírka pro předchozí den!\n\n" +
+                                     $"Datum předchozího dne: {lastLoginDate.Value:dd.MM.yyyy}\n" +
+                                     $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
+                                     $"POVINNÝ POSTUP:\n" +
+                                     $"1. Nejprve proveďte uzavírku pro den {lastLoginDate.Value:dd.MM.yyyy}\n" +
+                                     $"2. Poté můžete zahájit nový den {currentDate:dd.MM.yyyy}\n\n" +
+                                     $"Aplikace vás nyní přesměruje na stránku Tržby/Uzavírky.",
+                            CloseButtonText = "Rozumím, provést uzavírku",
+                            XamlRoot = this.Content.XamlRoot
+                        };
+
+                        await blockDialog.ShowAsync();
+                        await Task.Delay(300); // Dialog close delay
+
+                        // Navigovat na Tržby/Uzavírky stránku
+                        NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
+                            .FirstOrDefault(item => item.Tag?.ToString() == "TrzbyUzavirky");
+                        ContentFrame.Content = new Views.TrzbyUzavirkPage();
+
+                        return; // ZASTAVIT - nejdřív musí uzavřít předchozí den
+                    }
+                }
+
+                // Předchozí den je uzavřen (nebo neexistuje) → lze zahájit nový den
+                showDialog = true;
+                dialogMessage = $"📅 Je nový obchodní den?\n\n" +
+                              $"Dnešní datum: {currentDate:dd.MM.yyyy}\n\n" +
+                              $"Chcete zahájit nový obchodní den?";
+            }
+
+            if (showDialog)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = timeWarning || wasDayClosed ? "⚠️ Upozornění" : "Nový den",
+                    Content = dialogMessage,
+                    PrimaryButtonText = "Ano, zahájit nový den",
+                    CloseButtonText = wasDayClosed || timeWarning ? "Ne, ukončit aplikaci" : "Ne",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Potvrzovací dialog
+                    var confirmDialog = new ContentDialog
+                    {
+                        Title = "Potvrzení nového dne",
+                        Content = "Opravdu si přejete zahájit nový obchodní den?\n\n" +
+                                 "Tato akce je nevratná.",
+                        PrimaryButtonText = "Ano, potvrdit",
+                        CloseButtonText = "Zrušit",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.Content.XamlRoot
+                    };
+
+                    var confirmResult = await confirmDialog.ShowAsync();
+
+                    if (confirmResult == ContentDialogResult.Primary)
+                    {
+                        // Kontrola uzavírky už proběhla výše → můžeme zahájit nový den
+                        // Update last login date
+                        _settingsService.CurrentSettings.LastSaleLoginDate = currentDate;
+                        await _settingsService.SaveSettingsAsync();
+                        await Task.Delay(300); // Win10 file flush + settings propagation
+
+                        // Notify all ViewModels about settings change (especially TrzbyUzavirkViewModel)
+                        CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Sklad_2.Messages.SettingsChangedMessage());
+                        await Task.Delay(300); // Win10 UI refresh
+
+                        System.Diagnostics.Debug.WriteLine($"New day started: {currentDate:yyyy-MM-dd}");
+                    }
+                    else
+                    {
+                        // User cancelled confirmation
+                        Application.Current.Exit();
+                    }
+                }
+                else
+                {
+                    // User clicked "Ne" or closed dialog
+                    if (wasDayClosed || timeWarning)
+                    {
+                        // Exit application if day was closed or time warning
+                        Application.Current.Exit();
+                    }
+                    else
+                    {
+                        // User declined to start new day → redirect to TrzbyUzavirky
+                        // so they must close previous day first
+                        NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
+                            .FirstOrDefault(item => item.Tag?.ToString() == "TrzbyUzavirky");
+                        ContentFrame.Content = new Views.TrzbyUzavirkPage();
+                    }
+                }
             }
         }
 
@@ -374,8 +508,10 @@ namespace Sklad_2
             // Check if day close was performed (only for Sales role)
             if (IsSalesRole)
             {
-                var lastDayCloseDate = _settingsService.CurrentSettings.LastDayCloseDate;
-                bool isDayClosedToday = lastDayCloseDate?.Date == DateTime.Today;
+                var sessionDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date ?? DateTime.Today;
+
+                // Use DailyCloseService to check if session day is closed
+                bool isDayClosedToday = await _dailyCloseService.IsDayClosedAsync(sessionDate);
 
                 if (!isDayClosedToday)
                 {
@@ -384,7 +520,9 @@ namespace Sklad_2
                     var dialog = new ContentDialog
                     {
                         Title = "Uzavírka dne nebyla provedena",
-                        Content = "Nebyla provedena uzavírka dne.\n\nPřejděte do Pokladny a proveďte uzavírku dne před zavřením aplikace.\n\nOpravdu si přejete zavřít aplikaci?",
+                        Content = $"Nebyla provedena uzavírka pro den {sessionDate:dd.MM.yyyy}.\n\n" +
+                                 "Přejděte do Tržby/Uzavírky a proveďte uzavírku dne před zavřením aplikace.\n\n" +
+                                 "Opravdu si přejete zavřít aplikaci bez uzavírky?",
                         PrimaryButtonText = "Zavřít aplikaci",
                         CloseButtonText = "Zrušit",
                         DefaultButton = ContentDialogButton.Close,
@@ -540,7 +678,7 @@ namespace Sklad_2
         }
 
 
-        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             Page page;
             string tag;
@@ -564,6 +702,82 @@ namespace Sklad_2
                 return;
             }
 
+            // Block Prodej/Vratky for Admin role - must use Cashier account
+            if (IsAdmin && (tag == "Prodej" || tag == "Vratky"))
+            {
+                // Wait for XamlRoot to be available (max 1 second)
+                int retryCount = 0;
+                while (this.Content?.XamlRoot == null && retryCount < 20)
+                {
+                    await Task.Delay(50);
+                    retryCount++;
+                }
+
+                if (this.Content?.XamlRoot != null)
+                {
+                    try
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = "⚠️ Přístup odepřen",
+                            Content = "Administrátor nemůže provádět prodeje a vratky.\n\n" +
+                                      "Pro provedení prodeje nebo vratky se přihlaste na účet pokladního.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.Content.XamlRoot
+                        };
+
+                        await dialog.ShowAsync();
+                        await Task.Delay(300); // Win10 compatibility - ensure dialog fully closes
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MainWindow: Error showing admin block dialog: {ex.Message}");
+                    }
+                }
+                return; // Prevent navigation
+            }
+
+            // Block Prodej/Vratky if day is closed for Cashier role
+            if (IsSalesRole && (tag == "Prodej" || tag == "Vratky"))
+            {
+                var sessionDate = _settingsService.CurrentSettings.LastSaleLoginDate?.Date ?? DateTime.Today;
+                var isDayClosed = await _dailyCloseService.IsDayClosedAsync(sessionDate);
+                if (isDayClosed)
+                {
+                    // Wait for XamlRoot to be available (max 1 second)
+                    int retryCount = 0;
+                    while (this.Content?.XamlRoot == null && retryCount < 20)
+                    {
+                        await Task.Delay(50);
+                        retryCount++;
+                    }
+
+                    if (this.Content?.XamlRoot != null)
+                    {
+                        try
+                        {
+                            var dialog = new ContentDialog
+                            {
+                                Title = "🔒 Den uzavřen",
+                                Content = $"Den {sessionDate:dd.MM.yyyy} byl již uzavřen.\n\n" +
+                                          "Prodej a vratky jsou uzamčeny.\n\n" +
+                                          "Pro pokračování se odhlaste a znovu přihlaste pro zahájení nového dne.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.Content.XamlRoot
+                            };
+
+                            await dialog.ShowAsync();
+                            await Task.Delay(300); // Win10 compatibility - ensure dialog fully closes
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"MainWindow: Error showing day closed dialog: {ex.Message}");
+                        }
+                    }
+                    return; // Prevent navigation
+                }
+            }
+
             switch (tag)
             {
                 case "Prodej":
@@ -575,8 +789,8 @@ namespace Sklad_2
                 case "Vratky":
                     page = new VratkyPage();
                     break;
-                case "Pokladna":
-                    page = new CashRegisterPage();
+                case "TrzbyUzavirky":
+                    page = new TrzbyUzavirkPage();
                     break;
                 case "Produkty":
                     page = new DatabazePage();
@@ -595,9 +809,6 @@ namespace Sklad_2
                     break;
                 case "PrehledProdeju":
                     page = new PrehledProdejuPage();
-                    break;
-                case "HistoriePokladny":
-                    page = new CashRegisterHistoryPage();
                     break;
                 case "Poukazy":
                     page = new PoukazyPage();
@@ -650,13 +861,31 @@ namespace Sklad_2
             }
         }
 
-        private void Logout_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void Logout_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var authService = (Application.Current as App).Services.GetService<IAuthService>();
-            authService.Logout();
-            var loginWindow = new LoginWindow();
-            loginWindow.Activate();
-            this.Close();
+            try
+            {
+                var authService = (Application.Current as App).Services.GetService<IAuthService>();
+                authService.Logout();
+
+                var loginWindow = new LoginWindow();
+
+                // Win11 compatibility - ensure LoginWindow is fully activated before closing MainWindow
+                loginWindow.Activate();
+                await Task.Delay(500); // Give Win11 time to fully activate the new window
+
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MainWindow: Error during logout: {ex.Message}");
+                // Ensure window closes even if there's an error
+                try
+                {
+                    this.Close();
+                }
+                catch { }
+            }
         }
     }
 

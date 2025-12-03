@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 9; // Version 9: Add ReturnYear and ReturnSequence to Returns
+        private const int CURRENT_SCHEMA_VERSION = 10; // Version 10: Add DailyClose table and payment breakdown to Receipts
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -180,6 +180,8 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V8_EnsureRedeemedGiftCardEanNotNull(context);
                     case 9:
                         return await ApplyMigration_V9_AddReturnNumbering(context);
+                    case 10:
+                        return await ApplyMigration_V10_AddDailyCloseAndPaymentBreakdown(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -578,6 +580,96 @@ namespace Sklad_2.Services
             return true;
         }
 
+        private async Task<bool> ApplyMigration_V10_AddDailyCloseAndPaymentBreakdown(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying migration V10 - Add DailyClose table and payment breakdown");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            // 1. Create DailyCloses table
+            var createDailyClosesTable = @"
+                CREATE TABLE IF NOT EXISTS DailyCloses (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Date TEXT NOT NULL,
+                    CashSales REAL NOT NULL DEFAULT 0,
+                    CardSales REAL NOT NULL DEFAULT 0,
+                    TotalSales REAL NOT NULL DEFAULT 0,
+                    VatAmount REAL,
+                    SellerName TEXT NOT NULL,
+                    ReceiptNumberFrom TEXT NOT NULL,
+                    ReceiptNumberTo TEXT NOT NULL,
+                    ClosedAt TEXT NOT NULL
+                );";
+
+            // 2. Add CashAmount and CardAmount columns to Receipts table
+            var addCashAmountColumn = @"
+                ALTER TABLE Receipts ADD COLUMN CashAmount REAL NOT NULL DEFAULT 0;";
+
+            var addCardAmountColumn = @"
+                ALTER TABLE Receipts ADD COLUMN CardAmount REAL NOT NULL DEFAULT 0;";
+
+            var sqlStatements = new[]
+            {
+                createDailyClosesTable,
+                addCashAmountColumn,
+                addCardAmountColumn
+            };
+
+            foreach (var sql in sqlStatements)
+            {
+                try
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = sql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Executed: {sql.Substring(0, Math.Min(50, sql.Length))}...");
+                }
+                catch (Exception ex)
+                {
+                    // If column already exists, that's okay (idempotent migration)
+                    if (ex.Message.Contains("duplicate column name") || ex.Message.Contains("already exists"))
+                    {
+                        Debug.WriteLine($"DatabaseMigrationService: Column/Table already exists, continuing...");
+                        continue;
+                    }
+
+                    Debug.WriteLine($"DatabaseMigrationService: Error executing: {sql} - {ex.Message}");
+                    throw;
+                }
+            }
+
+            // 3. Migrate existing receipts - set CashAmount based on PaymentMethod
+            try
+            {
+                using var migrateCommand = connection.CreateCommand();
+                migrateCommand.CommandText = @"
+                    UPDATE Receipts
+                    SET CashAmount = CASE
+                        WHEN PaymentMethod = 'Karta' THEN 0
+                        ELSE TotalAmount - CASE WHEN ContainsGiftCardRedemption = 1 THEN GiftCardRedemptionAmount ELSE 0 END
+                    END,
+                    CardAmount = CASE
+                        WHEN PaymentMethod = 'Karta' THEN TotalAmount - CASE WHEN ContainsGiftCardRedemption = 1 THEN GiftCardRedemptionAmount ELSE 0 END
+                        ELSE 0
+                    END
+                    WHERE CashAmount = 0 AND CardAmount = 0;";
+
+                var rowsAffected = await migrateCommand.ExecuteNonQueryAsync();
+                Debug.WriteLine($"DatabaseMigrationService: Migrated {rowsAffected} existing receipts with payment breakdown");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error migrating existing receipts: {ex.Message}");
+                // Don't fail migration - tables/columns are created, just data migration didn't work
+            }
+
+            return true;
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -622,6 +714,7 @@ namespace Sklad_2.Services
                 7 => "Fix NULL values in RedeemedGiftCardEan column",
                 8 => "Ensure RedeemedGiftCardEan is never NULL (re-run fix)",
                 9 => "Add ReturnYear and ReturnSequence for return document numbering (D2025/0001)",
+                10 => "Add DailyClose table and CashAmount/CardAmount payment breakdown to Receipts",
                 _ => $"Unknown migration version {version}"
             };
         }

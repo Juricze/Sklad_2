@@ -13,6 +13,7 @@ namespace Sklad_2.ViewModels
         private readonly IDataService _dataService;
         private readonly ISettingsService _settingsService;
         private readonly IPrintService _printService;
+        private readonly IDailyCloseService _dailyCloseService;
         private readonly IMessenger _messenger;
 
         [ObservableProperty]
@@ -61,11 +62,12 @@ namespace Sklad_2.ViewModels
         public string VatConfigStatusColor => IsVatConfigComplete ? "#34C759" : "#FF9500";
         public string DatabaseStatusColor => IsDatabaseOk ? "#34C759" : "#FF3B30";
 
-        public StatusBarViewModel(IDataService dataService, ISettingsService settingsService, IPrintService printService, IMessenger messenger)
+        public StatusBarViewModel(IDataService dataService, ISettingsService settingsService, IPrintService printService, IDailyCloseService dailyCloseService, IMessenger messenger)
         {
             _dataService = dataService;
             _settingsService = settingsService;
             _printService = printService;
+            _dailyCloseService = dailyCloseService;
             _messenger = messenger;
 
             // Listen for settings changes
@@ -88,9 +90,9 @@ namespace Sklad_2.ViewModels
 
             var settings = _settingsService.CurrentSettings;
 
-            // Check if day was closed today
-            var lastDayCloseDate = settings.LastDayCloseDate;
-            IsDayClosedToday = lastDayCloseDate?.Date == DateTime.Today;
+            // Check if day was closed for current session date using DailyCloseService
+            var sessionDate = settings.LastSaleLoginDate?.Date ?? DateTime.Today;
+            IsDayClosedToday = await _dailyCloseService.IsDayClosedAsync(sessionDate);
 
             // Check VAT payer status
             IsVatPayer = settings.IsVatPayer;

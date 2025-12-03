@@ -24,8 +24,6 @@ namespace Sklad_2.Services
         Task<List<Return>> GetReturnsAsync(DateTime startDate, DateTime endDate);
         Task<int> GetTotalReturnedQuantityForProductOnReceiptAsync(int originalReceiptId, string productEan);
         Task<(bool Success, string ErrorMessage)> CompleteSaleAsync(Receipt receipt, List<Product> productsToUpdate, string userName);
-        Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync();
-        Task<List<CashRegisterEntry>> GetCashRegisterEntriesAsync(DateTime startDate, DateTime endDate);
 
         // VAT Configs
         Task<List<VatConfig>> GetVatConfigsAsync();

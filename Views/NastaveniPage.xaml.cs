@@ -6,6 +6,7 @@ using Sklad_2.Models;
 using Sklad_2.ViewModels;
 using Sklad_2.Views.Dialogs;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Sklad_2.Views
@@ -59,7 +60,33 @@ namespace Sklad_2.Views
             var dialog = new AddEditUserDialog();
             dialog.XamlRoot = this.XamlRoot;
 
-            var result = await dialog.ShowAsync();
+            ContentDialogResult result = ContentDialogResult.None;
+
+            // Win10 compatibility - retry if dialog fails due to concurrent dialog
+            int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                try
+                {
+                    if (attempt > 0)
+                    {
+                        await Task.Delay(300); // Wait for previous dialog to fully close
+                    }
+
+                    result = await dialog.ShowAsync();
+                    break; // Success
+                }
+                catch (System.Runtime.InteropServices.COMException ex) when (attempt < maxRetries - 1)
+                {
+                    Debug.WriteLine($"NastaveniPage: Dialog attempt {attempt + 1} failed: {ex.Message}");
+                    // Retry
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"NastaveniPage: Error showing add user dialog: {ex.Message}");
+                    return (false, null, null, null, null);
+                }
+            }
 
             if (result == ContentDialogResult.Primary)
             {
@@ -75,7 +102,33 @@ namespace Sklad_2.Views
             dialog.SetEditMode(user);
             dialog.XamlRoot = this.XamlRoot;
 
-            var result = await dialog.ShowAsync();
+            ContentDialogResult result = ContentDialogResult.None;
+
+            // Win10 compatibility - retry if dialog fails due to concurrent dialog
+            int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                try
+                {
+                    if (attempt > 0)
+                    {
+                        await Task.Delay(300); // Wait for previous dialog to fully close
+                    }
+
+                    result = await dialog.ShowAsync();
+                    break; // Success
+                }
+                catch (System.Runtime.InteropServices.COMException ex) when (attempt < maxRetries - 1)
+                {
+                    Debug.WriteLine($"NastaveniPage: Edit dialog attempt {attempt + 1} failed: {ex.Message}");
+                    // Retry
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"NastaveniPage: Error showing edit user dialog: {ex.Message}");
+                    return (false, null, null, null, null);
+                }
+            }
 
             if (result == ContentDialogResult.Primary)
             {

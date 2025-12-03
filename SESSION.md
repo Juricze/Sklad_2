@@ -17,7 +17,117 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Poslední session: 27. listopad 2025 (odpoledne) - ČÁST 3**
+## 📅 **Poslední session: 3. prosinec 2025 (noc)**
+
+### ✅ Hotovo:
+**Release v1.0.9: UI Auto-Refresh Tržby/Uzavírky + Win10 Compatibility**
+
+**Implementované funkce:**
+
+1. **Auto-refresh Tržby/Uzavírky po zahájení nového dne** 🔄
+   - Data binding přepnut z `x:Bind` na `{Binding}` (spolehlivější refresh)
+   - Přidán `SettingsChangedMessage` listener do ViewModelu
+   - Messaging po zahájení dne v MainWindow i TrzbyUzavirkPage
+   - Computed properties: `DayStatusFormatted`, `ReceiptCountFormatted`, `IsCloseDayButtonEnabled`
+   - `NotifyPropertyChangedFor` pro automatickou propagaci změn
+
+2. **Win10 Compatibility - robustní refresh strategie** 🖥️
+   - Delší delays: 300ms file flush, 200-300ms UI refresh
+   - Double refresh v message listener (volá `LoadTodaySalesAsync()` 2×)
+   - Vynucený UI refresh přes explicitní `OnPropertyChanged()` pro všechny properties
+   - Debug výpisy pro sledování průběhu
+   - `NotifyNewDayStartedAsync(DateTime)` - explicitní předání nového session datumu
+
+3. **Data binding na všech UI elementech**
+   - `CashSalesText`, `CardSalesText`, `TotalSalesText` - binding na formatted properties
+   - `ReceiptCountText`, `DayStatusText` - computed properties s auto-update
+   - `CloseDayButton.IsEnabled` - reactive binding na `IsCloseDayButtonEnabled`
+   - `StatusMessageText` - binding na status message
+
+4. **Zjednodušený code-behind**
+   - `LoadDataAsync()` jen volá ViewModel, UI se aktualizuje automaticky
+   - Odstraněny manuální `element.Text = ...` assignments
+   - MVVM pattern správně dodržen
+
+**Technické detaily:**
+
+**TrzbyUzavirkViewModel.cs:**
+```csharp
+// Message listener s double refresh
+_messenger.Register<SettingsChangedMessage>(this, async (r, m) =>
+{
+    await Task.Delay(300); // Win10 file flush
+    await LoadTodaySalesAsync();
+    await Task.Delay(100); // Win10 UI update
+    await LoadTodaySalesAsync(); // Second refresh for Win10
+});
+
+// Vynucený UI refresh
+public async Task NotifyNewDayStartedAsync(DateTime? newSessionDate = null)
+{
+    if (newSessionDate.HasValue)
+        SessionDate = newSessionDate.Value;
+
+    _messenger.Send(new SettingsChangedMessage());
+    await Task.Delay(200);
+    await LoadTodaySalesAsync();
+    await Task.Delay(100);
+
+    // Win10: Force UI refresh
+    OnPropertyChanged(nameof(SessionDate));
+    OnPropertyChanged(nameof(TodayCashSalesFormatted));
+    OnPropertyChanged(nameof(DayStatusFormatted));
+    // ... všechny properties
+}
+```
+
+**MainWindow.xaml.cs:**
+```csharp
+await _settingsService.SaveSettingsAsync();
+await Task.Delay(300); // Win10 file flush
+WeakReferenceMessenger.Default.Send(new SettingsChangedMessage());
+await Task.Delay(300); // Win10 UI refresh
+```
+
+**TrzbyUzavirkPage.xaml:**
+```xml
+<!-- Classic {Binding} místo x:Bind pro spolehlivější refresh -->
+<TextBlock Text="{Binding TodayCashSalesFormatted, Mode=OneWay}"/>
+<TextBlock Text="{Binding DayStatusFormatted, Mode=OneWay}"/>
+<Button IsEnabled="{Binding IsCloseDayButtonEnabled, Mode=OneWay}"/>
+```
+
+**Computed properties s NotifyPropertyChangedFor:**
+```csharp
+[ObservableProperty]
+[NotifyPropertyChangedFor(nameof(SessionDateFormatted), nameof(DayStatusFormatted))]
+private DateTime sessionDate;
+
+[ObservableProperty]
+[NotifyPropertyChangedFor(nameof(DayStatusFormatted), nameof(IsCloseDayButtonEnabled))]
+private bool isDayClosed;
+
+public string DayStatusFormatted => IsDayClosed
+    ? $"🔒 Den uzavřen ({SessionDateFormatted})"
+    : $"🔓 Den otevřen ({SessionDateFormatted})";
+```
+
+**Build:**
+- ✅ Release x64 build úspěšný
+- ✅ Verze: 1.0.9
+- ✅ Win10 compatibility delays aplikovány
+
+**Testováno:**
+- ✅ UI refresh funguje na Win11
+- ⏳ **Zbývá otestovat**: Win10 PC (pomalý file flush, UI dispatcher)
+
+**Git:**
+- ⏳ Commit připraven
+- ⏳ GitHub Release v1.0.9
+
+---
+
+## 📅 **Předchozí session: 27. listopad 2025 (odpoledne) - ČÁST 3**
 
 ### ✅ Hotovo:
 **Release v1.0.8: Profesionální formátování účtenek s logem**
@@ -70,437 +180,49 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-## 📅 **Předchozí session: 27. listopad 2025 (pokračování)**
-
-### ✅ Hotovo:
-**Kontrola změn od v1.0.2 → v1.0.7 (5 nových verzí)**
-
-**Přehled nových verzí:**
-
-### **v1.0.7 - Single-Instance Ochrana** (27.11.2025)
-- 🔒 Mutex ochrana proti spuštění více instancí současně
-- Win32 MessageBox pro okamžité upozornění (funguje před WinUI inicializací)
-- Prevence konfliktů s SQLite databází
-- Automatické uvolnění Mutex při ukončení
-- **Soubory:** App.xaml.cs, RELEASE_NOTES_v1.0.7.md
-- **Commit:** 86020b6 + d6a2297 + 016c603
-
-### **v1.0.6 - Aktualizace O Aplikaci** (26.11.2025)
-- ℹ️ Sekce "O aplikaci" aktualizována
-- Dynamická verze z assembly
-- Kontakt: Jiří Hejda - Aplikárna®, info@aplikarna.cz
-- Klikatelný odkaz: aplikarna.cz
-- Seznam 12 hlavních funkcí
-- **Soubory:** NastaveniPage.xaml, RELEASE_NOTES_v1.0.6.md
-- **Commit:** bd5a3f7 + 1639022 + a8ead2b
-
-### **v1.0.5 - UTF-8 & PowerShell Fixes** (26.11.2025)
-- 🔧 UTF-8 encoding fix v PowerShell update scriptu
-- Auto cleanup po úspěšném update
-- Robustní error handling
-- Podpora pro self-contained WinUI 3 build (multi-file)
-- **Soubory:** UpdateHelper.ps1
-- **Commit:** bdcb53b + 2f93d76
-
-### **v1.0.4 - Tisk Účtenek** (26.11.2025)
-- 🖨️ Zvětšení názvu firmy na účtenkách
-- Test release pro GitHub auto-updater
-- **Commit:** 49df672
-
-### **v1.0.3 - Multi-File Auto-Updater** (26.11.2025)
-- 📦 Multi-file ZIP auto-updater místo single-file
-- Profesionální error handling
-- PowerShell UpdateHelper.ps1 script
-- Podpora pro celou self-contained aplikaci
-- **Soubory:** UpdateService.cs, UpdateHelper.ps1
-- **Commit:** d2a4467 + 1304bff
-
-### **Další fixnuté bugy:**
-- ✅ StatusBar validace vyžaduje IČ (CompanyId) - commit e42859f
-- ✅ NOT NULL constraint pro VatId a RedeemedGiftCardEan - commit 9d19b59
-- ✅ DIČ validace pouze pro plátce DPH - commit 70dfbe6
-- ✅ *.zip přidán do .gitignore - commit f2d320c
-
-**Aktuální verze:** **v1.0.7**
-
-**Build status:**
-✅ Všechny verze úspěšně vytvořeny a commitnuty
-✅ Single-instance ochrana implementována
-✅ Auto-update systém plně funkční
-✅ Win10 kompatibilita zachována
-
----
-
-## 📅 **Předchozí session: 26. listopad 2025 (odpoledne) - ČÁST 2**
-
-### ✅ Hotovo:
-**Auto-update přesunut na login screen + Release v1.0.2 připraven**
-
-**Klíčové změny:**
-
-1. **LoginWindow.xaml - Footer s verzí a update UI**
-   - Přidán footer s verzí aplikace (vlevo)
-   - Update status panel (uprostřed): status text, progress bar, tlačítka
-   - Grid layout pro čistý design
-
-2. **LoginWindow.xaml.cs - Kompletní auto-update management**
-   - Metody: CheckForUpdatesAsync, ShowUpdateStatus, ShowUpdateAvailable, HideUpdateStatus
-   - Update flow: kontrola → dostupný update → download s progress → restart
-   - Možnost "Pokračovat" bez update
-   - Verze načtena z UpdateService.CurrentVersion
-
-3. **MainWindow.xaml.cs - Odstraněn UpdateService**
-   - Odstraněn field _updateService
-   - Odstraněny metody CheckForUpdatesAsync() a ShowUpdateDialogAsync()
-   - Update se nyní kontroluje jen na login screen
-
-4. **Sklad_2.csproj - Verze 1.0.2**
-   - Zvýšena verze na 1.0.2
-
-5. **Git commit vytvořen**
-   - Commit: "v1.0.2 - Windows 10 Compatibility Fixes + Auto-update na login screen"
-   - 13 souborů změněno
-   - Commit hash: 13ba849
-
-**Build status:**
-✅ Release x64 build úspěšný
-✅ Velikost celé složky: ~98MB (správně - self-contained WinUI 3)
-⚠️ Sklad_2.exe samotný: 265KB (jen launcher stub)
-
-**Co zbývá:**
-⏳ Vytvořit ZIP archiv celé release složky
-⏳ Vytvořit git tag v1.0.2
-⏳ Pushnout na GitHub
-⏳ Nahrát ZIP na GitHub Releases (ručně, gh CLI není nainstalováno)
-
-**Upravené soubory:**
-- LoginWindow.xaml - footer UI
-- LoginWindow.xaml.cs - auto-update logika
-- MainWindow.xaml.cs - odstranění UpdateService
-- Sklad_2.csproj - verze 1.0.2
-- RELEASE_NOTES_v1.0.2.md - NOVÝ (release notes)
-- SESSION.md - dokumentace
-
----
-
-## 📅 **Předchozí session: 26. listopad 2025 (odpoledne) - ČÁST 1**
-
-### ✅ Hotovo:
-**Win10 Compatibility Fixes - 6 kritických oprav**
-
-### 🔴 DŮLEŽITÉ: Win10 vs Win11 rozdíly
-
-**Problém:** Produkční PC (Win10) měl 4 kritické problémy, které nefungovaly na Win11:
-1. FolderPicker se neotevřel
-2. Firemní údaje se neuložily ihned
-3. StatusBar se neaktualizoval
-4. Database write error při prodeji
-5. Kategorie se nerefreshovaly v Nový produkt
-
-**Příčina:** WinUI 3 je primárně pro Win11, Win10 podpora je "backport" s kompromisy.
-
-**Klíčové změny této session:**
-
-1. **LoginWindow.xaml.cs - CurrentWindow fix**
-   - Přidán `app.CurrentWindow = mainWindow;` po vytvoření MainWindow
-   - Win10 vyžaduje explicitní nastavení pro FolderPicker HWND
-   - **Řádek:** 123-124
-
-2. **SettingsService.cs - File flush**
-   - Přidán explicitní `FileStream.Flush(true)` po zápisu settings
-   - Win10 má pomalejší file system cache flush
-   - **Řádek:** 68-72
-
-3. **NastaveniViewModel.cs - Delay pro messaging**
-   - Přidán delay 100ms před Send message (file flush)
-   - Přidán delay 200ms po Send message (UI refresh)
-   - Win10 Dispatcher má nižší prioritu než Win11
-   - **Řádek:** 184-191
-
-4. **SqliteDataService.cs - AsNoTracking + Retry**
-   - `GetProductAsync()` - přidán `.AsNoTracking()` (řádek 32)
-   - `CompleteSaleAsync()` - přidána retry logika 3× s exponential backoff (řádek 48-70)
-   - Win10 má přísnější SQLite file locking
-   - Prevence entity tracking conflicts
-
-5. **NovyProduktViewModel.cs - RefreshCategories**
-   - Přidán listener na `VatConfigsChangedMessage` (řádek 118-124)
-   - Nová metoda `RefreshCategories()` (řádek 148-168)
-   - ObservableCollection se nyní aktualizuje při změně kategorií
-
-6. **DatabazeViewModel.cs - RefreshCategories**
-   - Stejný fix jako v NovyProduktViewModel
-   - Listener na message + RefreshCategories metoda (řádek 82-111)
-
-**Dokumentace:**
-- Přidána **nová sekce do CLAUDE.md**: "🔴 KRITICKÉ: Windows 10 Compatibility Requirements"
-- Obsahuje 6 povinných pravidel pro každý nový kód
-- Checklist před každým commitem
-- Tabulka Win10 vs Win11 rozdílů
-- Testing checklist pro Win10
-
-**Kompatibilita s Win11:**
-✅ Všechny změny jsou 100% Win11 kompatibilní!
-✅ `AsNoTracking()` dokonce zrychlí Win11
-✅ Žádné Win10-specific hacky nebo conditionals
-✅ Defensive programming pattern
-
-**Upravené soubory:**
-- `LoginWindow.xaml.cs` - app.CurrentWindow
-- `SettingsService.cs` - file flush
-- `NastaveniViewModel.cs` - delays
-- `SqliteDataService.cs` - AsNoTracking + retry
-- `NovyProduktViewModel.cs` - RefreshCategories
-- `DatabazeViewModel.cs` - RefreshCategories
-- `CLAUDE.md` - Win10 compatibility guidelines
-
-**Testováno:**
-- ✅ Build úspěšný (x64 Release)
-- ⏳ **Zbývá otestovat na Win10 PC:**
-  1. FolderPicker
-  2. Uložení firemních údajů
-  3. Prodej produktu
-  4. Správa kategorií
-  5. Backup při zavření
-
----
-
-## 📅 **Předchozí session: 26. listopad 2025 (ráno)**
-
-### ✅ Hotovo:
-**Auto-update systém + Oprava backup pro Win10**
-
-**Klíčové změny této session:**
-
-1. **Oprava backup systému**
-   - `App.xaml.cs` - oprava názvu `AppSettings.json` → `settings.json`
-   - Win10 nevolal `Window.Closed` event správně
-   - Přidán `AppWindow.Closing` handler pro spolehlivé zachycení zavření okna
-   - File logging do `backup_log.txt` pro troubleshooting
-
-2. **Auto-update systém**
-   - `UpdateService.cs` - kontrola nových verzí z GitHub Releases API
-   - Automatická kontrola při startu (pouze Admin)
-   - Dialog s nabídkou aktualizace
-   - Download a instalace přes batch script
-
-3. **GitHub Actions workflow**
-   - `.github/workflows/release.yml` - automatický build při push tagu
-   - Problém s permissions - nutné nastavit "Read and write permissions" v repo settings
-   - Alternativa: ruční upload přes `gh release create`
-
-4. **Verzování**
-   - `Sklad_2.csproj` - přidány Version, AssemblyVersion, FileVersion
-   - Aktuální verze: **v1.0.1**
-
-**Technické detaily:**
-
-- `AppWindow.Closing` je spolehlivější než `Window.Closed` pro WinUI 3
-- `GetAppWindowForCurrentWindow()` helper pro získání AppWindow instance
-- FolderPicker nefunguje na Win10 bez správného HWND
-
-**Upravené soubory:**
-- `App.xaml.cs` - oprava settings.json, registrace UpdateService
-- `MainWindow.xaml.cs` - AppWindow.Closing, file logging
-- `Services/UpdateService.cs` - NOVÝ
-- `.github/workflows/release.yml` - NOVÝ
-- `Sklad_2.csproj` - verzování
-
-**Testováno:**
-- ✅ Backup funguje na Win10 i Win11
-- ✅ Dialog "Záloha dokončena" se zobrazí
-- ✅ File logging funguje
-- ✅ Release v1.0.1 na GitHub
-
----
-
-## 📅 **Předchozí session: 25. listopad 2025 (večer)**
-
-### ✅ Hotovo:
-**Kompletní implementace tisku účtenek s českými znaky**
-
-**Klíčové změny:**
-
-1. **Automatický tisk při prodeji**
-   - `ProdejViewModel.cs` - přidán `IPrintService` do DI
-   - Po úspěšném prodeji se automaticky volá `PrintReceiptAsync()`
-   - Tisk běží asynchronně, neblokuje UI
-   - Při selhání tisku se vypíše warning, ale prodej proběhne
-
-2. **Oprava tisku - přímý SerialPort místo ESCPOS_NET**
-   - `PrintReceiptAsync()` přepsán na přímý `System.IO.Ports.SerialPort`
-   - Problém: ESCPOS_NET `SerialPrinter` nepodporoval CP852 encoding
-   - Řešení: Raw ESC/POS příkazy s `Cp852.GetBytes()`
-
-3. **Nastavení CP852 code page na tiskárne**
-   - Přidán příkaz `ESC t 18` (0x1B 0x74 0x12) na začátek tisku
-   - Tiskárna měla výchozí PC437, který nepodporuje české znaky
-   - Nyní tiskne správně: ěščřžýáíéůúďťň
-
-4. **Tlačítko "Tisk" v náhledu účtenky**
-   - `ReceiptPreviewDialog.xaml.cs` - implementace `PrintButton_Click`
-   - Přidán `IPrintService` parametr do konstruktoru
-   - Při selhání tisku se zobrazí chybový dialog
-   - Dialog zůstane otevřený pro opakovaný tisk
-   - Funguje po prodeji i v historii účtenek
-
-5. **Nová metoda `BuildReceiptCommands()`**
-   - Generuje raw ESC/POS příkazy s CP852 encodingem
-   - Podporuje: DPH rozpad, slevy, dárkové poukazy, storno
-   - Formátování: bold, double height, zarovnání
-   - Řez papíru: `GS V 66 3`
-
-**Upravené soubory:**
-- `Services/EscPosPrintService.cs` - přepis na SerialPort + CP852
-- `ViewModels/ProdejViewModel.cs` - automatický tisk po prodeji
-- `Views/Dialogs/ReceiptPreviewDialog.xaml.cs` - tlačítko tisk
-- `Views/ProdejPage.xaml.cs` - předání PrintService do dialogu
-- `Views/UctenkyPage.xaml.cs` - předání PrintService do dialogu
-- `App.xaml.cs` - DI registrace ProdejViewModel
-
-**Testováno:**
-- ✅ Tisk při prodeji funguje automaticky
-- ✅ České znaky se tisknou správně (CP852)
-- ✅ Tlačítko "Tisk" v náhledu funguje
-- ✅ Opakovaný tisk při nedostatku papíru
-- ✅ Test tisku v nastavení funguje
-
----
-
-## 📅 **Předchozí session: 25. listopad 2025 (odpoledne)**
-
-### ✅ Hotovo:
-**Funkční tisk na Epson TM-T20III přes COM port**
-
-**Klíčové změny:**
-
-1. **EscPosPrintService.cs - přepis na přímý SerialPort**
-   - ESCPOS_NET SerialPrinter nefungoval s Epson Virtual COM Port
-   - Přepsáno na přímý `System.IO.Ports.SerialPort`
-   - Přidán `CodePagesEncodingProvider` pro CP852 (české znaky)
-   - Raw ESC/POS příkazy (inicializace, styly, řez papíru)
-   - Baud rate: 38400 (výchozí pro TM-T20III)
-
-2. **Ukládání nastavení tiskárny**
-   - Přidáno tlačítko "Uložit" vedle "Test tisku"
-   - Nový command `SavePrinterSettingsCommand`
-   - Posílá `SettingsChangedMessage` pro refresh StatusBaru
-
-3. **IsPrinterConnected() - skutečná kontrola**
-   - Nyní skutečně testuje otevření COM portu
-   - StatusBar zobrazí "Připojena" po uložení platného COM portu
-
-**Testováno:**
-- ✅ Test tisku funguje (COM1)
-- ✅ Nastavení se ukládá
-- ✅ StatusBar se aktualizuje
-
----
-
-## 📅 **Předchozí session: 25. listopad 2025 (ráno)**
-
-### ✅ Hotovo:
-**Implementace PrintService pro Epson TM-T20III + Opravy**
-
-**Upraveno/vytvořeno 8 souborů:**
-1. **Services/EscPosPrintService.cs** (NOVÝ) - kompletní implementace ESC/POS tisku
-2. Services/IPrintService.cs - oprava interface (Receipt místo IReceiptService)
-3. Services/PrintService.cs - placeholder aktualizace
-4. Services/SettingsService.cs - oprava backup path validace
-5. MainWindow.xaml.cs - oprava backup path kontroly
-6. Services/DatabaseMigrationService.cs - oprava migračního systému pro nové DB
-7. App.xaml.cs - registrace EscPosPrintService
-8. Views/NastaveniPage.xaml - UI pro COM port + poznámka o driveru
-9. ViewModels/StatusBarViewModel.cs - skutečná kontrola připojení tiskárny
-
-**Klíčové změny:**
-
-**1. Oprava migračního systému (DatabaseMigrationService.cs):**
-- Problém: Nová DB vytvořená přes EnsureCreated() měla verzi 0 a snažila se aplikovat všechny migrace → "duplicate column" chyby
-- Řešení: Detekce nově vytvořené DB → nastavení verze rovnou na CURRENT_SCHEMA_VERSION
-- Metoda EnsureDatabaseExistsAsync() kontroluje existenci před EnsureCreated()
-
-**2. Oprava backup path validace (SettingsService.cs + MainWindow.xaml.cs):**
-- Problém: IsBackupPathConfigured() kontroloval Directory.Exists() → pokud složka neexistovala, backup se přeskočil
-- Řešení: Odstranění Directory.Exists() z validace - složka se vytvoří automaticky při backupu
-- Nyní stačí nastavit cestu (neprázdný string) a backup funguje
-
-**3. Implementace EscPosPrintService:**
-- NuGet balíček: ESCPOS_NET 3.0.0
-- Podpora SerialPrinter (COM port) - ESCPOS_NET 3.0 odstranil UsbPrinter!
-- Formátování účtenek: tučné texty, dvojitá výška, zarovnání, řez papíru
-- Podpora všech typů účtenek:
-  - Běžné prodeje
-  - Storno (negativní hodnoty, označení ❌)
-  - Dárkové poukazy (prodej + uplatnění)
-- DPH rozpad pro plátce DPH (seskupený podle sazeb)
-- Podpora slev na položkách (zobrazení původní ceny)
-- Platební metody (hotovost s vrácením, karta)
-- Test tisku s info o připojení
-
-**Technické detaily:**
-
-1. **EscPosPrintService.cs - hlavní metody**:
-   - `PrintReceiptAsync(Receipt)` - kompletní tisk účtenky
-   - `TestPrintAsync(string)` - test tisku s info o připojení
-   - `IsPrinterConnected()` - kontrola připojení tiskárny
-   - `CreatePrinter()` - vytvoření SerialPrinter instance
-   - `BuildReceiptData()` - sestavení ESC/POS příkazů
-
-2. **ESCPOS_NET 3.0.0 API**:
-   ```csharp
-   var printer = new SerialPrinter(portName: "COM5", baudRate: 115200);
-   var e = new EPSON();
-
-   var commands = new List<byte[]> {
-       e.CenterAlign(),
-       e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight),
-       e.PrintLine("TEXT"),
-       e.FullCutAfterFeed(3)  // Řez papíru
-   };
-
-   var data = ByteSplicer.Combine(commands.ToArray());
-   printer.Write(data);
-   ```
-
-3. **Proč SerialPrinter (COM port)?**
-   - ESCPOS_NET 3.0.0 ODSTRANIL třídu `UsbPrinter`
-   - `DirectPrinter` má jinou signaturu - není wrapper pro Windows tiskárny
-   - Řešení: **TMS Virtual Port Driver** vytvoří COM port pro USB tiskárnu
-   - Průmyslový standard pro POS tiskárny - nejspolehlivější
-
-**⏸️ AKTUÁLNÍ STAV (čeká se na restart PC):**
-- ✅ Kód implementován a zkompilován
-- ✅ Git commity vytvořeny (3 commity)
-- ⏳ **Čeká se**: Instalace TMS Virtual Port Driver v8.70a
-- ⏳ **Čeká se**: Restart PC
-- ⏳ **Čeká se**: Zjištění COM portu (Device Manager)
-- ⏳ **Čeká se**: Test tisku v aplikaci
-
-### 🧪 Otestováno:
-- ✅ Build bez chyb - všechny 3 commity zkompilované úspěšně
-- ✅ Database migration fix - nové DB se vytvoří s správnou verzí
-- ✅ Backup path fix - backup funguje i když složka neexistuje
-- ⏳ **Zbývá otestovat**: Skutečný tisk na tiskárně (čeká se na driver + restart)
-
-### 🔧 Další kroky PO RESTARTU:
-1. **Zjistit COM port** - Device Manager → Ports (COM & LPT)
-2. **Nastavit COM port v aplikaci** - Nastavení → Systém
-3. **Test tisku** - tlačítko "Test tisku" v aplikaci
-4. **Test prodeje** - vytvořit účtenku a vytisknout
-5. **Commitnout** - pokud vše funguje
-
-### 📚 Zdroje pro driver:
-- TMS Virtual Port Driver v8.70a (stažený uživatelem)
-- [Epson TM-T20III Support](https://epson.com/Support/Point-of-Sale/Thermal-Printers/Epson-TM-T20III-Series/s/SPT_C31CH51001)
-
----
-
 ## 🎓 Klíčové naučené lekce
 
 ### WinUI 3 / XAML specifika
 
-1. **ViewModel PŘED InitializeComponent()**
+1. **x:Bind vs {Binding} pro PropertyChanged** ⚠️ NOVÉ!
+   - **Compiled binding (x:Bind)** má někdy problémy s PropertyChanged events
+   - **Runtime binding ({Binding})** spolehlivěji reaguje na změny
+   - **Řešení pro refresh problémy:**
+   ```csharp
+   // Code-behind
+   this.DataContext = ViewModel;
+   ```
+   ```xml
+   <!-- XAML - použít {Binding} místo x:Bind -->
+   <TextBlock Text="{Binding MyProperty, Mode=OneWay}"/>
+   ```
+   - Vhodné pro UI elementy, které se musí refreshovat při messaging
+
+2. **WeakReferenceMessenger pro inter-ViewModel komunikaci** ⚠️ NOVÉ!
+   - Registrace listener v konstruktoru ViewModelu
+   - `_messenger.Register<SettingsChangedMessage>(this, async (r, m) => { })`
+   - Nezapomenout unregister při dispose (automaticky s WeakReference)
+   - Posílání zpráv: `_messenger.Send(new SettingsChangedMessage())`
+
+3. **NotifyPropertyChangedFor pro computed properties** ⚠️ NOVÉ!
+   ```csharp
+   [ObservableProperty]
+   [NotifyPropertyChangedFor(nameof(FormattedProperty))]
+   private decimal rawValue;
+
+   public string FormattedProperty => $"{RawValue:N2} Kč";
+   ```
+   - Automaticky triggeruje update computed properties při změně source property
+
+4. **OnPropertyChanged() pro vynucení UI refresh** ⚠️ NOVÉ!
+   ```csharp
+   // Win10: Vynucený UI refresh
+   OnPropertyChanged(nameof(SessionDate));
+   OnPropertyChanged(nameof(TodayCashSalesFormatted));
+   ```
+   - Užitečné pro Win10 compatibility (pomalý UI dispatcher)
+
+5. **ViewModel PŘED InitializeComponent()**
    ```csharp
    public SomePage()
    {
@@ -510,11 +232,11 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    }
    ```
 
-2. **Clean + Rebuild je kritický**
+6. **Clean + Rebuild je kritický**
    - Při změnách XAML/ViewModels vždy: **Build → Clean Solution → Rebuild Solution**
    - WinUI/XAML projekty cachují sestavení
 
-3. **ContentDialog COMException workaround**
+7. **ContentDialog COMException workaround**
    - Pouze 1 ContentDialog najednou
    - Řešení: 800ms delay + retry s 300ms + try-catch
    ```csharp
@@ -531,7 +253,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    });
    ```
 
-4. **XamlRoot čekání - robustní přístup**
+8. **XamlRoot čekání - robustní přístup**
    ```csharp
    // Robustní čekání místo pevného delay
    int retries = 0;
@@ -542,59 +264,12 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    }
    ```
 
-5. **Page.Loaded event pro auto-refresh**
+9. **Page.Loaded event pro auto-refresh**
    ```csharp
    this.Loaded += (s, e) => ViewModel.LoadDataCommand.Execute(null);
    ```
 
-6. **PasswordBox binding**
-   - Password property je write-only (security)
-   - Nelze použít x:Bind TwoWay
-   - Řešení: Event handlers (PasswordChanged)
-
-7. **ToggleButtonStyle (RadioButton)**
-   - WinUI 3 RadioButton nemá kombinované stavy (CheckedPointerOver, etc.)
-   - Řešení: Separátní HoverBorder overlay s Opacity control
-   - Pressed stav nesmí měnit background (jinak přepíše Checked stav)
-
-8. **VisualState priority**
-   - Stavy z různých VisualStateGroups se aplikují současně
-   - CommonStates vs CheckStates - výsledek není vždy předvídatelný
-   - Řešení: Explicitně nastavit všechny vlastnosti v každém stavu
-
-9. **StartsWith vs Contains pro vyhledávání**
-   - Pro prefix matching (EAN, názvy) použít `StartsWith()`
-   - `Contains()` najde příliš mnoho výsledků
-
-10. **Window vs Page - DataContext a binding**
-   - `Window` nemá property `DataContext` (pouze `Page` má)
-   - `Window` má omezení s `{x:Bind}` na některých prvcích
-   - **Řešení:** Nastavit DataContext na konkrétní element (např. Grid, Border)
-   ```csharp
-   this.InitializeComponent();
-   StatusBarBorder.DataContext = this;  // Nastavení jen pro část UI
-   ```
-   - Pro Visibility binding v Window raději použít `{Binding}` místo `{x:Bind}`
-
-11. **ListView.HeaderTemplate binding problémy**
-   - `ListView.HeaderTemplate` nemá správný DataContext v některých případech
-   - **Řešení:** Použít samostatný `Grid` pro hlavičku + `ItemsRepeater` pro data
-   ```xaml
-   <!-- Hlavička -->
-   <Grid>
-       <TextBlock Text="Header" Visibility="{x:Bind ViewModel.IsVisible}"/>
-   </Grid>
-   <!-- Data -->
-   <ItemsRepeater ItemsSource="{x:Bind Items}">
-       <ItemsRepeater.ItemTemplate>
-           <DataTemplate>
-               <TextBlock Text="{x:Bind Property}" Visibility="{Binding ParentProperty}"/>
-           </DataTemplate>
-       </ItemsRepeater.ItemTemplate>
-   </ItemsRepeater>
-   ```
-
-12. **Window.Current je null v WinUI 3** ⚠️
+10. **Window.Current je null v WinUI 3** ⚠️
    - `Microsoft.UI.Xaml.Window.Current` vrací `null`
    - **Řešení pro FolderPicker:**
    ```csharp
@@ -609,7 +284,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(app.CurrentWindow);
    ```
 
-13. **Window_Closed vs AppWindow.Closing** ⚠️ AKTUALIZOVÁNO!
+11. **Window_Closed vs AppWindow.Closing** ⚠️
    - `Window.Closed` event **NEFUNGUJE SPOLEHLIVĚ na Win10!**
    - **Řešení: Použít `AppWindow.Closing`:**
    ```csharp
@@ -624,226 +299,7 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
        var winId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
        return AppWindow.GetFromWindowId(winId);
    }
-
-   // Event handler
-   private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
-   {
-       if (_isClosing) return;
-       args.Cancel = true;  // Cancel initial close
-       _isClosing = true;
-
-       // Perform operations
-       await Task.Run(() => PerformBackup());
-       await completionDialog.ShowAsync();
-
-       // Exit
-       Environment.Exit(0);
-   }
    ```
-   - `using Microsoft.UI.Windowing;` pro AppWindow
-   - Flag `_isClosing` zabraňuje nekonečnému cyklu
-   - `Environment.Exit(0)` vrací správný exit code
-
-14. **Visual Tree Traversal vs Data Binding** ⚠️ NOVÉ!
-   - `FindVisualChildren<T>()` má problémy s načasováním v `Page_Loaded`
-   - Checkboxy mohou ještě nebýt plně inicializované
-   - **VŽDY preferovat data binding:**
-   ```csharp
-   // ❌ ŠPATNĚ - visual tree traversal
-   foreach (var child in FindVisualChildren<CheckBox>(grid))
-   {
-       if (child.Tag?.ToString() == "NotIssued")
-           return child.IsChecked == true;
-   }
-
-   // ✅ SPRÁVNĚ - data binding
-   [ObservableProperty]
-   private bool filterNotIssued = true;
-
-   partial void OnFilterNotIssuedChanged(bool value)
-   {
-       UpdateFiltersAndReload();
-   }
-   ```
-   - x:Bind je compile-time bezpečné a spolehlivé
-
-16. **Single-Instance Protection s Mutex** ⚠️ NOVÉ!
-   - Prevence spuštění více instancí aplikace současně
-   - **Řešení: System.Threading.Mutex**
-   ```csharp
-   // V App.xaml.cs
-   private static Mutex _singleInstanceMutex;
-
-   protected override void OnLaunched(LaunchActivatedEventArgs args)
-   {
-       bool createdNew;
-       _singleInstanceMutex = new Mutex(true, "UniqueAppName_Mutex", out createdNew);
-
-       if (!createdNew)
-       {
-           // Druhá instance - zobrazit upozornění a ukončit
-           MessageBox(IntPtr.Zero, "Aplikace již běží", "Upozornění", MB_OK | MB_ICONWARNING);
-           _singleInstanceMutex?.Close();
-           Environment.Exit(0);
-           return;
-       }
-   }
-   ```
-   - **Win32 MessageBox místo ContentDialog** (funguje před WinUI inicializací)
-   - **P/Invoke:**
-   ```csharp
-   [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-   private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
-   ```
-   - Mutex se automaticky uvolní při ukončení procesu
-   - Důležité pro SQLite databázi (prevence konfliktů)
-
-15. **ListView ItemContainerStyle pro zarovnání** ⚠️ NOVÉ!
-   - ListView automaticky přidává padding do ListViewItem
-   - Hlavičky a data se nezarovnají bez úpravy
-   - **Řešení:**
-   ```xaml
-   <ListView.ItemContainerStyle>
-       <Style TargetType="ListViewItem">
-           <Setter Property="Padding" Value="0"/>
-           <Setter Property="Margin" Value="0"/>
-           <Setter Property="MinHeight" Value="0"/>
-           <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-       </Style>
-   </ListView.ItemContainerStyle>
-   ```
-   - Pak musí Header Border mít **stejný** BorderThickness a Padding jako data rows
-
-### Databáze (EF Core + SQLite)
-
-1. **Žádné migrace!**
-   - Při změně schématu: Smazat `%LocalAppData%\Sklad_2_Data\sklad.db`
-   - Používá se `Database.EnsureCreated()` místo migrací
-
-2. **DbContextFactory pattern**
-   - Registrace: `services.AddDbContextFactory<DatabaseContext>()`
-   - Workaround pro WinUI TwoWay binding issues
-
-3. **Hybrid Backup Strategy**
-   - Aplikace běží 100% offline z LocalAppData
-   - Záloha na OneDrive/vlastní složku při zavření
-   - Restore při startu pokud backup je novější
-   - **NIKDY** neukládat živou databázi přímo na OneDrive (riziko korupce)
-
-### Pokladna (Cash Register)
-
-**EntryTypes:**
-- `DayStart` - NASTAVÍ hodnotu (nepřičítá!)
-- `DayClose` - NASTAVÍ hodnotu
-- `Deposit`, `Sale` - přičte
-- `Withdrawal`, `DailyReconciliation`, `Return` - odečte
-
-**Důležité:**
-- DayStart != InitialDeposit (matoucí názvy jsou špatné)
-- Kontrola `LastDayCloseDate` - pouze 1× denně
-- Robustní validace (0-10M Kč)
-
-### PPD Compliance (Primární pokladní doklad)
-
-**Profesionální storno systém:**
-- ❌ **NIKDY NEMAZAT účtenku** (nelegální!)
-- ✅ Vytvořit storno účtenku s **negativními hodnotami**
-- Storno pokračuje v číselné řadě (2025/0007 → 2025/0008)
-- `IsStorno = true`, `OriginalReceiptId` pro odkaz
-
-**Formát účtenek:**
-- `ReceiptYear` + `ReceiptSequence` → "2025/0001"
-- Nový rok = reset sequence (2026/0001)
-
-**Export pro FÚ:**
-- HTML tabulka (možnost Ctrl+P → PDF)
-- Všechny účtenky za období
-- Informace o firmě (IČ, DIČ, plátce DPH)
-- Souhrn (počet, celkem, DPH)
-
----
-
-## 🐛 Známé problémy a workarounds
-
-### Problém: LiveCharts2 nestabilní
-- Verze 2.0.0-rc2 způsobuje runtime crashes
-- **Řešení:** Nepoužívat grafy, nahradit stat kartami
-
-### Problém: TwoWay binding na DbContext entity
-- WinUI má problém s TwoWay bindingem na EF entity
-- **Řešení:** DbContextFactory + ViewModel properties
-
-### Problém: ContentDialog resource access
-- Dialogy ztrácejí přístup ke global resources
-- **Řešení:** Všechny konvertory explicitně definovat v App.xaml
-
-### Problém: ListView initialization
-- Data musí být načtena před `InitializeComponent()`
-- **Řešení:** Načíst data v konstruktoru ViewModelu
-
-### Problém: Build warningy - platform support
-- Mnoho warningů "is only supported on Windows 10.0.17763.0+"
-- **Vysvětlení:** Analyzátor zatím neví, že projekt cílí POUZE Windows
-- WinUI build proces tyto warningy automaticky vyřeší
-- **Lze ignorovat** - zmizí po dokončení buildu
-
-### Problém: Visual Tree Traversal timing issues ⚠️ NOVÉ!
-- `FindVisualChildren<T>()` v `Page_Loaded` není spolehlivé
-- Kontroly mohou být volány dříve než je visual tree připraven
-- **Řešení:** VŽDY používat data binding místo visual tree hledání
-
----
-
-## 📝 Důležité poznámky
-
-### Build proces
-- **Build vždy přes Visual Studio 2022**, ne přes CLI
-- Při problémech: Clean Solution → Rebuild Solution
-
-### Git operace
-- **⚠️ DŮLEŽITÉ: GIT OVLÁDÁ UŽIVATEL - NIKDY NEPOUŽÍVAT GIT PŘÍKAZY!**
-- Uživatel si git operations dělá sám
-
-### Databáze reset
-- Při změnách schématu: `%LocalAppData%\Sklad_2_Data\sklad.db` smazat
-- Projekt nemá unit testy
-
-### Neplátce DPH - FÚ požadavky
-**V aplikaci:**
-- ✅ Prodeje (účtenky s DPH rozpadem)
-- ✅ Pokladna (denní otevírka/uzavírka)
-- ✅ Profesionální storno systém
-- ✅ Export pro FÚ (HTML/PDF)
-- ✅ Evidence produktů (sklad)
-
-**Papírově (dostatečné!):**
-- ✅ Faktury od dodavatelů (šanony)
-- ✅ Inventury (spočítat, zapsat, podpis)
-
----
-
-## 📋 Aktuální TODO List
-
-**Pro aktuální seznam úkolů viz `CLAUDE.md` → sekce TODO List**
-
-### 🔴 Prioritní úkoly (listopad 2025):
-
-1. **Systém dárkových poukazů** ✅ HOTOVO!
-   - ✅ Kompletní CRUD operace
-   - ✅ Životní cyklus (naskladnění → prodej → využití)
-   - ✅ Integrace s POS systémem
-   - ✅ Profesionální UI s filtry a statistikami
-   - ✅ Data binding místo visual tree traversal
-   - ✅ Statistiky nezávislé na filtrech
-
-### ⏳ Sekundární:
-- Upravit tisk účtenek (prodej poukazu vs uplatnění)
-- Testovat kompletně systém poukazů
-- Export uzavírek do CSV/PDF
-- Skutečný PrintService (tisk na běžnou tiskárnu)
-- Respektovat "Plátce DPH" v tisku
-- Scanner integrace (POZASTAVENO - HID funguje automaticky)
-- Vylepšit error handling (lokalizované hlášky)
 
 ---
 
@@ -874,5 +330,5 @@ Pracovní soubor pro Claude Code sessions. Detailní session logy jsou v `SESSIO
 
 ---
 
-**Poslední aktualizace:** 27. listopad 2025
-**Aktuální verze:** v1.0.7
+**Poslední aktualizace:** 3. prosinec 2025
+**Aktuální verze:** v1.0.9
