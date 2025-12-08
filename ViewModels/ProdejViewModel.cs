@@ -824,8 +824,16 @@ namespace Sklad_2.ViewModels
                 };
 
                 var userName = _authService.CurrentUser?.DisplayName ?? "Neznámý";
+
+                Debug.WriteLine($"[CHECKOUT] Calling CompleteSaleAsync...");
+                Debug.WriteLine($"[CHECKOUT] Receipt: Year={newReceipt.ReceiptYear}, Seq={newReceipt.ReceiptSequence}, Total={newReceipt.TotalAmount}");
+                Debug.WriteLine($"[CHECKOUT] ShopName={newReceipt.ShopName}, CompanyId={newReceipt.CompanyId}, VatId={newReceipt.VatId}");
+                Debug.WriteLine($"[CHECKOUT] Products to update: {productsToUpdate.Count}");
+
                 var result = await _dataService.CompleteSaleAsync(newReceipt, productsToUpdate, userName);
                 var (success, serviceErrorMessage) = result;
+
+                Debug.WriteLine($"[CHECKOUT] CompleteSaleAsync result: success={success}, error={serviceErrorMessage}");
 
                 if (success)
                 {

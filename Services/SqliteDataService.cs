@@ -84,12 +84,18 @@ namespace Sklad_2.Services
             using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
+                Debug.WriteLine($"[SALE] Starting sale transaction for receipt {receipt.ReceiptYear}/{receipt.ReceiptSequence}");
+                Debug.WriteLine($"[SALE] Receipt items count: {receipt.Items?.Count ?? 0}");
+                Debug.WriteLine($"[SALE] Products to update count: {productsToUpdate?.Count ?? 0}");
+
                 await context.Receipts.AddAsync(receipt);
+                Debug.WriteLine($"[SALE] Receipt added to context");
 
                 // Track stock changes before updating
                 var stockChanges = new Dictionary<string, (Product product, int oldStock)>();
                 foreach (var product in productsToUpdate)
                 {
+                    Debug.WriteLine($"[SALE] Processing product: EAN={product?.Ean}, Name={product?.Name}");
                     var originalProduct = await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Ean == product.Ean);
                     if (originalProduct != null)
                     {
@@ -98,14 +104,19 @@ namespace Sklad_2.Services
                     context.Products.Update(product);
                 }
 
+                Debug.WriteLine($"[SALE] Saving receipt and products...");
                 await context.SaveChangesAsync();
+                Debug.WriteLine($"[SALE] Receipt and products saved. Receipt ID: {receipt.ReceiptId}");
 
                 // Create stock movement records for each product sold
+                Debug.WriteLine($"[SALE] Creating stock movements for {stockChanges.Count} products");
                 foreach (var kvp in stockChanges)
                 {
                     var product = kvp.Value.product;
                     var oldStock = kvp.Value.oldStock;
                     var quantityChange = product.StockQuantity - oldStock;
+
+                    Debug.WriteLine($"[SALE] Stock movement: EAN={product?.Ean}, Name={product?.Name}, Change={quantityChange}");
 
                     var stockMovement = new StockMovement
                     {
@@ -123,22 +134,35 @@ namespace Sklad_2.Services
                     await context.StockMovements.AddAsync(stockMovement);
                 }
 
+                Debug.WriteLine($"[SALE] Saving stock movements...");
                 await context.SaveChangesAsync();
+                Debug.WriteLine($"[SALE] Stock movements saved");
+
+                Debug.WriteLine($"[SALE] Committing transaction...");
                 await transaction.CommitAsync();
+                Debug.WriteLine($"[SALE] Transaction committed successfully!");
 
                 return (true, null);
             }
             catch (DbUpdateException ex)
             {
                 await transaction.RollbackAsync();
-                Debug.WriteLine($"Database update error during sale completion: {ex.InnerException?.Message ?? ex.Message}");
-                return (false, "Došlo k chybě při ukládání do databáze. Zkuste to prosím znovu.");
+                Debug.WriteLine($"[SALE ERROR] DbUpdateException: {ex.Message}");
+                Debug.WriteLine($"[SALE ERROR] InnerException: {ex.InnerException?.Message}");
+                Debug.WriteLine($"[SALE ERROR] StackTrace: {ex.StackTrace}");
+                return (false, $"Chyba databáze: {ex.InnerException?.Message ?? ex.Message}");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                Debug.WriteLine($"Generic error during sale completion: {ex.Message}");
-                return (false, "Došlo k neočekávané chybě.");
+                Debug.WriteLine($"[SALE ERROR] Exception Type: {ex.GetType().Name}");
+                Debug.WriteLine($"[SALE ERROR] Message: {ex.Message}");
+                Debug.WriteLine($"[SALE ERROR] StackTrace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"[SALE ERROR] InnerException: {ex.InnerException.Message}");
+                }
+                return (false, $"Neočekávaná chyba: {ex.Message}");
             }
         }
 
