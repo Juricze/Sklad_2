@@ -109,14 +109,14 @@ namespace Sklad_2.Services
 
                     var stockMovement = new StockMovement
                     {
-                        ProductEan = product.Ean,
-                        ProductName = product.Name,
+                        ProductEan = product.Ean ?? string.Empty,
+                        ProductName = product.Name ?? string.Empty,
                         MovementType = StockMovementType.Sale,
                         QuantityChange = quantityChange,
                         StockBefore = oldStock,
                         StockAfter = product.StockQuantity,
                         Timestamp = DateTime.Now,
-                        UserName = userName,
+                        UserName = userName ?? "Neznámý",
                         Notes = $"Prodej (účtenka {receipt.ReceiptYear}/{receipt.ReceiptSequence})",
                         ReferenceId = receipt.ReceiptId
                     };
