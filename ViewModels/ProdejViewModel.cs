@@ -716,6 +716,12 @@ namespace Sklad_2.ViewModels
                     }
 
                     productInDb.StockQuantity -= item.Quantity;
+
+                    // CRITICAL: Clear navigation properties to prevent EF tracking conflicts
+                    // If multiple products have the same Brand/Category, EF would try to track them multiple times
+                    productInDb.Brand = null;
+                    productInDb.ProductCategory = null;
+
                     productsToUpdate.Add(productInDb);
 
                     receiptItemsForDb.Add(new Sklad_2.Models.ReceiptItem
@@ -1001,6 +1007,11 @@ namespace Sklad_2.ViewModels
                     if (product != null)
                     {
                         product.StockQuantity += item.Quantity;
+
+                        // CRITICAL: Clear navigation properties to prevent EF tracking conflicts
+                        product.Brand = null;
+                        product.ProductCategory = null;
+
                         productsToUpdate.Add(product);
                     }
                 }
