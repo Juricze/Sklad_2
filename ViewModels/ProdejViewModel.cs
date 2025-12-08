@@ -329,17 +329,45 @@ namespace Sklad_2.ViewModels
         public event EventHandler<string> ReceiptCancelled;
         public event EventHandler<string> GiftCardValidationFailed;
 
+        // Race condition protection for barcode scanner
+        private bool _isProcessingEan = false;
+        private string _lastProcessedEan = null;
+        private DateTime _lastProcessedTime = DateTime.MinValue;
+        private const int DEBOUNCE_MS = 500; // Ignore same EAN within 500ms
+
         [RelayCommand]
         private async Task FindProductAsync(string eanCode)
         {
             if (string.IsNullOrWhiteSpace(eanCode)) return;
 
-            // Clear last receipt when starting a new sale
-            LastCreatedReceipt = null;
+            // RACE CONDITION PROTECTION
+            // 1. Ignore if already processing (prevents parallel execution)
+            if (_isProcessingEan)
+            {
+                Debug.WriteLine($"[SCAN] Ignoring EAN '{eanCode}' - already processing another scan");
+                return;
+            }
 
-            ScannedProduct = null;
+            // 2. Debounce - ignore same EAN within 500ms (prevents double-scan from barcode reader)
+            if (_lastProcessedEan == eanCode &&
+                (DateTime.Now - _lastProcessedTime).TotalMilliseconds < DEBOUNCE_MS)
+            {
+                Debug.WriteLine($"[SCAN] Ignoring EAN '{eanCode}' - debounce (same EAN within {DEBOUNCE_MS}ms)");
+                return;
+            }
 
-            // 1. Check if it's a gift card first
+            try
+            {
+                _isProcessingEan = true;
+                _lastProcessedEan = eanCode;
+                _lastProcessedTime = DateTime.Now;
+
+                // Clear last receipt when starting a new sale
+                LastCreatedReceipt = null;
+
+                ScannedProduct = null;
+
+                // 1. Check if it's a gift card first
             var giftCard = await _giftCardService.GetGiftCardByEanAsync(eanCode);
             if (giftCard != null)
             {
@@ -400,6 +428,11 @@ namespace Sklad_2.ViewModels
                 {
                     ProductOutOfStock?.Invoke(this, product);
                 }
+            }
+            }
+            finally
+            {
+                _isProcessingEan = false;
             }
         }
 

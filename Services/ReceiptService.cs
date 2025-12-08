@@ -117,6 +117,9 @@ namespace Sklad_2.Services
 
     public partial class ReceiptService : ObservableObject, IReceiptService
     {
+        // Thread-safe lock for cart operations (prevents race conditions from barcode scanner)
+        private readonly object _itemsLock = new object();
+
         public ObservableCollection<CartItem> Items { get; } = new ObservableCollection<CartItem>();
 
         public decimal GrandTotal => Items.Sum(i => i.TotalPrice);
@@ -173,14 +176,18 @@ namespace Sklad_2.Services
         {
             if (product == null) return;
 
-            var existingItem = Items.FirstOrDefault(i => i.Product.Ean == product.Ean);
-            if (existingItem != null)
+            // Thread-safe operation to prevent race conditions from rapid barcode scans
+            lock (_itemsLock)
             {
-                existingItem.Quantity++;
-            }
-            else
-            {
-                Items.Add(new CartItem { Product = product, Quantity = 1 });
+                var existingItem = Items.FirstOrDefault(i => i.Product.Ean == product.Ean);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity++;
+                }
+                else
+                {
+                    Items.Add(new CartItem { Product = product, Quantity = 1 });
+                }
             }
         }
 

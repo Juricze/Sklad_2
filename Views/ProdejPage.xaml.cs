@@ -128,14 +128,26 @@ namespace Sklad_2.Views
             }
         }
 
-        private void EanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        private async void EanTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
                 var textBox = (TextBox)sender;
-                ViewModel.FindProductCommand.Execute(textBox.Text);
+                var eanCode = textBox.Text;
                 textBox.Text = string.Empty;
                 e.Handled = true;
+
+                // Disable TextBox during processing to prevent duplicate scans from barcode reader
+                textBox.IsEnabled = false;
+                try
+                {
+                    await ViewModel.FindProductCommand.ExecuteAsync(eanCode);
+                }
+                finally
+                {
+                    textBox.IsEnabled = true;
+                    textBox.Focus(FocusState.Programmatic);
+                }
             }
         }
 

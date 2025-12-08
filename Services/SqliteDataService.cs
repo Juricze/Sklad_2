@@ -101,6 +101,13 @@ namespace Sklad_2.Services
                     {
                         stockChanges[product.Ean] = (product, originalProduct.StockQuantity);
                     }
+
+                    // CRITICAL: Clear navigation properties to prevent EF tracking conflicts
+                    // If multiple products share the same Brand/Category, EF would try to track them multiple times
+                    // This is a safety net - callers should also clear these, but we ensure it here
+                    product.Brand = null;
+                    product.ProductCategory = null;
+
                     context.Products.Update(product);
                 }
 

@@ -141,7 +141,12 @@ namespace Sklad_2.Views.Dialogs
 
         private void MarkupBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (_isUpdatingFromSalePrice) return;
+            // If this change came from SalePrice recalculation, just reset the flag and don't recalculate back
+            if (_isUpdatingFromSalePrice)
+            {
+                _isUpdatingFromSalePrice = false;
+                return;
+            }
 
             if (!decimal.TryParse(PurchasePriceBox.Text, out decimal purchaseValue) || purchaseValue <= 0)
                 return;
@@ -179,9 +184,11 @@ namespace Sklad_2.Views.Dialogs
             // Round to whole number for cleaner display (33% instead of 33.3%)
             decimal calculatedMarkup = Math.Round((saleValue - purchaseValue) / purchaseValue * 100, 0);
 
+            // Set flag BEFORE changing MarkupBox - it will be reset in MarkupBox_TextChanged
+            // This prevents the markup change from recalculating the sale price back
             _isUpdatingFromSalePrice = true;
             MarkupBox.Text = calculatedMarkup.ToString("F0");
-            _isUpdatingFromSalePrice = false;
+            // Note: _isUpdatingFromSalePrice is reset in MarkupBox_TextChanged, not here!
         }
 
         public bool ValidateAndApply()
