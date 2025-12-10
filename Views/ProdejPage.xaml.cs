@@ -133,9 +133,18 @@ namespace Sklad_2.Views
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
                 var textBox = (TextBox)sender;
-                var eanCode = textBox.Text;
+
+                // ✅ WIN10 FIX: 300ms delay to ensure all characters from USB scanner arrived
+                // USB scanners send chars very fast (100-200 chars/s), Win10 UI thread is slower
+                // Without delay, TextBox.Text may be incomplete (partial EAN)
+                await System.Threading.Tasks.Task.Delay(300);
+
+                var eanCode = textBox.Text.Trim();
                 textBox.Text = string.Empty;
                 e.Handled = true;
+
+                // Log scan input for diagnostics
+                Sklad_2.Helpers.ScanLogger.LogScan(eanCode, eanCode.Length);
 
                 // Disable TextBox during processing to prevent duplicate scans from barcode reader
                 textBox.IsEnabled = false;

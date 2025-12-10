@@ -413,6 +413,10 @@ namespace Sklad_2.ViewModels
 
             // 2. Not a gift card, try regular product
             var product = await _dataService.GetProductAsync(eanCode);
+
+            // Log database query result (for diagnostics)
+            Sklad_2.Helpers.ScanLogger.LogDatabase(product, eanCode);
+
             if (product != null)
             {
                 ScannedProduct = product; // Show product details immediately

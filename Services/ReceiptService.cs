@@ -182,11 +182,33 @@ namespace Sklad_2.Services
                 var existingItem = Items.FirstOrDefault(i => i.Product.Ean == product.Ean);
                 if (existingItem != null)
                 {
+                    // Increment existing item
+                    int oldQty = existingItem.Quantity;
                     existingItem.Quantity++;
+                    int newQty = existingItem.Quantity;
+
+                    // Log increment operation
+                    Sklad_2.Helpers.ScanLogger.LogCartIncrement(
+                        product.Name,
+                        oldQty,
+                        newQty,
+                        existingItem.UnitPrice,
+                        existingItem.TotalPrice
+                    );
                 }
                 else
                 {
-                    Items.Add(new CartItem { Product = product, Quantity = 1 });
+                    // Add new item
+                    var newItem = new CartItem { Product = product, Quantity = 1 };
+                    Items.Add(newItem);
+
+                    // Log add operation
+                    Sklad_2.Helpers.ScanLogger.LogCartAdd(
+                        product.Name,
+                        newItem.UnitPrice,
+                        newItem.Quantity,
+                        newItem.TotalPrice
+                    );
                 }
             }
         }

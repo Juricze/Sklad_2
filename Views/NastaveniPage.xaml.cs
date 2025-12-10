@@ -57,8 +57,8 @@ namespace Sklad_2.Views
 
         private async Task<(bool confirmed, string username, string displayName, string password, string role)> HandleRequestAddUserAsync()
         {
-            // Win10 compatibility - initial delay to ensure UI is ready
-            await Task.Delay(200);
+            // Win10 compatibility - initial delay to ensure UI is ready and FolderPicker is fully closed
+            await Task.Delay(500);
 
             var dialog = new AddEditUserDialog();
             dialog.XamlRoot = this.XamlRoot;
@@ -109,8 +109,8 @@ namespace Sklad_2.Views
 
         private async Task<(bool confirmed, string username, string displayName, string password, string role)> HandleRequestEditUserAsync(User user)
         {
-            // Win10 compatibility - initial delay to ensure UI is ready
-            await Task.Delay(200);
+            // Win10 compatibility - initial delay to ensure UI is ready and FolderPicker is fully closed
+            await Task.Delay(500);
 
             var dialog = new AddEditUserDialog();
             dialog.SetEditMode(user);
