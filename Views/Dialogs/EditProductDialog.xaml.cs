@@ -159,15 +159,19 @@ namespace Sklad_2.Views.Dialogs
 
             _isUpdatingFromMarkup = true;
             SalePriceBox.Text = newSalePrice.ToString("F2");
-            _isUpdatingFromMarkup = false;
+            // Note: _isUpdatingFromMarkup is reset in SalePriceBox_TextChanged, not here!
         }
 
         private void SalePriceBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!_isUpdatingFromMarkup)
+            // If this change came from Markup recalculation, just reset the flag and don't recalculate back
+            if (_isUpdatingFromMarkup)
             {
-                RecalculateMarkupFromSalePrice();
+                _isUpdatingFromMarkup = false;
+                return;
             }
+
+            RecalculateMarkupFromSalePrice();
         }
 
         private void RecalculateMarkupFromSalePrice()
