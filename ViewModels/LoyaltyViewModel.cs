@@ -266,9 +266,9 @@ namespace Sklad_2.ViewModels
                 return;
             }
 
-            if (!decimal.TryParse(EditDiscountPercent, out var discount) || discount < 0 || discount > 30)
+            if (!decimal.TryParse(EditDiscountPercent, out var discount) || discount < 0 || discount > 50)
             {
-                SetError("Sleva musí být číslo mezi 0 a 30.");
+                SetError("Sleva musí být číslo mezi 0 a 50.");
                 return;
             }
 

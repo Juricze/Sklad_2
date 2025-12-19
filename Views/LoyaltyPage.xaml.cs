@@ -123,12 +123,12 @@ namespace Sklad_2.Views
                     decimal discountPercent = customer.DiscountPercent; // Zachovat původní pokud není admin
                     if (ViewModel.IsAdmin)
                     {
-                        if (!decimal.TryParse(discountBox.Text, out discountPercent) || discountPercent < 0 || discountPercent > 30)
+                        if (!decimal.TryParse(discountBox.Text, out discountPercent) || discountPercent < 0 || discountPercent > 50)
                         {
                             var errorDialog = new ContentDialog
                             {
                                 Title = "Chyba",
-                                Content = "Sleva musí být číslo mezi 0 a 30.",
+                                Content = "Sleva musí být číslo mezi 0 a 50.",
                                 CloseButtonText = "OK",
                                 XamlRoot = this.XamlRoot
                             };

@@ -220,37 +220,10 @@ namespace Sklad_2.ViewModels
         /// </summary>
         public bool HasAnyDiscount => IsLoyaltyCustomerLoaded || IsAnyGiftCardReady;
 
-        public string GrandTotalFormatted
-        {
-            get
-            {
-                var lines = new List<string> { $"Celkem: {Receipt.GrandTotal:C}" };
-
-                if (LoyaltyDiscountAmount > 0)
-                {
-                    lines.Add($"Věrnostní sleva: {LoyaltyDiscountFormatted}");
-                }
-
-                if (IsAnyGiftCardReady)
-                {
-                    if (RedeemedGiftCards.Count == 1)
-                    {
-                        lines.Add($"Poukaz: -{TotalGiftCardValue:C}");
-                    }
-                    else
-                    {
-                        lines.Add($"Poukazy ({RedeemedGiftCards.Count}×): -{TotalGiftCardValue:C}");
-                    }
-                }
-
-                if (LoyaltyDiscountAmount > 0 || IsAnyGiftCardReady)
-                {
-                    lines.Add($"K úhradě: {AmountToPay:C}");
-                }
-
-                return string.Join("\n", lines);
-            }
-        }
+        /// <summary>
+        /// Mezisoučet - celková částka před slevami (GrandTotal)
+        /// </summary>
+        public string GrandTotalFormatted => $"{Receipt.GrandTotal:C}";
 
         /// <summary>
         /// Částka ze které se počítá věrnostní sleva (bez prodeje poukazů)
@@ -292,6 +265,10 @@ namespace Sklad_2.ViewModels
                     OnPropertyChanged(nameof(GrandTotalFormatted));
                     OnPropertyChanged(nameof(GrandTotalWithoutVatFormatted));
                     OnPropertyChanged(nameof(GrandTotalVatAmountFormatted));
+                    OnPropertyChanged(nameof(LoyaltyDiscountAmount));
+                    OnPropertyChanged(nameof(LoyaltyDiscountFormatted));
+                    OnPropertyChanged(nameof(LoyaltyDiscountAmountFormatted));
+                    OnPropertyChanged(nameof(HasAnyDiscount));
                     OnPropertyChanged(nameof(WillHavePartialUsage));
                     OnPropertyChanged(nameof(ForfeitedAmount));
                     OnPropertyChanged(nameof(ForfeitedAmountFormatted));
@@ -312,6 +289,7 @@ namespace Sklad_2.ViewModels
                 OnPropertyChanged(nameof(AmountToPayRoundedFormatted));
                 OnPropertyChanged(nameof(RoundingDifferenceFormatted));
                 OnPropertyChanged(nameof(GrandTotalFormatted));
+                OnPropertyChanged(nameof(HasAnyDiscount));
                 OnPropertyChanged(nameof(WillHavePartialUsage));
                 OnPropertyChanged(nameof(ForfeitedAmount));
                 OnPropertyChanged(nameof(ForfeitedAmountFormatted));
