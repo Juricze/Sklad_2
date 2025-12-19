@@ -42,10 +42,11 @@ namespace Sklad_2.Data
                 .HasIndex(gc => gc.Ean)
                 .IsUnique();
 
-            // Set unique index on LoyaltyCustomer.Email
+            // Set unique index on LoyaltyCustomer.Email (only when not null)
             modelBuilder.Entity<LoyaltyCustomer>()
                 .HasIndex(lc => lc.Email)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Email] IS NOT NULL AND [Email] != ''");
 
             // Set unique index on LoyaltyCustomer.CardEan (only when not null)
             modelBuilder.Entity<LoyaltyCustomer>()
@@ -68,6 +69,11 @@ namespace Sklad_2.Data
             // Set unique index on ProductCategory.Name
             modelBuilder.Entity<ProductCategory>()
                 .HasIndex(pc => pc.Name)
+                .IsUnique();
+
+            // Set unique index on DailyClose.Date to prevent duplicate day closes
+            modelBuilder.Entity<DailyClose>()
+                .HasIndex(dc => dc.Date)
                 .IsUnique();
         }
 

@@ -208,6 +208,13 @@ namespace Sklad_2.Services
                 context.DailyCloses.Add(dailyClose);
                 await context.SaveChangesAsync();
 
+                // CRITICAL: Update LastDayCloseDate immediately after successful save
+                // This ensures the date is updated even if the app crashes before shutdown
+                _settingsService.CurrentSettings.LastDayCloseDate = sessionDate;
+                await _settingsService.SaveSettingsAsync();
+                await Task.Delay(100); // Win10 file flush
+                Debug.WriteLine($"DailyCloseService: Updated LastDayCloseDate to {sessionDate:dd.MM.yyyy}");
+
                 Debug.WriteLine($"DailyCloseService: Day closed - Session: {sessionDate:yyyy-MM-dd}, Closed at: {DateTime.Now:yyyy-MM-dd HH:mm:ss}, Total: {totalSales:N2} Kč");
 
                 return (true, string.Empty, dailyClose);

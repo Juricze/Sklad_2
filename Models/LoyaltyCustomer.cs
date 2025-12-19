@@ -1,3 +1,4 @@
+#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -19,10 +20,10 @@ namespace Sklad_2.Models
         private string lastName = string.Empty;
 
         [ObservableProperty]
-        private string email = string.Empty;
+        private string? email;
 
         [ObservableProperty]
-        private string cardEan = string.Empty;
+        private string? cardEan;
 
         [ObservableProperty]
         private string phoneNumber = string.Empty;

@@ -13,7 +13,7 @@ namespace Sklad_2.Services
         private readonly IDbContextFactory<DatabaseContext> _contextFactory;
         
         // Current schema version - increment when adding new migrations
-        private const int CURRENT_SCHEMA_VERSION = 23; // Version 23: Rename LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts
+        private const int CURRENT_SCHEMA_VERSION = 25; // Version 25: Add UNIQUE constraint on DailyClose.Date to prevent duplicate day closes
         
         public DatabaseMigrationService(IDbContextFactory<DatabaseContext> contextFactory)
         {
@@ -208,6 +208,10 @@ namespace Sklad_2.Services
                         return await ApplyMigration_V22_AddPhoneNumberToLoyaltyCustomer(context);
                     case 23:
                         return await ApplyMigration_V23_RenameEmailToContact(context);
+                    case 24:
+                        return await ApplyMigration_V24_MakeLoyaltyEmailNullable(context);
+                    case 25:
+                        return await ApplyMigration_V25_AddUniqueDateToDailyClose(context);
                     default:
                         Debug.WriteLine($"DatabaseMigrationService: Unknown migration version: {version}");
                         return false;
@@ -1322,6 +1326,192 @@ namespace Sklad_2.Services
             }
         }
 
+        private async Task<bool> ApplyMigration_V24_MakeLoyaltyEmailNullable(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V24 - Make LoyaltyCustomer Email and CardEan nullable with filtered unique indexes");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // SQLite doesn't support ALTER COLUMN to change NOT NULL constraint
+                // We need to recreate the table
+
+                // 1. Drop old indexes first
+                var dropEmailIndexSql = "DROP INDEX IF EXISTS IX_LoyaltyCustomers_Email";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = dropEmailIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Dropped old IX_LoyaltyCustomers_Email index");
+                }
+
+                var dropCardEanIndexSql = "DROP INDEX IF EXISTS IX_LoyaltyCustomers_CardEan";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = dropCardEanIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Dropped old IX_LoyaltyCustomers_CardEan index");
+                }
+
+                // 2. Create new table with nullable Email and CardEan
+                var createNewTableSql = @"
+                    CREATE TABLE LoyaltyCustomers_New (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        FirstName TEXT NOT NULL,
+                        LastName TEXT NOT NULL,
+                        Email TEXT NULL,
+                        CardEan TEXT NULL,
+                        PhoneNumber TEXT NOT NULL,
+                        DiscountPercent REAL NOT NULL DEFAULT 0,
+                        TotalPurchases REAL NOT NULL DEFAULT 0,
+                        CreatedAt TEXT NOT NULL
+                    )";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createNewTableSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created new LoyaltyCustomers_New table");
+                }
+
+                // 3. Copy data from old table, converting empty strings to NULL
+                var copyDataSql = @"
+                    INSERT INTO LoyaltyCustomers_New (Id, FirstName, LastName, Email, CardEan, PhoneNumber, DiscountPercent, TotalPurchases, CreatedAt)
+                    SELECT
+                        Id,
+                        FirstName,
+                        LastName,
+                        CASE WHEN Email = '' THEN NULL ELSE Email END,
+                        CASE WHEN CardEan = '' THEN NULL ELSE CardEan END,
+                        PhoneNumber,
+                        DiscountPercent,
+                        TotalPurchases,
+                        CreatedAt
+                    FROM LoyaltyCustomers";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = copyDataSql;
+                    var rowsCopied = await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine($"DatabaseMigrationService: Copied {rowsCopied} rows to new table");
+                }
+
+                // 4. Drop old table
+                var dropOldTableSql = "DROP TABLE LoyaltyCustomers";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = dropOldTableSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Dropped old LoyaltyCustomers table");
+                }
+
+                // 5. Rename new table to original name
+                var renameTableSql = "ALTER TABLE LoyaltyCustomers_New RENAME TO LoyaltyCustomers";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = renameTableSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Renamed LoyaltyCustomers_New to LoyaltyCustomers");
+                }
+
+                // 6. Create filtered unique index on Email (allows multiple NULLs)
+                var createEmailIndexSql = @"
+                    CREATE UNIQUE INDEX IX_LoyaltyCustomers_Email
+                    ON LoyaltyCustomers(Email)
+                    WHERE Email IS NOT NULL AND Email != ''";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createEmailIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created filtered unique index on Email");
+                }
+
+                // 7. Create filtered unique index on CardEan (allows multiple NULLs)
+                var createCardEanIndexSql = @"
+                    CREATE UNIQUE INDEX IX_LoyaltyCustomers_CardEan
+                    ON LoyaltyCustomers(CardEan)
+                    WHERE CardEan IS NOT NULL AND CardEan != ''";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createCardEanIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created filtered unique index on CardEan");
+                }
+
+                Debug.WriteLine("DatabaseMigrationService: V24 migration completed successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V24 migration: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task<bool> ApplyMigration_V25_AddUniqueDateToDailyClose(DatabaseContext context)
+        {
+            Debug.WriteLine("DatabaseMigrationService: Applying V25 - Add UNIQUE constraint on DailyClose.Date and clean up duplicates");
+
+            var connection = context.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            try
+            {
+                // 1. Find and delete duplicate DailyClose records
+                // Keep the one with earliest ClosedAt (first close of the day)
+                var cleanupDuplicatesSql = @"
+                    DELETE FROM DailyCloses
+                    WHERE Id NOT IN (
+                        SELECT MIN(Id)
+                        FROM DailyCloses
+                        GROUP BY Date
+                    )";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = cleanupDuplicatesSql;
+                    var deletedRows = await command.ExecuteNonQueryAsync();
+                    if (deletedRows > 0)
+                    {
+                        Debug.WriteLine($"DatabaseMigrationService: Cleaned up {deletedRows} duplicate DailyClose records");
+                    }
+                }
+
+                // 2. Drop existing index if it exists (just in case)
+                var dropIndexSql = "DROP INDEX IF EXISTS IX_DailyCloses_Date";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = dropIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Dropped old IX_DailyCloses_Date index if it existed");
+                }
+
+                // 3. Create UNIQUE index on Date column
+                var createIndexSql = @"
+                    CREATE UNIQUE INDEX IX_DailyCloses_Date
+                    ON DailyCloses(Date)";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = createIndexSql;
+                    await command.ExecuteNonQueryAsync();
+                    Debug.WriteLine("DatabaseMigrationService: Created UNIQUE index on DailyCloses.Date");
+                }
+
+                Debug.WriteLine("DatabaseMigrationService: V25 migration completed successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DatabaseMigrationService: Error in V25 migration: {ex.Message}");
+                throw;
+            }
+        }
+
         private async Task UpdateSchemaVersionAsync(DatabaseContext context, int version)
         {
             var connection = context.Database.GetDbConnection();
@@ -1380,6 +1570,8 @@ namespace Sklad_2.Services
                 21 => "Create Brand and ProductCategory tables for product classification",
                 22 => "Add PhoneNumber to LoyaltyCustomer table for customer contact information",
                 23 => "Rename LoyaltyCustomerEmail to LoyaltyCustomerContact in Receipts table",
+                24 => "Make LoyaltyCustomer Email and CardEan nullable with filtered unique indexes to allow multiple customers without email/card",
+                25 => "Add UNIQUE constraint on DailyClose.Date to prevent duplicate day closes and clean up existing duplicates",
                 _ => $"Unknown migration version {version}"
             };
         }

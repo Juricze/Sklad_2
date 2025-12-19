@@ -191,9 +191,9 @@ namespace Sklad_2.ViewModels
                 {
                     FirstName = NewFirstName.Trim(),
                     LastName = NewLastName.Trim(),
-                    Email = string.IsNullOrWhiteSpace(NewEmail) ? string.Empty : NewEmail.Trim(),
+                    Email = string.IsNullOrWhiteSpace(NewEmail) ? null : NewEmail.Trim(),
                     PhoneNumber = phoneNumber,
-                    CardEan = string.IsNullOrWhiteSpace(NewCardEan) ? string.Empty : NewCardEan.Trim(),
+                    CardEan = string.IsNullOrWhiteSpace(NewCardEan) ? null : NewCardEan.Trim(),
                     DiscountPercent = 0,
                     TotalPurchases = 0,
                     CreatedAt = DateTime.Now
@@ -372,9 +372,9 @@ namespace Sklad_2.ViewModels
 
                     customer.FirstName = updatedCustomer.FirstName;
                     customer.LastName = updatedCustomer.LastName;
-                    customer.Email = string.IsNullOrWhiteSpace(updatedCustomer.Email) ? string.Empty : updatedCustomer.Email;
-                    customer.PhoneNumber = string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber) ? string.Empty : updatedCustomer.PhoneNumber;
-                    customer.CardEan = string.IsNullOrWhiteSpace(updatedCustomer.CardEan) ? string.Empty : updatedCustomer.CardEan;
+                    customer.Email = string.IsNullOrWhiteSpace(updatedCustomer.Email) ? null : updatedCustomer.Email;
+                    customer.PhoneNumber = string.IsNullOrWhiteSpace(updatedCustomer.PhoneNumber) ? null : updatedCustomer.PhoneNumber;
+                    customer.CardEan = string.IsNullOrWhiteSpace(updatedCustomer.CardEan) ? null : updatedCustomer.CardEan;
                     customer.DiscountPercent = updatedCustomer.DiscountPercent;
 
                     await context.SaveChangesAsync();

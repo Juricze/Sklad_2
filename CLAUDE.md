@@ -340,22 +340,31 @@ private void RefreshItems()
 
 ## ⚠️ KRITICKÉ: Database Schema Version Protocol
 
+**🚨 APLIKACE JE V PRODUKCI - NIKDY NEMAZAT DATABÁZI! 🚨**
+
+**ABSOLUTNÍ ZÁKAZ:**
+- ❌ **NIKDY** nespouštět `Remove-Item sklad.db`
+- ❌ **NIKDY** nespouštět `Database.EnsureDeleted()`
+- ❌ **NIKDY** nenavrhovat smazání databáze při schema změnách
+- ✅ **VŽDY** používat migrační systém (`DatabaseMigrationService.cs`)
+
 **VŽDY při změnách databáze:**
 
-1. **Claude AUTOMATICKY NEUPRAVUJE schema version!**
-2. **Claude MUSÍ AKTIVNĚ UPOZORNIT** uživatele po každé DB změně s textem:
+1. **Claude NIKDY NESMAŽE DATABÁZI - pouze vytvoří migraci!**
+2. **Claude AUTOMATICKY NEUPRAVUJE schema version!**
+3. **Claude MUSÍ AKTIVNĚ UPOZORNIT** uživatele po každé DB změně s textem:
    ```
    ⚠️ DATABÁZOVÁ ZMĚNA DETEKOVÁNA!
-   Přidal jsem [popis změny]. Potřebuješ aktualizovat CURRENT_SCHEMA_VERSION 
+   Přidal jsem [popis změny]. Potřebuješ aktualizovat CURRENT_SCHEMA_VERSION
    a přidat migraci pro produkční nasazení!
    ```
-3. **Bezpečnostní síť**: Pre-build script `Scripts/CheckDatabaseChanges.ps1` detekuje nové `ObservableProperty` bez migrace
-4. **Změny vyžadující schema version update**:
+4. **Bezpečnostní síť**: Pre-build script `Scripts/CheckDatabaseChanges.ps1` detekuje nové `ObservableProperty` bez migrace
+5. **Změny vyžadující schema version update**:
    - Přidání/odebrání sloupce v modelu (`ObservableProperty`)
-   - Změna typu sloupce 
+   - Změna typu sloupce
    - Přidání nové entity/tabulky
    - Změna primary key nebo indexů
-5. **Schema version update proces**:
+6. **Schema version update proces**:
    - Zvýš `CURRENT_SCHEMA_VERSION` v `DatabaseMigrationService.cs`
    - Přidej novou `ApplyMigration_VX_Description` metodu
    - Přidej case do `ApplyMigrationAsync`
@@ -365,7 +374,9 @@ private void RefreshItems()
 
 **Automatická detekce**: Build selže s chybou pokud najde nové DB properties bez schema version update!
 
-**Claude POVINNOST**: Vždy upozorni na potřebu schema version update po DB změnách!**
+**Claude POVINNOST**:
+- ✅ Vždy upozorni na potřebu schema version update po DB změnách
+- ❌ NIKDY nemazat databázi - ani na vývojovém PC!
 
 ---
 

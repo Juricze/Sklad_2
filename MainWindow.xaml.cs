@@ -577,6 +577,11 @@ namespace Sklad_2
             var sourceFolderPath = System.IO.Path.Combine(appDataPath, "Sklad_2_Data");
             var sourceDbPath = System.IO.Path.Combine(sourceFolderPath, "sklad.db");
 
+            // Variables to track database dates for settings sync
+            DateTime? lastDailyCloseDateFromDb = null;
+            DateTime? lastActivityFromDb = null;
+            bool wasTimeShiftConfirmed = false;
+
             // CRITICAL: Check database content before backup to prevent overwriting good backups with empty DB
             if (System.IO.File.Exists(sourceDbPath))
             {
@@ -617,6 +622,9 @@ namespace Sklad_2
                         .OrderByDescending(dc => dc.Date)
                         .Select(dc => (DateTime?)dc.Date)
                         .FirstOrDefaultAsync();
+
+                    // Store values for later settings sync
+                    lastDailyCloseDateFromDb = lastDailyCloseDate;
                 }
                 catch
                 {
@@ -893,6 +901,9 @@ namespace Sklad_2
                             .Max();
                     }
 
+                    // Store for later settings sync
+                    lastActivityFromDb = lastActivity;
+
                     // Pokud settings má novější LastDayCloseDate než DB → JISTĚ stará záloha!
                     bool isOldBackupRestored = false;
                     string timeTravelMessage = "";
@@ -906,17 +917,6 @@ namespace Sklad_2
                                           $"• Poslední uzavírka v NASTAVENÍ: {settingsLastDayClose.Value:dd.MM.yyyy}\n" +
                                           $"• Poslední uzavírka v DATABÁZI: {lastDailyCloseDate.Value:dd.MM.yyyy}\n" +
                                           $"• Rozdíl: {daysDiff} dní zpět\n\n";
-                    }
-                    // Nebo pokud poslední aktivita je starší než 7 dní a settings má novější datum
-                    else if (lastActivity.HasValue && lastActivity.Value.Date < DateTime.Today.AddDays(-7) &&
-                             (settingsLastSaleLogin.HasValue && settingsLastSaleLogin.Value.Date > lastActivity.Value.Date))
-                    {
-                        isOldBackupRestored = true;
-                        var daysDiff = (DateTime.Today - lastActivity.Value.Date).Days;
-                        timeTravelMessage = $"⏰ PODEZŘELÝ ČASOVÝ POSUN!\n\n" +
-                                          $"• Poslední aktivita v DB: {lastActivity.Value:dd.MM.yyyy}\n" +
-                                          $"• Dnešní datum: {DateTime.Today:dd.MM.yyyy}\n" +
-                                          $"• Rozdíl: {daysDiff} dní\n\n";
                     }
 
                     if (isOldBackupRestored)
@@ -971,6 +971,9 @@ namespace Sklad_2
                             {
                                 return false;
                             }
+
+                            // User explicitly confirmed TWICE → flag for settings sync
+                            wasTimeShiftConfirmed = true;
                         }
                         else
                         {
@@ -982,7 +985,35 @@ namespace Sklad_2
                 }
             }
 
-            // Perform backup in background
+            // IMPORTANT: Update LastSaleLoginDate and LastDayCloseDate BEFORE backup
+            // so the backup contains the updated timestamps
+            try
+            {
+                // ALWAYS update LastSaleLoginDate to current date (without time component)
+                _settingsService.CurrentSettings.LastSaleLoginDate = DateTime.Today;
+
+                // If user confirmed time shift, sync LastDayCloseDate with database value
+                // to prevent repeated warnings on next startup
+                if (wasTimeShiftConfirmed && lastDailyCloseDateFromDb.HasValue)
+                {
+                    _settingsService.CurrentSettings.LastDayCloseDate = lastDailyCloseDateFromDb.Value;
+                    Debug.WriteLine($"MainWindow: Synced LastDayCloseDate with DB value: {lastDailyCloseDateFromDb.Value:dd.MM.yyyy}");
+                }
+                else
+                {
+                    _settingsService.CurrentSettings.LastDayCloseDate = DateTime.Today;
+                }
+
+                await _settingsService.SaveSettingsAsync();
+                await Task.Delay(200); // Win10 file flush + settings propagation
+                Debug.WriteLine("MainWindow: Updated LastSaleLoginDate and LastDayCloseDate BEFORE backup");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MainWindow: Failed to update LastSaleLoginDate before backup: {ex.Message}");
+            }
+
+            // Perform backup in background (will backup updated settings)
             await System.Threading.Tasks.Task.Run(() => PerformDatabaseSync());
 
             // Read backup status from file
