@@ -994,15 +994,13 @@ namespace Sklad_2
 
                 // If user confirmed time shift, sync LastDayCloseDate with database value
                 // to prevent repeated warnings on next startup
+                // Otherwise, keep LastDayCloseDate as-is (updated only when day is actually closed in DailyCloseService)
                 if (wasTimeShiftConfirmed && lastDailyCloseDateFromDb.HasValue)
                 {
                     _settingsService.CurrentSettings.LastDayCloseDate = lastDailyCloseDateFromDb.Value;
                     Debug.WriteLine($"MainWindow: Synced LastDayCloseDate with DB value: {lastDailyCloseDateFromDb.Value:dd.MM.yyyy}");
                 }
-                else
-                {
-                    _settingsService.CurrentSettings.LastDayCloseDate = DateTime.Today;
-                }
+                // else - keep LastDayCloseDate unchanged (should only be updated in DailyCloseService.CloseDayAsync)
 
                 await _settingsService.SaveSettingsAsync();
                 await Task.Delay(200); // Win10 file flush + settings propagation
