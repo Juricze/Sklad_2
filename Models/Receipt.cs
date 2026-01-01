@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Sklad_2.Models
 {
@@ -156,6 +157,11 @@ namespace Sklad_2.Models
         /// True pokud byla aplikována jakákoliv sleva (věrnostní nebo poukaz)
         /// </summary>
         public bool HasAnyDiscount => HasLoyaltyDiscount || ContainsGiftCardRedemption;
+
+        /// <summary>
+        /// True pokud alespoň jeden produkt má individuální slevu (sleva přidaná v košíku na konkrétní produkt)
+        /// </summary>
+        public bool HasProductDiscounts => Items?.Any(i => i.HasDiscount) ?? false;
 
         /// <summary>
         /// Částka k úhradě po odečtení věrnostní slevy a dárkového poukazu (PŘESNÁ hodnota s haléři)

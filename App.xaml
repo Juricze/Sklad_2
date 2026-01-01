@@ -36,6 +36,7 @@
             <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
             <converters:BooleanToInfoBarSeverityConverter x:Key="BooleanToInfoBarSeverityConverter"/>
             <converters:MonthIndexConverter x:Key="MonthIndexConverter"/>
+            <converters:ReceiptTotalBrushConverter x:Key="ReceiptTotalBrushConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

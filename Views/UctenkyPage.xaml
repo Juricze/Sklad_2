@@ -22,8 +22,8 @@
     </Page.Resources>
     <Grid Padding="24" ColumnSpacing="24">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="420"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Master List of Receipts -->
@@ -52,10 +52,12 @@
             <ListView Grid.Row="2"
                       ItemsSource="{x:Bind ViewModel.Receipts, Mode=OneWay}"
                       SelectedItem="{x:Bind ViewModel.SelectedReceipt, Mode=TwoWay}"
-                      SelectionMode="Single">
+                      SelectionMode="Single"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollMode="Auto">
                 <ListView.HeaderTemplate>
                     <DataTemplate>
-                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" MinWidth="500">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
@@ -71,7 +73,7 @@
                 </ListView.HeaderTemplate>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:Receipt">
-                        <Grid Padding="12" ColumnSpacing="12">
+                        <Grid Padding="12" ColumnSpacing="12" MinWidth="500">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="*"/>
@@ -82,10 +84,24 @@
                                 <Run Text="{x:Bind StornoIndicator}"/>
                                 <Run Text="{x:Bind SaleDateFormatted}"/>
                             </TextBlock>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding AmountToPayFormatted, Mode=OneWay}"
-                                       VerticalAlignment="Center"
-                                       Foreground="{Binding AmountToPay, Mode=OneWay, Converter={StaticResource AmountToBrushConverter}}"/>
+                            <!-- Celkem částka + ikona slevy -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" HorizontalAlignment="Left" MinWidth="120">
+                                <!-- Částka Celkem -->
+                                <TextBlock Text="{Binding AmountToPayFormatted, Mode=OneWay}"
+                                           FontWeight="Bold"
+                                           Foreground="{Binding Converter={StaticResource ReceiptTotalBrushConverter}}"                                           
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Ikona slevy (viditelná pouze pokud HasProductDiscounts) -->
+                                <Border Background="#F3E8FF"
+                                        CornerRadius="4"
+                                        Padding="4,2"
+                                        Visibility="{Binding HasProductDiscounts, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="🏷️"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
                             <TextBlock Grid.Column="2" Text="{x:Bind PaymentMethod}" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="{x:Bind SellerName}" VerticalAlignment="Center"/>
                         </Grid>
