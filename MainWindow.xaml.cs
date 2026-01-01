@@ -188,6 +188,36 @@ namespace Sklad_2
             }
         }
 
+        /// <summary>
+        /// Kontroluje, zda měl den nějakou aktivitu (prodeje nebo vratky)
+        /// </summary>
+        private async Task<bool> WasDayActiveAsync(DateTime date)
+        {
+            try
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+
+                // Kontrola prodejů
+                var hasReceipts = await context.Receipts
+                    .AsNoTracking()
+                    .AnyAsync(r => r.SaleDate.Date == date.Date);
+
+                if (hasReceipts) return true;
+
+                // Kontrola vratek
+                var hasReturns = await context.Returns
+                    .AsNoTracking()
+                    .AnyAsync(r => r.ReturnDate.Date == date.Date);
+
+                return hasReturns;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MainWindow: Error checking day activity: {ex.Message}");
+                return false; // V případě chyby předpokládej, že den nebyl aktivní
+            }
+        }
+
         private async void OnFirstActivated(object sender, WindowActivatedEventArgs args)
         {
             // Only run once when window is first activated (not deactivated)
@@ -384,30 +414,140 @@ namespace Sklad_2
 
                     if (!isPreviousDayClosed)
                     {
-                        // BLOKACE: Předchozí den není uzavřen!
-                        var blockDialog = new ContentDialog
+                        // Detekovat, zda předchozí den byl vůbec zahájený (měl aktivitu)
+                        bool wasPreviousDayActive = await WasDayActiveAsync(lastLoginDate.Value);
+
+                        // Loop pro možnost vrácení z potvrzovacího dialogu zpět
+                        bool shouldContinue = true;
+                        while (shouldContinue)
                         {
-                            Title = "⚠️ Nelze zahájit nový den",
-                            Content = $"Nebyla provedena uzavírka pro předchozí den!\n\n" +
-                                     $"Datum předchozího dne: {lastLoginDate.Value:dd.MM.yyyy}\n" +
-                                     $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
-                                     $"POVINNÝ POSTUP:\n" +
-                                     $"1. Nejprve proveďte uzavírku pro den {lastLoginDate.Value:dd.MM.yyyy}\n" +
-                                     $"2. Poté můžete zahájit nový den {currentDate:dd.MM.yyyy}\n\n" +
-                                     $"Aplikace vás nyní přesměruje na stránku Tržby/Uzavírky.",
-                            CloseButtonText = "Rozumím, provést uzavírku",
-                            XamlRoot = this.Content.XamlRoot
-                        };
+                            string errorMessage;
+                            string title;
 
-                        await blockDialog.ShowAsync();
-                        await Task.Delay(300); // Dialog close delay
+                            if (wasPreviousDayActive)
+                            {
+                                // Den BYL zahájený (měl aktivitu) → vyžadovat uzavírku
+                                title = "⚠️ Nelze zahájit nový den";
+                                errorMessage = $"Nebyla provedena uzavírka pro předchozí den!\n\n" +
+                                              $"Datum předchozího dne: {lastLoginDate.Value:dd.MM.yyyy}\n" +
+                                              $"Aktuální datum: {currentDate:dd.MM.yyyy}\n\n" +
+                                              $"POVINNÝ POSTUP:\n" +
+                                              $"1. Nejprve proveďte uzavírku pro den {lastLoginDate.Value:dd.MM.yyyy}\n" +
+                                              $"2. Poté můžete zahájit nový den {currentDate:dd.MM.yyyy}\n\n" +
+                                              $"Aplikace vás nyní přesměruje na stránku Tržby/Uzavírky.";
+                            }
+                            else
+                            {
+                                // Den NEBYL zahájený (žádná aktivita) → pravděpodobně otevřeno bez prodejů
+                                title = "⚠️ Neuzavřený den bez prodejů";
+                                errorMessage = $"Pro den {lastLoginDate.Value:dd.MM.yyyy} nebyla provedena uzavírka.\n\n" +
+                                              $"V tento den nebyly zaznamenány žádné prodeje ani vratky.\n\n" +
+                                              $"Co chcete udělat?\n\n" +
+                                              $"• PROVÉST UZAVÍRKU\n" +
+                                              $"  Den byl otevřený, ale bez prodejů (běžná situace)\n\n" +
+                                              $"• OPRAVIT NASTAVENÍ\n" +
+                                              $"  Den nebyl nikdy zahájen - chyba v datech\n" +
+                                              $"  (používejte pouze pokud víte, že je to chyba!)";
+                            }
 
-                        // Navigovat na Tržby/Uzavírky stránku
-                        NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
-                            .FirstOrDefault(item => item.Tag?.ToString() == "TrzbyUzavirky");
-                        ContentFrame.Content = new Views.TrzbyUzavirkPage();
+                            ContentDialog blockDialog;
 
-                        return; // ZASTAVIT - nejdřív musí uzavřít předchozí den
+                            if (wasPreviousDayActive)
+                            {
+                                // Den MĚL aktivitu → pouze uzavírka (POVINNÉ)
+                                blockDialog = new ContentDialog
+                                {
+                                    Title = title,
+                                    Content = errorMessage,
+                                    PrimaryButtonText = "Rozumím, provést uzavírku",
+                                    CloseButtonText = "Zrušit",
+                                    DefaultButton = ContentDialogButton.Primary,
+                                    XamlRoot = this.Content.XamlRoot
+                                };
+                            }
+                            else
+                            {
+                                // Den NEMĚL aktivitu → nabídnout obě možnosti
+                                blockDialog = new ContentDialog
+                                {
+                                    Title = title,
+                                    Content = errorMessage,
+                                    PrimaryButtonText = "Provést uzavírku",
+                                    SecondaryButtonText = "Opravit nastavení",
+                                    CloseButtonText = "Zrušit",
+                                    DefaultButton = ContentDialogButton.Primary,
+                                    XamlRoot = this.Content.XamlRoot
+                                };
+                            }
+
+                            var result = await blockDialog.ShowAsync();
+
+                            if (result == ContentDialogResult.Secondary && !wasPreviousDayActive)
+                            {
+                                // SECONDARY = Opravit nastavení (resetovat na poslední uzavřený den)
+                                // POTVRZOVACÍ DIALOG - ochrana proti náhodnému kliknutí
+                                var confirmDialog = new ContentDialog
+                                {
+                                    Title = "⚠️ Potvrdit opravu nastavení",
+                                    Content = $"OPRAVDU chcete opravit nastavení?\n\n" +
+                                             $"⚠️ Tato akce SMAŽE záznam o dni {lastLoginDate.Value:dd.MM.yyyy}\n\n" +
+                                             $"Použijte tuto možnost POUZE pokud:\n" +
+                                             $"• Den {lastLoginDate.Value:dd.MM.yyyy} nebyl nikdy otevřený\n" +
+                                             $"• Je to chyba v datech (např. bug v aplikaci)\n\n" +
+                                             $"Pokud jste si NEJSTE jistí, klikněte ZRUŠIT\n" +
+                                             $"a zvolte \"Provést uzavírku\"!",
+                                    PrimaryButtonText = "ANO, SMAZAT DEN",
+                                    CloseButtonText = "Zrušit",
+                                    DefaultButton = ContentDialogButton.Close,
+                                    XamlRoot = this.Content.XamlRoot
+                                };
+
+                                var confirmResult = await confirmDialog.ShowAsync();
+
+                                if (confirmResult == ContentDialogResult.Primary)
+                                {
+                                    // Potvrzeno → resetovat
+                                    var lastClosedDate = await _dailyCloseService.GetLastCloseDateAsync();
+                                    if (lastClosedDate.HasValue)
+                                    {
+                                        _settingsService.CurrentSettings.LastSaleLoginDate = lastClosedDate.Value;
+                                    }
+                                    else
+                                    {
+                                        _settingsService.CurrentSettings.LastSaleLoginDate = null;
+                                    }
+                                    await _settingsService.SaveSettingsAsync();
+                                    await Task.Delay(300);
+
+                                    // Znovu spustit new day check s opravenými daty
+                                    await HandleNewDayCheckAsync();
+                                    return;
+                                }
+                                else
+                                {
+                                    // Zrušil potvrzovací dialog → ZPĚT na hlavní dialog (continue loop)
+                                    await Task.Delay(300); // Dialog close delay
+                                    continue; // ← Znovu zobrazit hlavní dialog
+                                }
+                            }
+                            else if (result == ContentDialogResult.Primary)
+                            {
+                                // PRIMARY = Provést uzavírku → navigovat na Tržby/Uzavírky
+                                await Task.Delay(300); // Dialog close delay
+
+                                NavView.SelectedItem = NavView.MenuItems.Cast<NavigationViewItem>()
+                                    .FirstOrDefault(item => item.Tag?.ToString() == "TrzbyUzavirky");
+                                ContentFrame.Content = new Views.TrzbyUzavirkPage();
+
+                                return; // ZASTAVIT
+                            }
+                            else
+                            {
+                                // CLOSE = Zrušit hlavní dialog → exit aplikace
+                                Application.Current.Exit();
+                                return;
+                            }
+                        }
                     }
                 }
 
@@ -985,30 +1125,43 @@ namespace Sklad_2
                 }
             }
 
-            // IMPORTANT: Update LastSaleLoginDate and LastDayCloseDate BEFORE backup
+            // IMPORTANT: Update settings BEFORE backup (only if time shift was confirmed)
             // so the backup contains the updated timestamps
             try
             {
-                // ALWAYS update LastSaleLoginDate to current date (without time component)
-                _settingsService.CurrentSettings.LastSaleLoginDate = DateTime.Today;
+                bool settingsChanged = false;
+
+                // KRITICKÉ: Update LastSaleLoginDate POUZE při potvrzení time shift!
+                // DŮVOD 1: Pokud se mění vždy, způsobuje deadlock (původní bug)
+                // DŮVOD 2: Pokud se neaktualizuje po time shift, detekce se OPAKUJE každé spuštění (regrese)
+                // ŘEŠENÍ: Update POUZE pokud uživatel EXPLICITNĚ potvrdil obnovení staré zálohy (2× ANO)
+                if (wasTimeShiftConfirmed)
+                {
+                    _settingsService.CurrentSettings.LastSaleLoginDate = DateTime.Today;
+                    settingsChanged = true;
+                    Debug.WriteLine("MainWindow: Updated LastSaleLoginDate after time shift confirmation");
+                }
+                // else - NEZMĚNĚNO při normálním zavření → opravuje původní bug!
 
                 // If user confirmed time shift, sync LastDayCloseDate with database value
-                // to prevent repeated warnings on next startup
-                // Otherwise, keep LastDayCloseDate as-is (updated only when day is actually closed in DailyCloseService)
                 if (wasTimeShiftConfirmed && lastDailyCloseDateFromDb.HasValue)
                 {
                     _settingsService.CurrentSettings.LastDayCloseDate = lastDailyCloseDateFromDb.Value;
+                    settingsChanged = true;
                     Debug.WriteLine($"MainWindow: Synced LastDayCloseDate with DB value: {lastDailyCloseDateFromDb.Value:dd.MM.yyyy}");
                 }
-                // else - keep LastDayCloseDate unchanged (should only be updated in DailyCloseService.CloseDayAsync)
 
-                await _settingsService.SaveSettingsAsync();
-                await Task.Delay(200); // Win10 file flush + settings propagation
-                Debug.WriteLine("MainWindow: Updated LastSaleLoginDate and LastDayCloseDate BEFORE backup");
+                // Only save if settings actually changed
+                if (settingsChanged)
+                {
+                    await _settingsService.SaveSettingsAsync();
+                    await Task.Delay(200); // Win10 file flush
+                    Debug.WriteLine("MainWindow: Updated settings after time shift confirmation BEFORE backup");
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"MainWindow: Failed to update LastSaleLoginDate before backup: {ex.Message}");
+                Debug.WriteLine($"MainWindow: Failed to update settings before backup: {ex.Message}");
             }
 
             // Perform backup in background (will backup updated settings)

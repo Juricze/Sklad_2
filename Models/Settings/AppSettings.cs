@@ -16,7 +16,24 @@ namespace Sklad_2.Models.Settings
         public string BackupPath { get; set; } = null; // Explicitly null - must be set by user
         public string SecondaryBackupPath { get; set; } = null; // Optional secondary backup (e.g., OneDrive)
         public bool AllowManualDiscounts { get; set; }
+
+        /// <summary>
+        /// Datum posledního ZAHÁJENÉHO obchodního dne (kdy uživatel klikl "Ano, zahájit nový den").
+        /// KRITICKÉ: Toto pole se NESMÍ měnit při zavření aplikace!
+        /// Měnit POUZE:
+        /// - MainWindow.OnFirstActivated (po potvrzení zahájení dne)
+        /// - TrzbyUzavirkPage (po uzavření + nabídka nového dne)
+        /// - MainWindow backup (pouze při time shift recovery - po double confirmation)
+        /// </summary>
         public DateTime? LastSaleLoginDate { get; set; }
+
+        /// <summary>
+        /// Datum poslední PROVEDENÉ denní uzavírky.
+        /// KRITICKÉ: Toto pole se NESMÍ měnit ručně!
+        /// Měnit POUZE:
+        /// - DailyCloseService.CloseDayAsync (při úspěšné uzavírce)
+        /// - MainWindow backup (pouze při time shift recovery - sync s DB po double confirmation)
+        /// </summary>
         public DateTime? LastDayCloseDate { get; set; }
 
         // Product categories (dynamically managed)
