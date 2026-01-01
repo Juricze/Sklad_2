@@ -36,6 +36,14 @@ namespace Sklad_2.Services
         Task<(bool Success, string FilePath, string ErrorMessage)> ExportDailyClosesAsync(string period, DateTime referenceDate);
 
         /// <summary>
+        /// Exportuje uzavírky podle konkrétního date range do HTML souboru (NEW UX - týdenní/měsíční/čtvrtletní/půlroční/roční)
+        /// </summary>
+        /// <param name="startDate">Počáteční datum období</param>
+        /// <param name="endDate">Koncové datum období</param>
+        /// <param name="periodName">Název typu období pro filename ("tydenni", "mesicni", "ctvrtletni", "pulrocni", "rocni")</param>
+        Task<(bool Success, string FilePath, string ErrorMessage)> ExportDailyClosesByDateRangeAsync(DateTime startDate, DateTime endDate, string periodName);
+
+        /// <summary>
         /// Vrátí datum poslední uzavírky (nebo null pokud ještě nebyla žádná)
         /// </summary>
         Task<DateTime?> GetLastCloseDateAsync();
@@ -44,5 +52,10 @@ namespace Sklad_2.Services
         /// Vrátí přehled denních tržeb pro aktuální kalendářní měsíc
         /// </summary>
         Task<List<DailySalesSummary>> GetCurrentMonthDailySalesAsync();
+
+        /// <summary>
+        /// Vrátí přehled denních tržeb pro vybraný měsíc a rok
+        /// </summary>
+        Task<List<DailySalesSummary>> GetMonthDailySalesAsync(int year, int month);
     }
 }

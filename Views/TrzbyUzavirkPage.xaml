@@ -87,9 +87,35 @@
                     Padding="20"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel Spacing="15">
-                    <TextBlock Text="{Binding CurrentMonthName, Mode=OneWay, FallbackValue='Přehled za měsíc'}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               FontWeight="SemiBold"/>
+                    <!-- Header s navigačními šipkami -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="◀"
+                                Command="{x:Bind ViewModel.GoToPreviousMonthCommand}"
+                                Width="40"
+                                FontSize="16"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{x:Bind ViewModel.CurrentMonthName, Mode=OneWay}"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   MinWidth="200"
+                                   TextAlignment="Center"/>
+
+                        <Button Grid.Column="2"
+                                Content="▶"
+                                Command="{x:Bind ViewModel.GoToNextMonthCommand}"
+                                Width="40"
+                                FontSize="16"/>
+                    </Grid>
 
                     <!-- Hlavička tabulky -->
                     <Grid Padding="8,4" Background="#F0F0F0" CornerRadius="4">
@@ -157,12 +183,38 @@
                                Style="{StaticResource SubtitleTextBlockStyle}"
                                FontWeight="SemiBold"/>
 
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button Content="Měsíční" Click="ExportMonth_Click"/>
-                        <Button Content="Čtvrtletní" Click="ExportQuarter_Click"/>
-                        <Button Content="Půlroční" Click="ExportHalfYear_Click"/>
-                        <Button Content="Roční" Click="ExportYear_Click"/>
-                    </StackPanel>
+                    <!-- Typ exportu -->
+                    <ComboBox Header="Typ exportu"
+                              ItemsSource="{x:Bind ViewModel.ExportTypeNames, Mode=OneWay}"
+                              SelectedIndex="{x:Bind ViewModel.SelectedExportTypeIndex, Mode=TwoWay}"
+                              Width="200"/>
+
+                    <!-- Rok -->
+                    <ComboBox Header="Rok"
+                              ItemsSource="{x:Bind ViewModel.ExportAvailableYears, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.ExportYear, Mode=TwoWay}"
+                              Width="120"/>
+
+                    <!-- Dynamický ComboBox pro období (týden/měsíc/Q/H) - skrytý pro Yearly -->
+                    <ComboBox Header="Období"
+                              ItemsSource="{x:Bind ViewModel.AvailableExportPeriods, Mode=OneWay}"
+                              SelectedIndex="{x:Bind ViewModel.SelectedExportPeriodIndex, Mode=TwoWay}"
+                              Visibility="{x:Bind ViewModel.ShowPeriodSelector, Mode=OneWay}"
+                              Width="250"/>
+
+                    <!-- Náhled vybraného období -->
+                    <TextBlock Text="{x:Bind ViewModel.ExportPeriodPreview, Mode=OneWay}"
+                               FontSize="13"
+                               Opacity="0.8"
+                               FontStyle="Italic"/>
+
+                    <!-- Tlačítko Export -->
+                    <Button Content="📤 Exportovat HTML"
+                            Click="ExportButton_Click"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Left"
+                            Padding="16,10"
+                            FontSize="14"/>
                 </StackPanel>
             </Border>
 

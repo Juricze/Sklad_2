@@ -335,6 +335,83 @@ namespace Sklad_2.Services
             }
         }
 
+        /// <summary>
+        /// Exportuje uzavírky podle konkrétního date range (NEW UX - týdenní/měsíční/čtvrtletní/půlroční/roční)
+        /// </summary>
+        public async Task<(bool Success, string FilePath, string ErrorMessage)> ExportDailyClosesByDateRangeAsync(DateTime startDate, DateTime endDate, string periodName)
+        {
+            try
+            {
+                // Načíst uzavírky pro daný date range
+                var closes = await GetDailyClosesAsync(startDate, endDate);
+
+                if (closes.Count == 0)
+                {
+                    return (false, string.Empty, $"Žádné uzavírky pro export v období {startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy}");
+                }
+
+                // Načíst nastavení pro export cestu
+                var settings = _settingsService.CurrentSettings;
+                string exportPath;
+
+                if (!string.IsNullOrWhiteSpace(settings.BackupPath) && Directory.Exists(settings.BackupPath))
+                {
+                    exportPath = settings.BackupPath;
+                }
+                else
+                {
+                    var oneDrivePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    oneDrivePath = Path.Combine(oneDrivePath, "OneDrive", "Sklad_2_Exports");
+
+                    if (!Directory.Exists(oneDrivePath))
+                    {
+                        var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        exportPath = Path.Combine(documentsPath, "Sklad_2_Exports");
+                    }
+                    else
+                    {
+                        exportPath = oneDrivePath;
+                    }
+                }
+
+                Directory.CreateDirectory(exportPath);
+
+                // Vytvořit název souboru s periodName a date range
+                var fileName = $"Uzavirky_{periodName}_{startDate:yyyyMMdd}-{endDate:yyyyMMdd}.html";
+                var filePath = Path.Combine(exportPath, fileName);
+
+                // Sestavit HTML obsah exportu
+                var html = await GenerateClosesHtmlAsync(closes, startDate, endDate, periodName,
+                    settings.ShopName, settings.ShopAddress, settings.CompanyId, settings.VatId, settings.IsVatPayer);
+
+                // Zapsat do souboru s UTF-8 BOM
+                await File.WriteAllTextAsync(filePath, html, new UTF8Encoding(true));
+
+                Debug.WriteLine($"DailyCloseService: Exported {closes.Count} closes to {filePath} ({startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy})");
+
+                // Otevřít v prohlížeči
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = filePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DailyCloseService: Failed to open HTML in browser: {ex.Message}");
+                }
+
+                return (true, filePath, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DailyCloseService: Error exporting daily closes by date range: {ex.Message}");
+                return (false, string.Empty, $"Chyba při exportu: {ex.Message}");
+            }
+        }
+
         public async Task<DateTime?> GetLastCloseDateAsync()
         {
             try
@@ -357,13 +434,18 @@ namespace Sklad_2.Services
 
         public async Task<List<DailySalesSummary>> GetCurrentMonthDailySalesAsync()
         {
+            var today = DateTime.Today;
+            return await GetMonthDailySalesAsync(today.Year, today.Month);
+        }
+
+        public async Task<List<DailySalesSummary>> GetMonthDailySalesAsync(int year, int month)
+        {
             try
             {
                 using var context = await _contextFactory.CreateDbContextAsync();
 
-                // Aktuální kalendářní měsíc
-                var today = DateTime.Today;
-                var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+                // Vybraný kalendářní měsíc
+                var firstDayOfMonth = new DateTime(year, month, 1);
                 var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
 
                 // Načíst pouze UZAVŘENÉ dny z DailyCloses tabulky
@@ -415,12 +497,12 @@ namespace Sklad_2.Services
                     };
                 }).ToList();
 
-                Debug.WriteLine($"DailyCloseService: Retrieved {summaries.Count} closed days for {today:MMMM yyyy}");
+                Debug.WriteLine($"DailyCloseService: Retrieved {summaries.Count} closed days for {month}/{year}");
                 return summaries;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"DailyCloseService: Error getting current month daily sales: {ex.Message}");
+                Debug.WriteLine($"DailyCloseService: Error getting month daily sales ({month}/{year}): {ex.Message}");
                 return new List<DailySalesSummary>();
             }
         }

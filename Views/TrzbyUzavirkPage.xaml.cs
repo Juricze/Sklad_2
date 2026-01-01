@@ -47,6 +47,12 @@ namespace Sklad_2.Views
         {
             // Data binding automatically updates UI when ViewModel properties change
             await ViewModel.LoadTodaySalesAsync();
+
+            // Načíst data pro aktuálně vybraný rok/měsíc
+            // (při prvním spuštění to bude Today.Year a Today.Month díky defaultu ve ViewModel)
+            await ViewModel.LoadDailySalesSummariesAsync(
+                ViewModel.SelectedYear,
+                ViewModel.SelectedMonth);
         }
 
         private async void CloseDayButton_Click(object sender, RoutedEventArgs e)
@@ -171,31 +177,14 @@ namespace Sklad_2.Views
             }
         }
 
-        private async void ExportMonth_Click(object sender, RoutedEventArgs e)
-        {
-            await ExportAsync("month");
-        }
-
-        private async void ExportQuarter_Click(object sender, RoutedEventArgs e)
-        {
-            await ExportAsync("quarter");
-        }
-
-        private async void ExportHalfYear_Click(object sender, RoutedEventArgs e)
-        {
-            await ExportAsync("halfyear");
-        }
-
-        private async void ExportYear_Click(object sender, RoutedEventArgs e)
-        {
-            await ExportAsync("year");
-        }
-
-        private async System.Threading.Tasks.Task ExportAsync(string period)
+        /// <summary>
+        /// Jednotný export handler (NEW UX - Týdenní/Měsíční/Čtvrtletní/Půlroční/Roční)
+        /// </summary>
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var (success, filePath, errorMessage) = await ViewModel.ExportClosesAsync(period);
+                var (success, filePath, errorMessage) = await ViewModel.ExportClosesAsync();
 
                 if (success)
                 {

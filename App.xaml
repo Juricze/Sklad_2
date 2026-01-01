@@ -35,6 +35,7 @@
             <converters:EanToThumbnailConverter x:Key="EanToThumbnailConverter"/>
             <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
             <converters:BooleanToInfoBarSeverityConverter x:Key="BooleanToInfoBarSeverityConverter"/>
+            <converters:MonthIndexConverter x:Key="MonthIndexConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
